@@ -1,0 +1,530 @@
+{
+  "members": [
+    {
+      "name": "Talia Rim",
+      "year": 2025,
+      "position": "Product Manager",
+      "role": "President",
+      "major": "Business Administration",
+      "email": "trim@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/talia-rim"
+    },
+    {
+      "name": "Cameron Saidock",
+      "year": 2025,
+      "position": "Engineering",
+      "role": "President",
+      "major": "Computer Science & Business Administration",
+      "email": "saidock@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/cameronsaidock/",
+      "website": "https://saidock.com/",
+      "headshot": "https://media.licdn.com/dms/image/D5603AQFJXIcuV0RAEQ/profile-displayphoto-shrink_800_800/0/1672316412926?e=1726099200&v=beta&t=Saazju2iS8SHV45_1np6X-HBMcnDwImRgmd1-DVmA4g"
+    },
+    {
+      "name": "Melody Chou",
+      "year": 2025,
+      "position": "Marketing",
+      "role": "Vice President of Marketing",
+      "major": "Cognitive Science",
+      "email": "mschou@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/melody-chou9"
+    },
+    {
+      "name": "Evan Rodrigues",
+      "year": 2025,
+      "position": "Design",
+      "role": "Vice President of Design",
+      "major": "Journalism",
+      "email": "evanrodr@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/evan-estevez/"
+    },
+    {
+      "name": "Dan Khomusi",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former President",
+      "major": "Business Administration",
+      "email": "khomusi@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/dkhomusi"
+    },
+    {
+      "name": "Priyansh Bhatter",
+      "year": 2026,
+      "position": "Engineering",
+      "role": "Vice President of Engineering",
+      "major": "Computer Science and Business Administration",
+      "email": "pbhatter@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/priyansh-bhatter-08838b215"
+    },
+    {
+      "name": "Henry Houle",
+      "year": 2025,
+      "position": "Engineering",
+      "role": "Former Vice President of BUILD",
+      "major": "Computer Science and Business Administration",
+      "email": "hhoule@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/henry-houle-0869b0201"
+    },
+    {
+      "name": "Sadaf Sobhani",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Former Vice President of Recruitment",
+      "major": "Business Administration",
+      "email": "sesobhan@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/sadaf-sobhani"
+    },
+    {
+      "name": "Jayanti Jha",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Former Vice President of Recruitment",
+      "major": "Computer Science",
+      "email": "jjha@usc.edu",
+      "linkedin": ""
+    },
+    {
+      "name": "Sophia Almendral",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Member",
+      "major": "Design",
+      "email": "salmendr@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/sophia-almendral"
+    },
+    {
+      "name": "Yashvi Jaju",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former President",
+      "major": "Computer Science and Business Administration",
+      "email": "yjaju@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/yashvi-jaju",
+      "website": "https://yashvijaju.vercel.app/"
+    },
+    {
+      "name": "Andrew Kim",
+      "year": 2025,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "andrewmk@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/andrewmkimm"
+    },
+    {
+      "name": "Parker Shurtz",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Head of DEMO",
+      "major": "Business Administration",
+      "linkedin": "https://www.linkedin.com/in/parker-shurtz/"
+    },
+    {
+      "name": "Todd Gavin",
+      "year": 2023,
+      "position": "Alumni",
+      "role": "Former Head of BUILD",
+      "major": "Computational Neuroscience",
+      "linkedin": "https://www.linkedin.com/in/toddgavin/"
+    },
+    {
+      "name": "Robert Rallo",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Member",
+      "major": "Business Administration",
+      "linkedin": "https://www.linkedin.com/in/rrallo/"
+    },
+    {
+      "name": "Andy Johnson",
+      "year": 2023,
+      "position": "Alumni",
+      "role": "Former Head of Design",
+      "major": "Design and Applied Arts",
+      "linkedin": "https://www.linkedin.com/in/andy-johnson-b896491b7/"
+    },
+    {
+      "name": "John Michaels",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Vice President of BUILD",
+      "major": "Computer Science & Business Administration",
+      "linkedin": "https://www.linkedin.com/in/michaelsxjohn/"
+    },
+    {
+      "name": "Parthsarthi Suri",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former President",
+      "major": "Business Administration",
+      "linkedin": "https://www.linkedin.com/in/parthsarthisuri/"
+    },
+    {
+      "name": "Parth Juthani",
+      "year": 2025,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Business Administration",
+      "linkedin": "https://www.linkedin.com/in/parthjuthani/"
+    },
+    {
+      "name": "Ishan Chhabra",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former President",
+      "major": "Business Administration",
+      "linkedin": "https://www.linkedin.com/in/ishan-chhabra3/"
+    },
+    {
+      "name": "Sumi Kolli",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Vice President of Engineering",
+      "major": "Computer Science & Business Administration",
+      "linkedin": "https://www.linkedin.com/in/sumi-kolli-1823a8156/"
+    },
+    {
+      "name": "Chloe Nicole Cruz",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Head of DEMO",
+      "major": "Business Administration",
+      "email": "cgcruz@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/chloe-nicole-cruz"
+    },
+    {
+      "name": "Anjo Cajigal",
+      "year": 2026,
+      "position": "Finance",
+      "role": "Vice President of Finance",
+      "major": "Business Administration",
+      "email": "cajigal@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/anjo-cajigal"
+    },
+    {
+      "name": "Brendon Zimmer",
+      "year": 2025,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "bzimmer@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/brendonzimmer",
+      "website": "https://brendon.app/"
+    },
+    {
+      "name": "Daniel Gao",
+      "year": 2026,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science and Business Administration",
+      "email": "dygao@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/danielgao20"
+    },
+    {
+      "name": "Ethan Salmeron",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Head of BUILD",
+      "major": "Business Administration",
+      "email": "Ethansal@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ethansal"
+    },
+    {
+      "name": "Dylan Lewis",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "dylanlew@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/dylanmichaellewis"
+    },
+    {
+      "name": "Daniel Yang",
+      "year": 2027,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Artificial Intelligence for Business",
+      "email": "dyang990@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/danielyangdev"
+    },
+    {
+      "name": "Corey Ono",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "ckono@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/coreyono"
+    },
+    {
+      "name": "Shehroz Khan",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Head of Community",
+      "major": "Business Administration",
+      "email": "mskhan@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/mskhan000"
+    },
+    {
+      "name": "Marshall McInerney",
+      "year": 2025,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "International Relations",
+      "email": "Mmcinern@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/marshall-mcinerney-4a8480262"
+    },
+    {
+      "name": "Cody Chen",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Former Head of IGNITE",
+      "major": "Business Administration",
+      "email": "codychen@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/codyachen/"
+    },
+    {
+      "name": "Sam Habibi",
+      "year": 2024,
+      "position": "Alumni",
+      "role": "Former Head of BUILD",
+      "major": "Public Policy",
+      "email": "Samhabib@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/sam-habibi-4849b7127"
+    },
+    {
+      "name": "Altamush Merchant",
+      "year": 2027,
+      "position": "Product Manager",
+      "role": "Vice President of Product Management",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "altamush@usc.edu",
+      "linkedin": "https://ae.linkedin.com/in/altamushmerchant"
+    },
+    {
+      "name": "Darren Tsang",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "dtsang@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/dtsang527"
+    },
+    {
+      "name": "Ally Wo",
+      "year": 2025,
+      "position": "Design",
+      "role": "Member",
+      "major": "Business Administration and Cinema",
+      "email": "",
+      "linkedin": "https://www.linkedin.com/in/allysonwo"
+    },
+    {
+      "name": "Aaron Chung",
+      "year": 2027,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Accounting",
+      "email": "anchung@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/aaron-chung-4623b3282"
+    },
+    {
+      "name": "Allison Ha",
+      "year": 2025,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Communication",
+      "email": "haalliso@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/allison-ha-5501b9189"
+    },
+    {
+      "name": "Arya Tandon",
+      "year": 2025,
+      "position": "Design",
+      "role": "Member",
+      "major": "Cognitive Science",
+      "email": "aryatand@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/arya-tandon"
+    },
+    {
+      "name": "Bob Chen",
+      "year": 2026,
+      "position": "Finance",
+      "role": "Vice President of Finance",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "bobchen@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/bchen26"
+    },
+    {
+      "name": "Eugene Park",
+      "year": 2027,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "epark718@usc.edu",
+      "linkedin": "https://kr.linkedin.com/in/eugene-park-22b571276"
+    },
+    {
+      "name": "Felix Jones",
+      "year": 2027,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Accounting",
+      "email": "fsjones@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/felix-jones-1k"
+    },
+    {
+      "name": "Haadi Razzak",
+      "year": 2025,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "hrazzak@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/haadirazzak/"
+    },
+    {
+      "name": "Jennifer Yoon",
+      "year": 2025,
+      "position": "Design",
+      "role": "Member",
+      "major": "Cognitive Science",
+      "email": "jmyoon@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/jennifer-yoon-649669200"
+    },
+    {
+      "name": "Liesl Anggijono",
+      "year": 2026,
+      "position": "Design",
+      "role": "Vice President of BUILD",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "anggijon@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/liesl-anggijono-8113a0189"
+    },
+    {
+      "name": "Maryann Xu",
+      "year": 2026,
+      "position": "Engineering",
+      "role": "Vice President of Recruitment",
+      "major": "Computer Science",
+      "email": "mxxu@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/maryannxu"
+    },
+    {
+      "name": "Michelle Arellanes",
+      "year": 2027,
+      "position": "Product Manager",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "mgarella@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/michellearellanes"
+    },
+    {
+      "name": "Mila Sirimongkolvit",
+      "year": 2026,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Communication",
+      "email": "isirimon@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/mila-sirimongkolvit-08a953271"
+    },
+    {
+      "name": "Olivia Jin",
+      "year": 2027,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "ojin@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ojin1"
+    },
+    {
+      "name": "Riley Milligan",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Member",
+      "major": "Electrical Engineering",
+      "email": "rmilliga@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/rileymilligan"
+    },
+    {
+      "name": "Ryan Chan",
+      "year": 2026,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "rchan094@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ryan-j-chan"
+    },
+    {
+      "name": "Sean Jeong",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Head of Community",
+      "major": "Computer Science and Business Administration",
+      "email": "sljeong@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/seanjeong"
+    },
+    {
+      "name": "Stephanie Yu",
+      "year": 2025,
+      "position": "Design",
+      "role": "Member",
+      "major": "Computer Science and Business Administration",
+      "email": "sayu@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/s-a-yu"
+    },
+    {
+      "name": "Suvya Nagpal",
+      "year": 2025,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Business Analytics",
+      "email": "suvyanag@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/suvyanagpal"
+    },
+    {
+      "name": "Takuto Kakeda",
+      "year": 2026,
+      "position": "Product Manager",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "kakeda@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/takutok"
+    },
+    {
+      "name": "Tiffany Zhang",
+      "year": 2025,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "txzhang@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/tiffanyxzhang/"
+    },
+    {
+      "name": "Yuna Jang",
+      "year": 2026,
+      "position": "Design",
+      "role": "Member",
+      "major": "Design",
+      "email": "yunajang@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/yunajang"
+    },
+    {
+      "name": "Zafina Virani",
+      "year": 2026,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "International Relations",
+      "email": "zvirani@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/zafinavirani1111"
+    },
+    {
+      "name": "Zubin Hydrie",
+      "year": 2027,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "hydrie@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/zubinhydrie"
+    }
+  ]
+}

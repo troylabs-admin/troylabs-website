@@ -34,7 +34,7 @@ function Header() {
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
     >
-      <div className="flex flex-row items-center justify-center">
+      <div className="flex flex-row items-center justify-start w-32">
         <AnimatedLogo scrolled={scrolled} scale={0.175} />
       </div>
 
@@ -53,7 +53,7 @@ function Header() {
       </nav>
 
       <motion.button
-        className={`hidden md:block px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
+        className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
           scrolled
             ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
             : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"

@@ -159,7 +159,7 @@ const BuildOverviewSection = () => {
               to USC's premier startups.
             </h1>
             <motion.button
-              className="bg-[#191919] text-white px-8 py-3 rounded-full flex items-center"
+              className="bg-[#191919] text-white mt-12 px-8 py-3 rounded-full flex items-center"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

@@ -6,6 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [applicationsOpen, setApplicationsOpen] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,8 +60,9 @@ function Header() {
         }`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        onClick={() => {applicationsOpen ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank") : window.open("https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw", "_blank")}}
       >
-        Apply Now
+         {applicationsOpen ? "Apply Now" : "Join Ignite"}
       </motion.button>
 
       <motion.button
@@ -103,9 +105,9 @@ function Header() {
                   : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
               } transition-colors duration-200`}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {applicationsOpen ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank") : window.open("https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw", "_blank")}}
             >
-              Apply Now
+              {applicationsOpen ? "Apply Now" : "Join Ignite"}
             </motion.button>
           </motion.div>
         )}

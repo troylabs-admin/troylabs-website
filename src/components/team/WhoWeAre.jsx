@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -132,6 +132,8 @@ const AnimatedImage = () => {
 };
 
 const WhoWeAre = () => {
+  const [applicationsOpen, setApplicationsOpen] = useState(true);
+
   const stats = [
     {
       icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
@@ -167,13 +169,27 @@ const WhoWeAre = () => {
               entrepreneurship, we bring unique perspectives and skills to
               support and empower fellow student founders at USC.
             </p>
-            <motion.button
-              className="bg-[#191919] text-white px-8 py-3 rounded-full flex items-center"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Apply Now <FaArrowRight className="ml-2" />
-            </motion.button>
+            {applicationsOpen ? (
+              <motion.button
+                className="bg-[#191919] text-white px-8 py-3 rounded-full flex items-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() =>
+                  window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+                }
+              >
+                Apply Now <FaArrowRight className="ml-2" />
+              </motion.button>
+            ) : (
+              <motion.button
+                className="text-black cursor-default py-3 rounded-full flex items-center"
+                // onClick={() =>
+                //   window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+                // }
+              >
+                Applications are closed and will re-open in August
+              </motion.button>
+            )}
             <div className="mt-16 w-full flex flex-row justify-start gap-12 ml-3 lg:ml-0 lg:gap-32">
               {stats.map((stat, index) => (
                 <AnimatedStat

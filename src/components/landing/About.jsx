@@ -78,7 +78,7 @@ function About() {
         <Initiatives />
       </div>
 
-      <section className="w-full flex flex-col items-center justify-center p-4 mt-8 sm:mt-16">
+      <section className="w-full flex flex-col items-center justify-center p-4 mt-36 sm:mt-16">
         <h3 className="text-xl text-gray-400 font-medium mb-4 uppercase tracking-wider">
           Who We Are
         </h3>

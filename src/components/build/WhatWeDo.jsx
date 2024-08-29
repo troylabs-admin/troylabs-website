@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 
 const TeamData = {
-  "Product Management": {
+  "Product": {
     icon: FaCogs,
     color: "#4A90E2",
     description:
@@ -1376,7 +1376,7 @@ const VentureCapitalAnimation = () => {
 
 const DivisionCard = ({ title, data }) => {
   const AnimationComponent = {
-    "Product Management": ProductManagementAnimation,
+    "Product": ProductManagementAnimation,
     Engineering: EngineeringAnimation,
     Design: DesignAnimation,
     Marketing: MarketingAnimation,

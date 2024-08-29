@@ -10,7 +10,7 @@ const teamColors = {
   DEMO: { bg: "#27AE60", text: "#FFFFFF" },      // Soft green
   Finance: { bg: "#16A085", text: "#FFFFFF" },   // Soft teal
   Design: { bg: "#F39C12", text: "#FFFFFF" },    // Soft orange
-  "Product Manager": { bg: "#9B59B6", text: "#FFFFFF" }, // Soft violet
+  Product: { bg: "#9B59B6", text: "#FFFFFF" }, // Soft violet
   Alumni: { bg: "#F1C40F", text: "#FFFFFF" }     // Soft yellow
 };
 

@@ -162,6 +162,7 @@ const BuildOverviewSection = () => {
               className="bg-[#191919] text-white mt-12 px-8 py-3 rounded-full flex items-center"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSd7iGRgQ677T5226chox1XYBkDEW3Hneu_NLXngka9a5FEywg/viewform", "_blank")}
             >
               Apply Now <FaArrowRight className="ml-2" />
             </motion.button>

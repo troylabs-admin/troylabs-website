@@ -25,16 +25,18 @@ function Header() {
     BUILD: "/build",
     Team: "/team",
     Partners: "/partners",
-  }
+  };
 
   return (
     <motion.header
-      className={`w-full h-20 px-4 sm:px-8 backdrop-blur-sm flex flex-row items-center justify-between fixed top-0 z-[999] ${isOpen ? "bg-black bg-opacity-80" : "bg-transparent"}`}
+      className={`w-full h-20 px-4 sm:px-8 backdrop-blur-sm flex flex-row items-center justify-between fixed top-0 z-[999] ${
+        isOpen ? "bg-black bg-opacity-80" : "bg-transparent"
+      }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
     >
-      <div className="flex flex-row items-center justify-start w-32">
+      <div className="flex flex-row items-center justify-start w-64">
         <AnimatedLogo scrolled={scrolled} scale={0.175} />
       </div>
 
@@ -44,7 +46,9 @@ function Header() {
             key={item}
             href={navItems[item]}
             className={`text-sm font-medium transition-colors duration-200 ${
-              scrolled ? "text-[#F19E18] hover:text-[#E62314]" : "text-white hover:text-[#F19E18]"
+              scrolled
+                ? "text-[#F19E18] hover:text-[#E62314]"
+                : "text-white hover:text-[#F19E18]"
             }`}
           >
             {item}
@@ -52,18 +56,46 @@ function Header() {
         ))}
       </nav>
 
-      <motion.button
-        className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
-          scrolled
-            ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
-            : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
-        }`}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => {applicationsOpen ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank") : window.open("https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw", "_blank")}}
-      >
-         {applicationsOpen ? "Apply Now" : "Join Ignite"}
-      </motion.button>
+      <div className="flex flex-row items-center w-64">
+        <motion.button
+          className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-bold ${
+            scrolled
+              ? "text-[#F19E18]"
+              : " text-white"
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            applicationsOpen
+              ? window.open("https://docs.google.com/forms/d/e/1FAIpQLSd7iGRgQ677T5226chox1XYBkDEW3Hneu_NLXngka9a5FEywg/viewform", "_blank")
+              : window.open(
+                  "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                  "_blank"
+                );
+          }}
+        >
+          {applicationsOpen ? "Apply to BUILD" : "Join Ignite"}
+        </motion.button>
+        <motion.button
+          className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
+            scrolled
+              ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
+              : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            applicationsOpen
+              ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+              : window.open(
+                  "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                  "_blank"
+                );
+          }}
+        >
+          {applicationsOpen ? "Apply Now" : "Join Ignite"}
+        </motion.button>
+      </div>
 
       <motion.button
         className="md:hidden text-2xl"
@@ -91,7 +123,9 @@ function Header() {
                 key={item}
                 href={`${item === "Home" ? "/" : item.toLowerCase()}`}
                 className={`block px-4 py-2 ${
-                  scrolled ? "text-[#F19E18] hover:text-[#E62314]" : "text-white hover:text-[#F19E18]"
+                  scrolled
+                    ? "text-[#F19E18] hover:text-[#E62314]"
+                    : "text-white hover:text-[#F19E18]"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -105,7 +139,17 @@ function Header() {
                   : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
               } transition-colors duration-200`}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {applicationsOpen ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank") : window.open("https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw", "_blank")}}
+              onClick={() => {
+                applicationsOpen
+                  ? window.open(
+                      "https://form.typeform.com/to/Ren0cfWD",
+                      "_blank"
+                    )
+                  : window.open(
+                      "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                      "_blank"
+                    );
+              }}
             >
               {applicationsOpen ? "Apply Now" : "Join Ignite"}
             </motion.button>

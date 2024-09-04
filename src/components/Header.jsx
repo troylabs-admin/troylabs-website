@@ -142,6 +142,27 @@ function Header() {
               onClick={() => {
                 applicationsOpen
                   ? window.open(
+                      "https://docs.google.com/forms/d/e/1FAIpQLSd7iGRgQ677T5226chox1XYBkDEW3Hneu_NLXngka9a5FEywg/viewform",
+                      "_blank"
+                    )
+                  : window.open(
+                      "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                      "_blank"
+                    );
+              }}
+            >
+              {applicationsOpen ? "Apply to BUILD" : "Join Ignite"}
+            </motion.button>
+            <motion.button
+              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${
+                scrolled
+                  ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
+                  : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
+              } transition-colors duration-200`}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                applicationsOpen
+                  ? window.open(
                       "https://form.typeform.com/to/Ren0cfWD",
                       "_blank"
                     )

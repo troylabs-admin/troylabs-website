@@ -4,10 +4,28 @@
       "name": "Talia Rim",
       "year": 2025,
       "position": "Product",
-      "role": "President",
+      "role": "Former President",
       "major": "Business Administration",
       "email": "trim@usc.edu",
       "linkedin": "https://www.linkedin.com/in/talia-rim"
+    },
+    {
+      "name": "Maryann Xu",
+      "year": 2026,
+      "position": "Engineering",
+      "role": "President",
+      "major": "Computer Science",
+      "email": "mxxu@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/maryannxu"
+    },
+    {
+      "name": "Darren Tsang",
+      "year": 2026,
+      "position": "Product",
+      "role": "President",
+      "major": "Business Administration",
+      "email": "dtsang@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/dtsang527"
     },
     {
       "name": "Cameron Saidock",
@@ -302,15 +320,6 @@
       "linkedin": "https://ae.linkedin.com/in/altamushmerchant"
     },
     {
-      "name": "Darren Tsang",
-      "year": 2026,
-      "position": "Product",
-      "role": "Director of Recruitment",
-      "major": "Business Administration",
-      "email": "dtsang@usc.edu",
-      "linkedin": "https://www.linkedin.com/in/dtsang527"
-    },
-    {
       "name": "Ally Wo",
       "year": 2025,
       "position": "Design",
@@ -408,15 +417,6 @@
       "major": "Arts, Technology, and the Business of Innovation",
       "email": "anggijon@usc.edu",
       "linkedin": "https://www.linkedin.com/in/liesl-anggijono-8113a0189"
-    },
-    {
-      "name": "Maryann Xu",
-      "year": 2026,
-      "position": "Engineering",
-      "role": "Director of IGNITE",
-      "major": "Computer Science",
-      "email": "mxxu@usc.edu",
-      "linkedin": "https://www.linkedin.com/in/maryannxu"
     },
     {
       "name": "Michelle Arellanes",

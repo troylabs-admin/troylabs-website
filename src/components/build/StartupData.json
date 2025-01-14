@@ -1,187 +1,221 @@
 {
-    "startups": [
-      {
-        "name": "ChewCrew",
-        "website": "https://www.chewcrew.co/",
-        "cohort": "F21",
-        "tags": ["Restaurant Subscriptions"],
-        "category": "Commerce"
-      },
-      {
-        "name": "Tuun",
-        "website": "",
-        "cohort": "F21",
-        "tags": ["Content", "Creators", "Fans", "Support Causes"],
-        "category": "Social"
-      },
-      {
-        "name": "RightPrice",
-        "website": "",
-        "cohort": "F21",
-        "tags": ["Consumer Data", "Pricing"],
-        "category": "B2B"
-      },
-      {
-        "name": "Rolli",
-        "website": "https://rolliapp.com/",
-        "cohort": "F21",
-        "tags": ["AI", "Newsgathering", "Journalists", "Collaboration"],
-        "category": "Media"
-      },
-      {
-        "name": "NovaXS Biotech",
-        "website": "https://www.novaxs.co/",
-        "cohort": "F21",
-        "tags": ["Biotech", "Needle-Free Injector", "Smart Tracking"],
-        "category": "Healthcare"
-      },
-      {
-        "name": "Carbonlink",
-        "website": "https://www.carbonlink.io/",
-        "cohort": "S22",
-        "tags": ["Decarbonization", "Carbon Credits", "Climate Portfolio"],
-        "category": "Sustainability"
-      },
-      {
-        "name": "Stellace",
-        "website": "https://stellace.com/",
-        "cohort": "S22",
-        "tags": ["Sleep Aid", "Herbs", "Minerals", "Vegan"],
-        "category": "Health & Wellness"
-      },
-      {
-        "name": "Rondivoo",
-        "website": "",
-        "cohort": "S22",
-        "tags": ["Social Platform", "Event Promotion", "Event Discovery"],
-        "category": "Social"
-      },
-      {
-        "name": "Pickle",
-        "website": "https://www.trypickle.co/",
-        "cohort": "F22",
-        "tags": ["Analytics", "Creators", "Pitching", "Review"],
-        "category": "B2B"
-      },
-      {
-        "name": "Kenko",
-        "website": "https://www.kenkopt.com/",
-        "cohort": "F22",
-        "tags": ["Physical Therapy", "Patient Outcomes", "Exercise Platform"],
-        "category": "Healthcare"
-      },
-      {
-        "name": "Unithrifts",
-        "website": "https://www.unithrifts.com/",
-        "cohort": "F22",
-        "tags": ["Sustainable", "University Platform", "Secondhand"],
-        "category": "Commerce"
-      },
-      {
-        "name": "FlexTogether",
-        "website": "https://www.flextogether.com/",
-        "cohort": "S23",
-        "tags": ["Healthcare", "Pulmonary Rehab", "Remote Exercise"],
-        "category": "Healthcare"
-      },
-      {
-        "name": "Keepsake",
-        "website": "https://hellokeepsake.com/",
-        "cohort": "S23",
-        "tags": ["Estate Planning", "Client Portal"],
-        "category": "B2B"
-      },
-      {
-        "name": "Scraps",
-        "website": "https://marketplace.tunebat.com/",
-        "cohort": "S23",
-        "tags": ["Music", "Marketplace"],
-        "category": "Commerce"
-      },
-      {
-        "name": "4085 Productions",
-        "website": "https://www.4085productions.com/",
-        "cohort": "S23",
-        "tags": ["Media", "Entertainment", "Narratives"],
-        "category": "Media"
-      },
-      {
-        "name": "Hngr",
-        "website": "https://hngrapp.xyz/",
-        "cohort": "F23",
-        "tags": ["Playlists", "Restaurants"],
-        "category": "Tech"
-      },
-      {
-        "name": "Southside",
-        "website": "https://www.drinksouthsides.com/",
-        "cohort": "F23",
-        "tags": ["Beverage", "Gin Cocktail"],
-        "category": "Food & Beverage"
-      },
-      {
-        "name": "UpDonor",
-        "website": "https://updonor.org/",
-        "cohort": "F23",
-        "tags": ["Nonprofit", "Management Platform"],
-        "category": "B2B"
-      },
-      {
-        "name": "Prometheus Data",
-        "website": "https://www.prometheusdata.io/",
-        "cohort": "F23",
-        "tags": ["Cross-Border", "Risk Management"],
-        "category": "B2B"
-      },
-      {
-        "name": "Spotlight Media",
-        "website": "https://tryspotlight.co/",
-        "cohort": "F23",
-        "tags": ["Media", "Marketing", "TikTok Shop"],
-        "category": "Media"
-      },
-      {
-        "name": "Revsend",
-        "website": "https://revsend.com/",
-        "cohort": "S24",
-        "tags": ["Business Gifting", "Sales Outreach"],
-        "category": "B2B"
-      },
-      {
-        "name": "Hatchet",
-        "website": "https://www.linkedin.com/company/tryhatchet/",
-        "cohort": "S24",
-        "tags": ["Firefighter Coordination", "Tech"],
-        "category": "Tech"
-      },
-      {
-        "name": "Anacapa",
-        "website": "https://www.anacapagems.com/",
-        "cohort": "S24",
-        "tags": ["E-commerce", "Gem-Faceting"],
-        "category": "Commerce"
-      },
-      {
-        "name": "BiotechBeauty",
-        "website": "https://www.biotechbeautyus.com/",
-        "cohort": "S24",
-        "tags": ["Beauty", "Biotechnology", "Makeup"],
-        "category": "Health & Wellness"
-      },
-      {
-        "name": "Evryn",
-        "website": "https://evrynskincare.com/password",
-        "cohort": "S24",
-        "tags": ["Beauty", "Skincare"],
-        "category": "Health & Wellness"
-      },
-      {
-        "name": "Convoice",
-        "website": "https://www.convoice.ai/",
-        "cohort": "S24",
-        "tags": ["AI", "Voice Agents"],
-        "category": "Tech"
-      }
-    ]
-  }
-  
+  "startups": [
+    {
+      "name": "ChewCrew",
+      "website": "https://www.chewcrew.co/",
+      "cohort": "F21",
+      "tags": ["Restaurant Subscriptions"],
+      "category": "Commerce"
+    },
+    {
+      "name": "Tuun",
+      "website": "",
+      "cohort": "F21",
+      "tags": ["Content", "Creators", "Fans", "Support Causes"],
+      "category": "Social"
+    },
+    {
+      "name": "RightPrice",
+      "website": "",
+      "cohort": "F21",
+      "tags": ["Consumer Data", "Pricing"],
+      "category": "B2B"
+    },
+    {
+      "name": "Rolli",
+      "website": "https://rolliapp.com/",
+      "cohort": "F21",
+      "tags": ["AI", "Newsgathering", "Journalists", "Collaboration"],
+      "category": "Media"
+    },
+    {
+      "name": "NovaXS Biotech",
+      "website": "https://www.novaxs.co/",
+      "cohort": "F21",
+      "tags": ["Biotech", "Needle-Free Injector", "Smart Tracking"],
+      "category": "Healthcare"
+    },
+    {
+      "name": "Carbonlink",
+      "website": "https://www.carbonlink.io/",
+      "cohort": "S22",
+      "tags": ["Decarbonization", "Carbon Credits", "Climate Portfolio"],
+      "category": "Sustainability"
+    },
+    {
+      "name": "Stellace",
+      "website": "https://stellace.com/",
+      "cohort": "S22",
+      "tags": ["Sleep Aid", "Herbs", "Minerals", "Vegan"],
+      "category": "Health & Wellness"
+    },
+    {
+      "name": "Rondivoo",
+      "website": "",
+      "cohort": "S22",
+      "tags": ["Social Platform", "Event Promotion", "Event Discovery"],
+      "category": "Social"
+    },
+    {
+      "name": "Pickle",
+      "website": "https://www.trypickle.co/",
+      "cohort": "F22",
+      "tags": ["Analytics", "Creators", "Pitching", "Review"],
+      "category": "B2B"
+    },
+    {
+      "name": "Kenko",
+      "website": "https://www.kenkopt.com/",
+      "cohort": "F22",
+      "tags": ["Physical Therapy", "Patient Outcomes", "Exercise Platform"],
+      "category": "Healthcare"
+    },
+    {
+      "name": "Unithrifts",
+      "website": "https://www.unithrifts.com/",
+      "cohort": "F22",
+      "tags": ["Sustainable", "University Platform", "Secondhand"],
+      "category": "Commerce"
+    },
+    {
+      "name": "FlexTogether",
+      "website": "https://www.flextogether.com/",
+      "cohort": "S23",
+      "tags": ["Healthcare", "Pulmonary Rehab", "Remote Exercise"],
+      "category": "Healthcare"
+    },
+    {
+      "name": "Keepsake",
+      "website": "https://hellokeepsake.com/",
+      "cohort": "S23",
+      "tags": ["Estate Planning", "Client Portal"],
+      "category": "B2B"
+    },
+    {
+      "name": "Scraps",
+      "website": "https://marketplace.tunebat.com/",
+      "cohort": "S23",
+      "tags": ["Music", "Marketplace"],
+      "category": "Commerce"
+    },
+    {
+      "name": "4085 Productions",
+      "website": "https://www.4085productions.com/",
+      "cohort": "S23",
+      "tags": ["Media", "Entertainment", "Narratives"],
+      "category": "Media"
+    },
+    {
+      "name": "Hngr",
+      "website": "https://hngrapp.xyz/",
+      "cohort": "F23",
+      "tags": ["Playlists", "Restaurants"],
+      "category": "Tech"
+    },
+    {
+      "name": "Southside",
+      "website": "https://www.drinksouthsides.com/",
+      "cohort": "F23",
+      "tags": ["Beverage", "Gin Cocktail"],
+      "category": "Food & Beverage"
+    },
+    {
+      "name": "UpDonor",
+      "website": "https://updonor.org/",
+      "cohort": "F23",
+      "tags": ["Nonprofit", "Management Platform"],
+      "category": "B2B"
+    },
+    {
+      "name": "Prometheus Data",
+      "website": "https://www.prometheusdata.io/",
+      "cohort": "F23",
+      "tags": ["Cross-Border", "Risk Management"],
+      "category": "B2B"
+    },
+    {
+      "name": "Spotlight Media",
+      "website": "https://tryspotlight.co/",
+      "cohort": "F23",
+      "tags": ["Media", "Marketing", "TikTok Shop"],
+      "category": "Media"
+    },
+    {
+      "name": "Revsend",
+      "website": "https://revsend.com/",
+      "cohort": "S24",
+      "tags": ["Business Gifting", "Sales Outreach"],
+      "category": "B2B"
+    },
+    {
+      "name": "Hatchet",
+      "website": "https://www.linkedin.com/company/tryhatchet/",
+      "cohort": "S24",
+      "tags": ["Firefighter Coordination", "Tech"],
+      "category": "Tech"
+    },
+    {
+      "name": "Anacapa",
+      "website": "https://www.anacapagems.com/",
+      "cohort": "S24",
+      "tags": ["E-commerce", "Gem-Faceting"],
+      "category": "Commerce"
+    },
+    {
+      "name": "BiotechBeauty",
+      "website": "https://www.biotechbeautyus.com/",
+      "cohort": "S24",
+      "tags": ["Beauty", "Biotechnology", "Makeup"],
+      "category": "Health & Wellness"
+    },
+    {
+      "name": "Evryn",
+      "website": "https://evrynskincare.com/password",
+      "cohort": "S24",
+      "tags": ["Beauty", "Skincare"],
+      "category": "Health & Wellness"
+    },
+    {
+      "name": "Convoice",
+      "website": "https://www.convoice.ai/",
+      "cohort": "S24",
+      "tags": ["AI", "Voice Agents"],
+      "category": "Tech"
+    },
+    {
+      "name": "Playbook",
+      "website": "https://playbook3d.com/",
+      "cohort": "F24",
+      "tags": ["3D Modeling", "Generative AI"],
+      "category": "Tech"
+    },
+    {
+      "name": "Recei",
+      "website": "https://www.recei.co/",
+      "cohort": "F24",
+      "tags": ["Digital Receipts", "Sustainability", "POS"],
+      "category": "Sustainability"
+    },
+    {
+      "name": "Bubble",
+      "website": "",
+      "cohort": "F24",
+      "tags": ["Focus", "Productivity"],
+      "category": "Tech"
+    },
+    {
+      "name": "Sequence",
+      "website": "",
+      "cohort": "F24",
+      "tags": ["Interactive Storytelling"],
+      "category": "Tech"
+    },
+    {
+      "name": "Bliss",
+      "website": "https://thinkbliss.com/",
+      "cohort": "F24",
+      "tags": ["AI", "Personalized Learning", "Education"],
+      "category": "Tech"
+    }
+  ]
+}

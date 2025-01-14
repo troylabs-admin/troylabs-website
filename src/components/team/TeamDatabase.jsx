@@ -38,7 +38,7 @@ const TeamMemberCard = ({ member }) => {
   useEffect(() => {
     const lastName = member.name.split(" ").pop();
     if (member.name === "Bob Chen") {
-      import(`../../assets/Headshots/BobChen.jpeg`)
+      import(`../../assets/Headshots/BobChen.jpg`)
         .then((image) => setImageUrl(image.default))
         .catch(() => setImageUrl(null));
     } else if (member.name === "Nolan Chen") {

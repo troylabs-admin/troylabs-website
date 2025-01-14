@@ -67,7 +67,7 @@ function Header() {
           whileTap={{ scale: 0.95 }}
           onClick={() => {
             applicationsOpen
-              ? window.open("https://docs.google.com/forms/d/e/1FAIpQLSd7iGRgQ677T5226chox1XYBkDEW3Hneu_NLXngka9a5FEywg/viewform", "_blank")
+              ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
               : window.open(
                   "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
                   "_blank"
@@ -142,7 +142,7 @@ function Header() {
               onClick={() => {
                 applicationsOpen
                   ? window.open(
-                      "https://docs.google.com/forms/d/e/1FAIpQLSd7iGRgQ677T5226chox1XYBkDEW3Hneu_NLXngka9a5FEywg/viewform",
+                      "https://forms.gle/Brjdti1Hfp5jgiCa6",
                       "_blank"
                     )
                   : window.open(

@@ -86,7 +86,7 @@ function Header() {
           whileTap={{ scale: 0.95 }}
           onClick={() => {
             applicationsOpen
-              ? window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+              ? window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
               : window.open(
                   "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
                   "_blank"
@@ -163,7 +163,7 @@ function Header() {
               onClick={() => {
                 applicationsOpen
                   ? window.open(
-                      "https://form.typeform.com/to/Ren0cfWD",
+                      "https://form.typeform.com/to/ksUMe8CV",
                       "_blank"
                     )
                   : window.open(

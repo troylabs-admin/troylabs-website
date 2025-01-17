@@ -175,7 +175,7 @@ const WhoWeAre = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() =>
-                  window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+                  window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
                 }
               >
                 Apply Now <FaArrowRight className="ml-2" />
@@ -184,7 +184,7 @@ const WhoWeAre = () => {
               <motion.button
                 className="text-black cursor-default py-3 rounded-full flex items-center"
                 // onClick={() =>
-                //   window.open("https://form.typeform.com/to/Ren0cfWD", "_blank")
+                //   window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
                 // }
               >
                 Applications are closed and will re-open in August

@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# TroyLabs Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains the source code for the TroyLabs website, built with React and deployed on Railway. Styled with Tailwind CSS.
+
+## Development Setup
+
+1. **Prerequisites**
+   - Node.js (v18 or higher recommended)
+   - npm (comes with Node.js)
+
+2. **Installation**
+   ```bash
+   npm install
+   ```
+
+3. **Local Development**
+   ```bash
+   npm run dev
+   ```
+   This will start the development server at [http://localhost:3000](http://localhost:3000).
+
+## Project Structure
+
+- `/src/components/` - React components organized by feature
+  - `/team/` - Team-related components and data
+  - `/build/` - Build-related components and data
+- `/public/` - Static assets
 
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm run dev` - Start development server
+- `npm run build` - Create production build
+- `npm start` - Serve production build (used in deployment)
+- `npm test` - Run tests
 
-### `npm start`
+## Deployment
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The website is automatically deployed to Railway when changes are pushed to the main branch. The deployment process:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Runs `npm ci` to install dependencies
+2. Executes `npm run build` to create the production build
+3. Starts the server using `npm start`
 
-### `npm test`
+## Adding Content
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Team Members
+To add new team members:
+1. Update `/src/components/team/TeamData.json`
+2. Add their photo to the appropriate directory
+3. Follow the existing data structure format
 
-### `npm run build`
+### Startups
+To add new startups:
+1. Update `/src/components/build/StartupData.json`
+2. Add any necessary assets
+3. Follow the existing data structure format
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Contributing
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Create a new branch for your feature
+    - `git checkout -b feature/your-feature-name`
+2. Make your changes
+3. Test locally
+4. Submit a pull request via GitHub

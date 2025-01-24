@@ -74,7 +74,7 @@ function Header() {
                 );
           }}
         >
-          {applicationsOpen ? "Apply to BUILD" : "Join Ignite"}
+          {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
         </motion.button>
         <motion.button
           className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
@@ -151,7 +151,7 @@ function Header() {
                     );
               }}
             >
-              {applicationsOpen ? "Apply to BUILD" : "Join Ignite"}
+              {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
             </motion.button>
             <motion.button
               className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${

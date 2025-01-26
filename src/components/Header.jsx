@@ -23,6 +23,7 @@ function Header() {
     Home: "/",
     DEMO: "https://demo.troylabs.vc/",
     BUILD: "/build",
+    IGNITE: "/ignite",
     Team: "/team",
     Partners: "/partners",
   };

@@ -132,7 +132,7 @@ function Header() {
                 {item}
               </a>
             ))}
-            <motion.button
+            {applicationsOpen && <motion.button
               className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${
                 scrolled
                   ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
@@ -149,7 +149,7 @@ function Header() {
               }}
             >
               {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
-            </motion.button>
+            </motion.button>}
             <motion.button
               className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${
                 scrolled

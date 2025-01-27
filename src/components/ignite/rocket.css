@@ -1,0 +1,12 @@
+.rocket-animate {
+    animation: moveAcross 5s ease-in-out forwards;
+}
+
+@keyframes moveAcross {
+    0% {
+      transform: translateX(-100%); /* Start off-screen */
+    }
+    100% {
+      transform: translateX(100%); /* End off-screen to the right */
+    }
+  }

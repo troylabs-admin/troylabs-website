@@ -132,7 +132,7 @@ const AnimatedImage = () => {
 };
 
 const WhoWeAre = () => {
-  const [applicationsOpen, setApplicationsOpen] = useState(true);
+  const [applicationsOpen, setApplicationsOpen] = useState(false);
 
   const stats = [
     {
@@ -181,14 +181,9 @@ const WhoWeAre = () => {
                 Apply Now <FaArrowRight className="ml-2" />
               </motion.button>
             ) : (
-              <motion.button
-                className="text-black cursor-default py-3 rounded-full flex items-center"
-                // onClick={() =>
-                //   window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
-                // }
-              >
-                Applications are closed and will re-open in August
-              </motion.button>
+              <p className="text-gray-600 font-medium text-lg max-w-xs">
+                Applications are now closed. They will reopen in Fall 2025
+              </p>
             )}
             <div className="mt-16 w-full flex flex-row justify-start gap-12 ml-3 lg:ml-0 lg:gap-32">
               {stats.map((stat, index) => (

@@ -158,14 +158,15 @@ const BuildOverviewSection = () => {
               </span>
               to USC's premier startups.
             </h1>
-            <motion.button
+            {/* <motion.button
               className="bg-[#191919] text-white mt-12 px-8 py-3 rounded-full flex items-center"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")}
             >
               Apply Now <FaArrowRight className="ml-2" />
-            </motion.button>
+            </motion.button> */}
+            <p className="text-gray-600 font-medium text-lg max-w-xs">Applications are now closed. They will reopen in Fall 2025</p>
           </div>
           <div className="lg:w-1/2 mt-12 lg:mt-0">
             <ProgramJourney />

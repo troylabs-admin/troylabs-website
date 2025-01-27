@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [applicationsOpen, setApplicationsOpen] = useState(true);
+  const [applicationsOpen, setApplicationsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,26 +56,26 @@ function Header() {
         ))}
       </nav>
 
-      <div className="flex flex-row items-center w-64">
-        <motion.button
-          className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-bold ${
-            scrolled
-              ? "text-[#F19E18]"
-              : " text-white"
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            applicationsOpen
-              ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
-              : window.open(
-                  "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
-                  "_blank"
-                );
-          }}
-        >
-          {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
-        </motion.button>
+      <div className="flex flex-row items-center justify-end gap-2 w-64">
+        {applicationsOpen && (
+          <motion.button
+            className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-bold ${
+              scrolled ? "text-[#F19E18]" : " text-white"
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              applicationsOpen
+                ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
+                : window.open(
+                    "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                    "_blank"
+                  );
+            }}
+          >
+            {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
+          </motion.button>
+        )}
         <motion.button
           className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
             scrolled
@@ -141,10 +141,7 @@ function Header() {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 applicationsOpen
-                  ? window.open(
-                      "https://forms.gle/Brjdti1Hfp5jgiCa6",
-                      "_blank"
-                    )
+                  ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
                   : window.open(
                       "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
                       "_blank"

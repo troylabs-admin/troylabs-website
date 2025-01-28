@@ -1,5 +1,6 @@
 .rocketContainer {
   position: absolute;
+  z-index: 10;
   transform: translateX(-300px) translateY(300px);
 }
 

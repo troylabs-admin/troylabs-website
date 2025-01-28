@@ -8,6 +8,9 @@ module.exports = {
       screens: {
         'md-lg': '900px',
       },
+      height: {
+        'card': '30rem',
+      },
     },
   },
   plugins: [],

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import rocket from "../../assets/ignite-rocket.gif";
+import newMems from "../../assets/RetreatNewMems.jpg";
 import "./animations.css";
 
 //https://www.youtube.com/watch?v=MwoluCY7jCk animated rocket
@@ -36,18 +37,68 @@ const BulletPoints = ({ beginAnimate }) => {
       }`}
     >
       {content.map((item, index) => (
-        <li key={index} className="text-gray-600 font-semibold text-xl mt-8">
+        <li key={index} className="text-gray-700 font-semibold text-xl mt-8">
           {item[0]}
-          <h3 className="text-gray-500 text-base mt-4 pl-3">{item[1]}</h3>
+          <p className="text-gray-500 text-base mt-4 pl-3">{item[1]}</p>
         </li>
       ))}
     </ul>
   );
 };
 
+const OverviewCard = ({ img, subheader, header, body, smaller }) => {
+  return (
+    <div className="w-full h-full">
+      <div className={`relative ${smaller ? "h-1/2" : "h-3/5"} w-full`}>
+        <div className="absolute bottom-0 w-full bg-black h-1" />
+        <img
+          src={img}
+          alt="ignite display photos"
+          className="h-full w-full object-cover"
+        />
+      </div>
+      <div className="w-full px-4 py-3 flex flex-col">
+        <h3 className="text-orange-500 font-semibold p-0 text-md ">
+          {subheader}
+        </h3>
+        <h2 className="text-gray-700 font-semibold leading-snug pt-2 pb-3 text-lg">
+          {header}
+        </h2>
+        <p className="text-gray-500 p-0 text-sm">{body}</p>
+      </div>
+    </div>
+  );
+};
+
 const OverviewSection = () => {
-  const topRowContainer = "rounded-md border border-gray-300 h-80 lg:h-96";
-  const bottomRowContainer = "flex-grow rounded-md border border-gray-300 h-80";
+  const topRowContainer =
+    "rounded-md overflow-hidden border-2 border-gray-200 h-96 lg:h-card";
+  const bottomRowContainer =
+    "flex-grow rounded-md border border-gray-300 h-96 lg:h-card";
+
+  const cardContent = [
+    [
+      "Workshops",
+      "Learn from Troy Lab's best",
+      "Gain exclusive and valuable knowledge from some of USC's top visionaries in product managment, SWE, design, marketing, and VC.",
+    ],
+    [
+      "Speakers",
+      "Connect with industry experts",
+      "Network with distinguished leaders, gaining insights from their expertise, experiences, and innovative perspectives.",
+    ],
+    ["Events", "Access to Exclusive Events", "Tour "],
+    [
+      "Community",
+      "Like-minded individuals",
+      "Surround yourself with ambitious, determined peers, to drive a strong competitive sprit.",
+    ],
+    [
+      "Opportunities",
+      "Know about openings",
+      "Get exclusive job or recruiting notifications through the Ignite slack. ",
+    ],
+  ];
 
   const [beginAnimate, setBeginAnimate] = useState(false);
   const elementRef = useRef(null);
@@ -107,14 +158,54 @@ const OverviewSection = () => {
           </motion.button>
         </div>
         <div className="w-7/12 lg:w-full flex gap-10 flex-col justify-center items-center px-8">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className={topRowContainer}>item</div>
-            <div className={topRowContainer}>item</div>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className={topRowContainer + " rounded-tl-3xl"}>
+              <OverviewCard
+                img={newMems}
+                subheader={cardContent[0][0]}
+                header={cardContent[0][1]}
+                body={cardContent[0][2]}
+                smaller={false}
+              />
+            </div>
+            <div className={topRowContainer + " rounded-tr-3xl"}>
+              <OverviewCard
+                img={newMems}
+                subheader={cardContent[1][0]}
+                header={cardContent[1][1]}
+                body={cardContent[1][2]}
+                smaller={false}
+              />
+            </div>
           </div>
-          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-10 justify-center">
-            <div className={bottomRowContainer}>item</div>
-            <div className={bottomRowContainer}>item</div>
-            <div className={bottomRowContainer}>item</div>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-5 justify-center">
+            <div className={bottomRowContainer + " rounded-bl-3xl"}>
+              <OverviewCard
+                img={newMems}
+                subheader={cardContent[2][0]}
+                header={cardContent[2][1]}
+                body={cardContent[2][2]}
+                smaller={true}
+              />
+            </div>
+            <div className={bottomRowContainer}>
+              <OverviewCard
+                img={newMems}
+                subheader={cardContent[3][0]}
+                header={cardContent[3][1]}
+                body={cardContent[3][2]}
+                smaller={true}
+              />
+            </div>
+            <div className={bottomRowContainer + " rounded-br-3xl"}>
+              <OverviewCard
+                img={newMems}
+                subheader={cardContent[4][0]}
+                header={cardContent[4][1]}
+                body={cardContent[4][2]}
+                smaller={true}
+              />
+            </div>
           </div>
         </div>
       </div>

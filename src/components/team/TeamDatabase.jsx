@@ -19,12 +19,11 @@ const Badge = ({ text, isSelected }) => {
   const color = teamColors[text] || { bg: "#F19E18", text: "#FFFFFF" };
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${
-        isSelected ? `bg-${color.bg} text-${color.text}` : 'text-white'
-      }`}
-      style={{ 
+      className="px-3 py-1 rounded-full text-xs font-medium"
+      style={{
         backgroundColor: isSelected ? color.bg : `${color.bg}`,
-      }}
+        color: isSelected ? color.text : "#FFFFFF",
+      }}    
     >
       {text}
     </span>
@@ -55,38 +54,38 @@ const TeamMemberCard = ({ member }) => {
   return (
     <motion.div
       layout
-      className="flex flex-col"
+      className="flex flex-col items-center p-3 rounded-lg"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Member Image */}
       {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={member.name}
-          className="w-full rounded-lg h-96 object-cover"
-        />
+        <img src={imageUrl} alt={member.name} className="w-60 h-60 rounded-lg object-cover" />
       ) : (
-        <div className="w-full rounded-lg h-96 bg-gray-200 flex items-center justify-center text-4xl font-bold text-gray-500">
+        <div className="w-40 h-40 rounded-lg bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-500">
           {member.name.charAt(0)}
         </div>
       )}
-      <div className="py-4">
-        <div className="w-full flex flex-row mb-2 items-center justify-between">
-          <h3 className="text-xl font-medium">{member.name}</h3>
-          <div className="flex items-center gap-2">
-            <Badge text={member.position} color="bg-[#F19E18] text-white" />
-            {member.role !== "Member" && !member.role.includes("Former") && (
-              <Badge text="Board" color="bg-[#F19E18] text-white" />
-            )}
-          </div>
-        </div>
-        <p className="text-gray-600 font-extralight mb-2">{member.role}</p>
-        <p className="text-sm text-gray-500">Class of {member.year}</p>
+  
+      {/* Member Details */}
+      <div className="text-center mt-2">
+        <h3 className="text-lg font-medium">{member.name}</h3>
+        <p className="text-gray-600 text-sm">{member.role}</p>
+        <p className="text-gray-500 text-xs">Class of {member.year}</p>
       </div>
-
+  
+      {/* Role Badges */}
+      <div className="flex flex-wrap justify-center gap-2 mt-1">
+        <Badge text={member.position} color="bg-[#F19E18] text-white" />
+        {member.role !== "Member" && !member.role.includes("Former") && (
+          <Badge text="Board" color="bg-[#F19E18] text-white" />
+        )}
+      </div>
+  
+      {/* Hoverable Social Icons */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
@@ -94,7 +93,7 @@ const TeamMemberCard = ({ member }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="flex space-x-4"
+            className="flex space-x-3 mt-2"
           >
             {member.linkedin && (
               <a
@@ -103,7 +102,7 @@ const TeamMemberCard = ({ member }) => {
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 transition-colors"
               >
-                <FaLinkedin size={24} />
+                <FaLinkedin size={25} />
               </a>
             )}
             {member.website && (
@@ -113,14 +112,14 @@ const TeamMemberCard = ({ member }) => {
                 rel="noopener noreferrer"
                 className="text-[#F19E18] hover:text-[#E62314] transition-colors"
               >
-                <FaGlobe size={24} />
+                <FaGlobe size={18} />
               </a>
             )}
           </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
-  );
+  );    
 };
 
 const TeamDatabase = () => {
@@ -129,30 +128,43 @@ const TeamDatabase = () => {
   const teams = teamMembers.members || [];
 
   const filteredMembers = useMemo(() => {
-    const filtered = teams.filter((member) => {
-      const isBoardMember =
-        member.role !== "Member" && !member.role.includes("Former");
-      const matchesTeam =
-        selectedTeams.length === 0 ||
-        selectedTeams.includes(member.position) ||
-        (selectedTeams.includes("Board") && isBoardMember);
-      const matchesSearchTerm =
-        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.role.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearchTerm && matchesTeam;
-    });
-
-    const boardMembers = filtered.filter(
-      (member) => member.role !== "Member" && !member.role.includes("Former")
-    );
-    const otherMembers = filtered.filter(
-      (member) => member.role === "Member" || member.role.includes("Former")
-    );
-
-    otherMembers.sort((a, b) => a.name.localeCompare(b.name));
-
-    return [...boardMembers, ...otherMembers];
-  }, [searchTerm, selectedTeams, teams]);
+    return teams
+      .filter((member) => {
+        const isBoardMember = member.role !== "Member" && !member.role.includes("Former");
+        const isPresident = member.role === "President";
+  
+        // Ensure the member matches ALL selected labels, not just one
+        const matchesAllSelectedTeams =
+          selectedTeams.length === 0 || selectedTeams.every((team) => {
+            return (
+              (team === "Board" && isBoardMember) || // Match Board if selected
+              (team === member.position) // Match position if selected
+            );
+          });
+  
+        // Ensure search term matches either name or role
+        const matchesSearchTerm =
+          member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.role.toLowerCase().includes(searchTerm.toLowerCase());
+  
+        return matchesSearchTerm && matchesAllSelectedTeams;
+      })
+      .sort((a, b) => {
+        // Sort Presidents first
+        if (a.role === "President" && b.role !== "President") return -1;
+        if (b.role === "President" && a.role !== "President") return 1;
+  
+        // Sort Board Members next
+        const isABoard = a.role !== "Member" && !a.role.includes("Former");
+        const isBBoard = b.role !== "Member" && !b.role.includes("Former");
+  
+        if (isABoard && !isBBoard) return -1;
+        if (!isABoard && isBBoard) return 1;
+  
+        // Sort alphabetically otherwise
+        return a.name.localeCompare(b.name);
+      });
+  }, [searchTerm, selectedTeams, teams]);    
 
   console.log("filteredMembers", filteredMembers);
 

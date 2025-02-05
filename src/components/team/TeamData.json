@@ -440,7 +440,7 @@
       "name": "Olivia Jin",
       "year": 2027,
       "position": "Marketing",
-      "role": "Member",
+      "role": "Director of IGNITE",
       "major": "Business Administration",
       "email": "ojin@usc.edu",
       "linkedin": "https://www.linkedin.com/in/ojin1"
@@ -534,6 +534,78 @@
       "major": "Arts, Technology, and the Business of Innovation",
       "email": "hydrie@usc.edu",
       "linkedin": "https://www.linkedin.com/in/zubinhydrie"
+    },
+    {
+      "name": "Shubhayan Srivastava",
+      "year": 2027,
+      "position": "Engineering",
+      "role": "Director of Recruitment",
+      "major": "Computer Science",
+      "email": "shubhaya@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/shubhayan935"
+    },
+    {
+      "name": "Faris Khalek",
+      "year": 2026,
+      "position": "DEMO",
+      "role": "Co-Head of DEMO",
+      "major": "Business Administration",
+      "email": "fkhalek@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/fariskhalek"
+    },
+    {
+      "name": "Connor Barrett",
+      "year": 2026,
+      "position": "Product",
+      "role": "Director of BUILD",
+      "major": "Business Administration",
+      "email": "cpbarret@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/connor-barrett-4056181a2/"
+    },
+    {
+      "name": "Hajin Cha",
+      "year": 2027,
+      "position": "DEMO",
+      "role": "Co-Head of DEMO",
+      "major": "Business Administration",
+      "email": "hajincha@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/hajincha"
+    },
+    {
+      "name": "Anastasia Ramirez",
+      "year": 2027,
+      "position": "Marketing",
+      "role": "Director of Marketing",
+      "major": "Economics, Legal Studies",
+      "email": "anr95118@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/stasia-ramirez/"
+    },
+    { 
+      "name": "Karen Lou", 
+      "year": 2028, 
+      "position": "Design", 
+      "role": "Member", 
+      "major": "Arts, Tech, and the Business of Innovation", 
+      "email": "karenlou@usc.edu", 
+      "linkedin": "https://www.linkedin.com/in/karen-lou" 
+    },
+    {
+      "name": "Margaret Luwena",
+      "year": 2027,
+      "position": "Design",
+      "role": "Member",
+      "major": "Economics",
+      "email": "luwena@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/margaretluwena"
+    },
+    {
+      "name": "Ryan Chang",
+      "year": 2026,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Computer Science & Business Administration",
+      "email": "rchang05@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ryanchang29"
     }
   ]
 }

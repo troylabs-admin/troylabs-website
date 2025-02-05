@@ -606,6 +606,60 @@
       "major": "Computer Science & Business Administration",
       "email": "rchang05@usc.edu",
       "linkedin": "https://www.linkedin.com/in/ryanchang29"
+    },
+    {
+      "name": "Eason Tang",
+      "year": 2027,
+      "position": "Design",
+      "role": "Director of BUILD",
+      "major": "Arts, Technology, and the Business of Innovation",
+      "email": "Easontan@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/easontang23"
+    },
+    {
+      "name": "Jeffrey Yang",
+      "year": 2027,
+      "position": "Product",
+      "role": "Member",
+      "major": "CSBA",
+      "email": "jyang616@usc.edu",
+      "linkedin": "www.linkedin.com/in/jeffrey-yangg"
+    },
+    {
+      "name": "Marina Parker",
+      "year": 2027,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "marinajp@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/marina-parker-usc/"
+    },
+    {
+      "name": "Yuki Fu",
+      "year": 2027,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "yukifu@usc.edu",
+      "linkedin": "www.linkedin.com/in/yukifu"
+    },
+    {
+      "name": "Xinyu Yao",
+      "year": 2028,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Arts, Tech, and the Business of Innovation",
+      "email": "yaoxinyi@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/xinyi-yao-293571314/"
+    },
+    {
+      "name": "Sonya Kakodkar",
+      "year": 2026,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "skakodka@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/sonyakakodkar/"
     }
   ]
 }

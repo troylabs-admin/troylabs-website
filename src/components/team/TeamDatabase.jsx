@@ -44,6 +44,10 @@ const TeamMemberCard = ({ member }) => {
       import(`../../assets/Headshots/NolanChen.jpeg`)
       .then((image) => setImageUrl(image.default))
       .catch(() => setImageUrl(null));
+    } else if (member.name === "Jeffrey Yang") {
+      import(`../../assets/Headshots/JeffreyYang.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
     } else {
       import(`../../assets/Headshots/${lastName}.jpeg`)
         .then((image) => setImageUrl(image.default))

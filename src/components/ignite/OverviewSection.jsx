@@ -53,7 +53,7 @@ const BulletPoints = ({ beginAnimate }) => {
 
 const OverviewCard = ({ img, subheader, header, body, smaller }) => {
   return (
-    <div className="w-full h-full">
+    <div className="max-full h-full">
       <div className={`relative ${smaller ? "h-IGNphoto-sm" : "h-IGNphoto-lg"} w-full border-b-2 border-orange-400`}>
         <img
           src={img}
@@ -167,7 +167,7 @@ const OverviewSection = () => {
             Join Ignite <span>&rarr;</span>
           </motion.button>
         </div>
-        <div className="w-7/12 lg:w-full flex gap-10 flex-col justify-center items-center px-8">
+        <div className="w-full lg:w-full flex gap-10 flex-col justify-center items-center px-8">
           <div className="w-full grid grid-cols-1 min-h-96 lg:grid-cols-2 gap-5">
             <div className={topRowContainer + " rounded-tl-3xl"}>
               <OverviewCard

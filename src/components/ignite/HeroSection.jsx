@@ -405,7 +405,12 @@ const HeroSection = () => {
             className={`px-8 py-3 rounded-full text-m font-bold transition-colors duration-200 bg-[#F19E18] text-white`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {}}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={() => {
+              window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform";
+            }}
           >
             Join Ignite
           </motion.button>

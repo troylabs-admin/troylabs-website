@@ -19,7 +19,7 @@ function Initiatives() {
       description:
         "Grow entrepreneurial skills through fireside chats, workshops, and networking events with founders and investors.",
       buttonText: "Join IGNITE",
-      url: "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+      url: "/ignite",
     },
     {
       icon: FaChartPie,

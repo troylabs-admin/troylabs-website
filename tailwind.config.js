@@ -10,6 +10,8 @@ module.exports = {
       },
       height: {
         'card': '30rem',
+        'IGNphoto-sm': '200px',
+        'IGNphoto-lg': '250px'
       },
     },
   },

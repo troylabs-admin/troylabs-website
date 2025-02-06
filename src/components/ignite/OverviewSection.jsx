@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import rocket from "../../assets/ignite-rocket.gif";
 import newMems from "../../assets/RetreatNewMems.jpg";
+import IGNITECommunity from "../../assets/IGNITECommunity.png";
+import IGNITERiotGames from "../../assets/IGNITERiotGames.jpg";
+import IGNITESlack from "../../assets/IGNITESlack2.jpg";
+import IGNITETLMembers from "../../assets/IGNITETLMembers.png";
+import IGNITESpeaker from "../../assets/IGNITESpeaker.jpeg";
 import "./animations.css";
 
 //https://www.youtube.com/watch?v=MwoluCY7jCk animated rocket
@@ -49,15 +54,14 @@ const BulletPoints = ({ beginAnimate }) => {
 const OverviewCard = ({ img, subheader, header, body, smaller }) => {
   return (
     <div className="w-full h-full">
-      <div className={`relative ${smaller ? "h-1/2" : "h-3/5"} w-full`}>
-        <div className="absolute bottom-0 w-full bg-black h-1" />
+      <div className={`relative ${smaller ? "h-IGNphoto-sm" : "h-IGNphoto-lg"} w-full border-b-2 border-orange-400`}>
         <img
           src={img}
           alt="ignite display photos"
           className="h-full w-full object-cover"
         />
       </div>
-      <div className="w-full px-4 py-3 flex flex-col">
+      <div className="w-full px-4 py-3 pb-7 flex flex-col">
         <h3 className="text-orange-500 font-semibold p-0 text-md ">
           {subheader}
         </h3>
@@ -72,9 +76,9 @@ const OverviewCard = ({ img, subheader, header, body, smaller }) => {
 
 const OverviewSection = () => {
   const topRowContainer =
-    "rounded-md overflow-hidden border-2 border-gray-200 h-96 lg:h-card";
+    "rounded-md overflow-hidden border-2 border-gray-200 h-fit min-h-full shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-transform duration-300 hover:scale-[1.015]";
   const bottomRowContainer =
-    "flex-grow rounded-md border border-gray-300 h-96 lg:h-card";
+    "flex-grow rounded-md overflow-hidden border-2 border-gray-200 h-fit min-h-full shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-transform duration-300 hover:scale-[1.015]";
 
   const cardContent = [
     [
@@ -87,7 +91,11 @@ const OverviewSection = () => {
       "Connect with industry experts",
       "Network with distinguished leaders, gaining insights from their expertise, experiences, and innovative perspectives.",
     ],
-    ["Events", "Access to Exclusive Events", "Tour "],
+    [
+      "Events",
+      "Access to Exclusive Events",
+      "Past events include a premier tour of the Riot Games facility, to see behind the scenes on how this company operates.",
+    ],
     [
       "Community",
       "Like-minded individuals",
@@ -96,7 +104,7 @@ const OverviewSection = () => {
     [
       "Opportunities",
       "Know about openings",
-      "Get exclusive job or recruiting notifications through the Ignite slack. ",
+      "Get exclusive recruiting notifications and communication with TL's top members through the IGNITE Slack.",
     ],
   ];
 
@@ -127,7 +135,7 @@ const OverviewSection = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] w-full place-items-center">
         <div
           ref={elementRef}
-          className="flex flex-col h-full px-20 lg:px-10 lg:py-12"
+          className="flex flex-col h-full px-20 lg:px-10 py-12"
         >
           <FlyingRocket beginAnimate={beginAnimate} />
           <h1 className="relative text-8xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-3">
@@ -152,16 +160,18 @@ const OverviewSection = () => {
             }`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {}}
+            onClick={() => {
+              window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform";
+            }}
           >
             Join Ignite <span>&rarr;</span>
           </motion.button>
         </div>
         <div className="w-7/12 lg:w-full flex gap-10 flex-col justify-center items-center px-8">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="w-full grid grid-cols-1 min-h-96 lg:grid-cols-2 gap-5">
             <div className={topRowContainer + " rounded-tl-3xl"}>
               <OverviewCard
-                img={newMems}
+                img={IGNITETLMembers}
                 subheader={cardContent[0][0]}
                 header={cardContent[0][1]}
                 body={cardContent[0][2]}
@@ -170,7 +180,7 @@ const OverviewSection = () => {
             </div>
             <div className={topRowContainer + " rounded-tr-3xl"}>
               <OverviewCard
-                img={newMems}
+                img={IGNITESpeaker}
                 subheader={cardContent[1][0]}
                 header={cardContent[1][1]}
                 body={cardContent[1][2]}
@@ -181,7 +191,7 @@ const OverviewSection = () => {
           <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-5 justify-center">
             <div className={bottomRowContainer + " rounded-bl-3xl"}>
               <OverviewCard
-                img={newMems}
+                img={IGNITERiotGames}
                 subheader={cardContent[2][0]}
                 header={cardContent[2][1]}
                 body={cardContent[2][2]}
@@ -190,7 +200,7 @@ const OverviewSection = () => {
             </div>
             <div className={bottomRowContainer}>
               <OverviewCard
-                img={newMems}
+                img={IGNITECommunity}
                 subheader={cardContent[3][0]}
                 header={cardContent[3][1]}
                 body={cardContent[3][2]}
@@ -199,7 +209,7 @@ const OverviewSection = () => {
             </div>
             <div className={bottomRowContainer + " rounded-br-3xl"}>
               <OverviewCard
-                img={newMems}
+                img={IGNITESlack}
                 subheader={cardContent[4][0]}
                 header={cardContent[4][1]}
                 body={cardContent[4][2]}

@@ -660,6 +660,25 @@
       "major": "Business Administration",
       "email": "skakodka@usc.edu",
       "linkedin": "https://www.linkedin.com/in/sonyakakodkar/"
+    },
+    {
+      "name": "Shane Yokota",
+      "year": 2026,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "shaneyok@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/shaneyok/",
+      "website": "https://shaneyok.vercel.app/"
+    },
+    {
+      "name": "Pranav Appalaneni",
+      "year": 2026,
+      "position": "Product",
+      "role": "Member",
+      "major": "Business Administration",
+      "email": "appalane@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/pranav-appalaneni/"
     }
   ]
 }

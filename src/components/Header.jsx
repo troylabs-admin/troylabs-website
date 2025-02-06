@@ -69,7 +69,7 @@ function Header() {
               applicationsOpen
                 ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
                 : window.open(
-                    "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                    "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
                     "_blank"
                   );
             }}
@@ -89,7 +89,7 @@ function Header() {
             applicationsOpen
               ? window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
               : window.open(
-                  "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                  "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
                   "_blank"
                 );
           }}
@@ -144,7 +144,7 @@ function Header() {
                 applicationsOpen
                   ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
                   : window.open(
-                      "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                      "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
                       "_blank"
                     );
               }}
@@ -165,7 +165,7 @@ function Header() {
                       "_blank"
                     )
                   : window.open(
-                      "https://join.slack.com/t/ignite-troylabs/shared_invite/zt-2fjhwxjvb-s6mMKtJ1OI9bnbDFt1zfWw",
+                      "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
                       "_blank"
                     );
               }}

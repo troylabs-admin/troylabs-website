@@ -1,0 +1,57 @@
+.rocketContainer {
+  position: absolute;
+  z-index: 10;
+  transform: translateX(-300px) translateY(300px);
+}
+
+.rocket {
+  width: 10rem;
+  height: 10rem;
+}
+
+.rocket.animate {
+  animation: move 5s cubic-bezier(0.5, 0, 1, 1) forwards;
+}
+
+@keyframes move {
+  0% {
+    transform: translateX(0px) translateY(0px) rotate(20deg);
+  }
+  100% {
+    transform: translateX(2000px) translateY(-600px) rotate(20deg);
+  }
+}
+
+.ignite {
+  margin-left: auto;
+}
+
+.ignite.animate {
+  animation: slide 3s forwards 1.4s;
+}
+
+@keyframes slide {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+.show-delay-1 {
+  animation: show 2s forwards 3.5s;
+}
+
+.show-delay-2 {
+  animation: show 2s forwards 4.5s;
+}
+
+@keyframes show {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}

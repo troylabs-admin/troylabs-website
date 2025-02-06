@@ -23,6 +23,7 @@ function Header() {
     Home: "/",
     DEMO: "https://demo.troylabs.vc/",
     BUILD: "/build",
+    IGNITE: "/ignite",
     Team: "/team",
     Partners: "/partners",
   };
@@ -79,7 +80,7 @@ function Header() {
         <motion.button
           className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
             scrolled
-              ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
+              ? "19E18] texbg-[#Ft-white hover:bg-[#E62314]"
               : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
           }`}
           whileHover={{ scale: 1.05 }}

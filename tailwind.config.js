@@ -4,7 +4,16 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'md-lg': '900px',
+      },
+      height: {
+        'card': '30rem',
+        'IGNphoto-sm': '200px',
+        'IGNphoto-lg': '250px'
+      },
+    },
   },
   plugins: [],
 }

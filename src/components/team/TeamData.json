@@ -644,7 +644,7 @@
       "linkedin": "www.linkedin.com/in/yukifu"
     },
     {
-      "name": "Xinyu Yao",
+      "name": "Xinyi Yao",
       "year": 2028,
       "position": "Marketing",
       "role": "Member",
@@ -679,6 +679,15 @@
       "major": "Business Administration",
       "email": "appalane@usc.edu",
       "linkedin": "https://www.linkedin.com/in/pranav-appalaneni/"
+    },
+    {
+      "name": "Sarah Fan",
+      "year": 2027,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "sarahfan@usc.edu",
+      "linkedin": "www.linkedin.com/in/sarah-fan-70400a241"
     }
   ]
 }

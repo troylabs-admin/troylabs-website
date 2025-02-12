@@ -688,6 +688,24 @@
       "major": "Computer Science",
       "email": "sarahfan@usc.edu",
       "linkedin": "www.linkedin.com/in/sarah-fan-70400a241"
+    },
+    {
+      "name": "Agastya Shah",
+      "year": 2028,
+      "position": "Marketing",
+      "role": "Director of Recruitment",
+      "major": "Music Industry",
+      "email": "ayshah@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/agastyashah"
+    },
+    {
+      "name": "Athena Mori",
+      "year": 2027,
+      "position": "Marketing",
+      "role": "Member",
+      "major": "Business Administration / Biotechnology",
+      "email": "amori@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/athenamori"
     }
   ]
 }

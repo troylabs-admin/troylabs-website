@@ -706,6 +706,15 @@
       "major": "Business Administration / Biotechnology",
       "email": "amori@usc.edu",
       "linkedin": "https://www.linkedin.com/in/athenamori"
+    },
+    {
+      "name": "Mustafa Nomair",
+      "year": 2028,
+      "position": "Engineering",
+      "role": "Member",
+      "major": "Computer Science",
+      "email": "nomair@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/mustafa-nomair/"
     }
   ]
 }

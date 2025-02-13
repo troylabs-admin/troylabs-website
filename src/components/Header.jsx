@@ -60,7 +60,7 @@ function Header() {
       <div className="flex flex-row items-center justify-end gap-2 w-64">
         {applicationsOpen && (
           <motion.button
-            className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-bold ${
+            className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-semibold ${
               scrolled ? "text-[#F19E18]" : " text-white"
             }`}
             whileHover={{ scale: 1.05 }}
@@ -74,13 +74,13 @@ function Header() {
                   );
             }}
           >
-            {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
+            {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
           </motion.button>
         )}
         <motion.button
-          className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
+          className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${
             scrolled
-              ? "19E18] texbg-[#Ft-white hover:bg-[#E62314]"
+              ? "bg-transparent text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
               : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
           }`}
           whileHover={{ scale: 1.05 }}
@@ -94,7 +94,7 @@ function Header() {
                 );
           }}
         >
-          {applicationsOpen ? "Apply Now" : "Join Ignite"}
+          {applicationsOpen ? "Apply Now" : "Join IGNITE"}
         </motion.button>
       </div>
 
@@ -134,7 +134,7 @@ function Header() {
               </a>
             ))}
             {applicationsOpen && <motion.button
-              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${
+              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-semibold ${
                 scrolled
                   ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
                   : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
@@ -149,10 +149,10 @@ function Header() {
                     );
               }}
             >
-              {applicationsOpen ? "Apply as a Startup" : "Join Ignite"}
+              {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
             </motion.button>}
             <motion.button
-              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-bold ${
+              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-semibold ${
                 scrolled
                   ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
                   : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
@@ -170,7 +170,7 @@ function Header() {
                     );
               }}
             >
-              {applicationsOpen ? "Apply Now" : "Join Ignite"}
+              {applicationsOpen ? "Apply Now" : "Join IGNITE"}
             </motion.button>
           </motion.div>
         )}

@@ -133,7 +133,7 @@
       "name": "Parker Shurtz",
       "year": 2024,
       "position": "Alumni",
-      "role": "Former Head of DEMO",
+      "role": "Former Director of DEMO",
       "major": "Business Administration",
       "linkedin": "https://www.linkedin.com/in/parker-shurtz/"
     },
@@ -141,7 +141,7 @@
       "name": "Todd Gavin",
       "year": 2023,
       "position": "Alumni",
-      "role": "Former Head of BUILD",
+      "role": "Former Director of BUILD",
       "major": "Computational Neuroscience",
       "linkedin": "https://www.linkedin.com/in/toddgavin/"
     },
@@ -157,7 +157,7 @@
       "name": "Andy Johnson",
       "year": 2023,
       "position": "Alumni",
-      "role": "Former Head of Design",
+      "role": "Former Director of Design",
       "major": "Design and Applied Arts",
       "linkedin": "https://www.linkedin.com/in/andy-johnson-b896491b7/"
     },
@@ -205,7 +205,7 @@
       "name": "Chloe Nicole Cruz",
       "year": 2024,
       "position": "Alumni",
-      "role": "Former Head of DEMO",
+      "role": "Former Director of DEMO",
       "major": "Business Administration",
       "email": "cgcruz@usc.edu",
       "linkedin": "https://www.linkedin.com/in/chloe-nicole-cruz"
@@ -242,7 +242,7 @@
       "name": "Ethan Salmeron",
       "year": 2024,
       "position": "Alumni",
-      "role": "Former Head of BUILD",
+      "role": "Former Director of BUILD",
       "major": "Business Administration",
       "email": "Ethansal@usc.edu",
       "linkedin": "https://www.linkedin.com/in/ethansal"
@@ -278,7 +278,7 @@
       "name": "Shehroz Khan",
       "year": 2024,
       "position": "Alumni",
-      "role": "Former Head of Community",
+      "role": "Former Director of Community",
       "major": "Business Administration",
       "email": "mskhan@usc.edu",
       "linkedin": "https://www.linkedin.com/in/mskhan000"
@@ -296,7 +296,7 @@
       "name": "Cody Chen",
       "year": 2026,
       "position": "Product",
-      "role": "Former Head of IGNITE",
+      "role": "Former Director of IGNITE",
       "major": "Business Administration",
       "email": "codychen@usc.edu",
       "linkedin": "https://www.linkedin.com/in/codyachen/"
@@ -305,7 +305,7 @@
       "name": "Sam Habibi",
       "year": 2024,
       "position": "Alumni",
-      "role": "Former Head of BUILD",
+      "role": "Former Director of BUILD",
       "major": "Public Policy",
       "email": "Samhabib@usc.edu",
       "linkedin": "https://www.linkedin.com/in/sam-habibi-4849b7127"
@@ -548,7 +548,7 @@
       "name": "Faris Khalek",
       "year": 2026,
       "position": "DEMO",
-      "role": "Co-Head of DEMO",
+      "role": "Director of DEMO",
       "major": "Business Administration",
       "email": "fkhalek@usc.edu",
       "linkedin": "https://www.linkedin.com/in/fariskhalek"
@@ -566,7 +566,7 @@
       "name": "Hajin Cha",
       "year": 2027,
       "position": "DEMO",
-      "role": "Co-Head of DEMO",
+      "role": "Director of DEMO",
       "major": "Business Administration",
       "email": "hajincha@usc.edu",
       "linkedin": "https://www.linkedin.com/in/hajincha"
@@ -724,6 +724,15 @@
       "major": "Public Relations and Advertising",
       "email": "jdchoi@usc.edu",
       "linkedin": "https://www.linkedin.com/in/joseph-choi-051b8a288?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    },
+    {
+      "name": "Christopher Sheng",
+      "year": 2028,
+      "position": "DEMO",
+      "role": "Director of Community and DEMO",
+      "major": "Business Administration",
+      "email": "shengchr@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/chris-sheng?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
     }
   ]
 }

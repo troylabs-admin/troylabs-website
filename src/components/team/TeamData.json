@@ -623,7 +623,7 @@
       "role": "Member",
       "major": "CSBA",
       "email": "jyang616@usc.edu",
-      "linkedin": "www.linkedin.com/in/jeffrey-yangg"
+      "linkedin": "https://www.linkedin.com/in/jeffrey-yangg"
     },
     {
       "name": "Marina Parker",
@@ -641,7 +641,7 @@
       "role": "Member",
       "major": "Business Administration",
       "email": "yukifu@usc.edu",
-      "linkedin": "www.linkedin.com/in/yukifu"
+      "linkedin": "https://www.linkedin.com/in/yukifu"
     },
     {
       "name": "Xinyi Yao",
@@ -687,7 +687,7 @@
       "role": "Member",
       "major": "Computer Science",
       "email": "sarahfan@usc.edu",
-      "linkedin": "www.linkedin.com/in/sarah-fan-70400a241"
+      "linkedin": "https://www.linkedin.com/in/sarah-fan-70400a241"
     },
     {
       "name": "Agastya Shah",
@@ -741,7 +741,7 @@
       "role": "Director of Design",
       "major": "Business Administration",
       "email": "tiarajai@usc.edu",
-      "linkedin": "www.linkedin.com/in/tiarajain"
+      "linkedin": "https://www.linkedin.com/in/tiarajain"
     },
     {
       "name": "Jaela Bard",
@@ -753,13 +753,22 @@
       "linkedin": "https://www.linkedin.com/in/jaela-bard-5425b1243/"
     },
     {
-      "name": "Elliot Luftman",
+      "name": "Elliott Luftman",
       "year": 2027,
       "position": "Product",
       "role": "Member",
       "major": "Intelligence and Cyber Operations",
       "email": "luftman@usc.edu",
       "linkedin": "https://www.linkedin.com/in/elliott-luftman-19949a237"
+    },
+    {
+      "name": "Andy Kim",
+      "year": 2028,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Economics/Math",
+      "email": "andyakim@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/andyakim"
     }
   ]
 }

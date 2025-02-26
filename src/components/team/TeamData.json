@@ -105,7 +105,7 @@
       "name": "Sophia Almendral",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Design",
       "email": "salmendr@usc.edu",
       "linkedin": "https://www.linkedin.com/in/sophia-almendral"
@@ -123,7 +123,7 @@
     {
       "name": "Andrew Kim",
       "year": 2025,
-      "position": "Finance",
+      "position": "Product",
       "role": "Member",
       "major": "Arts, Technology, and the Business of Innovation",
       "email": "andrewmk@usc.edu",
@@ -149,7 +149,7 @@
       "name": "Robert Rallo",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "linkedin": "https://www.linkedin.com/in/rrallo/"
     },
@@ -251,7 +251,7 @@
       "name": "Dylan Lewis",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "email": "dylanlew@usc.edu",
       "linkedin": "https://www.linkedin.com/in/dylanmichaellewis"
@@ -269,7 +269,7 @@
       "name": "Corey Ono",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "email": "ckono@usc.edu",
       "linkedin": "https://www.linkedin.com/in/coreyono"
@@ -769,6 +769,15 @@
       "major": "Economics/Math",
       "email": "andyakim@usc.edu",
       "linkedin": "https://www.linkedin.com/in/andyakim"
+    },
+    {
+      "name": "Ryan Chan 2",
+      "year": 2026,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "Philosophy, Politics and Law",
+      "email": "rchan166@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ryan-chan-hk/"
     }
   ]
 }

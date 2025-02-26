@@ -48,6 +48,14 @@ const TeamMemberCard = ({ member }) => {
       import(`../../assets/Headshots/JeffreyYang.jpeg`)
       .then((image) => setImageUrl(image.default))
       .catch(() => setImageUrl(null));
+    } else if (member.name === "Ryan Chan 2") {
+      import(`../../assets/Headshots/RyanChan.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
+    } else if (member.name === "Andy Kim") {
+      import(`../../assets/Headshots/AndyKim.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
     } else {
       import(`../../assets/Headshots/${lastName}.jpeg`)
         .then((image) => setImageUrl(image.default))

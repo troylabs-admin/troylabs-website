@@ -105,7 +105,7 @@
       "name": "Sophia Almendral",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Design",
       "email": "salmendr@usc.edu",
       "linkedin": "https://www.linkedin.com/in/sophia-almendral"
@@ -123,7 +123,7 @@
     {
       "name": "Andrew Kim",
       "year": 2025,
-      "position": "Finance",
+      "position": "Product",
       "role": "Member",
       "major": "Arts, Technology, and the Business of Innovation",
       "email": "andrewmk@usc.edu",
@@ -149,7 +149,7 @@
       "name": "Robert Rallo",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "linkedin": "https://www.linkedin.com/in/rrallo/"
     },
@@ -251,7 +251,7 @@
       "name": "Dylan Lewis",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "email": "dylanlew@usc.edu",
       "linkedin": "https://www.linkedin.com/in/dylanmichaellewis"
@@ -269,7 +269,7 @@
       "name": "Corey Ono",
       "year": 2024,
       "position": "Alumni",
-      "role": "Member",
+      "role": "Former Member",
       "major": "Business Administration",
       "email": "ckono@usc.edu",
       "linkedin": "https://www.linkedin.com/in/coreyono"
@@ -349,7 +349,7 @@
     {
       "name": "Allison Ha",
       "year": 2025,
-      "position": "Marketing",
+      "position": "Alumni",
       "role": "Former Director of Community",
       "major": "Communication",
       "email": "haalliso@usc.edu",
@@ -623,7 +623,7 @@
       "role": "Member",
       "major": "CSBA",
       "email": "jyang616@usc.edu",
-      "linkedin": "www.linkedin.com/in/jeffrey-yangg"
+      "linkedin": "https://www.linkedin.com/in/jeffrey-yangg"
     },
     {
       "name": "Marina Parker",
@@ -641,7 +641,7 @@
       "role": "Member",
       "major": "Business Administration",
       "email": "yukifu@usc.edu",
-      "linkedin": "www.linkedin.com/in/yukifu"
+      "linkedin": "https://www.linkedin.com/in/yukifu"
     },
     {
       "name": "Xinyi Yao",
@@ -687,7 +687,7 @@
       "role": "Member",
       "major": "Computer Science",
       "email": "sarahfan@usc.edu",
-      "linkedin": "www.linkedin.com/in/sarah-fan-70400a241"
+      "linkedin": "https://www.linkedin.com/in/sarah-fan-70400a241"
     },
     {
       "name": "Agastya Shah",
@@ -741,7 +741,52 @@
       "role": "Director of Design",
       "major": "Business Administration",
       "email": "tiarajai@usc.edu",
-      "linkedin": "www.linkedin.com/in/tiarajain"
+      "linkedin": "https://www.linkedin.com/in/tiarajain"
+    },
+    {
+      "name": "Jaela Bard",
+      "year": 2027,
+      "position": "Product",
+      "role": "Member",
+      "major": "Business Administration and Economics",
+      "email": "jzbard@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/jaela-bard-5425b1243/"
+    },
+    {
+      "name": "Elliott Luftman",
+      "year": 2027,
+      "position": "Product",
+      "role": "Member",
+      "major": "Intelligence and Cyber Operations",
+      "email": "luftman@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/elliott-luftman-19949a237"
+    },
+    {
+      "name": "Andy Kim",
+      "year": 2028,
+      "position": "Finance",
+      "role": "Member",
+      "major": "Economics/Math",
+      "email": "andyakim@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/andyakim"
+    },
+    {
+      "name": "Ryan Chan 2",
+      "year": 2026,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "Philosophy, Politics and Law",
+      "email": "rchan166@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/ryan-chan-hk/"
+    },
+    {
+      "name": "Konrad Birgisson",
+      "year": 2027,
+      "position": "Product",
+      "role": "Member",
+      "major": "Music Industry",
+      "email": "birgisso@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/konradbirgisson"
     }
   ]
 }

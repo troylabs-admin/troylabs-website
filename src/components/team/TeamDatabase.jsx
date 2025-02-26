@@ -48,6 +48,14 @@ const TeamMemberCard = ({ member }) => {
       import(`../../assets/Headshots/JeffreyYang.jpeg`)
       .then((image) => setImageUrl(image.default))
       .catch(() => setImageUrl(null));
+    } else if (member.name === "Ryan Chan 2") {
+      import(`../../assets/Headshots/RyanChan.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
+    } else if (member.name === "Andy Kim") {
+      import(`../../assets/Headshots/AndyKim.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
     } else {
       import(`../../assets/Headshots/${lastName}.jpeg`)
         .then((image) => setImageUrl(image.default))
@@ -158,12 +166,19 @@ const TeamDatabase = () => {
         if (a.role === "President" && b.role !== "President") return -1;
         if (b.role === "President" && a.role !== "President") return 1;
   
-        // Sort Board Members next
+        // Sort Board next
         const isABoard = a.role !== "Member" && !a.role.includes("Former");
         const isBBoard = b.role !== "Member" && !b.role.includes("Former");
   
         if (isABoard && !isBBoard) return -1;
         if (!isABoard && isBBoard) return 1;
+
+        // Sort Active Members next
+        const isAMemberOrFormer = (a.role === "Member" || a.role.includes("Former")) && a.position !== "Alumni";
+        const isBMemberOrFormer = (b.role === "Member" || b.role.includes("Former")) && b.position !== "Alumni";
+
+        if (isAMemberOrFormer && !isBMemberOrFormer) return -1;
+        if (!isAMemberOrFormer && isBMemberOrFormer) return 1;
   
         // Sort alphabetically otherwise
         return a.name.localeCompare(b.name);

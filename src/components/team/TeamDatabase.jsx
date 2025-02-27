@@ -14,7 +14,6 @@ const teamColors = {
   Alumni: { bg: "#F1C40F", text: "#FFFFFF" }     // Soft yellow
 };
 
-
 const Badge = ({ text, isSelected }) => {
   const color = teamColors[text] || { bg: "#F19E18", text: "#FFFFFF" };
   return (
@@ -183,7 +182,7 @@ const TeamDatabase = () => {
         // Sort alphabetically otherwise
         return a.name.localeCompare(b.name);
       });
-  }, [searchTerm, selectedTeams, teams]);    
+  }, [searchTerm, selectedTeams, teams]);
 
   console.log("filteredMembers", filteredMembers);
 

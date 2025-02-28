@@ -787,6 +787,24 @@
       "major": "Music Industry",
       "email": "birgisso@usc.edu",
       "linkedin": "https://www.linkedin.com/in/konradbirgisson"
+    },
+    {
+      "name": "Charlotte Chang",
+      "year": 2027,
+      "position": "Product",
+      "role": "Member",
+      "major": "Arts, Technology and the Business of Innovation",
+      "email": "ctchang@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/charlotte-chang-entrepreneur"
+    },
+    {
+      "name": "Joshua Jenkins",
+      "year": 2027,
+      "position": "Engineering",
+      "role": "Director of IGNITE",
+      "major": "Computer Science",
+      "email": "jtjenkin@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/joshua-jenkins-2943a792/"
     }
   ]
 }

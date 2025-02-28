@@ -55,6 +55,10 @@ const TeamMemberCard = ({ member }) => {
       import(`../../assets/Headshots/AndyKim.jpeg`)
       .then((image) => setImageUrl(image.default))
       .catch(() => setImageUrl(null));
+    } else if (member.name === "Charlotte Chang") {
+      import(`../../assets/Headshots/CharlotteChang.jpeg`)
+      .then((image) => setImageUrl(image.default))
+      .catch(() => setImageUrl(null));
     } else {
       import(`../../assets/Headshots/${lastName}.jpeg`)
         .then((image) => setImageUrl(image.default))

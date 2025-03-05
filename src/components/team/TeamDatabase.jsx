@@ -99,6 +99,22 @@ const TeamMemberCard = ({ member }) => {
           <Badge text="Board" color="bg-[#F19E18] text-white" />
         )}
       </div>
+
+      {/* Hoverable Details: Major & Email */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="text-center mt-2"
+          >
+            <p className="text-gray-500 text-xs italic">{member.major}</p>
+            <p className="text-gray-500 text-xs">{member.email}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
   
       {/* Hoverable Social Icons */}
       <AnimatePresence>

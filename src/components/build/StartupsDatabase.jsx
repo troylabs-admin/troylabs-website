@@ -63,7 +63,7 @@ const StartupCard = ({ startup }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center bg-white rounded-lg justify-center p-24 w-full h-96">
+      <div className="flex items-center bg-white rounded-lg justify-center p-6 w-full h-52 border border-gray-300 shadow-sm">
         {logoUrl ? (
           <img
             src={logoUrl}
@@ -189,7 +189,7 @@ const StartupDatabase = () => {
           ))}
         </div>
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}

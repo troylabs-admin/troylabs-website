@@ -383,7 +383,7 @@ const HeroSection = () => {
       <div className="relative z-10 h-full flex flex-col justify-center items-center text-white px-4 max-w-7xl mx-auto">
         <div className="space-y-8 text-center">
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight max-w-3xl"
+            className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight max-w-3xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}

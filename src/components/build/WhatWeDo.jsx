@@ -1391,7 +1391,7 @@ const DivisionCard = ({ title, data }) => {
       layout
     >
       <div className="flex h-full">
-        <div className="w-[35%] min-h-full bg-gradient-to-tr from-[#FDF0D5] via-[#FADCBD] to-[#F9D1D1] flex items-center justify-center">
+        <div className="w-[40%] min-w-[220px] h-full bg-gradient-to-tr from-[#FDF0D5] via-[#FADCBD] to-[#F9D1D1] flex items-center justify-center">
           <AnimationComponent color={data.color} />
         </div>
         <div className="w-[65%] px-8 py-8">
@@ -1448,7 +1448,7 @@ const WhatWeDo = () => {
             </h4>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
           {Object.entries(TeamData).map(([title, data]) => (
             <DivisionCard key={title} title={title} data={data} />
           ))}

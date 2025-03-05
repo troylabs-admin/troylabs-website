@@ -9,14 +9,14 @@
     },
     {
       "name": "Tuun",
-      "website": "",
+      "website": "https://troylabs.vc/tuun",
       "cohort": "F21",
       "tags": ["Content", "Creators", "Fans", "Support Causes"],
       "category": "Social"
     },
     {
       "name": "RightPrice",
-      "website": "",
+      "website": "https://troylabs.vc/rightprice",
       "cohort": "F21",
       "tags": ["Consumer Data", "Pricing"],
       "category": "B2B"
@@ -51,7 +51,7 @@
     },
     {
       "name": "Rondivoo",
-      "website": "",
+      "website": "https://troylabs.vc/rondivoo",
       "cohort": "S22",
       "tags": ["Social Platform", "Event Promotion", "Event Discovery"],
       "category": "Social"
@@ -198,14 +198,14 @@
     },
     {
       "name": "Bubble",
-      "website": "",
+      "website": "https://troylabs.vc/bubble",
       "cohort": "F24",
       "tags": ["Focus", "Productivity"],
       "category": "Tech"
     },
     {
       "name": "Sequence",
-      "website": "",
+      "website": "https://www.sequencestories.com/",
       "cohort": "F24",
       "tags": ["Interactive Storytelling"],
       "category": "Tech"

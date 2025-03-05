@@ -11,6 +11,7 @@ import Ignite from "./screens/Ignite";
 import Header from "./components/Header";
 import Team from "./screens/Team";
 import Partners from "./screens/Partners";
+import NotFound from "./screens/NotFound";
 import { useEffect } from "react";
 
 function ScrollToTop() {
@@ -34,6 +35,8 @@ function App() {
         <Route element={<Ignite />} path="/ignite" />
         <Route element={<Team />} path="/team" />
         <Route element={<Partners />} path="/partners" />
+        {/* Catch-all for undefined routes */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

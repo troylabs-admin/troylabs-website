@@ -467,7 +467,7 @@
       "name": "Sean Jeong",
       "year": 2026,
       "position": "Product",
-      "role": "Former Director of Community",
+      "role": "Director of Community",
       "major": "Computer Science and Business Administration",
       "email": "sljeong@usc.edu",
       "linkedin": "https://www.linkedin.com/in/seanjeong"
@@ -823,6 +823,15 @@
       "major": "Art, Tech, & Business Innovation",
       "email": "arrane@usc.edu",
       "linkedin": "https://www.linkedin.com/in/anushkarrane"
+    },
+    {
+      "name": "Shubha Vajragiri",
+      "year": 2028,
+      "position": "DEMO",
+      "role": "Member",
+      "major": "Artificial Intelligence for Business",
+      "email": "vajragir@usc.edu",
+      "linkedin": "https://www.linkedin.com/in/shubha-vajragiri-6660b1212/"
     }
   ]
 }

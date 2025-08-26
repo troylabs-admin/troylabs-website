@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [applicationsOpen, setApplicationsOpen] = useState(false);
+  const [applicationsOpen, setApplicationsOpen] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,25 +58,6 @@ function Header() {
       </nav>
 
       <div className="flex flex-row items-center justify-end gap-2 w-64">
-        {applicationsOpen && (
-          <motion.button
-            className={`hidden md:block w-32 py-2 pr-4 rounded-full text-sm font-semibold ${
-              scrolled ? "text-[#F19E18]" : " text-white"
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              applicationsOpen
-                ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
-                : window.open(
-                    "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
-                    "_blank"
-                  );
-            }}
-          >
-            {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
-          </motion.button>
-        )}
         <motion.button
           className={`hidden md:block w-32 px-6 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${
             scrolled
@@ -87,14 +68,14 @@ function Header() {
           whileTap={{ scale: 0.95 }}
           onClick={() => {
             applicationsOpen
-              ? window.open("https://form.typeform.com/to/ksUMe8CV", "_blank")
+              ? window.open("https://tr.ee/msSy-HPXEQ", "_blank")
               : window.open(
                   "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
                   "_blank"
                 );
           }}
         >
-          {applicationsOpen ? "Apply Now" : "Join IGNITE"}
+          {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
         </motion.button>
       </div>
 
@@ -133,24 +114,6 @@ function Header() {
                 {item}
               </a>
             ))}
-            {applicationsOpen && <motion.button
-              className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-semibold ${
-                scrolled
-                  ? "bg-[#F19E18] text-white hover:bg-[#E62314]"
-                  : "bg-white text-[#F19E18] hover:bg-[#F19E18] hover:text-white"
-              } transition-colors duration-200`}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                applicationsOpen
-                  ? window.open("https://forms.gle/Brjdti1Hfp5jgiCa6", "_blank")
-                  : window.open(
-                      "https://docs.google.com/forms/d/e/1FAIpQLScIEOShyPZR3NcCKBYGFQyjXedeuz3iZPqQnH3i8JDzIle4tA/viewform",
-                      "_blank"
-                    );
-              }}
-            >
-              {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
-            </motion.button>}
             <motion.button
               className={`w-full rounded-md px-4 py-2 mt-4 text-sm font-semibold ${
                 scrolled
@@ -161,7 +124,7 @@ function Header() {
               onClick={() => {
                 applicationsOpen
                   ? window.open(
-                      "https://form.typeform.com/to/ksUMe8CV",
+                      "https://tr.ee/msSy-HPXEQ",
                       "_blank"
                     )
                   : window.open(
@@ -170,7 +133,7 @@ function Header() {
                     );
               }}
             >
-              {applicationsOpen ? "Apply Now" : "Join IGNITE"}
+              {applicationsOpen ? "Apply as a Startup" : "Join IGNITE"}
             </motion.button>
           </motion.div>
         )}

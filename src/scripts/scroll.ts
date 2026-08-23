@@ -10,7 +10,15 @@ import Lenis from 'lenis';
 let lenis: Lenis | null = null;
 const root = document.documentElement;
 
+function armIntroSwap() {
+  // the flyer replaces the wordmark's rocket only when the wordmark's reveal has actually finished
+  const wm = document.querySelector('.wordmark');
+  if (!wm) { root.classList.add('intro-done'); return; }   // pages without the Home hero
+  wm.addEventListener('animationend', () => root.classList.add('intro-done'), { once: true });
+  setTimeout(() => root.classList.add('intro-done'), 3000); // safety net
+}
 function init() {
+  armIntroSwap();
   if (lenis || !matchMedia('(hover: hover) and (pointer: fine)').matches || !root.classList.contains('motion')) return;
   lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, syncTouch: false });
   let v = 0, shown = 0, frame = 0;
@@ -18,6 +26,7 @@ function init() {
   const raf = (t: number) => {
     lenis!.raf(t);
     // plant the BUILD flag when the landing rocket reaches the end of its path
+    if (!root.classList.contains('intro-done') && scrollY > 2) root.classList.add('intro-done');
     if ((frame++ & 7) === 0) {
       const hf = document.querySelector<HTMLElement>('.home-flyer'); if (hf) root.classList.toggle('landed', parseFloat(getComputedStyle(hf).offsetDistance) >= 99); const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag'); if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5); }
     // decay toward the live velocity so bursts read as momentum, not jitter
@@ -31,3 +40,4 @@ function init() {
 init();
 document.addEventListener('astro:page-load', () => { lenis?.scrollTo(0, { immediate: true }); init(); });
 document.addEventListener('astro:before-swap', () => { lenis?.scrollTo(0, { immediate: true }); });
+document.addEventListener('astro:after-swap', () => { root.classList.remove('intro-done'); armIntroSwap(); });

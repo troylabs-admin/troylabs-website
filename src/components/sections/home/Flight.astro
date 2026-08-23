@@ -10,7 +10,7 @@
  * Scroll-linked to the document (animation-timeline: scroll()); coordinates are du in the .flight px box.
  */
 import { pos } from '../../../lib/units';
-import rocket from '../../../assets/figma/wordmark-rocket.svg?raw';
+import rocket from '../../../assets/figma/wordmark-rocket-flat.svg?raw'; // filters stripped: shadow filters re-rasterize every frame while scaling
 
 /* container spans the artboard below the nav: main-relative y = page y − 79 */
 const TOP = 79;
@@ -28,7 +28,7 @@ const D = [
   'C 40 3300, 60 3500, 140 3650',     // past the globe's left
   'C 240 3830, 60 4050, 60 4400',     // swing out and down the board's left margin
   'C 60 4900, 90 5300, 300 5520',     // toward the footer
-  'C 520 5700, 794.5 5820, 794.5 5674',  // final approach curls under and rises to set down nose-up on the footer mark
+  'C 480 5660, 794.5 5780, 794.5 5674',  // shorter final hook: rises to set down nose-up on the footer mark
 ].join(' ');
 const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x, y) => `${x} ${(parseFloat(y) - TOP).toFixed(1)}`);
 ---
@@ -39,6 +39,9 @@ const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (
       <path id="home-flight-path" d={toBox(D)} fill="none" stroke="none" />
     </svg>
     <!-- the wordmark's own rocket (glow padding is symmetric, body = 66.4×98.5 centred) -->
-    <div class="home-flyer" style="width:407px;height:439px" set:html={rocket} />
+    <div class="home-flyer" style="width:407px;height:439px">
+      <span class="halo" aria-hidden="true"></span>
+      <Fragment set:html={rocket} />
+    </div>
   </div>
 </div>

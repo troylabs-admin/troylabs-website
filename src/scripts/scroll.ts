@@ -19,7 +19,7 @@ function init() {
     lenis!.raf(t);
     // plant the BUILD flag when the landing rocket reaches the end of its path
     if ((frame++ & 7) === 0) {
-      root.classList.toggle('flying', scrollY > 120); const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag'); if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5); }
+      const hf = document.querySelector<HTMLElement>('.home-flyer'); if (hf) root.classList.toggle('landed', parseFloat(getComputedStyle(hf).offsetDistance) >= 99); const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag'); if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5); }
     // decay toward the live velocity so bursts read as momentum, not jitter
     const next = shown + (v - shown) * 0.12;
     if (Math.abs(next - shown) > 0.01 || (shown !== 0 && Math.abs(next) < 0.01)) { shown = Math.abs(next) < 0.01 ? 0 : next; root.style.setProperty('--scroll-v', shown.toFixed(2)); } // write only while it changes

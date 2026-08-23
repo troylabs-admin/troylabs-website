@@ -142,7 +142,7 @@ html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s l
   }
   /* exhaust: a soft glow trailing the flyer whose size follows scroll velocity (--scroll-v from scroll.ts) */
 html.motion .flyer-img { filter: drop-shadow(0 calc(4px + min(26px, abs(var(--scroll-v, 0)) * 1.1px)) calc(3px + min(12px, abs(var(--scroll-v, 0)) * 0.5px)) rgb(255 125 44 / 0.6)); transition: filter 120ms linear; }
-html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range: entry 40% exit 60%; } /* nose-first: it lands on the planet */
+html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range: entry 40% exit 30%; } /* ends well before max scroll on tall viewports too */ /* nose-first: it lands on the planet */
 }
 .rocket-flyer { display: none; }
 @keyframes fly { from { offset-distance: 0%; } to { offset-distance: 100%; } }
@@ -186,3 +186,14 @@ html.motion [data-reveal].is-in img, html.motion img[data-reveal].is-in { clip-p
 /* footer links: underline wipe in addition to the colour change */
 footer nav a, footer .t-nav[href] { background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat; background-size: 0% 1px; background-position: 0 100%; transition: background-size 300ms var(--ease-out-expo), color 200ms var(--ease-out-expo); }
 footer nav a:hover, footer .t-nav[href]:hover { background-size: 100% 1px; }
+
+/* ── BUILD: flag planted when the rocket lands on the planet ───────────────── */
+.flag { display: none; transform-origin: 50% 100%; }
+html.motion .flag { display: block; }
+.flag .pole { position: absolute; left: calc(19 * var(--u)); bottom: 0; width: calc(1.4 * var(--u)); height: 100%; background: #fff; border-radius: 1px; box-shadow: 0 0 calc(6 * var(--u)) rgb(255 255 255 / 0.6); }
+.flag .cloth { position: absolute; left: calc(20.4 * var(--u)); top: 0; width: calc(22 * var(--u)); height: calc(15 * var(--u)); background: var(--color-orange); border-radius: 0 calc(2 * var(--u)) calc(2 * var(--u)) 0; display: grid; place-items: center; transform-origin: 0 50%; }
+.flag .cloth svg { width: calc(8 * var(--u)); height: auto; }
+html.motion .flag { opacity: 0; transform: translateY(calc(10 * var(--u))) scaleY(0); transition: opacity 350ms var(--ease-out-expo), transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+html.motion .flag.is-planted { opacity: 1; transform: none; }   /* toggled by scroll.ts when the rocket reaches the end of its path (viewport-size independent) */
+html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: skewY(-3deg) rotate(0.5deg); } 50% { transform: skewY(3deg) rotate(-1deg) scaleX(0.98); } }

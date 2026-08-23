@@ -16,11 +16,12 @@ import { pos, u } from '../../../lib/units';
 import Stars from '../../space/Stars.astro';
 import rocket from '../../../assets/figma/build-rocket-b.png';
 import flyer from '../../../assets/space/orange-rocket.png';
+import flagMark from '../../../assets/figma/nav-rocket.svg?raw';
 
 /* "Vector 10" — the designer's curve from the rocket down to the planet (Figma SVG export, 687×742 user units = du).
    Drawn as a review annotation in green; not rendered, but it IS the flight path for the motion layer. */
 const FLIGHT = { x: 99.4, y: 3090.8, w: 687, h: 742 };
-const FLIGHT_D = 'M1.00024 1.00024C1.00024 1.46599 1.00024 1.93174 1.3195 35.1855C1.63877 68.4393 2.2773 134.467 3.1734 173.45C4.0695 212.434 5.20383 222.373 9.59119 242.066C13.9785 261.759 21.5846 290.906 29.6758 317.738C44.999 368.552 58.6594 399.786 67.1741 416.283C88.4719 457.548 103.586 484.077 149.96 534.999C170.448 557.496 190.955 574.528 212.898 594.054C236.89 615.403 255.556 625.492 269.026 633.434C296.449 649.603 324.359 665.288 355.937 677.569C376.788 685.678 408.302 695.278 430.832 701.69C453.362 708.101 466.173 710.441 505.047 713.491C543.921 716.541 608.469 720.229 643.804 722.272C679.138 724.315 683.304 724.6 684.466 723.622'; // tail trimmed: the original ends in a hand-drawn arrowhead squiggle that made the rocket spin on landing
+const FLIGHT_D = 'M-420,-60 C-300,-60 -120,-40 1.00024 1.00024 C1.00024 1.46599 1.00024 1.93174 1.3195 35.1855C1.63877 68.4393 2.2773 134.467 3.1734 173.45C4.0695 212.434 5.20383 222.373 9.59119 242.066C13.9785 261.759 21.5846 290.906 29.6758 317.738C44.999 368.552 58.6594 399.786 67.1741 416.283C88.4719 457.548 103.586 484.077 149.96 534.999C170.448 557.496 190.955 574.528 212.898 594.054C236.89 615.403 255.556 625.492 269.026 633.434C296.449 649.603 324.359 665.288 355.937 677.569C376.788 685.678 408.302 695.278 430.832 701.69C453.362 708.101 466.173 710.441 505.047 713.491C543.921 716.541 608.469 720.229 643.804 722.272C679.138 724.315 683.304 724.6 684.466 723.622'; // lead-in from off-screen left, then the designer's curve; tail trimmed (arrowhead squiggle) // tail trimmed: the original ends in a hand-drawn arrowhead squiggle that made the rocket spin on landing
 import planet from '../../../assets/figma/build-planet-393.png';
 import ef from '../../../assets/figma/build-logo-ef.svg?raw';
 import collab from '../../../assets/figma/build-logo-collab.svg?raw';
@@ -60,6 +61,11 @@ const stars = [
   <svg class="abs pointer-events-none" style={pos(FLIGHT.x, y(FLIGHT.y), FLIGHT.w, FLIGHT.h)} viewBox="0 0 687 742" aria-hidden="true">
     <path id="build-backers-path" d={FLIGHT_D} fill="none" stroke="none" />
   </svg>
+  <!-- the flag planted on touchdown (motion only): pole at the landing point, cloth waves gently -->
+  <div class="abs flag pointer-events-none" style={pos(783.9, y(3814.4) - 52, 40, 52)} aria-hidden="true">
+    <span class="pole"></span>
+    <span class="cloth" set:html={flagMark} />
+  </div>
   <div class="abs rocket-flyer pointer-events-none" style={pos(FLIGHT.x, y(FLIGHT.y), FLIGHT.w, FLIGHT.h)} aria-hidden="true">
     <div class="flight" style="width:687px;height:742px;transform-origin:0 0;transform:scale(var(--un, 1))">
       <Image src={flyer} alt="" width={906} height={2048} class="flyer-img flyer-backers" style="width:42px;height:95px" />

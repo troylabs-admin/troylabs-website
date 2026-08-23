@@ -17,6 +17,9 @@ function init() {
   lenis.on('scroll', ({ velocity }: { velocity: number }) => { v = velocity; });
   const raf = (t: number) => {
     lenis!.raf(t);
+    // plant the BUILD flag when the landing rocket reaches the end of its path
+    const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag');
+    if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5);
     // decay toward the live velocity so bursts read as momentum, not jitter
     const shown = parseFloat(root.style.getPropertyValue('--scroll-v')) || 0;
     const next = shown + (v - shown) * 0.12;

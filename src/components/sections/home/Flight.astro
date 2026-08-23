@@ -1,0 +1,42 @@
+---
+/**
+ * Home › the page-long flight (motion layer only; nothing at rest).
+ * The rocket from the TROYLABS wordmark lifts out of the logo as you scroll, flies the whole page —
+ * arcing right of the mission text, threading between the orange and yellow planets, passing right of the
+ * blue planet's ring, down the right margin past the catalyst, along the left margin past the divisions and
+ * the globe, and finally curves in to DOCK on the footer's rocket mark (fading out on top of it).
+ * Scroll-linked to the document (animation-timeline: scroll()); coordinates are du in the .flight px box.
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import flyer from '../../../assets/space/orange-rocket.png';
+
+/* container spans the artboard below the nav: main-relative y = page y − 79 */
+const TOP = 79;
+const BOX = { x: 0, y: 0, w: 1001, h: 5760 };
+/* path in page du (y absolute, converted to box coords below) */
+const D = [
+  'M 617 300',
+  'C 640 170, 780 150, 830 270',      // lift out of the wordmark, arc up-right
+  'C 890 420, 930 640, 880 880',      // down the right of the mission copy
+  'C 830 1120, 620 1140, 500 1290',   // in between the orange and yellow planets
+  'C 420 1400, 560 1520, 680 1630',   // around the blue planet's ring
+  'C 830 1760, 950 1980, 930 2210',   // right margin past the catalyst heading
+  'C 910 2430, 600 2380, 300 2480',   // cross leftwards above the divisions
+  'C 60 2560, 40 2800, 40 3050',      // left margin, past the division cards
+  'C 40 3300, 60 3500, 140 3650',     // past the globe's left
+  'C 240 3830, 60 4050, 60 4400',     // swing out and down the board's left margin
+  'C 60 4900, 100 5350, 400 5560',    // toward the footer
+  'C 560 5665, 700 5680, 794 5673',   // dock on the footer rocket mark
+].join(' ');
+const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x, y) => `${x} ${(parseFloat(y) - TOP).toFixed(1)}`);
+---
+
+<div class="abs home-flight pointer-events-none" style={pos(BOX.x, BOX.y, BOX.w, BOX.h)} aria-hidden="true">
+  <div class="flight" style={`width:${BOX.w}px;height:${BOX.h}px;transform-origin:0 0;transform:scale(var(--un, 1))`}>
+    <svg width={BOX.w} height={BOX.h} style="position:absolute;inset:0;overflow:visible">
+      <path id="home-flight-path" d={toBox(D)} fill="none" stroke="none" />
+    </svg>
+    <Image src={flyer} alt="" width={906} height={2048} class="home-flyer" style="width:34px;height:77px" />
+  </div>
+</div>

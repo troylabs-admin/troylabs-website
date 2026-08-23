@@ -27,8 +27,8 @@ header a[aria-label="TroyLabs home"]:hover, header a[aria-label="TroyLabs home"]
 header a[aria-label="TroyLabs home"] svg, header a[aria-label="TroyLabs home"] svg *, footer .mark svg, footer .mark svg * { fill: currentColor; }
 footer .social .mask { display: block; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
 
-[data-initiative] h3 a { transition: color 200ms var(--ease-out-expo); }
-[data-initiative]:hover h3 a { color: var(--color-orange); }
+[data-initiative] h3 span { transition: color 200ms var(--ease-out-expo); }
+[data-initiative]:hover h3 span, [data-initiative]:has(.ring:focus-visible) h3 span { color: var(--color-orange); }
 [data-initiative] .ring { transition: box-shadow 300ms var(--ease-out-expo); }
 [data-initiative]:hover .ring { box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.9), 0 0 calc(24 * var(--u)) rgb(255 125 44 / 0.25); }
 
@@ -95,6 +95,15 @@ html.motion .star:not([data-figma$="Hero"] .star) {
 html.motion .planet .parallax { transform: translate3d(calc(var(--mx, 0) * var(--d, 0) * 1px), calc(var(--my, 0) * var(--d, 0) * 1px), 0); transition: transform 80ms linear; }
 html.motion .planet .parallax[data-depth="10"] { --d: 10; } html.motion .planet .parallax[data-depth="14"] { --d: 14; }
 html.motion .planet .parallax[data-depth="18"] { --d: 18; } html.motion .planet .parallax[data-depth="26"] { --d: 26; }
+/* atmosphere: a coloured halo behind each planet that breathes (opacity only) + a faint rim light on the body */
+.planet .atmo { position: absolute; inset: -18%; border-radius: 9999px; pointer-events: none; opacity: 0.55;
+  background: radial-gradient(circle, var(--atmo) 0%, color-mix(in srgb, var(--atmo) 40%, transparent) 45%, transparent 70%); filter: blur(calc(6 * var(--u))); }
+.planet[data-planet="orange"] .atmo { --atmo: rgb(255 125 44 / 0.45); }
+.planet[data-planet="yellow"] .atmo { --atmo: rgb(255 194 0 / 0.35); }
+.planet[data-planet="blue"]   .atmo { --atmo: rgb(84 138 255 / 0.40); inset: -10% 5%; }
+.planet[data-planet="moon"]   .atmo { --atmo: rgb(255 255 255 / 0.35); }
+html.motion .planet .atmo { animation: atmo var(--p, 14s) ease-in-out infinite alternate; }
+@keyframes atmo { from { opacity: 0.4; transform: scale(0.96); } to { opacity: 0.75; transform: scale(1.04); } }
 /* breathing: a slow scale/drift so nothing is ever perfectly still; periods differ per body */
 html.motion .planet img.breathe { animation: breathe var(--p, 14s) ease-in-out infinite alternate; }
 html.motion .planet img.breathe[data-period="14s"] { --p: 14s; } html.motion .planet img.breathe[data-period="19s"] { --p: 19s; }
@@ -209,3 +218,19 @@ html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
 .constellation .node:hover .halo, .constellation .node:focus .halo, .constellation .node.lit .halo { opacity: 0.35; }
 .constellation .node:hover text, .constellation .node.lit text { opacity: 1; }
 .constellation .core { filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.9)); }
+
+/* ── Home: the wordmark's rocket flies the page and docks on the footer mark ── */
+.home-flight { display: none; }
+@supports (animation-timeline: scroll()) and (offset-path: path("M0 0")) {
+  html.motion .home-flight { display: block; }
+  html.motion .home-flyer {
+    offset-path: url(#home-flight-path);
+    offset-rotate: auto 90deg;                       /* nose-first */
+    /* scroll→distance keyframes (generated: scripts note in Flight.astro) keep the rocket at ~45% viewport height */
+    animation: home-fly linear both, home-flight-fade linear both;
+    animation-timeline: scroll(root), scroll(root);
+  }
+}
+/* hidden while parked in the wordmark, fades in as it lifts, fades out as it docks on the footer mark */
+@keyframes home-flight-fade { 0%, 1% { opacity: 0; } 5%, 96% { opacity: 1; } 99.5%, 100% { opacity: 0; } }
+@keyframes home-fly { 0.4% { offset-distance: 0.0%; } 3.8% { offset-distance: 7.5%; } 7.2% { offset-distance: 10.0%; } 10.6% { offset-distance: 12.5%; } 13.8% { offset-distance: 15.0%; } 16.1% { offset-distance: 17.5%; } 18.1% { offset-distance: 20.0%; } 20.8% { offset-distance: 22.5%; } 23.7% { offset-distance: 25.0%; } 26.0% { offset-distance: 27.5%; } 28.6% { offset-distance: 30.0%; } 31.5% { offset-distance: 32.5%; } 34.8% { offset-distance: 35.0%; } 38.1% { offset-distance: 37.5%; } 40.1% { offset-distance: 40.0%; } 40.9% { offset-distance: 42.5%; } 41.5% { offset-distance: 45.0%; } 42.4% { offset-distance: 47.5%; } 44.5% { offset-distance: 50.0%; } 47.6% { offset-distance: 52.5%; } 50.9% { offset-distance: 55.0%; } 54.3% { offset-distance: 57.5%; } 57.7% { offset-distance: 60.0%; } 61.0% { offset-distance: 62.5%; } 64.2% { offset-distance: 65.0%; } 67.4% { offset-distance: 67.5%; } 70.7% { offset-distance: 70.0%; } 74.0% { offset-distance: 72.5%; } 77.3% { offset-distance: 75.0%; } 80.7% { offset-distance: 77.5%; } 84.1% { offset-distance: 80.0%; } 87.4% { offset-distance: 82.5%; } 90.8% { offset-distance: 85.0%; } 94.1% { offset-distance: 87.5%; } 97.2% { offset-distance: 90.0%; } 99.9% { offset-distance: 92.5%; } 100.0% { offset-distance: 100.0%; } }

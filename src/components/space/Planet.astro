@@ -27,6 +27,7 @@ const bw = w * halo, bh = h * halo, ox = (bw - w) / 2, oy = (bh - h) / 2;
 
 <!-- three nested transforms: .planet = scroll drift · .parallax = mouse depth · img = breathing -->
 <div class:list={['abs planet pointer-events-none select-none', cls]} style={pos(x - ox, y - oy, bw, bh)} data-planet={kind}>
+  <span class="atmo" aria-hidden="true" style={`--p:${PERIOD[kind]}`} />
   <div class="parallax" data-depth={DEPTH[kind]}>
     <Image src={src} alt="" aria-hidden="true" widths={[480, 960, 1440]} sizes={`${Math.round(bw * 1.44)}px`} class="breathe" style="width:100%;height:100%" data-period={PERIOD[kind]} />
   </div>

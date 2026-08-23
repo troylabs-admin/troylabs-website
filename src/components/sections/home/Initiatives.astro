@@ -54,16 +54,17 @@ const stars = [
 
   {initiatives.map((i) => (
     <article data-initiative={i.key}>
-      <div class="abs ring" style={pos(i.ring.x, y(i.ring.y), 207, 207)} aria-hidden="true" />
       <h3 class="abs m-0 t-title text-center whitespace-nowrap font-normal" style={pos(i.titleBox.x, y(i.titleBox.y), i.titleBox.w, 23)}>
-        <a href={i.href} class="no-underline text-ink">{i.title}</a>
+        <span class="text-ink">{i.title}</span>
       </h3>
       <p class="abs m-0 t-caption text-center" style={pos(i.body.x, y(i.body.y), i.body.w, 87)}>{i.text}</p>
+      <!-- the whole halo circle is the link (sits above the text so the full disc is the hit target) -->
+      <a href={i.href} class="abs ring z-10 block" style={pos(i.ring.x, y(i.ring.y), 207, 207)} aria-label={`${i.title} — learn more`} />
     </article>
   ))}
 </section>
 
 <style>
-  .ring { border-radius: 9999px; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.4); }
+  .ring { border-radius: 9999px; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.4); cursor: pointer; }
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
 </style>

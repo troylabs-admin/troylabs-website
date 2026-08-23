@@ -6,6 +6,14 @@
  */
 import { inView } from 'motion';
 
+/** "100+" / "$28M+" tick up from 0 over 1.2 s (expo-out); prefix/suffix preserved. */
+function countUp(el: HTMLElement) {
+  const m = el.textContent!.trim().match(/^([^\d]*)(\d+)(.*)$/); if (!m) return;
+  const [, pre, num, post] = m; const target = parseInt(num, 10); const t0 = performance.now(); const D = 1200;
+  const tick = (t: number) => { const p = Math.min(1, (t - t0) / D); const e = 1 - Math.pow(2, -10 * p); el.textContent = `${pre}${Math.round(target * e)}${post}`; if (p < 1) requestAnimationFrame(tick); else el.textContent = `${pre}${target}${post}`; };
+  requestAnimationFrame(tick);
+}
+
 function init() {
   const root = document.documentElement;
   if (root.classList.contains('motion')) {
@@ -13,7 +21,7 @@ function init() {
     for (const section of sections) {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];
-      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, article, li, figure, img:not(.planet):not(.abs), .bubble-orb, .bubble-label, .ring')) {
+      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .bubble-orb, .bubble-label, .ring')) {
         if (el.closest('[data-figma="Hero"], .no-reveal')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)
@@ -32,7 +40,7 @@ function init() {
         .forEach((u, i) => {
           u.dataset.reveal = '';
           u.style.setProperty('--stagger', String(Math.min(i, 6)));
-          inView(u, () => { u.classList.add('is-in'); }, { amount: 0.15, margin: '0px 0px -15% 0px' }); // fires when the unit is ~15% up from the bottom edge
+          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, { amount: 0.15, margin: '0px 0px -15% 0px' }); // fires when the unit is ~15% up from the bottom edge
         });
     }
   }

@@ -21,7 +21,7 @@ function init() {
     for (const section of sections) {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];
-      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .bubble-orb, .bubble-label, .ring')) {
+      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring')) {
         if (el.closest('[data-figma="Hero"], .no-reveal')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)

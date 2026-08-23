@@ -45,8 +45,6 @@ html.motion [data-reveal].is-in {
   transition: opacity 900ms var(--ease-out-expo), transform 1000ms var(--ease-out-expo);
   transition-delay: calc(var(--stagger, 0) * 80ms);
 }
-/* physics-driven elements: once revealed, transform must respond instantly (the reveal transition would lag the bubbles behind their lines) */
-html.motion .bubble-orb.is-in, html.motion .bubble-label.is-in { transition: opacity 550ms var(--ease-out-expo); }
 
 /* ── hero choreography (first ~2 s): environment → wordmark → tagline → nav. Runs on every page load. ── */
 /* 1. the sky: stars/dots fade in first (0–0.6 s) */
@@ -197,3 +195,15 @@ html.motion .flag { opacity: 0; transform: rotate(var(--tilt, 0deg)) translateY(
 html.motion .flag.is-planted { opacity: 1; transform: rotate(var(--tilt, 0deg)); }   /* toggled by scroll.ts when the rocket reaches the end of its path (viewport-size independent) */
 html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
 @keyframes wave { 0%, 100% { transform: skewY(-3deg) rotate(0.5deg); } 50% { transform: skewY(3deg) rotate(-1deg) scaleX(0.98); } }
+
+/* ── Home: "13 majors" constellation (see Catalyst.astro + scripts/constellation.ts) ── */
+.constellation { overflow: visible; }
+.constellation line { stroke: #fff; stroke-opacity: 0.28; stroke-width: 0.5; transition: stroke-opacity 300ms var(--ease-out-expo); }
+.constellation line.lit { stroke-opacity: 0.9; }
+.constellation .core { fill: #fff; }
+.constellation .halo { fill: #fff; opacity: 0.10; transition: opacity 300ms var(--ease-out-expo); }
+.constellation text { fill: #fff; font-size: 7.5px; letter-spacing: 0.4px; opacity: 0.85; transition: opacity 300ms; }
+.constellation .node { cursor: default; outline: none; }
+.constellation .node:hover .halo, .constellation .node:focus .halo, .constellation .node.lit .halo { opacity: 0.35; }
+.constellation .node:hover text, .constellation .node.lit text { opacity: 1; }
+.constellation .core { filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.9)); }

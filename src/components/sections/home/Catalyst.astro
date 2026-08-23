@@ -11,7 +11,6 @@ import { pos, u } from '../../../lib/units';
 import Stars from '../../space/Stars.astro';
 import Glow from '../../space/Glow.astro';
 import starburst from '../../../assets/figma/starburst.png';
-import orb from '../../../assets/space/grey-orb.png';
 import star1 from '../../../assets/space/star-1.png';
 import star2 from '../../../assets/space/star-2.png';
 import star3 from '../../../assets/space/star-3.png';
@@ -26,30 +25,36 @@ const y = (v: number) => v - TOP;
 const burst = { w: 1017 / 3, h: 1019 / 3 };
 const burstPad = { x: (burst.w - 315.4) / 2, y: (burst.h - 316) / 2 };
 
-/* 13 majors — orb box (Figma ellipse) + label text box. 6px labels unless noted. */
+/* 13 majors — rendered as a constellation (decision 2026-08-23: the Figma's glass orbs were placeholders; stars + lines
+   fit the space language). Node centres are the Figma orb centres; `s` = star size class (1 small … 3 large). */
 const majors = [
-  { orb: [526, 2119, 84, 84], label: 'Philosophy, Politics, and Law', box: [542, 2154, 52, 14] },
-  { orb: [564, 2176, 67, 67], label: 'Electrical & Computer Engineering', box: [572, 2199, 53, 21] },
-  { orb: [660, 2131, 51, 51], label: 'Political Science', box: [665, 2150, 42, 14] },
-  { orb: [686, 2176, 60, 60], label: 'Economics', box: [700, 2202, 31, 7] },
-  { orb: [738, 2119, 78, 78], label: 'Human Development & Aging', box: [756, 2147, 42, 21] },
-  { orb: [628, 2225, 59, 59], label: 'PR & Advertising', box: [637, 2246, 41, 14] },
-  { orb: [712, 2245, 51, 52], label: 'AI for Business', box: [717, 2263, 42, 14] },
-  { orb: [769, 2232, 85, 84], label: 'Communications', box: [780, 2270, 63, 9], size: 8, glow: true },
-  { orb: [555, 2267, 85, 85], label: 'Business Administration', box: [568, 2303, 60, 14] },
-  { orb: [711, 2307, 46, 46], label: 'History', box: [724, 2326, 20, 7] },
-  { orb: [708, 2324, 115, 114], label: 'Arts, Technology & Business', box: [740, 2374, 52, 14] },
-  { orb: [618, 2358, 45, 45], label: 'Design', box: [631, 2377, 20, 7] },
-  { orb: [538, 2374, 60, 60], label: 'Computer Science', box: [542, 2397, 51, 14] },
-] as const;
-
-/* Connector lines — endpoints derived from each LINE node's relativeTransform (origin + length·direction). */
-const links: [number, number, number, number][] = [
-  [787, 2196, 798, 2234],   // Line 28
-  [711, 2363, 635, 2329],   // Line 30
-  [717, 2287, 590, 2384],   // Line 31
-  [662, 2166, 624, 2189],   // Line 29
+  { label: 'Philosophy, Politics & Law', c: [568, 2161], s: 3 },
+  { label: 'Electrical & Computer Engineering', c: [597.5, 2209.5], s: 2 },
+  { label: 'Political Science', c: [685.5, 2156.5], s: 1 },
+  { label: 'Economics', c: [716, 2206], s: 2 },
+  { label: 'Human Development & Aging', c: [777, 2158], s: 2 },
+  { label: 'PR & Advertising', c: [657.5, 2254.5], s: 1 },
+  { label: 'AI for Business', c: [737.5, 2271], s: 1 },
+  { label: 'Communications', c: [811.5, 2274], s: 3 },
+  { label: 'Business Administration', c: [597.5, 2309.5], s: 3 },
+  { label: 'History', c: [734, 2330], s: 1 },
+  { label: 'Arts, Technology & Business', c: [765.5, 2381], s: 3 },
+  { label: 'Design', c: [640.5, 2380.5], s: 1 },
+  { label: 'Computer Science', c: [568, 2404], s: 2 },
 ];
+/* constellation edges: a minimum spanning tree over the node centres + a few closing strokes for the figure */
+function mst(pts: number[][]) {
+  const n = pts.length, inT = [0], out: [number, number][] = [];
+  while (inT.length < n) {
+    let best: [number, number, number] = [0, 0, Infinity];
+    for (const a of inT) for (let b = 0; b < n; b++) if (!inT.includes(b)) { const d = Math.hypot(pts[a][0] - pts[b][0], pts[a][1] - pts[b][1]); if (d < best[2]) best = [a, b, d]; }
+    out.push([best[0], best[1]]); inT.push(best[1]);
+  }
+  return out;
+}
+const edges: [number, number][] = [...mst(majors.map((m) => m.c)), [2, 4], [7, 10], [8, 11]];
+/* label placement: side of the node the text sits on (keeps labels clear of the lines) */
+const side: Record<number, 'l' | 'r' | 'b'> = { 0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'l', 6: 'r', 7: 'r', 8: 'l', 9: 'r', 10: 'r', 11: 'r', 12: 'b' };
 
 /* 6 divisions: icon, timeline (dot → line → dot), card.
    Icon placement: the Figma STAR nodes have inner shadows that darken their edges, so the visible shape is
@@ -86,19 +91,23 @@ const stars = [
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
   <Image src={starburst} alt="" aria-hidden="true" width={1017} height={1019} class="abs pointer-events-none" style={pos(147 - burstPad.x, y(2139) - burstPad.y, burst.w, burst.h)} />
 
-  <!-- 13 majors -->
+  <!-- 13 majors: constellation (scripts/constellation.ts drifts the stars and brightens links on hover) -->
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(645, y(2086), 82, 14)}>13 MAJORS</h3>
-  <svg class="abs pointer-events-none" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" aria-hidden="true" data-bubble-links>
-    {links.map(([x1, y1, x2, y2]) => <line x1={x1} y1={y(y1)} x2={x2} y2={y(y2)} stroke="#fff" stroke-width="0.4" />)}
+  <svg class="abs constellation" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" data-constellation aria-label="Majors represented">
+    {edges.map(([a, b]) => <line data-edge={`${a}-${b}`} x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
+    {majors.map((m, i) => {
+      const [cx, cy] = [m.c[0], y(m.c[1])]; const r = [0, 2.2, 3, 3.8][m.s];
+      const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : cy + 2.5;
+      const anchor = side[i] === 'l' ? 'end' : side[i] === 'r' ? 'start' : 'middle';
+      return (
+        <g class="node" data-node={i} tabindex="0" role="img" aria-label={m.label} style={`--nx:${cx};--ny:${cy}`}>
+          <circle class="halo" cx={cx} cy={cy} r={r * 4} />
+          <circle class="core" cx={cx} cy={cy} r={r} />
+          <text x={tx} y={ty} text-anchor={anchor}>{m.label}</text>
+        </g>
+      );
+    })}
   </svg>
-  <ul class="m-0 p-0 list-none" aria-label="Majors represented" data-bubbles>
-    {majors.map((m) => (
-      <li data-bubble>
-        <Image src={orb} alt="" aria-hidden="true" width={400} height={400} class:list={['abs pointer-events-none bubble-orb', m.glow && 'orb-glow']} style={pos(m.orb[0], y(m.orb[1]), m.orb[2], m.orb[3])} />
-        <span class="abs text-center major bubble-label" style={`${pos(m.box[0], y(m.box[1]), m.box[2], m.box[3])};font-size:${u(m.size ?? 6)};line-height:${u((m.size ?? 6) * 1.15)}`}>{m.label}</span>
-      </li>
-    ))}
-  </ul>
 
   <!-- 6 divisions -->
   <h3 class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(422, y(2537), 124, 23)}>6 DIVISIONS</h3>
@@ -122,8 +131,6 @@ const stars = [
 </section>
 
 <style>
-  .major { letter-spacing: calc(0.2 * var(--u)); }
-  .orb-glow { filter: drop-shadow(0 0 calc(15.9 * var(--u)) rgb(255 255 255 / 0.4)); }
   .timeline { border-left: calc(1 * var(--u)) solid #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .dot { border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }

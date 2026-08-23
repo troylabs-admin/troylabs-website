@@ -1,0 +1,41 @@
+---
+/**
+ * Home › Executive Board — Section y 4050–5583 du.
+ * Figma: title 7028:1996 · grid "Frame 109" @127,4168: 4 columns at x = 127 / 334.8 / 542.5 / 750.3,
+ * 5 rows at y = 4168 / 4397.1 / 4626.2 / 4873.4 / 5120.4. Card = 145×145 photo (r 16.4) + name + role, gap 6.56.
+ * Members & placement come from src/content/board.json (generated from the Figma grid).
+ * Photos: the design uses a checkerboard placeholder for every member — real photos TBD (designer).
+ */
+import { Image } from 'astro:assets';
+import { pos, u } from '../../../lib/units';
+import Glow from '../../space/Glow.astro';
+import placeholder from '../../../assets/figma/photo-placeholder.png';
+import board from '../../../content/board.json';
+
+const TOP = 4050;
+const y = (v: number) => v - TOP;
+const COLS = [127, 334.8, 542.5, 750.3];
+const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
+---
+
+<section class="section" style="--h:1533" data-figma="Board" aria-labelledby="board-title">
+  <Glow x={310} y={y(4847)} w={745.3} h={914.3} />
+  <h2 id="board-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(414, y(4082), 199, 23)}>EXECUTIVE BOARD</h2>
+
+  <ul class="m-0 p-0 list-none">
+    {board.map((m) => (
+      <li class="abs flex flex-col items-center text-center" data-hover="lift" style={`${pos(COLS[m.col], y(ROWS[m.row]), 148.8)};gap:${u(6.56)}`}>
+        <Image
+          src={placeholder} alt={m.photo ? m.name : ''} width={256} height={256}
+          class="shrink-0 object-cover" style={`width:${u(145)};height:${u(145)};border-radius:${u(16.4)}`}
+        />
+        <h3 class="m-0 t-name font-normal">{m.name}</h3>
+        <p class="m-0 t-caption italic">{m.role}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .t-caption { letter-spacing: calc(0.36 * var(--u)); }
+</style>

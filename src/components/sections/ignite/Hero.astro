@@ -1,0 +1,47 @@
+---
+/**
+ * Ignite › Hero — Figma frame "IGNITE" (6982:742) top. Section y 79–560 du.
+ *   yellow planet "Ellipse 7" (6982:852) @-228,-341 878×878 (runs under the nav) · moon "Ellipse 9" (7040:2384) @732,124 97×97
+ *   title 6982:756 @399,253 205×63 (vertical gradient #ff3500→#ffc200, drop shadow) · tagline 6982:757 @269,338 463×20
+ *   pill CTA "Frame 155" (6997:1305) @393,412 215.6×33.6
+ */
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Planet from '../../space/Planet.astro';
+import PillButton from '../../ui/PillButton.astro';
+
+const TOP = 79;
+const y = (v: number) => v - TOP;
+
+const stars = [
+  { x: 868, y: 86 },
+  { x: 790, y: 28, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:481" data-figma="IgniteHero" aria-labelledby="ignite-title">
+  <!-- the planet sits behind the nav in Figma (z-order: first child of the frame) -->
+  <Planet kind="yellow" x={-228} y={y(-341)} w={878} class="ignite-planet" />
+  <Planet kind="moon" x={732} y={y(124)} w={97} />
+  <Stars items={stars} />
+
+  <h1 id="ignite-title" class="abs m-0 t-hero text-center whitespace-nowrap title" style={pos(399, y(253), 205, 63)}>IGNITE</h1>
+  <p class="abs m-0 t-tagline text-center whitespace-nowrap tagline" style={pos(269, y(338), 463, 20)}>Your entry point into entrepreneurship.</p>
+
+  <PillButton label="APPLY TO IGNITE" x={393} y={y(412)} w={215.6} h={33.6} />
+</section>
+
+<style>
+  :global(.ignite-planet) { z-index: -1; }   /* paints under the nav (earlier in the DOM), matching Figma layer order; :global because the class lands on Planet’s <img> */
+  /* 6982:756 fill: gradient_linear (0.5,0)→(0.5,1) #ff3500 → #ffc200; drop shadow black@70% blur 10.9 */
+  .title {
+    background: linear-gradient(180deg, var(--color-orange-deep) 0%, var(--color-yellow) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 calc(10.9 * var(--u) / 2) rgb(0 0 0 / 0.7));
+  }
+  /* 6982:757: same white→orange gradient as the Home tagline */
+  .tagline {
+    background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>

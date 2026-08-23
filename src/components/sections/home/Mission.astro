@@ -1,0 +1,25 @@
+---
+/**
+ * Home › Mission — Figma "Frame 2" (7028:1540) with the ∘∘∘ dividers. Section y 600–900 du.
+ * Paragraph @221,650 559×90 12/18 · dots at y=612 and y=771, x=477/499/521 · orange glow behind.
+ */
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+
+const TOP = 600;
+const dots = [477, 499, 521].flatMap((x) => [{ x, y: 612 - TOP, kind: 'dot' }, { x, y: 771 - TOP, kind: 'dot' }]) as any;
+---
+
+<section class="section" style="--h:300" data-figma="Mission" aria-label="About TroyLabs">
+  <Glow x={-25} y={651 - TOP} w={700.2} h={924.9} rotate={2.7} />
+  <Stars items={dots} />
+  <p class="abs m-0 t-body text-center" style={pos(221, 650 - TOP, 559, 90)}>
+    TroyLabs is a student-run organization at the University of Southern California, proudly sponsored by the{' '}
+    <a href="https://www.marshall.usc.edu/departments/lloyd-greif-center-entrepreneurial-studies" class="underline" target="_blank" rel="noopener noreferrer">Lloyd Greif Center for Entrepreneurship</a>{' '}
+    and <a href="https://www.marshall.usc.edu/" class="underline" target="_blank" rel="noopener noreferrer">Marshall School of Business</a>.
+    We're dedicated to fostering entrepreneurship and supporting early-stage startups at USC. Our mission is to
+    encourage innovation, empower student founders, and promote entrepreneurial curiosity across campus, creating a
+    vibrant ecosystem where USC startups can flourish and make a lasting impact.
+  </p>
+</section>

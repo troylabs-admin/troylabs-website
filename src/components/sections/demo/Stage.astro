@@ -1,0 +1,57 @@
+---
+/**
+ * DEMO › Group photo + stats row — Section y 760–1560 du.
+ * Figma: photo "Frame 170" (7019:2) @188,799 625×349 (0.33 white inside stroke, white@40% drop shadow 24.2) ·
+ * dark planet "Ellipse 8" (7045:2727) @253,976 496×496 with blue inner shadows (exported: demo-stats-planet.png) ·
+ * stats "Frame 171" (7019:18): 100+ INVESTORS (7019:16) · 50 STARTUPS (7019:17) · 1000+ ATTENDEES (7019:15), white@70% glow 7.3 ·
+ * blue ambient glow "Ellipse 249" (7033:2257) · star field.
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+import photo from '../../../assets/figma/demo-group-photo.png';
+import planet from '../../../assets/figma/demo-stats-planet.png';
+
+const TOP = 760;
+const y = (v: number) => v - TOP;
+
+/* each stat: number text box + label text box (Figma TEXT nodes, centered) */
+const stats = [
+  { value: '100+', label: 'INVESTORS', num: [218, 1319, 120], lab: [213, 1374, 129] },
+  { value: '50', label: 'STARTUPS', num: [461, 1319, 58], lab: [431, 1374, 117] },
+  { value: '1000+', label: 'ATTENDEES', num: [637, 1319, 151], lab: [645, 1374, 132] },
+] as const;
+
+const stars = [
+  { x: 55, y: 845 }, { x: 126, y: 890 }, { x: 869, y: 1120 }, { x: 818, y: 1238 }, { x: 322, y: 1183 }, { x: 580, y: 1201 }, { x: 935, y: 1247 },
+  { x: 155, y: 870, s: 5.3, kind: 'dot' }, { x: 167, y: 1080, s: 5.3, kind: 'dot' }, { x: 981, y: 1304, s: 5.3, kind: 'dot' },
+  { x: 939, y: 1180, s: 5.3, kind: 'dot' }, { x: 349, y: 1205, s: 5.3, kind: 'dot' }, { x: 666, y: 1173, s: 5.3, kind: 'dot' },
+  { x: 635, y: 1266, s: 5.3, kind: 'dot' }, { x: 799, y: 1219, s: 5.3, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:800" data-figma="DemoStage" aria-label="DEMO by the numbers">
+  <Glow x={-16} y={y(1007)} w={636.5} h={930.3} color="#3a68ff" alpha={0.1} />
+  <Image src={planet} alt="" aria-hidden="true" width={1488} height={1488} class="abs pointer-events-none" style={pos(253, y(976), 496, 496)} />
+  <Stars items={stars} />
+
+  <figure class="abs m-0 photo" style={pos(188, y(799), 625, 349)}>
+    <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full h-full object-cover" />
+  </figure>
+
+  <ul class="m-0 p-0 list-none" aria-label="DEMO by the numbers">
+    {stats.map((s) => (
+      <li>
+        <span class="abs t-stat text-center whitespace-nowrap stat" style={pos(s.num[0], y(s.num[1]), s.num[2], 55)}>{s.value}</span>
+        <span class="abs t-title text-center whitespace-nowrap stat" style={pos(s.lab[0], y(s.lab[1]), s.lab[2], 23)}>{s.label}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .photo { box-shadow: 0 0 calc(24.2 * var(--u)) rgb(255 255 255 / 0.4); }
+  .photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) #fff; }
+  .stat { text-shadow: 0 0 calc(7.3 * var(--u)) rgb(255 255 255 / 0.7); }
+</style>

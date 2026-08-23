@@ -1,0 +1,60 @@
+---
+/**
+ * DEMO › Notable keynote speakers — Section y 1560–2500 du.
+ * Figma: title 7019:39 @340,1598 321×23 · grid "Frame 178" (7019:82) @142,1682: cards 358.5×205 at x = 142 / 500.5,
+ * rows y = 1682 / 1937 / 2192. Card (Frame 173–177): photo "image 159" @+31.3,+10 139×139 + logo "image 160" @+190.3,+10
+ * 137×139 (r 20, 0.33 white inside stroke, #ffcaaa@40% drop shadow 16.7), name @+40.3,+164 278×18, title (italic) @+40.3,+187.
+ * Photos are FILL (cover); logos are STRETCH with a crop transform — pre-cropped to the visible window in src/assets/figma.
+ */
+import { Image } from 'astro:assets';
+import { pos, u } from '../../../lib/units';
+import evan from '../../../assets/figma/demo-speaker-evan-spiegel.png';
+import snapchat from '../../../assets/figma/demo-logo-snapchat.png';
+import sean from '../../../assets/figma/demo-speaker-sean-rad.png';
+import tinder from '../../../assets/figma/demo-logo-tinder.png';
+import amy from '../../../assets/figma/demo-speaker-amy-liu.png';
+import tower28 from '../../../assets/figma/demo-logo-tower28.png';
+import ashley from '../../../assets/figma/demo-speaker-ashley-alexander.png';
+import nami from '../../../assets/figma/demo-logo-nami-matcha.png';
+import goldstons from '../../../assets/figma/demo-speaker-goldstons.png';
+import apl from '../../../assets/figma/demo-logo-apl.png';
+
+const TOP = 1560;
+const y = (v: number) => v - TOP;
+const COLS = [142, 500.5];
+const ROWS = [1682, 1937, 2192];
+
+const speakers = [
+  { name: 'Evan Spiegel', title: 'CEO & Founder, Snapchat', photo: evan, logo: snapchat, company: 'Snapchat', col: 0, row: 0 },
+  { name: 'Sean Rad', title: 'Founder, Tinder', photo: sean, logo: tinder, company: 'Tinder', col: 1, row: 0 },
+  { name: 'Amy Liu', title: 'CEO & Founder, Tower28', photo: amy, logo: tower28, company: 'Tower 28', col: 0, row: 1 },
+  { name: 'Ashley Alexander', title: 'CEO & Founder, Nami Matcha', photo: ashley, logo: nami, company: 'Nami Matcha', col: 1, row: 1 },
+  { name: 'Adam & Ryan Goldston', title: 'CEO & Founders, APL Sneakers', photo: goldstons, logo: apl, company: 'APL', col: 0, row: 2 },
+];
+---
+
+<section class="section" style="--h:940" data-figma="DemoSpeakers" aria-labelledby="speakers-title">
+  <h2 id="speakers-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(340, y(1598), 321, 23)}>NOTABLE KEYNOTE SPEAKERS</h2>
+
+  <ul class="m-0 p-0 list-none">
+    {speakers.map((s) => {
+      const x = COLS[s.col], top = ROWS[s.row];
+      return (
+        <li class="abs" style={pos(x, y(top), 358.5, 205)} data-hover="lift">
+          <Image src={s.photo} alt={s.name} width={416} height={416} class="abs tile object-cover" style={pos(31.3, 10, 139, 139)} />
+          <Image src={s.logo} alt={`${s.company} logo`} width={416} height={416} class="abs tile object-fill" style={pos(190.3, 10, 137, 139)} />
+          <h3 class="abs m-0 t-name font-normal text-center whitespace-nowrap" style={pos(40.3, 164, 278, 18)}>{s.name}</h3>
+          <p class="abs m-0 t-name italic text-center whitespace-nowrap" style={pos(40.3, 187, 278, 18)}>{s.title}</p>
+        </li>
+      );
+    })}
+  </ul>
+</section>
+
+<style>
+  /* image 159/160: radius 20, 0.33 white inside stroke, drop shadow #ffcaaa@40% 16.7 */
+  .tile {
+    border-radius: calc(20 * var(--u));
+    box-shadow: inset 0 0 0 calc(0.33 * var(--u)) #fff, 0 0 calc(16.7 * var(--u)) rgb(255 202 170 / 0.4);
+  }
+</style>

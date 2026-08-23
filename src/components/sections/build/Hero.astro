@@ -1,0 +1,50 @@
+---
+/**
+ * Build › Hero — Section y 79–600 du.
+ *   • giant orange planet "Group 39627" (7040:2370) @-222,-323 872×872 = Home's orange planet ×2.9067
+ *     (same inner-shadow / ring ratios), mostly off-canvas top-left
+ *   • title "BUILD" 6977:598 @409,253 185×63 (vertical #ff3500→#ffc200 gradient, shadow 10.9 black@70%)
+ *   • tagline 6977:600 @269,338 463×40 (orange→white gradient like Home's tagline)
+ *   • pill button "Frame 155" 6997:1298 @399,412 205.6×33.6 (0.3 white stroke, inner shadow 13.6 white@40%)
+ */
+import { pos } from '../../../lib/units';
+import PillButton from '../../ui/PillButton.astro';
+import Planet from '../../space/Planet.astro';
+import Stars from '../../space/Stars.astro';
+
+const TOP = 79;
+const y = (v: number) => v - TOP;
+
+const stars = [
+  { x: 868, y: 86 }, { x: 793.8, y: 307.7, s: 12.6 }, { x: 805.6, y: 379.3, s: 12.6 }, { x: 655.6, y: 409.2, s: 12.6 },
+  { x: 338, y: 452, s: 12.6 }, { x: 439.5, y: 510.1, s: 12.6 }, { x: 230.1, y: 571.7, s: 11.5 },
+  { x: 790, y: 28, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' }, { x: 778.6, y: 293, s: 5.3, kind: 'dot' },
+  { x: 754, y: 458.2, s: 5.3, kind: 'dot' }, { x: 584, y: 458.2, s: 5.3, kind: 'dot' }, { x: 462.6, y: 496, s: 5.2, kind: 'dot' },
+  { x: 300, y: 501, s: 5.2, kind: 'dot' }, { x: 63.6, y: 595, s: 5.2, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:521" data-figma="BuildHero" aria-labelledby="build-title">
+  <Planet kind="orange" x={-222} y={y(-323)} w={872} />
+  <Stars items={stars} />
+
+  <h1 id="build-title" class="abs m-0 t-hero text-center whitespace-nowrap title" style={pos(409, y(253), 185, 63)}>BUILD</h1>
+  <p class="abs m-0 t-tagline text-center tagline" style={pos(269, y(338), 463, 40)}>
+    Our 8-week flagship accelerator that provides hands-on consulting to USC's premier startups.
+  </p>
+  <PillButton label="APPLY TO BUILD" x={399} y={y(412)} w={205.6} h={33.6} />
+</section>
+
+<style>
+  /* 6977:598 — gradient_linear handles (.5,0)→(.5,1): #ff3500 at the top, #ffc200 at the bottom */
+  .title {
+    background: linear-gradient(180deg, #ff3500 0%, #ffc200 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 calc(5.45 * var(--u)) rgb(0 0 0 / 0.7));
+  }
+  /* 6977:600 — handles (1,.5)→(0,.5): orange at the right end, white from 10 % leftwards */
+  .tagline {
+    background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>

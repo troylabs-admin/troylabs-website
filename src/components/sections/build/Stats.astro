@@ -1,0 +1,65 @@
+---
+/**
+ * Build › Stats — Section y 2174–2900 du.
+ *   • planet "Ellipse 236" 6997:1320 @219,2234 567×567 (#070707, orange inner shadows, 92 drop shadow) rendered from Figma @3x
+ *   • "100+" 6982:660 @443,2315 120×55 · "STARTUPS" 6982:661 @444,2370 117×23
+ *   • "$28M+" 6982:664 @421,2496 164×55 · "ALUMNI PORTFOLIO" 6982:663 @392,2551 221×23
+ *   • "STARTUPS FEATURED ON" 6982:666 @359,2674 283×23 · logo row "Frame 125" 6982:720: Techstars / Shark Tank / TechCrunch
+ *   • "season 17 episode 2" 7042:2681 @447,2860 107×11 (10px) · orange glow "Ellipse 258" 7042:2633 @-74,2826 721×921
+ * All text here carries Figma's white@60% drop shadow (blur 8).
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+import planet from '../../../assets/figma/build-planet-567.png';
+import techstars from '../../../assets/figma/build-logo-techstars.svg?raw';
+import sharktank from '../../../assets/figma/build-logo-sharktank.svg?raw';
+import techcrunch from '../../../assets/figma/build-logo-techcrunch.svg?raw';
+
+const TOP = 2174;
+const y = (v: number) => v - TOP;
+
+/* planet render = node box + 92 du drop-shadow radius on each side (2253 px @3x = 751 du) */
+const PAD = 92;
+
+const logos = [
+  { svg: techstars, box: [148.5, 2780.9, 222.5, 40.1], name: 'Techstars' },
+  { svg: sharktank, box: [438.9, 2752.5, 122, 97], name: 'Shark Tank' },
+  { svg: techcrunch, box: [628.8, 2784.8, 223.8, 32.3], name: 'TechCrunch' },
+];
+
+const stars = [
+  { x: 31, y: 2230 }, { x: 351, y: 2269 }, { x: 191, y: 2359 }, { x: 121, y: 2379 }, { x: 964, y: 2668, s: 11.5 },
+  { x: 103, y: 2357, kind: 'dot' }, { x: 937, y: 2548, s: 5.2, kind: 'dot' }, { x: 937, y: 2709, s: 5.2, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:726" data-figma="BuildStats" aria-label="BUILD by the numbers">
+  <Glow x={-74} y={y(2826)} w={721.2} h={920.8} />
+  <Image src={planet} alt="" aria-hidden="true" width={2253} height={2253} class="abs pointer-events-none" style={pos(219 - PAD, y(2234) - PAD, 567 + 2 * PAD, 567 + 2 * PAD)} />
+  <Stars items={stars} />
+
+  <dl class="m-0 glow">
+    <div>
+      <dd class="abs m-0 t-stat text-center whitespace-nowrap" style={pos(443, y(2315), 120, 55)}>100+</dd>
+      <dt class="abs m-0 t-title text-center whitespace-nowrap" style={pos(444, y(2370), 117, 23)}>STARTUPS</dt>
+    </div>
+    <div>
+      <dd class="abs m-0 t-stat text-center whitespace-nowrap" style={pos(421, y(2496), 164, 55)}>$28M+</dd>
+      <dt class="abs m-0 t-title text-center whitespace-nowrap" style={pos(392, y(2551), 221, 23)}>ALUMNI PORTFOLIO</dt>
+    </div>
+  </dl>
+
+  <h2 class="abs m-0 t-title font-normal text-center whitespace-nowrap glow" style={pos(359, y(2674), 283, 23)}>STARTUPS FEATURED ON</h2>
+  <ul class="m-0 p-0 list-none" aria-label="Press and programs our startups were featured on">
+    {logos.map((l) => <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} set:html={l.svg} />)}
+  </ul>
+  <p class="abs m-0 t-fine-10 text-center whitespace-nowrap glow" style={pos(447, y(2860), 107, 11)}>season 17 episode 2</p>
+</section>
+
+<style>
+  .logo :global(svg) { width: 100%; height: 100%; display: block; }
+  .glow { text-shadow: 0 0 calc(8 * var(--u)) rgb(255 255 255 / 0.6); }
+  .t-fine-10 { font-size: calc(10 * var(--u)); line-height: calc(11.5 * var(--u)); letter-spacing: calc(0.8 * var(--u)); }
+</style>

@@ -1,0 +1,29 @@
+---
+/**
+ * Star field — the "*" glyphs and tiny glowing dots scattered over every page.
+ * Figma: VECTOR "*" (9×9 du, white, 2× drop-shadow 7.1) and ELLIPSE dots (4×4 du).
+ * Coordinates are du relative to the enclosing .section. Rendered from the designer's
+ * exported glyphs (small-star.png / small-circle.png carry her glow).
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../lib/units';
+import star from '../../assets/space/small-star.png';
+import dot from '../../assets/space/small-circle.png';
+
+export interface Star { x: number; y: number; s?: number; kind?: 'star' | 'dot' }
+interface Props { items: Star[]; class?: string }
+const { items, class: cls } = Astro.props;
+
+// the exported glyph PNGs include their glow halo; the Figma box is the glyph only.
+// Scale so the glyph body matches the design box (measured: star body = 44.6% of png, dot ring = 25.4%).
+const SCALE = { star: 1 / 0.446, dot: 1 / 0.254 }; // measured with scripts (alpha>128 bbox / png size)
+---
+
+<div class:list={['pointer-events-none', cls]} aria-hidden="true">
+  {items.map(({ x, y, s, kind = 'star' }, i) => {
+    const d = s ?? (kind === 'star' ? 9 : 4);
+    const box = d * SCALE[kind];
+    const off = (box - d) / 2;
+    return <Image src={kind === 'star' ? star : dot} alt="" width={48} height={48} class="abs star" style={`${pos(x - off, y - off, box, box)};--i:${i};--dur:${(2.6 + ((i * 7) % 5) * 0.45).toFixed(2)}s;--dim:${kind === 'dot' ? 0.5 : 0.3}`} />;
+  })}
+</div>

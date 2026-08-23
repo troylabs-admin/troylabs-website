@@ -1,0 +1,17 @@
+---
+/**
+ * "APPLY TO TROYLABS" — Figma component set 7033:2221.
+ *   Default: white text, glow.  Variant2 (hover): text fades white → orange (#ff7d2c) left-to-right.
+ */
+interface Props { href?: string; class?: string; style?: string; label?: string }
+const { href = '/apply', class: cls = '', style, label = 'APPLY TO TROYLABS' } = Astro.props;
+---
+
+<a href={href} class:list={['apply t-nav glow-text whitespace-nowrap text-center', cls]} style={style}>{label}</a>
+
+<style>
+  .apply { transition: color 150ms ease; }
+  /* Figma's hover variant is a white→orange gradient, but the glow text-shadow paints over clipped text;
+     solid orange matches the rest of the site's hover language. */
+  .apply:hover, .apply:focus-visible { color: var(--color-orange); }
+</style>

@@ -1,0 +1,4 @@
+GROUP     7012:137     "Spotlight Media Bubble"                   @0,0 488.1×487
+  ELLIPSE   7012:138     "Ellipse 15"                               @0,0 488.1×487  fill:image fx:DROP_SHADOW131.05313110351562,INNER_SHADOW27.302734375
+  RECTANGLE 7012:139     "CKL3nYUhDj1Gk6UabUDIYNXgk 1"              @117.9,158.9 278.6×45.4  fill:image
+  TEXT      7012:140     "$20M+ gmv"                                @22.9,227.9 441×69  60px/68.99 w700 ls-1.2 CENTER  "$20M+ gmv"  fill:#ffffff fx:DROP_SHADOW360,INNER_SHADOW75

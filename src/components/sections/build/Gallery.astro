@@ -1,0 +1,42 @@
+---
+/**
+ * Build › Photo gallery — Section y 1778–2174 du. Eight image-fill frames in two rows of 198 du:
+ *   row 1 (y 1778): Frame 127 @0 w299 · Frame 131 @301 w200 · Frame 170 @500 w299 · Frame 171 @799 w202
+ *   row 2 (y 1976): Frame 175 @0 w202 · Frame 172 @202 w299 · Frame 174 @501 w202 · Frame 173 @702 w299
+ * Photos are pre-cropped to each frame's Figma crop (FILL = cover, STRETCH = imageTransform) at 3× du.
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import p1 from '../../../assets/figma/build-photo-1.jpg';
+import p2 from '../../../assets/figma/build-photo-2.jpg';
+import p3 from '../../../assets/figma/build-photo-3.jpg';
+import p4 from '../../../assets/figma/build-photo-4.jpg';
+import p5 from '../../../assets/figma/build-photo-5.jpg';
+import p6 from '../../../assets/figma/build-photo-6.jpg';
+import p7 from '../../../assets/figma/build-photo-7.jpg';
+import p8 from '../../../assets/figma/build-photo-8.jpg';
+
+const TOP = 1778;
+const y = (v: number) => v - TOP;
+
+const photos = [
+  { src: p1, box: [0, 1778, 299, 198], id: '6989:970', alt: 'BUILD cohort on stage at LAUNCH Fall 2025' },
+  { src: p2, box: [301, 1778, 200, 198], id: '6989:976', alt: 'Two members posing with TroyLabs gift bags' },
+  { src: p3, box: [500, 1778, 299, 198], id: '7033:2205', alt: 'Founders with flowers after pitching' },
+  { src: p4, box: [799, 1778, 202, 198], id: '7033:2207', alt: 'Speaker with a microphone' },
+  { src: p5, box: [0, 1976, 202, 198], id: '7033:2212', alt: 'Two members celebrating' },
+  { src: p6, box: [202, 1976, 299, 198], id: '7033:2209', alt: 'Team with an oversized check' },
+  { src: p7, box: [501, 1976, 202, 198], id: '7033:2211', alt: 'Founders at LAUNCH Spring 2026' },
+  { src: p8, box: [702, 1976, 299, 198], id: '7033:2210', alt: 'Group of members smiling' },
+];
+---
+
+<section class="section" style="--h:396" data-figma="BuildGallery" aria-label="Photos from BUILD">
+  <ul class="m-0 p-0 list-none">
+    {photos.map((p) => (
+      <li class="abs overflow-hidden" style={pos(p.box[0], y(p.box[1]), p.box[2], p.box[3])} data-figma={p.id}>
+        <Image src={p.src} alt={p.alt} width={p.box[2] * 3} height={p.box[3] * 3} class="w-full h-full object-cover" />
+      </li>
+    ))}
+  </ul>
+</section>

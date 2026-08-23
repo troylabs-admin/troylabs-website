@@ -1,0 +1,1161 @@
+[
+ {
+  "id": "133:32",
+  "name": "Typography",
+  "type": "FRAME",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 1920,
+  "h": 1080,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "133:35",
+  "name": "The main font family we use is Clash Grotesk. We use multiple variations of Clash, including Light, Regular, Medium, Semibold, & Bold.",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "133:32",
+  "x": 104,
+  "y": 194,
+  "w": 512,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "The main font family we use is Clash Grotesk. We use multiple variations of Clash, including Light, Regular, Medium, Semibold, & Bold. ",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  },
+  "overrides": {
+   "14": {
+    "fills": [
+     {
+      "type": "solid",
+      "color": "#fff7db",
+      "alpha": 1
+     }
+    ],
+    "weight": 700
+   },
+   "15": {
+    "fills": [
+     {
+      "type": "solid",
+      "color": "#fff7db",
+      "alpha": 1
+     }
+    ],
+    "weight": 400
+   },
+   "16": {
+    "fills": [
+     {
+      "type": "solid",
+      "color": "#fff7db",
+      "alpha": 1
+     }
+    ],
+    "weight": 600
+   },
+   "17": {
+    "fills": [
+     {
+      "type": "solid",
+      "color": "#fff7db",
+      "alpha": 1
+     }
+    ],
+    "weight": 300
+   }
+  },
+  "overrideRuns": [
+   [
+    0,
+    "The main font family we use is Clash Grotesk. We use multiple variations of Clash, including "
+   ],
+   [
+    17,
+    "Light"
+   ],
+   [
+    0,
+    ", "
+   ],
+   [
+    15,
+    "Regular"
+   ],
+   [
+    0,
+    ", Medium, "
+   ],
+   [
+    16,
+    "Semibold"
+   ],
+   [
+    0,
+    ", & "
+   ],
+   [
+    14,
+    "Bold"
+   ],
+   [
+    0,
+    ". "
+   ]
+  ]
+ },
+ {
+  "id": "150:9",
+  "name": "Group",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "133:32",
+  "x": 100,
+  "y": 333,
+  "w": 382,
+  "h": 585.4,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "150:10",
+  "name": "abcdefghijklmnopqrstuvwxyz",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "150:9",
+  "x": 100,
+  "y": 514,
+  "w": 382,
+  "h": 173,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "abcdefghijklmnopqrstuvwxyz",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 57.6,
+   "lineHeight": 57.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:11",
+  "name": "Group",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "150:9",
+  "x": 103.6,
+  "y": 817,
+  "w": 378.4,
+  "h": 101.4,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "150:12",
+  "name": "Light",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 103.6,
+  "y": 817,
+  "w": 28.1,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Light",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 300,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.43,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:13",
+  "name": "Regular",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 103.6,
+  "y": 838.6,
+  "w": 46.2,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Regular",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.43,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:14",
+  "name": "Medium",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 103.6,
+  "y": 860.2,
+  "w": 50.8,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Medium",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.43,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:15",
+  "name": "Semibold",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 103.6,
+  "y": 881.8,
+  "w": 59.8,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Semibold",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 600,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.43,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:16",
+  "name": "Bold",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 103.6,
+  "y": 903.4,
+  "w": 29,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Bold",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 700,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.43,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:18",
+  "name": "AaBbCcDdEeGgNn 1234567890",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 219.6,
+  "y": 817,
+  "w": 262.4,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "AaBbCcDdEeGgNn 1234567890",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 300,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.14,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:19",
+  "name": "AaBbCcDdEeGgNn 1234567890",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 219.6,
+  "y": 838.6,
+  "w": 262.4,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "AaBbCcDdEeGgNn 1234567890",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.14,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:20",
+  "name": "AaBbCcDdEeGgNn 1234567890",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 219.6,
+  "y": 860.2,
+  "w": 262.4,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "AaBbCcDdEeGgNn 1234567890",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.14,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:21",
+  "name": "AaBbCcDdEeGgNn 1234567890",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 219.6,
+  "y": 881.8,
+  "w": 262.4,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "AaBbCcDdEeGgNn 1234567890",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 600,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.14,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:22",
+  "name": "AaBbCcDdEeGgNn 1234567890",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "150:11",
+  "x": 219.6,
+  "y": 903.4,
+  "w": 262.4,
+  "h": 15,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "AaBbCcDdEeGgNn 1234567890",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 700,
+   "size": 14.4,
+   "lineHeight": 14.4,
+   "letterSpacing": -0.14,
+   "align": "LEFT",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "150:24",
+  "name": "0123456789.",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "150:9",
+  "x": 100,
+  "y": 695,
+  "w": 382,
+  "h": 58,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "0123456789.",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 57.6,
+   "lineHeight": 57.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:26",
+  "name": "abcdefghijklmnopqrstuvwxyz",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "150:9",
+  "x": 100,
+  "y": 333,
+  "w": 382,
+  "h": 173,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "abcdefghijklmnopqrstuvwxyz",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 57.6,
+   "lineHeight": 57.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP",
+   "case": "UPPER"
+  }
+ },
+ {
+  "id": "150:27",
+  "name": "Group 16",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "133:32",
+  "x": 772,
+  "y": 240,
+  "w": 485,
+  "h": 727
+ },
+ {
+  "id": "150:30",
+  "name": "Frame 15",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "150:27",
+  "x": 772,
+  "y": 240,
+  "w": 485,
+  "h": 727,
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 32,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "150:5",
+  "name": "stats",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 240,
+  "w": 485,
+  "h": 112,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "150:6",
+  "name": "XLarge Headline",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "150:5",
+  "x": 772,
+  "y": 240,
+  "w": 485,
+  "h": 79,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "XLarge Headline",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 600,
+   "size": 64,
+   "lineHeight": 78.72,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:7",
+  "name": "Clash Grostesk Semibold, 76pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "150:5",
+  "x": 773,
+  "y": 327,
+  "w": 260,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Semibold, 76pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:3",
+  "name": "large h",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 384,
+  "w": 424,
+  "h": 112,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "133:64",
+  "name": "Large Headline",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:3",
+  "x": 772,
+  "y": 384,
+  "w": 424,
+  "h": 79,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Large Headline",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 64,
+   "lineHeight": 78.72,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "147:4",
+  "name": "Clash Grostesk Medium, 64pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:3",
+  "x": 773,
+  "y": 471,
+  "w": 253,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Medium, 64pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:2",
+  "name": "small h",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 528,
+  "w": 251,
+  "h": 63,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "147:5",
+  "name": "Clash Grostesk Medium, 24pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:2",
+  "x": 772,
+  "y": 566,
+  "w": 251,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Medium, 24pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "133:73",
+  "name": "Group 10",
+  "type": "GROUP",
+  "depth": 4,
+  "parent": "148:2",
+  "x": 772,
+  "y": 528,
+  "w": 155,
+  "h": 30,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "133:70",
+  "name": "Small Headline",
+  "type": "TEXT",
+  "depth": 5,
+  "parent": "133:73",
+  "x": 772,
+  "y": 528,
+  "w": 155,
+  "h": 30,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Small Headline",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 24,
+   "lineHeight": 29.52,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "133:74",
+  "name": "label",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 623,
+  "w": 347,
+  "h": 61,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "148:4",
+  "name": "Group 15",
+  "type": "GROUP",
+  "depth": 4,
+  "parent": "133:74",
+  "x": 772,
+  "y": 623,
+  "w": 347,
+  "h": 61,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "147:3",
+  "name": "LABEL TEXT",
+  "type": "TEXT",
+  "depth": 5,
+  "parent": "148:4",
+  "x": 772,
+  "y": 623,
+  "w": 165,
+  "h": 28,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "LABEL TEXT",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 22,
+   "lineHeight": 28.16,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "147:6",
+  "name": "Clash Grostesk Medium Capitalized, 22pt",
+  "type": "TEXT",
+  "depth": 5,
+  "parent": "148:4",
+  "x": 772,
+  "y": 659,
+  "w": 347,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Medium Capitalized, 22pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:2",
+  "name": "body text",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 716,
+  "w": 227,
+  "h": 69,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "150:3",
+  "name": "Clash Grostesk Light , 28pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "150:2",
+  "x": 772,
+  "y": 760,
+  "w": 227,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Light , 28pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:4",
+  "name": "Body text",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "150:2",
+  "x": 772,
+  "y": 716,
+  "w": 110,
+  "h": 36,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Body text",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 300,
+   "size": 28,
+   "lineHeight": 35.84,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:9",
+  "name": "hyperlink",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 817,
+  "w": 228,
+  "h": 59,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "148:10",
+  "name": "Clash Grostesk Light , 20pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:9",
+  "x": 772,
+  "y": 851,
+  "w": 228,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Light , 20pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:11",
+  "name": "Detailed body text",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:9",
+  "x": 772,
+  "y": 817,
+  "w": 148,
+  "h": 26,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Detailed body text",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 300,
+   "size": 20,
+   "lineHeight": 25.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:8",
+  "name": "hyperlink",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "150:30",
+  "x": 772,
+  "y": 908,
+  "w": 256,
+  "h": 59,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "148:7",
+  "name": "Clash Grostesk Medium , 20pt",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:8",
+  "x": 772,
+  "y": 942,
+  "w": 256,
+  "h": 25,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#818181",
+    "alpha": 1
+   }
+  ],
+  "text": "Clash Grostesk Medium , 20pt",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "148:6",
+  "name": "Hyperlink",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "148:8",
+  "x": 772,
+  "y": 908,
+  "w": 86,
+  "h": 26,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Hyperlink",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 25.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "150:6997",
+  "name": "Use Specifications",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "133:32",
+  "x": 769,
+  "y": 185,
+  "w": 252,
+  "h": 37,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Use Specifications",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 600,
+   "size": 30,
+   "lineHeight": 36.9,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "2668:3521",
+  "name": "Typography",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "133:32",
+  "x": 100,
+  "y": 75,
+  "w": 338,
+  "h": 71,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Typography",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 61.63,
+   "lineHeight": 70.87,
+   "letterSpacing": -1.23,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ }
+]

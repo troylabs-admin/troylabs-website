@@ -1,0 +1,43 @@
+FRAME     73:35        "Core Palette: Initiative, Gradient"       @0,0 1920×1080  fill:#000000
+  TEXT      73:39        "We control a few initiatives with their   @100,208 917×50  20px/24.6 w500 ls0 LEFT  "We control a few initiatives with their own specific color   fill:#fff7db
+  TEXT      133:7        "We utilize gradients, mixtures between    @1413,208 381×100  20px/24.6 w500 ls0 LEFT  "We utilize gradients, mixtures between many of our core and  fill:#fff7db
+  TEXT      73:41        "HEX RGB HSL"                              @100,680 39×75  20px/24.6 w500 ls0 RIGHT  "HEX\nRGB HSL"  fill:#ffffff
+  FRAME     207:7        "Frame 17"                                 @234,436 990×404 [HORIZONTAL gap60]
+    GROUP     73:42        "demo"                                     @234,436 150×314
+      FRAME     133:22       "Frame 8"                                  @234,436 150×314 [VERTICAL gap26]
+        TEXT      73:62        "DEMO"                                     @234,436 85×37  30px/36.9 w600 ls0 LEFT  "DEMO"  fill:#ffffff
+        RECTANGLE 73:43        "Rectangle 2"                              @234,499 150×150  fill:#3b88cc
+        TEXT      73:44        "#3B88CC 59, 136, 204 308, 59, 52"         @234,675 112×75  20px/24.6 w500 ls0 LEFT  "#3B88CC\n59, 136, 204 308, 59, 52"  fill:#ffffff
+    FRAME     73:45        "build"                                    @444,436 150×404 [VERTICAL gap35]
+      FRAME     133:21       "Frame 7"                                  @444,436 150×319
+        RECTANGLE 73:46        "Rectangle 17"                             @444,495 150×150  fill:#ffd527
+        TEXT      73:47        "#C72119 199, 33, 25 3, 78, 44"            @444,680 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+        TEXT      73:63        "BUILD"                                    @444,436 84×37  30px/36.9 w600 ls0 LEFT  "BUILD"  fill:#ffffff
+      TEXT      77:72        "*Refer to core palette"                   @444,790 150×50  20px/24.6 w500 ls0 LEFT  "*Refer to core palette"  fill:#ffffff
+    GROUP     73:65        "invest"                                   @654,436 150×319
+      FRAME     133:20       "Frame 6"                                  @654,436 150×319
+        RECTANGLE 73:66        "Rectangle 17"                             @654,495 150×150  fill:#48b621
+        TEXT      73:67        "#C72119 199, 33, 25 3, 78, 44"            @654,680 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+        TEXT      73:64        "INVEST"                                   @654,436 101×37  30px/36.9 w600 ls0 LEFT  "INVEST"  fill:#ffffff
+    GROUP     73:69        "ignite"                                   @864,436 150×314
+      FRAME     133:19       "Frame 5"                                  @864,436 150×314 [VERTICAL gap26]
+        TEXT      73:68        "IGNITE"                                   @864,436 91×37  30px/36.9 w600 ls0 LEFT  "IGNITE"  fill:#ffffff
+        RECTANGLE 73:70        "Rectangle 17"                             @864,499 150×150  fill:#ff67b0
+        TEXT      73:71        "#C72119 199, 33, 25 3, 78, 44"            @864,675 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+    GROUP     207:2        "ignite"                                   @1074,436 150×314
+      FRAME     207:3        "Frame 5"                                  @1074,436 150×314 [VERTICAL gap26]
+        TEXT      207:4        "LAUNCH"                                   @1074,436 120×37  30px/36.9 w600 ls0 LEFT  "LAUNCH"  fill:#ffffff
+        RECTANGLE 207:5        "Rectangle 17"                             @1074,499 150×150  fill:#7608cd
+        TEXT      207:6        "#7608CD 118, 8, 205 274, 94, 42"          @1074,675 100×75  20px/24.6 w500 ls0 LEFT  "#7608CD\n118, 8, 205\n274, 94, 42"  fill:#ffffff
+  GROUP     133:8        "ignite"                                   @1413,394 150×363
+    FRAME     133:16       "Frame 3"                                  @1413,394 150×363 [VERTICAL gap32]
+      TEXT      133:11       "RED_YELLOW"                               @1413,394 150×74  30px/36.9 w600 ls0 LEFT  "RED_YELLOW"  fill:#ffffff
+      RECTANGLE 133:9        "Rectangle 17"                             @1413,500 150×150  fill:gradient_linear
+      TEXT      133:10       "#C72119 199, 33, 25 3, 78, 44"            @1413,682 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+  GROUP     133:12       "ignite"                                   @1623,392 150×363
+    FRAME     133:18       "Frame 4"                                  @1623,392 150×363 [VERTICAL gap32]
+      TEXT      133:15       "ORANGE_YELLOW"                            @1623,392 145×74  30px/36.9 w600 ls0 LEFT  "ORANGE_YELLOW"  fill:#ffffff
+      RECTANGLE 133:13       "Rectangle 17"                             @1623,498 150×150  fill:gradient_linear
+      TEXT      133:14       "#C72119 199, 33, 25 3, 78, 44"            @1623,680 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+  TEXT      2668:3523    "Initiative Specific Color Palettes"       @100,75 897×71  61.63px/70.87 w700 ls-1.23 LEFT  "Initiative Specific Color Palettes"  fill:#fff7db
+  TEXT      2668:3525    "Gradients"                                @1413,75 279×71  61.63px/70.87 w700 ls-1.23 LEFT  "Gradients"  fill:#fff7db

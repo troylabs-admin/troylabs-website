@@ -1,0 +1,94 @@
+---
+/**
+ * Build › Backers + apply — Section y 2900–4000 du.
+ *   • rocket "Group 39628" 7042:2637 @40,2906 (rendered from Figma @3x)
+ *   • "STARTUPS BACKED BY" 7041:2451 @374,3026 253×23 · logo frame "Frame 179" 7042:2588 @195,3107 611×189:
+ *     Entrepreneurs First (image 169) @195,3106 166×81 · Collaborative Fund (image 170) @410,3115 396×50 ·
+ *     ZhenFund (image 171) @195,3231 243×65 · Hattrick Capital (image 172) @537,3213 269×83
+ *   • a stray colored ZhenFund logo (7041:2529) and the green "Vector 10" review curve exist in the frame — not rendered
+ *     sits loose below the grid (looks like a leftover import) — reproduced 1:1, probably should be deleted.
+ *   • big pill "Frame 156" 6997:1301 @329,3590 352.2×57.2 (34.3px text, inner shadow 23.3 white@40%, drop shadow 57 white@30%)
+ *   • planet "Ellipse 259" 7042:2645 @675,3590 393×393 (rendered @3x incl. 92 drop shadow)
+ *   • "PREVIOUS STARTUPS" 6982:656 @385,3926 240×23
+ */
+import { Image } from 'astro:assets';
+import { pos, u } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import rocket from '../../../assets/figma/build-rocket-b.png';
+import flyer from '../../../assets/space/orange-rocket.png';
+
+/* "Vector 10" — the designer's curve from the rocket down to the planet (Figma SVG export, 687×742 user units = du).
+   Drawn as a review annotation in green; not rendered, but it IS the flight path for the motion layer. */
+const FLIGHT = { x: 99.4, y: 3090.8, w: 687, h: 742 };
+const FLIGHT_D = 'M1.00024 1.00024C1.00024 1.46599 1.00024 1.93174 1.3195 35.1855C1.63877 68.4393 2.2773 134.467 3.1734 173.45C4.0695 212.434 5.20383 222.373 9.59119 242.066C13.9785 261.759 21.5846 290.906 29.6758 317.738C44.999 368.552 58.6594 399.786 67.1741 416.283C88.4719 457.548 103.586 484.077 149.96 534.999C170.448 557.496 190.955 574.528 212.898 594.054C236.89 615.403 255.556 625.492 269.026 633.434C296.449 649.603 324.359 665.288 355.937 677.569C376.788 685.678 408.302 695.278 430.832 701.69C453.362 708.101 466.173 710.441 505.047 713.491C543.921 716.541 608.469 720.229 643.804 722.272C679.138 724.315 683.304 724.6 684.466 723.622'; // tail trimmed: the original ends in a hand-drawn arrowhead squiggle that made the rocket spin on landing
+import planet from '../../../assets/figma/build-planet-393.png';
+import ef from '../../../assets/figma/build-logo-ef.svg?raw';
+import collab from '../../../assets/figma/build-logo-collab.svg?raw';
+import zhenfund from '../../../assets/figma/build-logo-zhenfund.svg?raw';
+import hattrick from '../../../assets/figma/build-logo-hattrick.svg?raw';
+
+const TOP = 2900;
+const y = (v: number) => v - TOP;
+
+/* rocket PNG = the Union's render bounds: 73.45×124.92 du at +57.82,+18.49 inside Group 39628 @40,2906 */
+const ROCKET = { x: 97.82, y: 2924.49, w: 73.45, h: 124.92 };
+const PAD = 92; // planet render includes its 92 du drop shadow
+
+const logos = [
+  { svg: ef, box: [195, 3106, 166, 81], name: 'Entrepreneurs First' },
+  { svg: collab, box: [410, 3115, 396, 50], name: 'Collaborative Fund' },
+  { svg: zhenfund, box: [195, 3231, 243, 65], name: 'ZhenFund' },
+  { svg: hattrick, box: [537, 3213, 269, 83], name: 'Hattrick Capital' },
+];
+
+const stars = [
+  { x: 720, y: 3065, s: 11.5 }, { x: 490, y: 3305, s: 11.5 }, { x: 188, y: 3341, s: 11.5 }, { x: 278.1, y: 3420, s: 11.5 },
+  { x: 895, y: 2920, s: 5.2, kind: 'dot' }, { x: 774, y: 2980, s: 5.2, kind: 'dot' }, { x: 556, y: 3091, s: 5.2, kind: 'dot' },
+  { x: 422, y: 3304, s: 5.2, kind: 'dot' }, { x: 308, y: 3442.3, s: 5.2, kind: 'dot' }, { x: 78, y: 3534.3, s: 5.2, kind: 'dot' },
+  { x: 198, y: 3684, s: 5.2, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:1100" data-figma="BuildBackers" aria-labelledby="backers-title">
+  <div class="abs pointer-events-none" style={pos(0, y(3590) - PAD, 1001, 393 + 2 * PAD)} aria-hidden="true">
+    <Image src={planet} alt="" width={1731} height={1731} class="abs" style={pos(675 - PAD, 0, 393 + 2 * PAD, 393 + 2 * PAD)} />
+  </div>
+  <Stars items={stars} />
+  <Image src={rocket} alt="" aria-hidden="true" width={221} height={375} class="abs pointer-events-none rocket-static" style={pos(ROCKET.x, y(ROCKET.y), ROCKET.w, ROCKET.h)} />
+
+  <!-- motion layer: the rocket flies the designer's curve while this section scrolls (see motion.css) -->
+  <svg class="abs pointer-events-none" style={pos(FLIGHT.x, y(FLIGHT.y), FLIGHT.w, FLIGHT.h)} viewBox="0 0 687 742" aria-hidden="true">
+    <path id="build-backers-path" d={FLIGHT_D} fill="none" stroke="none" />
+  </svg>
+  <div class="abs rocket-flyer pointer-events-none" style={pos(FLIGHT.x, y(FLIGHT.y), FLIGHT.w, FLIGHT.h)} aria-hidden="true">
+    <div class="flight" style="width:687px;height:742px;transform-origin:0 0;transform:scale(var(--un, 1))">
+      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img flyer-backers" style="width:42px;height:95px" />
+    </div>
+  </div>
+
+  <h2 id="backers-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap glow" style={pos(374, y(3026), 253, 23)}>STARTUPS BACKED BY</h2>
+  <ul class="m-0 p-0 list-none" aria-label="Investors who backed BUILD startups">
+    {logos.map((l) => <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} set:html={l.svg} />)}
+  </ul>
+
+  <!-- TODO(designer): the pill links to the application form — URL not in Figma -->
+  <a href="/apply" class="abs pill flex items-center justify-center no-underline text-ink" style={pos(329, y(3590), 352.2, 57.2)}>
+    <span class="t-apply whitespace-nowrap">APPLY TO BUILD</span>
+  </a>
+
+  <h2 class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(385, y(3926), 240, 23)}>PREVIOUS STARTUPS</h2>
+
+</section>
+
+<style>
+  .logo :global(svg) { width: 100%; height: 100%; display: block; }
+  .glow { text-shadow: 0 0 calc(8 * var(--u)) rgb(255 255 255 / 0.6); }
+  .t-apply { font-size: calc(34.2857 * var(--u)); line-height: calc(39.4 * var(--u)); letter-spacing: calc(2.7 * var(--u)); }
+  .pill {
+    border-radius: 9999px;
+    box-shadow:
+      inset 0 0 0 calc(0.514 * var(--u)) #fff,
+      inset 0 0 calc(23.3 * var(--u)) rgb(255 255 255 / 0.4),
+      0 0 calc(57.1 * var(--u)) rgb(255 255 255 / 0.3);
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+/**
+ * Home › Our Three Initiatives — three planets, each with a thin halo ring holding the blurb.
+ * Section y 900–1900 du. Figma: title 7028:1533 · planets 7028:1517 / 7028:1575 / 7028:1509 ·
+ * halo rings Ellipse 17/18/19 (207 du, 0.33 white@40% inside stroke) · text groups 39624/25/26.
+ */
+import { pos } from '../../../lib/units';
+import Planet from '../../space/Planet.astro';
+import Stars from '../../space/Stars.astro';
+
+const TOP = 900;
+const y = (v: number) => v - TOP;
+
+const initiatives = [
+  {
+    key: 'build', href: '/build', title: 'BUILD', planet: { kind: 'orange', x: 125, y: 1042, w: 300 },
+    ring: { x: 236, y: 996 }, titleBox: { x: 307, y: 1035, w: 66 }, body: { x: 255, y: 1078, w: 169 },
+    text: 'Our premier 8-week accelerator for startups. Mentorship, resources, and consulting across product, tech, design, marketing, and finance.',
+  },
+  {
+    key: 'ignite', href: '/ignite', title: 'IGNITE', planet: { kind: 'yellow', x: 577, y: 1231, w: 300 },
+    ring: { x: 533, y: 1219 }, titleBox: { x: 599, y: 1258, w: 75 }, body: { x: 546, y: 1301, w: 181 },
+    text: 'Our general membership program helps you grow entrepreneurial skills through fireside chats, workshops, and networking events with founders and investors.',
+  },
+  {
+    key: 'demo', href: '/demo', title: 'DEMO', planet: { kind: 'blue', x: 162.5, y: 1434, w: 456.6, h: 300 },
+    ring: { x: 307, y: 1373 }, titleBox: { x: 378, y: 1411, w: 65 }, body: { x: 335, y: 1454, w: 152 },
+    text: 'SoCal’s largest student-run entrepreneurship conference. 50+ startups, 1000+ attendees, pitch competitions, and workshops.',
+  },
+] as const;
+
+const stars = [
+  { x: 425, y: 1319 }, { x: 755, y: 1579 }, { x: 653, y: 1559 }, { x: 845, y: 1728 }, { x: 915, y: 1708 },
+  { x: 555, y: 1499 }, { x: 444, y: 1249 }, { x: 693, y: 1402 }, { x: 465, y: 1386 },
+  { x: 437, y: 1346, kind: 'dot' }, { x: 637, y: 1576, kind: 'dot' }, { x: 827, y: 1706, kind: 'dot' },
+  // dots sitting on the halo rings
+  { x: 261, y: 1028, kind: 'dot' }, { x: 282, y: 1185, kind: 'dot' }, { x: 531, y: 1323, kind: 'dot' }, { x: 496, y: 1531, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:1000" data-figma="Initiatives" aria-labelledby="initiatives-title">
+  <h2 id="initiatives-title" class="abs m-0 t-title text-center whitespace-nowrap font-normal" style={pos(366, y(931), 269, 23)}>OUR THREE INITIATIVES</h2>
+
+  {initiatives.map((i) => <Planet kind={i.planet.kind} x={i.planet.x} y={y(i.planet.y)} w={i.planet.w} h={'h' in i.planet ? i.planet.h : undefined} />)}
+  <Planet kind="moon" x={814} y={y(1199)} w={32} />
+
+  <!-- motion layer: a tiny moon orbiting DEMO's ring. Ellipse least-squares-fitted to the ring pixels of
+       blue-planet.png: centre (390.7, 1566.1) du, a = 233.5, b = 73.4, tilt 13.4°. Box is px (= du) scaled by --un. -->
+  <div class="abs orbit pointer-events-none" style={pos(390.7 - 233.5, y(1566.1) - 73.4, 467, 146.8)} aria-hidden="true">
+    <div class="orbit-scale"><div class="orbit-tilt"><span class="orbit-dot"></span></div></div>
+  </div>
+
+  <Stars items={stars} />
+
+  {initiatives.map((i) => (
+    <article data-initiative={i.key}>
+      <div class="abs ring" style={pos(i.ring.x, y(i.ring.y), 207, 207)} aria-hidden="true" />
+      <h3 class="abs m-0 t-title text-center whitespace-nowrap font-normal" style={pos(i.titleBox.x, y(i.titleBox.y), i.titleBox.w, 23)}>
+        <a href={i.href} class="no-underline text-ink">{i.title}</a>
+      </h3>
+      <p class="abs m-0 t-caption text-center" style={pos(i.body.x, y(i.body.y), i.body.w, 87)}>{i.text}</p>
+    </article>
+  ))}
+</section>
+
+<style>
+  .ring { border-radius: 9999px; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.4); }
+  .t-caption { letter-spacing: calc(0.4 * var(--u)); }
+</style>

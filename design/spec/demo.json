@@ -1,0 +1,4288 @@
+[
+ {
+  "id": "6982:854",
+  "name": "DEMO",
+  "type": "FRAME",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 1001,
+  "h": 3871,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#0a0a0a",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "NOISE",
+    "color": "#bababa",
+    "alpha": 0.1
+   }
+  ]
+ },
+ {
+  "id": "7045:2727",
+  "name": "Ellipse 8",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 253,
+  "y": 976,
+  "w": 496,
+  "h": 496,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#070707",
+    "alpha": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 0.5
+   }
+  ],
+  "strokeWeight": 0.08266667276620865,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "INNER_SHADOW",
+    "radius": 132.59732055664062,
+    "color": "#8eb5ff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 4.960000038146973,
+     "y": -28.106666564941406
+    }
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 65.80266571044922,
+    "color": "#1567ff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 4.960000038146973,
+     "y": -28.106666564941406
+    }
+   }
+  ]
+ },
+ {
+  "id": "7040:2376",
+  "name": "Group 39628",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": -478.8,
+  "y": -369,
+  "w": 1379,
+  "h": 906
+ },
+ {
+  "id": "7040:2377",
+  "name": "Ellipse 8",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7040:2376",
+  "x": -241.7,
+  "y": -369,
+  "w": 906,
+  "h": 906,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#070707",
+    "alpha": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 0.5
+   }
+  ],
+  "strokeWeight": 0.1509999930858612,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "INNER_SHADOW",
+    "radius": 242.20396423339844,
+    "color": "#8eb5ff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 9.059999465942383,
+     "y": -51.34000015258789
+    }
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 120.19599151611328,
+    "color": "#1567ff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 9.059999465942383,
+     "y": -51.34000015258789
+    }
+   }
+  ]
+ },
+ {
+  "id": "7040:2378",
+  "name": "Subtract",
+  "type": "BOOLEAN_OPERATION",
+  "depth": 2,
+  "parent": "7040:2376",
+  "x": -478.8,
+  "y": -242,
+  "w": 1379,
+  "h": 544.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#bcd4ff",
+    "alpha": 0.5
+   }
+  ]
+ },
+ {
+  "id": "7040:2379",
+  "name": "Ellipse 10",
+  "type": "ELLIPSE",
+  "depth": 3,
+  "parent": "7040:2378",
+  "x": -528.6,
+  "y": -350.9,
+  "w": 1478.4,
+  "h": 761.8,
+  "rotation": 0.2,
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 0.7
+   }
+  ],
+  "strokeWeight": 3.0199999809265137,
+  "strokeAlign": "INSIDE"
+ },
+ {
+  "id": "7040:2380",
+  "name": "Subtract",
+  "type": "BOOLEAN_OPERATION",
+  "depth": 3,
+  "parent": "7040:2378",
+  "x": -223.2,
+  "y": -369,
+  "w": 871.4,
+  "h": 332.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#070707",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "INNER_SHADOW",
+    "radius": 120.19599151611328,
+    "color": "#ffffff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 9.059999465942383,
+     "y": -51.34000015258789
+    }
+   }
+  ]
+ },
+ {
+  "id": "7040:2381",
+  "name": "Ellipse 11",
+  "type": "ELLIPSE",
+  "depth": 4,
+  "parent": "7040:2380",
+  "x": -241.7,
+  "y": -369,
+  "w": 906,
+  "h": 906,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#070707",
+    "alpha": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.1509999930858612,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "INNER_SHADOW",
+    "radius": 120.19599151611328,
+    "color": "#ffffff",
+    "alpha": 0.5,
+    "offset": {
+     "x": 9.059999465942383,
+     "y": -51.34000015258789
+    }
+   }
+  ]
+ },
+ {
+  "id": "7040:2382",
+  "name": "Rectangle 2",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7040:2380",
+  "x": -311.1,
+  "y": -45.9,
+  "w": 1020.8,
+  "h": 730.8,
+  "radius": 105.69999694824219,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#d9d9d9",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7033:2255",
+  "name": "Ellipse 248",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 366,
+  "y": 385,
+  "w": 660.4,
+  "h": 929.4,
+  "rotation": 0.4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#3a68ff",
+    "alpha": 0.1
+   }
+  ],
+  "effects": [
+   {
+    "type": "LAYER_BLUR",
+    "radius": 156.5
+   }
+  ]
+ },
+ {
+  "id": "7033:2257",
+  "name": "Ellipse 249",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": -16,
+  "y": 1007,
+  "w": 636.5,
+  "h": 930.3,
+  "rotation": 2.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#3a68ff",
+    "alpha": 0.1
+   }
+  ],
+  "effects": [
+   {
+    "type": "LAYER_BLUR",
+    "radius": 156.5
+   }
+  ]
+ },
+ {
+  "id": "6982:864",
+  "name": "Ellipse 229",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 790,
+  "y": 28,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "6982:865",
+  "name": "Ellipse 228",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 904,
+  "y": 63,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "6982:867",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 868,
+  "y": 86,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2693",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 677,
+  "y": 216,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2695",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 468,
+  "y": 455,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2697",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 212,
+  "y": 401,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2699",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 34,
+  "y": 365,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2701",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 321,
+  "y": 451,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2731",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 55,
+  "y": 845,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2733",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 126,
+  "y": 890,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2735",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 869,
+  "y": 1120,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2737",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 818,
+  "y": 1238,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2749",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 322,
+  "y": 1183,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2755",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 322,
+  "y": 1183,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2753",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 580,
+  "y": 1201,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2739",
+  "name": "*",
+  "type": "VECTOR",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 935,
+  "y": 1247,
+  "w": 9,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "6982:868",
+  "name": "DEMO",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 412,
+  "y": 253,
+  "w": 178,
+  "h": 63,
+  "fills": [
+   {
+    "type": "gradient_linear",
+    "handles": [
+     [
+      0.5,
+      0
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "stops": [
+     {
+      "color": "#006fff",
+      "alpha": 1,
+      "at": 0
+     },
+     {
+      "color": "#ffffff",
+      "alpha": 1,
+      "at": 1
+     }
+    ],
+    "opacity": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.10000000149011612,
+  "strokeAlign": "OUTSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 10.899999618530273,
+    "color": "#000000",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "DEMO",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 54.64,
+   "lineHeight": 62.84,
+   "letterSpacing": 4.37,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "6982:869",
+  "name": "SoCal’s largest student-run entrepreneurship conference",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 307,
+  "y": 338,
+  "w": 387,
+  "h": 40,
+  "fills": [
+   {
+    "type": "gradient_linear",
+    "handles": [
+     [
+      1,
+      0.5
+     ],
+     [
+      0,
+      0.5
+     ],
+     [
+      1,
+      0
+     ]
+    ],
+    "stops": [
+     {
+      "color": "#548aff",
+      "alpha": 1,
+      "at": 0
+     },
+     {
+      "color": "#ffffff",
+      "alpha": 1,
+      "at": 0.9
+     }
+    ],
+    "opacity": 1
+   }
+  ],
+  "text": "SoCal’s largest student-run entrepreneurship conference",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 17.7,
+   "lineHeight": 20.36,
+   "letterSpacing": 1.42,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "6990:997",
+  "name": "Sponsored by the USC Lloyd Greif Center for Entrepreneurial Studies",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 284,
+  "y": 401,
+  "w": 434,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Sponsored by the USC Lloyd Greif Center for Entrepreneurial Studies",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "6990:999",
+  "name": "DEMO is the premier annual gathering for student founders, bringing together startups, investors and students. Spend a full day pitching, networking, and scaling through our startup exhibition, keynote sessions, pitch competition, and interactive workshops.",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 221,
+  "y": 602,
+  "w": 559,
+  "h": 42,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "DEMO is the premier annual gathering for student founders, bringing together startups, investors and students. Spend a full day pitching, networking, and scaling through our startup exhibition, keynote sessions, pitch competition, and interactive workshops.",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:2",
+  "name": "Frame 170",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 188,
+  "y": 799,
+  "w": 625,
+  "h": 349,
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 24.200000762939453,
+    "color": "#ffffff",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:4",
+  "name": "Screenshot 2026-08-22 at 7.50.33 AM 1",
+  "type": "RECTANGLE",
+  "depth": 2,
+  "parent": "7019:2",
+  "x": 188,
+  "y": 799,
+  "w": 625,
+  "h": 349,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "21634c2fd40ea29d5c276d40dfe20ecd416ce2b2",
+    "scaleMode": "FILL"
+   }
+  ]
+ },
+ {
+  "id": "7019:18",
+  "name": "Frame 171",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 197,
+  "y": 1309,
+  "w": 607,
+  "h": 98,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 89,
+   "pad": [
+    10,
+    16,
+    10,
+    16
+   ],
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:16",
+  "name": "Group 39622",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "7019:18",
+  "x": 213,
+  "y": 1319,
+  "w": 129,
+  "h": 78,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7019:9",
+  "name": "INVESTORS",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:16",
+  "x": 213,
+  "y": 1374,
+  "w": 129,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "INVESTORS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 23,
+   "letterSpacing": 1.6,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:10",
+  "name": "100+",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:16",
+  "x": 218,
+  "y": 1319,
+  "w": 120,
+  "h": 55,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "100+",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 48,
+   "lineHeight": 55.2,
+   "letterSpacing": 3.84,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:17",
+  "name": "Group 39623",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "7019:18",
+  "x": 431,
+  "y": 1319,
+  "w": 117,
+  "h": 78,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7019:6",
+  "name": "STARTUPS",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:17",
+  "x": 431,
+  "y": 1374,
+  "w": 117,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "STARTUPS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 23,
+   "letterSpacing": 1.6,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:7",
+  "name": "50",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:17",
+  "x": 461,
+  "y": 1319,
+  "w": 58,
+  "h": 55,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "50",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 48,
+   "lineHeight": 55.2,
+   "letterSpacing": 3.84,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:15",
+  "name": "Group 39621",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "7019:18",
+  "x": 637,
+  "y": 1319,
+  "w": 151,
+  "h": 78,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7019:12",
+  "name": "ATTENDEES",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:15",
+  "x": 645,
+  "y": 1374,
+  "w": 132,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "ATTENDEES",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 23,
+   "letterSpacing": 1.6,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:13",
+  "name": "1000+",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:15",
+  "x": 637,
+  "y": 1319,
+  "w": 151,
+  "h": 55,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.300000190734863,
+    "color": "#ffffff",
+    "alpha": 0.7,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "1000+",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 48,
+   "lineHeight": 55.2,
+   "letterSpacing": 3.84,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:39",
+  "name": "NOTABLE KEYNOTE SPEAKERS",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 340,
+  "y": 1598,
+  "w": 321,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "NOTABLE KEYNOTE SPEAKERS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 23,
+   "letterSpacing": 0.6,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7033:2259",
+  "name": "NOTABLE INVESTORS",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 389,
+  "y": 2565,
+  "w": 223,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "NOTABLE INVESTORS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 20,
+   "lineHeight": 23,
+   "letterSpacing": 0.6,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:82",
+  "name": "Frame 178",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 142,
+  "y": 1682,
+  "w": 717,
+  "h": 715,
+  "layout": {
+   "mode": "GRID",
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ },
+ {
+  "id": "7019:51",
+  "name": "Frame 173",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7019:82",
+  "x": 142,
+  "y": 1682,
+  "w": 358.5,
+  "h": 205,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#000000",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 5,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:50",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "7019:51",
+  "x": 142.3,
+  "y": 1682,
+  "w": 358,
+  "h": 159,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 20,
+   "pad": [
+    10,
+    null,
+    10,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:45",
+  "name": "image 159",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:50",
+  "x": 173.3,
+  "y": 1692,
+  "w": 139,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "a632f9cbb1d80daddc601a857638207d1fb6392e",
+    "scaleMode": "FILL"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:48",
+  "name": "image 160",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:50",
+  "x": 332.3,
+  "y": 1692,
+  "w": 137,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "777548e073141cc0f013ad0313c903c96641b566",
+    "scaleMode": "STRETCH"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:41",
+  "name": "Evan Spiegel",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:51",
+  "x": 182.3,
+  "y": 1846,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Evan Spiegel",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:42",
+  "name": "CEO & Founder, Snapchat",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:51",
+  "x": 182.3,
+  "y": 1869,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "CEO & Founder, Snapchat",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "7019:52",
+  "name": "Frame 174",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7019:82",
+  "x": 500.5,
+  "y": 1682,
+  "w": 358.5,
+  "h": 205,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#000000",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 5,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:53",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "7019:52",
+  "x": 500.8,
+  "y": 1682,
+  "w": 358,
+  "h": 159,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 20,
+   "pad": [
+    10,
+    null,
+    10,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:54",
+  "name": "image 159",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:53",
+  "x": 531.8,
+  "y": 1692,
+  "w": 139,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "4ac5d513f4f798f2b108728111ca6bef811aad32",
+    "scaleMode": "FILL"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:55",
+  "name": "image 160",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:53",
+  "x": 690.8,
+  "y": 1692,
+  "w": 137,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "11b894798bc5bde273670e2726e4191fb6da5948",
+    "scaleMode": "STRETCH"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:56",
+  "name": "Sean Rad",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:52",
+  "x": 540.8,
+  "y": 1846,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Sean Rad",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:57",
+  "name": "Founder, Tinder",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:52",
+  "x": 540.8,
+  "y": 1869,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Founder, Tinder",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "7019:60",
+  "name": "Frame 175",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7019:82",
+  "x": 142,
+  "y": 1937,
+  "w": 358.5,
+  "h": 205,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#000000",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 5,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:61",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "7019:60",
+  "x": 142.3,
+  "y": 1937,
+  "w": 358,
+  "h": 159,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 20,
+   "pad": [
+    10,
+    null,
+    10,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:62",
+  "name": "image 159",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:61",
+  "x": 173.3,
+  "y": 1947,
+  "w": 139,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "12f2d82e5b90e05e41df8de59d4e051f4bba9767",
+    "scaleMode": "FILL"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:63",
+  "name": "image 160",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:61",
+  "x": 332.3,
+  "y": 1947,
+  "w": 137,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "e8aa1176ddf115063cd10995aab6d6194a69a90f",
+    "scaleMode": "STRETCH"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:64",
+  "name": "Amy Liu",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:60",
+  "x": 182.3,
+  "y": 2101,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Amy Liu",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:65",
+  "name": "CEO & Founder, Tower28",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:60",
+  "x": 182.3,
+  "y": 2124,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "CEO & Founder, Tower28",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "7019:67",
+  "name": "Frame 176",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7019:82",
+  "x": 500.5,
+  "y": 1937,
+  "w": 358.5,
+  "h": 205,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#000000",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 5,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:68",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "7019:67",
+  "x": 500.8,
+  "y": 1937,
+  "w": 358,
+  "h": 159,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 20,
+   "pad": [
+    10,
+    null,
+    10,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:69",
+  "name": "image 159",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:68",
+  "x": 531.8,
+  "y": 1947,
+  "w": 139,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "9135c682cd37694791171eccfd2d2e4d85d4029f",
+    "scaleMode": "FILL"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:70",
+  "name": "image 160",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:68",
+  "x": 690.8,
+  "y": 1947,
+  "w": 137,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "89941199de9de1b8729fdb8815f40d0beee1b6af",
+    "scaleMode": "STRETCH"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:71",
+  "name": "Ashley Alexander",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:67",
+  "x": 540.8,
+  "y": 2101,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Ashley Alexander",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:72",
+  "name": "CEO & Founder, Nami Matcha",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:67",
+  "x": 540.8,
+  "y": 2124,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "CEO & Founder, Nami Matcha",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "7019:75",
+  "name": "Frame 177",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7019:82",
+  "x": 142,
+  "y": 2192,
+  "w": 358.5,
+  "h": 205,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#000000",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 5,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:76",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "7019:75",
+  "x": 142.3,
+  "y": 2192,
+  "w": 358,
+  "h": 159,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 20,
+   "pad": [
+    10,
+    null,
+    10,
+    null
+   ],
+   "primaryAlign": "CENTER",
+   "counterAlign": "CENTER",
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "7019:77",
+  "name": "image 159",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:76",
+  "x": 173.3,
+  "y": 2202,
+  "w": 139,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "29096ec43fa4d9a7295e0dc5cb8e6c4b29e47f04",
+    "scaleMode": "FILL"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:78",
+  "name": "image 160",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7019:76",
+  "x": 332.3,
+  "y": 2202,
+  "w": 137,
+  "h": 139,
+  "radius": 20,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "95b94355d8c4c1a38e64230666e8dfc2bbda944c",
+    "scaleMode": "STRETCH"
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 0.33000001311302185,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 16.700000762939453,
+    "color": "#ffcaaa",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7019:79",
+  "name": "Adam & Ryan Goldston",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:75",
+  "x": 182.3,
+  "y": 2356,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "Adam & Ryan Goldston",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7019:80",
+  "name": "CEO & Founders, APL Sneakers",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "7019:75",
+  "x": 182.3,
+  "y": 2379,
+  "w": 278,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "CEO & Founders, APL Sneakers",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 16,
+   "lineHeight": 18.4,
+   "letterSpacing": 0.48,
+   "align": "CENTER",
+   "valign": "TOP",
+   "italic": true
+  }
+ },
+ {
+  "id": "7028:762",
+  "name": "Footer",
+  "type": "INSTANCE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 0,
+  "y": 3615,
+  "w": 1001,
+  "h": 256,
+  "component": "7028:709"
+ },
+ {
+  "id": "I7028:762;6969:8164",
+  "name": "Frame 121",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 95,
+  "y": 3670,
+  "w": 135.3,
+  "h": 113,
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 20,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8140",
+  "name": "HOME",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8164",
+  "x": 95,
+  "y": 3670,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "HOME",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8142",
+  "name": "BUILD",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8164",
+  "x": 95,
+  "y": 3704,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "BUILD",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8144",
+  "name": "DEMO",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8164",
+  "x": 95,
+  "y": 3738,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "DEMO",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8146",
+  "name": "IGNITE",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8164",
+  "x": 95,
+  "y": 3772,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "IGNITE",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8165",
+  "name": "Frame 122",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 320.3,
+  "y": 3670,
+  "w": 135.3,
+  "h": 52,
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 10,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8148",
+  "name": "Contact Us",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8165",
+  "x": 320.3,
+  "y": 3670,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "Contact Us",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8150",
+  "name": "troylabs@usc.edu",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8165",
+  "x": 320.3,
+  "y": 3694,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "troylabs@usc.edu",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8166",
+  "name": "Frame 123",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 545.5,
+  "y": 3670,
+  "w": 135.3,
+  "h": 52,
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 10,
+   "pad": [
+    1,
+    null,
+    1,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8152",
+  "name": "Members Only",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8166",
+  "x": 545.5,
+  "y": 3671,
+  "w": 135.3,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "Members Only",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8153",
+  "name": "TL Alumni Network Portal",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7028:762;6969:8166",
+  "x": 545.5,
+  "y": 3695,
+  "w": 135.3,
+  "h": 28,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "TL Alumni Network Portal",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8167",
+  "name": "Frame 124",
+  "type": "FRAME",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 320.3,
+  "y": 3757,
+  "w": 135.3,
+  "h": 27,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 13,
+   "pad": [
+    5,
+    2,
+    5,
+    2
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8159",
+  "name": "image 9",
+  "type": "RECTANGLE",
+  "depth": 3,
+  "parent": "I7028:762;6969:8167",
+  "x": 322.3,
+  "y": 3762,
+  "w": 22,
+  "h": 22,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "6f90a6a43f735a7f7430a57c2cf04ecf4573aa5c",
+    "scaleMode": "FILL"
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;6969:8162",
+  "name": "image 10",
+  "type": "RECTANGLE",
+  "depth": 3,
+  "parent": "I7028:762;6969:8167",
+  "x": 357.3,
+  "y": 3762,
+  "w": 24,
+  "h": 21,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "889c65f24e2753527f231f72e5c67438980333e8",
+    "scaleMode": "STRETCH"
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:28",
+  "name": "Union",
+  "type": "BOOLEAN_OPERATION",
+  "depth": 3,
+  "parent": "I7028:762;6969:8167",
+  "x": 394.3,
+  "y": 3762,
+  "w": 17.9,
+  "h": 22,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:26",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "I7028:762;7019:28",
+  "x": 394.3,
+  "y": 3762,
+  "w": 17.9,
+  "h": 16.3,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:27",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "I7028:762;7019:28",
+  "x": 401.6,
+  "y": 3776.8,
+  "w": 3.2,
+  "h": 7.2,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:33",
+  "name": "Union",
+  "type": "BOOLEAN_OPERATION",
+  "depth": 3,
+  "parent": "I7028:762;6969:8167",
+  "x": 425.2,
+  "y": 3762,
+  "w": 19.4,
+  "h": 22,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:30",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "I7028:762;7019:33",
+  "x": 425.2,
+  "y": 3771.9,
+  "w": 19.4,
+  "h": 12.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:31",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "I7028:762;7019:33",
+  "x": 425.2,
+  "y": 3762,
+  "w": 19.3,
+  "h": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;7019:32",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "I7028:762;7019:33",
+  "x": 425.2,
+  "y": 3767,
+  "w": 19.3,
+  "h": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;6969:8171",
+  "name": "Empowering USC's next generation of entrepreneurs",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 770.8,
+  "y": 3757,
+  "w": 135.3,
+  "h": 18,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "Empowering USC's next generation of entrepreneurs",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 8,
+   "lineHeight": 9.2,
+   "letterSpacing": 0.64,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6969:8169",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 770.8,
+  "y": 3670,
+  "w": 47,
+  "h": 71,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7028:762;6969:8173",
+  "name": "© 2026 TroyLabs. All rights reserved.",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 423,
+  "y": 3829,
+  "w": 155,
+  "h": 9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "© 2026 TroyLabs. All rights reserved.",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 8,
+   "lineHeight": 9.2,
+   "letterSpacing": 0.64,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7028:762;6971:8174",
+  "name": "Line 21",
+  "type": "LINE",
+  "depth": 2,
+  "parent": "7028:762",
+  "x": 244,
+  "y": 3616,
+  "w": 514,
+  "h": 0,
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 0.4
+   }
+  ],
+  "strokeWeight": 0.5,
+  "strokeAlign": "CENTER"
+ },
+ {
+  "id": "7033:2241",
+  "name": "Nav",
+  "type": "INSTANCE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 0,
+  "y": 0,
+  "w": 1001,
+  "h": 79,
+  "component": "7033:2233"
+ },
+ {
+  "id": "I7033:2241;7028:1523",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7033:2241",
+  "x": 30,
+  "y": 20,
+  "w": 26,
+  "h": 39,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "I7033:2241;7028:1524",
+  "name": "BUILD",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7033:2241",
+  "x": 389,
+  "y": 32,
+  "w": 40,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "BUILD",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7033:2241;7028:1525",
+  "name": "IGNITE",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7033:2241",
+  "x": 479,
+  "y": 32,
+  "w": 45,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "IGNITE",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7033:2241;7028:1526",
+  "name": "DEMO",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7033:2241",
+  "x": 574,
+  "y": 32,
+  "w": 39,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "DEMO",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "I7033:2241;7033:2231",
+  "name": "APPLY TO TROYLABS",
+  "type": "INSTANCE",
+  "depth": 2,
+  "parent": "7033:2241",
+  "x": 836,
+  "y": 32,
+  "w": 140,
+  "h": 14,
+  "component": "7033:2217"
+ },
+ {
+  "id": "I7033:2241;7033:2231;7028:1527",
+  "name": "APPLY TO TROYLABS",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "I7033:2241;7033:2231",
+  "x": 836,
+  "y": 32,
+  "w": 140,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "APPLY TO TROYLABS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7045:2687",
+  "name": "Group 39633",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 477,
+  "y": 675,
+  "w": 48,
+  "h": 4
+ },
+ {
+  "id": "7045:2683",
+  "name": "Ellipse 207",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2687",
+  "x": 499,
+  "y": 675,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2684",
+  "name": "Ellipse 208",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2687",
+  "x": 477,
+  "y": 675,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2685",
+  "name": "Ellipse 209",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2687",
+  "x": 521,
+  "y": 675,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2688",
+  "name": "Group 39634",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 477,
+  "y": 574,
+  "w": 48,
+  "h": 4
+ },
+ {
+  "id": "7045:2689",
+  "name": "Ellipse 207",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2688",
+  "x": 499,
+  "y": 574,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2690",
+  "name": "Ellipse 208",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2688",
+  "x": 477,
+  "y": 574,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2691",
+  "name": "Ellipse 209",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7045:2688",
+  "x": 521,
+  "y": 574,
+  "w": 4,
+  "h": 4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2709",
+  "name": "Ellipse 270",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 78,
+  "y": 333,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2711",
+  "name": "Ellipse 271",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 252,
+  "y": 396,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2713",
+  "name": "Ellipse 272",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 237,
+  "y": 506,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2729",
+  "name": "Ellipse 276",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 155,
+  "y": 870,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2751",
+  "name": "Ellipse 281",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 167,
+  "y": 1080,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2741",
+  "name": "Ellipse 277",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 981,
+  "y": 1304,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2747",
+  "name": "Ellipse 280",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 939,
+  "y": 1180,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2743",
+  "name": "Ellipse 278",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 349,
+  "y": 1205,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2757",
+  "name": "Ellipse 282",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 666,
+  "y": 1173,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2759",
+  "name": "Ellipse 283",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 635,
+  "y": 1266,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2745",
+  "name": "Ellipse 279",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 799,
+  "y": 1219,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2715",
+  "name": "Ellipse 273",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 659,
+  "y": 267,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2717",
+  "name": "Ellipse 274",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 585,
+  "y": 248,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7045:2719",
+  "name": "Ellipse 275",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "6982:854",
+  "x": 831,
+  "y": 196,
+  "w": 5.3,
+  "h": 5.3,
+  "rotation": 2.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 7.099999904632568,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ }
+]

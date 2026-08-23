@@ -1,0 +1,27 @@
+---
+/**
+ * BUILD — Figma frame 6977:9 (1001×5463 du). Nav 0–79 · sections 79–5184 · Footer instance @5184 (256 du) ·
+ * 23 du of empty frame below the footer (5440–5463), reproduced with a page-scoped footer margin.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/build/Hero.astro';
+import Timeline from '../components/sections/build/Timeline.astro';
+import Gallery from '../components/sections/build/Gallery.astro';
+import Stats from '../components/sections/build/Stats.astro';
+import Backers from '../components/sections/build/Backers.astro';
+import Previous from '../components/sections/build/Previous.astro';
+---
+
+<BaseLayout title="BUILD — TroyLabs' 8-week startup accelerator" description="BUILD is TroyLabs' 8-week flagship accelerator providing hands-on consulting to USC's premier startups." current="build">
+  <Hero />
+  <Timeline />
+  <Gallery />
+  <Stats />
+  <Backers />
+  <Previous />
+</BaseLayout>
+
+<style is:global>
+  /* Figma BUILD frame: 23 du of bare background below the Footer instance (5440 → 5463). */
+  footer[data-figma="Footer"] { margin-bottom: calc(23 * var(--u)); }
+</style>

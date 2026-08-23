@@ -1,0 +1,41 @@
+---
+/**
+ * Home › Hero — Figma "Frame 1" (7028:1528) + surrounding star field. Section y 79–600 du.
+ * Wordmark "tl logo" @212,250.7 578×98.4 · tagline @220.5,375.6 561×20 (white→orange gradient).
+ */
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import wordmark from '../../../assets/figma/tl-wordmark.svg?raw';
+
+const TOP = 79; // section starts below the nav; Figma y − TOP = section y
+// The exported wordmark SVG carries its drop-shadow filter region (619×439) around the 578×98.4 letters.
+const SVG = { w: 619, h: 439 };
+// Offset of the letters inside that SVG box — measured against the 1:1 reference (the filter
+// region is not symmetric): letters start 10.5 du from the SVG's left edge, 171.3 du from its top.
+const padX = 10.5, padY = 171.3;
+
+const stars = [
+  { x: 62, y: 384 }, { x: 81, y: 314 }, { x: 333, y: 242 }, { x: 496, y: 261 }, { x: 406, y: 171 }, { x: 868, y: 86 },
+  { x: 74, y: 411, kind: 'dot' }, { x: 165, y: 271, kind: 'dot' }, { x: 414, y: 333, kind: 'dot' }, { x: 436, y: 221, kind: 'dot' },
+  { x: 517, y: 140, kind: 'dot' }, { x: 790, y: 28, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' },
+].map((s) => ({ ...s, y: s.y - TOP })) as any;
+---
+
+<section class="section" style="--h:521" data-figma="Hero" aria-label="TroyLabs">
+  <Stars items={stars} />
+  <h1 class="abs m-0 wordmark" style={pos(212 - padX, 250.7 - TOP - padY, SVG.w, SVG.h)} set:html={wordmark}>
+  </h1>
+  <span class="sr-only">TroyLabs</span>
+  <p class="abs m-0 t-tagline text-center whitespace-nowrap tagline" style={pos(220.5, 375.6 - TOP, 561, 20)}>
+    Where USC student builders launch, scale, and raise capital.
+  </p>
+</section>
+
+<style>
+  .wordmark :global(svg) { width: 100%; height: 100%; display: block; }
+  /* Figma gradient_linear, handles (1,.5)→(0,.5): orange at the right end, white from 10% leftwards */
+  .tagline {
+    background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>

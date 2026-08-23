@@ -1,0 +1,24 @@
+---
+/**
+ * DEMO › Intro paragraph between the ∘∘∘ dividers — Section y 560–760 du.
+ * Figma: text 6990:999 @221,602 559×42 (12/13.8 ls 1, centered) · dot groups 39634 @477,574 and 39633 @477,675 (x 477/499/521).
+ */
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+
+const TOP = 560;
+const dots = [477, 499, 521].flatMap((x) => [{ x, y: 574 - TOP, kind: 'dot' }, { x, y: 675 - TOP, kind: 'dot' }]) as any;
+---
+
+<section class="section" style="--h:200" data-figma="DemoIntro" aria-label="About DEMO">
+  <Stars items={dots} />
+  <p class="abs m-0 t-caption text-center intro" style={pos(221, 602 - TOP, 559, 42)}>
+    DEMO is the premier annual gathering for student founders, bringing together startups, investors and students.
+    Spend a full day pitching, networking, and scaling through our startup exhibition, keynote sessions, pitch
+    competition, and interactive workshops.
+  </p>
+</section>
+
+<style>
+  .intro { letter-spacing: calc(1 * var(--u)); }
+</style>

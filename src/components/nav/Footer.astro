@@ -1,0 +1,62 @@
+---
+/**
+ * Site footer — Figma instance "Footer" (6969 component), 1001×256 du.
+ * Rule @244,1 w514 · columns at x=95 / 320 / 545 (w135) · rocket + tagline at x=771 · copyright @y214.
+ */
+import { pos, u } from '../../lib/units';
+import rocket from '../../assets/figma/footer-rocket.svg?raw';
+import threads from '../../assets/figma/icon-threads.svg?raw';
+import substack from '../../assets/figma/icon-substack.svg?raw';
+import instagram from '../../assets/figma/icon-instagram.png';
+import x from '../../assets/figma/icon-x.png';
+
+const pages = [
+  { href: '/', label: 'HOME' },
+  { href: '/build', label: 'BUILD' },
+  { href: '/demo', label: 'DEMO' },
+  { href: '/ignite', label: 'IGNITE' },
+];
+// Instagram + X confirmed by Bryan (2026-08-23). TODO(designer): Threads and Substack URLs still unconfirmed.
+const socials = [
+  { href: 'https://www.instagram.com/troy.labs/', label: 'Instagram' },
+  { href: 'https://x.com/TroyLabsVC', label: 'X' },
+  { href: 'https://www.threads.net/@troy.labs', label: 'Threads' },
+  { href: 'https://troylabs.substack.com', label: 'Substack' },
+];
+---
+
+<footer class="section" style="--h:256" data-figma="Footer">
+  <hr class="abs m-0 border-0 border-t border-ink/30" style={pos(244, 1, 514)} />
+
+  <nav class="abs flex flex-col" style={`${pos(95, 55, 135)};gap:${u(20)}`} aria-label="Footer">
+    {pages.map((p) => <a href={p.href} class="t-nav glow-text">{p.label}</a>)}
+  </nav>
+
+  <div class="abs flex flex-col" style={`${pos(320, 55, 135)};gap:${u(10)}`}>
+    <span class="t-nav glow-text normal-case">Contact Us</span>
+    <a href="mailto:troylabs@usc.edu" class="t-nav glow-text normal-case">troylabs@usc.edu</a>
+  </div>
+
+  <div class="abs flex flex-col" style={`${pos(545, 55, 135)};gap:${u(10)}`}>
+    <span class="t-nav glow-text normal-case">Members Only</span>
+    <a href="#" class="t-nav glow-text normal-case">TL Alumni Network Portal</a>
+  </div>
+
+  <ul class="abs flex items-center m-0 p-0 list-none" style={`${pos(322, 147)};gap:${u(13)}`}>
+    <!-- Instagram/X are image fills in Figma: rendered as CSS masks so they can take the hover colour -->
+    <li><a href={socials[0].href} aria-label={socials[0].label} class="social" target="_blank" rel="noopener noreferrer"><span class="mask" style={`--icon:url(${instagram.src});width:${u(22)};height:${u(22)}`} /></a></li>
+    <li><a href={socials[1].href} aria-label={socials[1].label} class="social" target="_blank" rel="noopener noreferrer"><span class="mask" style={`--icon:url(${x.src});width:${u(24)};height:${u(21)}`} /></a></li>
+    <li><a href={socials[2].href} aria-label={socials[2].label} class="social icon" style={`width:${u(18)};height:${u(22)}`} target="_blank" rel="noopener noreferrer" set:html={threads} /></li>
+    <li><a href={socials[3].href} aria-label={socials[3].label} class="social icon" style={`width:${u(19.4)};height:${u(22)}`} target="_blank" rel="noopener noreferrer" set:html={substack} /></li>
+  </ul>
+
+  <a href="/" class="abs mark" style={pos(771, 55, 47, 71)} aria-label="TroyLabs home" set:html={rocket} />
+  <p class="abs t-fine glow-text m-0" style={pos(771, 142, 135)}>Empowering USC's next generation of entrepreneurs</p>
+
+  <p class="abs t-fine m-0 text-center whitespace-nowrap" style={pos(423, 214, 155)}>© 2026 TroyLabs. All rights reserved.</p>
+</footer>
+
+<style>
+  footer :global(svg) { width: 100%; height: 100%; display: block; }
+  .icon { display: block; }
+</style>

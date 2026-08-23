@@ -1,0 +1,34 @@
+---
+/**
+ * Site navigation — Figma component "Nav" (7033:2233), 1001×79 du.
+ * Rocket mark @30,20 26×39 · links at x=389/479/574 (50du gaps) · Apply right-aligned (ends at x=976).
+ */
+import { pos, u } from '../../lib/units';
+import rocket from '../../assets/figma/nav-rocket.svg?raw';
+import ApplyLink from '../ui/ApplyLink.astro';
+
+interface Props { current?: 'home' | 'build' | 'ignite' | 'demo' }
+const { current } = Astro.props;
+
+const links = [
+  { href: '/build', label: 'BUILD', key: 'build' },
+  { href: '/ignite', label: 'IGNITE', key: 'ignite' },
+  { href: '/demo', label: 'DEMO', key: 'demo' },
+] as const;
+---
+
+<header class="section z-10" style="--h:79" data-figma="Nav">
+  <a href="/" class="abs" style={`${pos(30, 20, 26, 39)};--i:0`} aria-label="TroyLabs home" set:html={rocket} />
+
+  <nav class="abs flex" style={`${pos(389, 32)};gap:${u(50)}`} aria-label="Primary">
+    {links.map((l, i) => (
+      <a href={l.href} class="t-nav glow-text whitespace-nowrap" style={`--i:${i + 1}`} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
+    ))}
+  </nav>
+
+  <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:4`} />
+</header>
+
+<style>
+  header :global(svg) { width: 100%; height: 100%; }
+</style>

@@ -1,0 +1,16 @@
+---
+/**
+ * Soft ambient glow — Figma: blurred VECTOR ellipse (fill color@alpha, LAYER_BLUR radius).
+ * e.g. "Ellipse 247" 700×925 du, #ff7d2c @ 10%, blur 156.5, rotated 2.7°.
+ */
+import { pos, u } from '../../lib/units';
+interface Props { x: number; y: number; w: number; h: number; color?: string; alpha?: number; blur?: number; rotate?: number }
+const { x, y, w, h, color = 'var(--color-orange)', alpha = 0.05, blur = 156.5, rotate = 0 } = Astro.props;
+---
+
+<div
+  class="abs rounded-full pointer-events-none"
+  aria-hidden="true"
+  style={`${pos(x, y, w, h)};background:color-mix(in srgb, ${color} ${alpha * 100}%, transparent);filter:blur(${u(blur / 2)});transform:rotate(${rotate}deg)`}
+/>
+<!-- CSS blur() sigma ≈ Figma blur radius / 2 — verified visually against the 1:1 reference -->

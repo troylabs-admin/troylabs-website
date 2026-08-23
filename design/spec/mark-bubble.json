@@ -1,0 +1,933 @@
+[
+ {
+  "id": "7012:154",
+  "name": "Mark Bubble",
+  "type": "GROUP",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 488.1,
+  "h": 487,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7012:155",
+  "name": "Group 39620",
+  "type": "GROUP",
+  "depth": 1,
+  "parent": "7012:154",
+  "x": 0,
+  "y": 0,
+  "w": 488.1,
+  "h": 487,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7012:156",
+  "name": "Ellipse 15",
+  "type": "ELLIPSE",
+  "depth": 2,
+  "parent": "7012:155",
+  "x": 0,
+  "y": 0,
+  "w": 488.1,
+  "h": 487,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "bd6a64f98179372ef57b408cc4a23fd1336ec9bb",
+    "scaleMode": "FILL"
+   },
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 0.4
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 131.05313110351562,
+    "color": "#82401b",
+    "alpha": 0.3,
+    "offset": {
+     "x": 23.40234375,
+     "y": 10.921093940734863
+    },
+    "spread": 27.899999618530273
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 27.302734375,
+    "color": "#ffd949",
+    "alpha": 0.2,
+    "offset": {
+     "x": 0,
+     "y": -1.7999999523162842
+    },
+    "spread": 7.199999809265137
+   }
+  ]
+ },
+ {
+  "id": "7012:157",
+  "name": "$3.5M+ pre-seed,",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7012:155",
+  "x": 22.9,
+  "y": 234,
+  "w": 441,
+  "h": 52,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 360,
+    "color": "#82401b",
+    "alpha": 1,
+    "offset": {
+     "x": 216,
+     "y": 216
+    }
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 75,
+    "color": "#ffd949",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 12
+    }
+   }
+  ],
+  "text": "$3.5M+ pre-seed, ",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 45,
+   "lineHeight": 51.75,
+   "letterSpacing": -0.9,
+   "align": "CENTER",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "7012:158",
+  "name": "Group 16",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "7012:155",
+  "x": 129,
+  "y": 145,
+  "w": 230,
+  "h": 39.2,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "7012:159",
+  "name": "Group 14",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "7012:158",
+  "x": 129,
+  "y": 145,
+  "w": 67.8,
+  "h": 39.2,
+  "radius": 0.7284268140792847
+ },
+ {
+  "id": "7012:160",
+  "name": "Rectangle 16",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7012:159",
+  "x": 129,
+  "y": 145,
+  "w": 46.4,
+  "h": 39.2,
+  "radius": 0.7284268140792847,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:161",
+  "name": "Rectangle 17",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "7012:159",
+  "x": 178.9,
+  "y": 145,
+  "w": 17.8,
+  "h": 39.2,
+  "radius": 0.7284268140792847,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:162",
+  "name": "MARK",
+  "type": "GROUP",
+  "depth": 3,
+  "parent": "7012:158",
+  "x": 208.9,
+  "y": 145,
+  "w": 150.1,
+  "h": 39.1
+ },
+ {
+  "id": "7012:163",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "7012:162",
+  "x": 330.9,
+  "y": 145.8,
+  "w": 28.1,
+  "h": 38.3,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:164",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "7012:162",
+  "x": 297.2,
+  "y": 145.8,
+  "w": 28.1,
+  "h": 38.3,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:165",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "7012:162",
+  "x": 256.4,
+  "y": 145,
+  "w": 35.5,
+  "h": 39.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:166",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 4,
+  "parent": "7012:162",
+  "x": 208.9,
+  "y": 145.8,
+  "w": 44.5,
+  "h": 38.3,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:167",
+  "name": "full-lockup 1",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "7012:154",
+  "x": 151,
+  "y": 320,
+  "w": 180,
+  "h": 24
+ },
+ {
+  "id": "7012:168",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 292,
+  "y": 326.3,
+  "w": 10.1,
+  "h": 11.5,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:169",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 302.6,
+  "y": 329.4,
+  "w": 8,
+  "h": 8.6,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:170",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 312.3,
+  "y": 329.2,
+  "w": 8.1,
+  "h": 8.5,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:171",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 321.7,
+  "y": 326.3,
+  "w": 9.2,
+  "h": 11.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:172",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 194,
+  "y": 329.2,
+  "w": 9.1,
+  "h": 8.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:173",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 204.5,
+  "y": 326.2,
+  "w": 1.4,
+  "h": 11.5,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:174",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 207.7,
+  "y": 326.2,
+  "w": 1.4,
+  "h": 11.5,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:175",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 210.5,
+  "y": 329.2,
+  "w": 9.4,
+  "h": 8.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:176",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 221,
+  "y": 326.2,
+  "w": 9.2,
+  "h": 11.7,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:177",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 181,
+  "y": 326.1,
+  "w": 12.3,
+  "h": 11.9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:178",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 231.3,
+  "y": 329.2,
+  "w": 9.1,
+  "h": 8.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:179",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 241.9,
+  "y": 329.3,
+  "w": 5.4,
+  "h": 8.5,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:180",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 247.7,
+  "y": 329.2,
+  "w": 9.4,
+  "h": 8.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:181",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 256.9,
+  "y": 326.9,
+  "w": 7.4,
+  "h": 11,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:182",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 265.5,
+  "y": 326.2,
+  "w": 1.5,
+  "h": 11.6,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:183",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 267.9,
+  "y": 329.4,
+  "w": 9.7,
+  "h": 8.4,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:184",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 277.6,
+  "y": 329.2,
+  "w": 8.9,
+  "h": 8.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:185",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 151,
+  "y": 320,
+  "w": 19.9,
+  "h": 23.9,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:186",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:167",
+  "x": 155.8,
+  "y": 327.1,
+  "w": 10.1,
+  "h": 9.8,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#1a1a1a",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:187",
+  "name": "image 156 [Vectorized]",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "7012:154",
+  "x": 125,
+  "y": 355,
+  "w": 118,
+  "h": 38,
+  "rotation": 1.6
+ },
+ {
+  "id": "7012:188",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 229.7,
+  "y": 356.8,
+  "w": 11.6,
+  "h": 19.8,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:189",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 142,
+  "y": 356.8,
+  "w": 11.6,
+  "h": 19.7,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:190",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 126.3,
+  "y": 357.7,
+  "w": 12.7,
+  "h": 18.7,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:191",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 156.7,
+  "y": 362.4,
+  "w": 11,
+  "h": 14.1,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:192",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 186.2,
+  "y": 357.7,
+  "w": 11.6,
+  "h": 18.6,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:193",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 170.7,
+  "y": 362.4,
+  "w": 11.7,
+  "h": 13.9,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:194",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 215,
+  "y": 362.5,
+  "w": 11.6,
+  "h": 13.9,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:195",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 200.1,
+  "y": 362.8,
+  "w": 11.6,
+  "h": 13.9,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:196",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 157.4,
+  "y": 382.7,
+  "w": 9.4,
+  "h": 8.5,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:197",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 126.3,
+  "y": 382.6,
+  "w": 9.4,
+  "h": 8.4,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:198",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 144.9,
+  "y": 382.7,
+  "w": 6.2,
+  "h": 8.5,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:199",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 173.4,
+  "y": 385.6,
+  "w": 8.4,
+  "h": 5.6,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:200",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 141.7,
+  "y": 382.6,
+  "w": 3.4,
+  "h": 8.5,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:201",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:187",
+  "x": 173,
+  "y": 382.6,
+  "w": 9.4,
+  "h": 3.7,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:202",
+  "name": "image 157",
+  "type": "RECTANGLE",
+  "depth": 1,
+  "parent": "7012:154",
+  "x": 256,
+  "y": 352,
+  "w": 132,
+  "h": 41,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "0c9534dd285aff737db2b9b336f166cddda8cf47",
+    "scaleMode": "FILL"
+   }
+  ]
+ }
+]

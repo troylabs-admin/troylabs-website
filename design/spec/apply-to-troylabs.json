@@ -1,0 +1,223 @@
+[
+ {
+  "id": "7033:2221",
+  "name": "APPLY TO TROYLABS",
+  "type": "COMPONENT_SET",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 180,
+  "h": 88,
+  "radius": 5,
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#9747ff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 1,
+  "strokeAlign": "INSIDE"
+ },
+ {
+  "id": "7033:2217",
+  "name": "Property 1=Default",
+  "type": "COMPONENT",
+  "depth": 1,
+  "parent": "7033:2221",
+  "x": 20,
+  "y": 20,
+  "w": 140,
+  "h": 14
+ },
+ {
+  "id": "7028:1527",
+  "name": "APPLY TO TROYLABS",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7033:2217",
+  "x": 20,
+  "y": 20,
+  "w": 140,
+  "h": 14,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "APPLY TO TROYLABS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "7033:2222",
+  "name": "Property 1=Variant2",
+  "type": "COMPONENT",
+  "depth": 1,
+  "parent": "7033:2221",
+  "x": 20,
+  "y": 54,
+  "w": 140,
+  "h": 14,
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 12.300000190734863,
+    "color": "#ffffff",
+    "alpha": 1,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 4,
+    "color": "#ffffff",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7033:2229",
+  "name": "Star 4",
+  "type": "STAR",
+  "depth": 2,
+  "parent": "7033:2222",
+  "x": 113,
+  "y": 21,
+  "w": 80.6,
+  "h": 80.6,
+  "rotation": -0.8,
+  "radius": 4.02976131439209,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#1a1a1a",
+    "alpha": 0
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 0.4
+   }
+  ],
+  "strokeWeight": 0.20148809254169464,
+  "strokeAlign": "INSIDE",
+  "effects": [
+   {
+    "type": "INNER_SHADOW",
+    "radius": 8.05952262878418,
+    "color": "#ffffff",
+    "alpha": 1,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   {
+    "type": "DROP_SHADOW",
+    "radius": 13.499700546264648,
+    "color": "#ffffff",
+    "alpha": 0.3,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "7033:2223",
+  "name": "APPLY TO TROYLABS",
+  "type": "TEXT",
+  "depth": 2,
+  "parent": "7033:2222",
+  "x": 20,
+  "y": 54,
+  "w": 140,
+  "h": 14,
+  "fills": [
+   {
+    "type": "gradient_linear",
+    "handles": [
+     [
+      0,
+      0.5
+     ],
+     [
+      1,
+      0.5
+     ],
+     [
+      0,
+      1
+     ]
+    ],
+    "stops": [
+     {
+      "color": "#ffffff",
+      "alpha": 1,
+      "at": 0
+     },
+     {
+      "color": "#ff7d2c",
+      "alpha": 1,
+      "at": 1
+     }
+    ],
+    "opacity": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 6.400000095367432,
+    "color": "#ffffff",
+    "alpha": 0.6,
+    "offset": {
+     "x": 0,
+     "y": 0
+    }
+   }
+  ],
+  "text": "APPLY TO TROYLABS",
+  "font": {
+   "family": "Helvetica",
+   "weight": 400,
+   "size": 12,
+   "lineHeight": 13.8,
+   "letterSpacing": 0.96,
+   "align": "CENTER",
+   "valign": "TOP"
+  }
+ }
+]

@@ -1,0 +1,670 @@
+[
+ {
+  "id": "68:2",
+  "name": "Color Palette: Core, Secondary",
+  "type": "FRAME",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 1920,
+  "h": 1080,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "71:10",
+  "name": "The core color scheme will consist of two primary colors that is incorporated into our logo, main headers, and gradients. The first color is a true red, and the second color is a bright yellow. While we officially have two main colors, we frequently mix these colors to create hues of orange, as depicted in our secondary palette.",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 100,
+  "y": 203,
+  "w": 649,
+  "h": 150,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "The core color scheme will consist of two primary colors that is incorporated into our logo, main headers, and gradients.  The first color is a true red, and the second color is a bright yellow. \n\nWhile we officially have two main colors, we frequently mix these colors to create hues of orange, as depicted in our secondary palette.",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "72:14",
+  "name": "The secondary color scheme consists of supplementary colors that compliment our primary colors, red and yellow.",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 1039,
+  "y": 203,
+  "w": 641,
+  "h": 50,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "The secondary color scheme consists of supplementary colors that compliment our primary colors, red and yellow.",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "72:15",
+  "name": "HEX RGB HSL",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 100,
+  "y": 680,
+  "w": 39,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "HEX\nRGB HSL",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "RIGHT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "133:5",
+  "name": "Frame 2",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 234,
+  "y": 495,
+  "w": 360,
+  "h": 260
+ },
+ {
+  "id": "73:29",
+  "name": "Group 1",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:5",
+  "x": 234,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "135:77",
+  "name": "Frame 13",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "73:29",
+  "x": 234,
+  "y": 495,
+  "w": 150,
+  "h": 150
+ },
+ {
+  "id": "71:12",
+  "name": "Rectangle 2",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "135:77",
+  "x": 234,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#c72119",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "72:18",
+  "name": "#C72119 199, 33, 25 3, 78, 44",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "73:29",
+  "x": 234,
+  "y": 680,
+  "w": 97,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#C72119\n199, 33, 25 3, 78, 44",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "73:30",
+  "name": "Group 2",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:5",
+  "x": 444,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "135:78",
+  "name": "Frame 14",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "73:30",
+  "x": 444,
+  "y": 495,
+  "w": 150,
+  "h": 150
+ },
+ {
+  "id": "71:13",
+  "name": "Rectangle 17",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "135:78",
+  "x": 444,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffd527",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "72:19",
+  "name": "#FFD527 199, 33, 25 3, 78, 44",
+  "type": "TEXT",
+  "depth": 3,
+  "parent": "73:30",
+  "x": 444,
+  "y": 680,
+  "w": 97,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#FFD527\n199, 33, 25 3, 78, 44",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "133:4",
+  "name": "Frame 1",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 1037,
+  "y": 495,
+  "w": 780,
+  "h": 260,
+  "layout": {
+   "mode": "HORIZONTAL",
+   "gap": 60,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "133:3",
+  "name": "Group 9",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:4",
+  "x": 1037,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "133:26",
+  "name": "Frame 12",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "133:3",
+  "x": 1037,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "73:31",
+  "name": "Group 3",
+  "type": "GROUP",
+  "depth": 4,
+  "parent": "133:26",
+  "x": 1045,
+  "y": 680,
+  "w": 95,
+  "h": 75,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "72:22",
+  "name": "#FE7512 254, 117, 18 25, 99, 53",
+  "type": "TEXT",
+  "depth": 5,
+  "parent": "73:31",
+  "x": 1045,
+  "y": 680,
+  "w": 95,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#FE7512\n254, 117, 18\n25, 99, 53",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "1:3",
+  "name": "Rectangle 1",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "133:26",
+  "x": 1037,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fe7512",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "133:2",
+  "name": "Group 8",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:4",
+  "x": 1247,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "133:25",
+  "name": "Frame 11",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "133:2",
+  "x": 1247,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "73:32",
+  "name": "Group 4",
+  "type": "GROUP",
+  "depth": 4,
+  "parent": "133:25",
+  "x": 1251,
+  "y": 680,
+  "w": 128,
+  "h": 75,
+  "radii": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "id": "72:23",
+  "name": "#FFFFFF 255, 255, 255 0, 0, 100",
+  "type": "TEXT",
+  "depth": 5,
+  "parent": "73:32",
+  "x": 1251,
+  "y": 680,
+  "w": 128,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#FFFFFF\n255, 255, 255\n0, 0, 100",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "73:61",
+  "name": "Rectangle 8",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "133:25",
+  "x": 1247,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 1,
+  "strokeAlign": "INSIDE"
+ },
+ {
+  "id": "73:33",
+  "name": "Group 5",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:4",
+  "x": 1457,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "133:24",
+  "name": "Frame 10",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "73:33",
+  "x": 1457,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "72:24",
+  "name": "Rectangle 21",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "133:24",
+  "x": 1457,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 1
+   }
+  ],
+  "strokes": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "strokeWeight": 1,
+  "strokeAlign": "INSIDE"
+ },
+ {
+  "id": "72:26",
+  "name": "#000000 0, 0, 0 0, 0, 0",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "133:24",
+  "x": 1457,
+  "y": 680,
+  "w": 101,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#000000\n0, 0, 0 0, 0, 0",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "73:34",
+  "name": "Group 6",
+  "type": "GROUP",
+  "depth": 2,
+  "parent": "133:4",
+  "x": 1667,
+  "y": 495,
+  "w": 150,
+  "h": 260
+ },
+ {
+  "id": "133:23",
+  "name": "Frame 9",
+  "type": "FRAME",
+  "depth": 3,
+  "parent": "73:34",
+  "x": 1667,
+  "y": 495,
+  "w": 150,
+  "h": 260,
+  "layout": {
+   "mode": "VERTICAL",
+   "gap": 35,
+   "pad": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "wrap": "NO_WRAP"
+  }
+ },
+ {
+  "id": "72:25",
+  "name": "Rectangle 22",
+  "type": "RECTANGLE",
+  "depth": 4,
+  "parent": "133:23",
+  "x": 1667,
+  "y": 495,
+  "w": 150,
+  "h": 150,
+  "radius": 10,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffd527",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "72:27",
+  "name": "#C72119 199, 33, 25 3, 78, 44",
+  "type": "TEXT",
+  "depth": 4,
+  "parent": "133:23",
+  "x": 1667,
+  "y": 680,
+  "w": 97,
+  "h": 75,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "text": "#C72119\n199, 33, 25 3, 78, 44",
+  "font": {
+   "family": "Clash Grotesk",
+   "weight": 500,
+   "size": 20,
+   "lineHeight": 24.6,
+   "letterSpacing": 0,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "2668:3517",
+  "name": "Core Palette",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 100,
+  "y": 75,
+  "w": 347,
+  "h": 71,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Core Palette",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 61.63,
+   "lineHeight": 70.87,
+   "letterSpacing": -1.23,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ },
+ {
+  "id": "2668:3519",
+  "name": "Secondary Palette",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "68:2",
+  "x": 1037,
+  "y": 75,
+  "w": 516,
+  "h": 71,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#fff7db",
+    "alpha": 1
+   }
+  ],
+  "text": "Secondary Palette",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 61.63,
+   "lineHeight": 70.87,
+   "letterSpacing": -1.23,
+   "align": "LEFT",
+   "valign": "TOP"
+  }
+ }
+]

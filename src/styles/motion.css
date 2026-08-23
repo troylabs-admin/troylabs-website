@@ -1,0 +1,188 @@
+/* ──────────────────────────────────────────────────────────────────────────────
+   Motion layer. Rules:
+   • The static design (what the fidelity test sees) is the REST state of every animation.
+   • Everything is gated on `html.motion`, set by the head script only when the user allows motion
+     (prefers-reduced-motion: no-preference). Tests run with reduced motion → none of this applies.
+   • Compositor-only properties: transform, opacity, offset-distance. No layout, no filter-per-frame.
+   • Scroll-linked motion uses native CSS scroll-driven animations (Chrome 115+, Safari 26+, Firefox 157+);
+     older browsers simply get the static design.
+   ────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── hover / focus (kept even under reduced motion — colour only) ─────────── */
+header nav a, footer nav a, footer a { transition: color 200ms var(--ease-out-expo); }
+header nav a:hover, header nav a:focus-visible,
+footer nav a:hover, footer nav a:focus-visible,
+footer a:hover, footer a:focus-visible { color: var(--color-orange); }
+
+footer .social { color: var(--color-ink); transition: color 200ms var(--ease-out-expo); }
+footer .social:hover, footer .social:focus-visible { color: var(--color-orange); }
+footer .social svg, footer .social svg * { fill: currentColor; }
+/* nav + footer rocket marks: take the hover colour like every other link */
+header a[aria-label="TroyLabs home"], footer .mark { color: var(--color-ink); transition: color 200ms var(--ease-out-expo); }
+header a[aria-label="TroyLabs home"]:hover, header a[aria-label="TroyLabs home"]:focus-visible, footer .mark:hover { color: var(--color-orange); }
+header a[aria-label="TroyLabs home"] svg, header a[aria-label="TroyLabs home"] svg *, footer .mark svg, footer .mark svg * { fill: currentColor; }
+footer .social .mask { display: block; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+
+[data-initiative] h3 a { transition: color 200ms var(--ease-out-expo); }
+[data-initiative]:hover h3 a { color: var(--color-orange); }
+[data-initiative] .ring { transition: box-shadow 300ms var(--ease-out-expo); }
+[data-initiative]:hover .ring { box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.9), 0 0 calc(24 * var(--u)) rgb(255 125 44 / 0.25); }
+
+
+/* ── reveal on enter (JS adds data-reveal to below-the-fold units, then .is-in via inView) ── */
+html.motion [data-reveal] {
+  opacity: 0;
+  transform: translateY(calc(22 * var(--u)));
+}
+html.motion [data-reveal].is-in {
+  opacity: 1;
+  transform: translateY(0);
+  /* expo-out: responds immediately, lands softly. 1 s with 80 ms staggers reads as editorial, not UI. */
+  transition: opacity 900ms var(--ease-out-expo), transform 1000ms var(--ease-out-expo);
+  transition-delay: calc(var(--stagger, 0) * 80ms);
+}
+/* physics-driven elements: once revealed, transform must respond instantly (the reveal transition would lag the bubbles behind their lines) */
+html.motion .bubble-orb.is-in, html.motion .bubble-label.is-in { transition: opacity 550ms var(--ease-out-expo); }
+
+/* ── hero choreography (first ~2 s): environment → wordmark → tagline → nav. Runs on every page load. ── */
+/* 1. the sky: stars/dots fade in first (0–0.6 s) */
+html.motion [data-figma="Hero"] .star, html.motion [data-figma$="Hero"] .star { animation: hero-sky 600ms ease-out both, twinkle var(--dur, 3.2s) ease-in-out 600ms infinite; animation-delay: 0ms, calc(var(--i, 0) * -0.37s); }
+@keyframes hero-sky { from { opacity: 0; } to { opacity: 1; } }
+/* 2. the wordmark / page title rises through a mask (0.3–1.4 s, expo-out). Negative inset lets the glow through once open. */
+/* fill-mode backwards: after the entrance, the element's own transform (parallax/magnet/hover) must win */
+html.motion .wordmark, html.motion .t-hero { animation: hero-title 1100ms 300ms var(--ease-out-expo) backwards; }
+@keyframes hero-title {
+  from { clip-path: inset(0 -20% 100% -20%); transform: translateY(calc(18 * var(--u))); }
+  60%  { clip-path: inset(-60% -20% -60% -20%); }
+  to   { clip-path: inset(-60% -20% -60% -20%); transform: none; }
+}
+/* 3. tagline settles in (0.9–1.8 s) */
+html.motion .tagline { animation: hero-rise 900ms 650ms var(--ease-out-expo) backwards; }
+/* 4. the pill CTA on BUILD/IGNITE */
+html.motion [data-figma$="Hero"] .pill { animation: hero-rise 700ms 850ms var(--ease-out-expo) backwards; }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(calc(16 * var(--u))); } to { opacity: 1; transform: none; } }
+/* 5. nav arrives last, item by item (0.75 s →) */
+html.motion header nav a, html.motion header .apply, html.motion header a[aria-label="TroyLabs home"] { animation: hero-nav 500ms var(--ease-out-expo) backwards; animation-delay: calc(750ms + var(--i, 0) * 50ms); }
+@keyframes hero-nav { from { opacity: 0; transform: translateY(calc(-6 * var(--u))); } to { opacity: 1; transform: none; } }
+
+/* ── idle: twinkling star field (frame 0 = designed brightness) ──────────── */
+html.motion .star:not([data-figma$="Hero"] .star) {
+  animation: twinkle var(--dur, 3.2s) ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.37s);      /* negative delays spread phases with no flash */
+}
+@keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: var(--dim, 0.35); } }
+
+/* ── idle + scroll: planets drift at depth-dependent rates while their section crosses the viewport ── */
+@supports (animation-timeline: view()) {
+  html.motion .planet {
+    animation: drift linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+  html.motion .planet[data-planet="moon"]   { --drift: 40; }
+  html.motion .planet[data-planet="orange"] { --drift: 18; }
+  html.motion .planet[data-planet="yellow"] { --drift: 26; }
+  html.motion .planet[data-planet="blue"]   { --drift: 12; }
+}
+@keyframes drift {
+  from { transform: translateY(calc(var(--drift, 20) * var(--u))); }
+  to   { transform: translateY(calc(var(--drift, 20) * -1 * var(--u))); }
+}
+/* mouse depth: --mx/--my (−1…1) from sky.ts; deeper bodies move less */
+.planet .parallax { width: 100%; height: 100%; }
+html.motion .planet .parallax { transform: translate3d(calc(var(--mx, 0) * var(--d, 0) * 1px), calc(var(--my, 0) * var(--d, 0) * 1px), 0); transition: transform 80ms linear; }
+html.motion .planet .parallax[data-depth="10"] { --d: 10; } html.motion .planet .parallax[data-depth="14"] { --d: 14; }
+html.motion .planet .parallax[data-depth="18"] { --d: 18; } html.motion .planet .parallax[data-depth="26"] { --d: 26; }
+/* breathing: a slow scale/drift so nothing is ever perfectly still; periods differ per body */
+html.motion .planet img.breathe { animation: breathe var(--p, 14s) ease-in-out infinite alternate; }
+html.motion .planet img.breathe[data-period="14s"] { --p: 14s; } html.motion .planet img.breathe[data-period="19s"] { --p: 19s; }
+html.motion .planet img.breathe[data-period="11s"] { --p: 11s; } html.motion .planet img.breathe[data-period="9s"] { --p: 9s; }
+@keyframes breathe { from { transform: translate3d(calc(-3 * var(--u)), calc(2 * var(--u)), 0) scale(1); } to { transform: translate3d(calc(3 * var(--u)), calc(-3 * var(--u)), 0) scale(1.025); } }
+/* the page-level star glyphs get a touch of depth too (content layer = near) */
+html.motion [data-figma] > div[aria-hidden="true"]:has(> .star) { transform: translate3d(calc(var(--mx, 0) * 6px), calc(var(--my, 0) * 6px), 0); transition: transform 80ms linear; }
+/* nebula: 40–70 s loops, never in sync */
+html.motion .nebula .n1 { animation: nebula-a 52s ease-in-out infinite alternate; }
+html.motion .nebula .n2 { animation: nebula-b 67s ease-in-out infinite alternate; }
+html.motion .nebula .n3 { animation: nebula-a 44s 10s ease-in-out infinite alternate-reverse; }
+@keyframes nebula-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(14vw, -8vh, 0) scale(1.25); } }
+@keyframes nebula-b { from { transform: translate3d(0, 0, 0) scale(1.1); } to { transform: translate3d(-12vw, 10vh, 0) scale(0.9); } }
+
+/* ── Home: a tiny moon orbiting DEMO's ring (ellipse fitted to blue-planet.png: a 233.5, b 73.4 du, tilt 13.4°) ── */
+.orbit { display: none; }
+html.motion .orbit { display: block; }
+.orbit-scale { width: 467px; height: 146.8px; transform-origin: 0 0; transform: scale(var(--un, 1)); }
+.orbit-tilt  { width: 467px; height: 146.8px; transform-origin: 233.5px 73.4px; transform: rotate(13.4deg); }
+.orbit-dot {
+  position: absolute; width: 5px; height: 5px; border-radius: 9999px; background: #fff;
+  box-shadow: 0 0 6px 1px rgb(255 255 255 / 0.7);
+  offset-path: path("M0,73.4 a233.5,73.4 0 1,0 467,0 a233.5,73.4 0 1,0 -467,0"); /* least-squares fit to the ring in blue-planet.png */
+  offset-rotate: 0deg;
+}
+html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s linear infinite; }
+@keyframes orbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+/* hidden only while actually behind the planet's disc: computed 62.1 % → 86.9 % of the arc (scripts in design/README.md) */
+@keyframes orbit-depth { 0%, 61% { opacity: 1; } 63%, 86% { opacity: 0; } 88%, 100% { opacity: 1; } }
+
+/* ── BUILD: the rocket flies the dotted timeline path as the section scrolls ── */
+@supports (animation-timeline: view()) and (offset-path: path("M0 0")) {
+  html.motion [data-figma="BuildTimeline"] { view-timeline-name: --build-timeline; }
+  html.motion [data-figma="BuildBackers"]  { view-timeline-name: --build-backers; }
+  html.motion .rocket-static { opacity: 0; }
+  html.motion .rocket-flyer { display: block; }
+  html.motion .flyer-img {
+    offset-path: url(#build-timeline-path); /* path coords are raw px inside .flight, which is scaled to du */
+    offset-rotate: auto 90deg;              /* nose points back along the path (tail-first descent) — chosen by eye, the nose-first version read as a crash */
+    animation: fly linear both;
+    animation-timeline: --build-timeline;
+    animation-range: entry 15% exit 95%;   /* spread over almost the whole section's scroll so the flight is slow */
+  }
+  /* exhaust: a soft glow trailing the flyer whose size follows scroll velocity (--scroll-v from scroll.ts) */
+html.motion .flyer-img { filter: drop-shadow(0 calc(4px + min(26px, abs(var(--scroll-v, 0)) * 1.1px)) calc(3px + min(12px, abs(var(--scroll-v, 0)) * 0.5px)) rgb(255 125 44 / 0.6)); transition: filter 120ms linear; }
+html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range: entry 40% exit 60%; } /* nose-first: it lands on the planet */
+}
+.rocket-flyer { display: none; }
+@keyframes fly { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+/* ── hover lift/scale — after the reveal rules so the hover transform wins on revealed units ── */
+@media (hover: hover) and (pointer: fine) {
+  html.motion [data-hover="lift"] { transition: transform 250ms var(--ease-out-expo), opacity 700ms var(--ease-out-expo); }
+  html.motion [data-hover="lift"]:hover { transform: translateY(calc(-3 * var(--u))); }
+  html.motion [data-hover="scale"] { transition: transform 250ms var(--ease-out-expo), opacity 700ms var(--ease-out-expo); }
+  html.motion [data-hover="scale"]:hover { transform: scale(1.05); }
+}
+
+/* ── page transitions (Astro ClientRouter): dark cross-fade with a slight lift; the rocket overlay (transition.ts) flies over it ── */
+::view-transition-old(root) { animation: 360ms cubic-bezier(0.7, 0, 0.84, 0) both vt-out; }
+::view-transition-new(root) { animation: 520ms 60ms var(--ease-out-expo) both vt-in; }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-2vh); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(3vh); } }
+.vt-rocket { position: fixed; left: 50%; bottom: -30vh; width: clamp(48px, 6vw, 92px); height: auto; z-index: 100; pointer-events: none; opacity: 0; transform: translate(-50%, 0); filter: drop-shadow(0 14px 18px rgb(255 125 44 / 0.55)); }
+@media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation: none; } }
+
+/* ── cursor light on tiles (pointer.ts sets --lx/--ly) ───────────────────────── */
+html.motion [data-hover] { position: absolute; }               /* tiles are already .abs; guarantees a containing box for ::after */
+html.motion [data-hover]::after {
+  content: ""; position: absolute; inset: calc(-8 * var(--u)); border-radius: calc(16 * var(--u)); pointer-events: none;
+  background: radial-gradient(calc(220 * var(--u)) circle at var(--lx, 50%) var(--ly, 50%), rgb(255 125 44 / 0.14), transparent 60%);
+  opacity: 0; transition: opacity 350ms var(--ease-out-expo);
+}
+html.motion [data-hover]:hover::after { opacity: 1; }
+
+/* ── magnetic CTAs (pointer.ts sets --tx/--ty) ─────────────────────────────── */
+html.motion .pill, html.motion header .apply { transition: transform 420ms var(--ease-out-expo), color 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo); }
+html.motion .pill.is-magnet, html.motion header .apply.is-magnet { transform: translate3d(var(--tx, 0), var(--ty, 0), 0); transition-duration: 120ms; }
+html.motion .pill:active { transform: scale(0.97); }
+
+/* ── micro pass ─────────────────────────────────────────────────────────────── */
+/* photos reveal through a curtain with a counter-zoom (the cheapest "premium" tell) */
+html.motion :where([data-figma="BuildGallery"], [data-figma="DemoSpeakers"], [data-figma="DemoStage"] figure.photo) img {
+  clip-path: inset(0 0 100% 0); transform: scale(1.12); transition: clip-path 1100ms var(--ease-out-expo), transform 1300ms var(--ease-out-expo);
+}
+html.motion [data-reveal].is-in img, html.motion img[data-reveal].is-in { clip-path: inset(0 0 0 0); transform: scale(1); }
+/* footer links: underline wipe in addition to the colour change */
+footer nav a, footer .t-nav[href] { background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat; background-size: 0% 1px; background-position: 0 100%; transition: background-size 300ms var(--ease-out-expo), color 200ms var(--ease-out-expo); }
+footer nav a:hover, footer .t-nav[href]:hover { background-size: 100% 1px; }

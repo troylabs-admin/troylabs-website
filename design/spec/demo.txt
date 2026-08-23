@@ -1,0 +1,131 @@
+FRAME     6982:854     "DEMO"                                     @0,0 1001×3871  fill:#0a0a0a fx:NOISEundefined
+  ELLIPSE   7045:2727    "Ellipse 8"                                @253,976 496×496  fill:#070707 fx:INNER_SHADOW132.59732055664062,INNER_SHADOW65.80266571044922
+  GROUP     7040:2376    "Group 39628"                              @-478.8,-369 1379×906
+    ELLIPSE   7040:2377    "Ellipse 8"                                @-241.7,-369 906×906  fill:#070707 fx:INNER_SHADOW242.20396423339844,INNER_SHADOW120.19599151611328
+    BOOLEAN_OPERATION 7040:2378    "Subtract"                                 @-478.8,-242 1379×544.1  fill:#bcd4ff@0.5
+      ELLIPSE   7040:2379    "Ellipse 10"                               @-528.6,-350.9 1478.4×761.8
+      BOOLEAN_OPERATION 7040:2380    "Subtract"                                 @-223.2,-369 871.4×332.8  fill:#070707 fx:INNER_SHADOW120.19599151611328
+        ELLIPSE   7040:2381    "Ellipse 11"                               @-241.7,-369 906×906  fill:#070707 fx:INNER_SHADOW120.19599151611328
+        RECTANGLE 7040:2382    "Rectangle 2"                              @-311.1,-45.9 1020.8×730.8  fill:#d9d9d9
+  VECTOR    7033:2255    "Ellipse 248"                              @366,385 660.4×929.4  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  VECTOR    7033:2257    "Ellipse 249"                              @-16,1007 636.5×930.3  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  ELLIPSE   6982:864     "Ellipse 229"                              @790,28 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   6982:865     "Ellipse 228"                              @904,63 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    6982:867     "*"                                        @868,86 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2693    "*"                                        @677,216 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2695    "*"                                        @468,455 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2697    "*"                                        @212,401 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2699    "*"                                        @34,365 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2701    "*"                                        @321,451 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2731    "*"                                        @55,845 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2733    "*"                                        @126,890 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2735    "*"                                        @869,1120 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2737    "*"                                        @818,1238 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2749    "*"                                        @322,1183 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2755    "*"                                        @322,1183 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2753    "*"                                        @580,1201 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2739    "*"                                        @935,1247 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  TEXT      6982:868     "DEMO"                                     @412,253 178×63  54.64px/62.84 w700 ls4.37 CENTER  "DEMO"  fill:gradient_linear fx:DROP_SHADOW10.899999618530273
+  TEXT      6982:869     "SoCal’s largest student-run entrepreneu   @307,338 387×40  17.7px/20.36 w400 ls1.42 CENTER  "SoCal’s largest student-run entrepreneurship conference"  fill:gradient_linear
+  TEXT      6990:997     "Sponsored by the USC Lloyd Greif Center   @284,401 434×14  12px/13.8 w400 ls0.96 CENTER  "Sponsored by the USC Lloyd Greif Center for Entrepreneurial  fill:#ffffff
+  TEXT      6990:999     "DEMO is the premier annual gathering fo   @221,602 559×42  12px/13.8 w400 ls0.96 CENTER  "DEMO is the premier annual gathering for student founders,   fill:#ffffff
+  FRAME     7019:2       "Frame 170"                                @188,799 625×349 fx:DROP_SHADOW24.200000762939453
+    RECTANGLE 7019:4       "Screenshot 2026-08-22 at 7.50.33 AM 1"    @188,799 625×349  fill:image
+  FRAME     7019:18      "Frame 171"                                @197,1309 607×98 [HORIZONTAL gap89]
+    GROUP     7019:16      "Group 39622"                              @213,1319 129×78
+      TEXT      7019:9       "INVESTORS"                                @213,1374 129×23  20px/23 w400 ls1.6 CENTER  "INVESTORS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:10      "100+"                                     @218,1319 120×55  48px/55.2 w400 ls3.84 CENTER  "100+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+    GROUP     7019:17      "Group 39623"                              @431,1319 117×78
+      TEXT      7019:6       "STARTUPS"                                 @431,1374 117×23  20px/23 w400 ls1.6 CENTER  "STARTUPS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:7       "50"                                       @461,1319 58×55  48px/55.2 w400 ls3.84 CENTER  "50"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+    GROUP     7019:15      "Group 39621"                              @637,1319 151×78
+      TEXT      7019:12      "ATTENDEES"                                @645,1374 132×23  20px/23 w400 ls1.6 CENTER  "ATTENDEES"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:13      "1000+"                                    @637,1319 151×55  48px/55.2 w400 ls3.84 CENTER  "1000+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+  TEXT      7019:39      "NOTABLE KEYNOTE SPEAKERS"                 @340,1598 321×23  20px/23 w400 ls0.6 CENTER  "NOTABLE KEYNOTE SPEAKERS"  fill:#ffffff
+  TEXT      7033:2259    "NOTABLE INVESTORS"                        @389,2565 223×23  20px/23 w400 ls0.6 CENTER  "NOTABLE INVESTORS"  fill:#ffffff
+  FRAME     7019:82      "Frame 178"                                @142,1682 717×715 [GRID gapundefined]
+    FRAME     7019:51      "Frame 173"                                @142,1682 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:50      "Frame 172"                                @142.3,1682 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:45      "image 159"                                @173.3,1692 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:48      "image 160"                                @332.3,1692 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:41      "Evan Spiegel"                             @182.3,1846 278×18  16px/18.4 w400 ls0.48 CENTER  "Evan Spiegel"  fill:#ffffff
+      TEXT      7019:42      "CEO & Founder, Snapchat"                  @182.3,1869 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Snapchat"  fill:#ffffff
+    FRAME     7019:52      "Frame 174"                                @500.5,1682 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:53      "Frame 172"                                @500.8,1682 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:54      "image 159"                                @531.8,1692 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:55      "image 160"                                @690.8,1692 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:56      "Sean Rad"                                 @540.8,1846 278×18  16px/18.4 w400 ls0.48 CENTER  "Sean Rad"  fill:#ffffff
+      TEXT      7019:57      "Founder, Tinder"                          @540.8,1869 278×18  16px/18.4 w400 ls0.48 CENTER  "Founder, Tinder"  fill:#ffffff
+    FRAME     7019:60      "Frame 175"                                @142,1937 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:61      "Frame 172"                                @142.3,1937 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:62      "image 159"                                @173.3,1947 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:63      "image 160"                                @332.3,1947 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:64      "Amy Liu"                                  @182.3,2101 278×18  16px/18.4 w400 ls0.48 CENTER  "Amy Liu"  fill:#ffffff
+      TEXT      7019:65      "CEO & Founder, Tower28"                   @182.3,2124 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Tower28"  fill:#ffffff
+    FRAME     7019:67      "Frame 176"                                @500.5,1937 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:68      "Frame 172"                                @500.8,1937 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:69      "image 159"                                @531.8,1947 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:70      "image 160"                                @690.8,1947 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:71      "Ashley Alexander"                         @540.8,2101 278×18  16px/18.4 w400 ls0.48 CENTER  "Ashley Alexander"  fill:#ffffff
+      TEXT      7019:72      "CEO & Founder, Nami Matcha"               @540.8,2124 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Nami Matcha"  fill:#ffffff
+    FRAME     7019:75      "Frame 177"                                @142,2192 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:76      "Frame 172"                                @142.3,2192 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:77      "image 159"                                @173.3,2202 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:78      "image 160"                                @332.3,2202 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:79      "Adam & Ryan Goldston"                     @182.3,2356 278×18  16px/18.4 w400 ls0.48 CENTER  "Adam & Ryan Goldston"  fill:#ffffff
+      TEXT      7019:80      "CEO & Founders, APL Sneakers"             @182.3,2379 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founders, APL Sneakers"  fill:#ffffff
+  INSTANCE  7028:762     "Footer"                                   @0,3615 1001×256
+    FRAME     I7028:762;6969:8164 "Frame 121"                                @95,3670 135.3×113 [VERTICAL gap20]
+      TEXT      I7028:762;6969:8140 "HOME"                                     @95,3670 135.3×14  12px/13.8 w400 ls0.96 LEFT  "HOME"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8142 "BUILD"                                    @95,3704 135.3×14  12px/13.8 w400 ls0.96 LEFT  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8144 "DEMO"                                     @95,3738 135.3×14  12px/13.8 w400 ls0.96 LEFT  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8146 "IGNITE"                                   @95,3772 135.3×14  12px/13.8 w400 ls0.96 LEFT  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8165 "Frame 122"                                @320.3,3670 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:762;6969:8148 "Contact Us"                               @320.3,3670 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Contact Us"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8150 "troylabs@usc.edu"                         @320.3,3694 135.3×14  12px/13.8 w400 ls0.96 LEFT  "troylabs@usc.edu"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8166 "Frame 123"                                @545.5,3670 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:762;6969:8152 "Members Only"                             @545.5,3671 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Members Only"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8153 "TL Alumni Network Portal"                 @545.5,3695 135.3×28  12px/13.8 w400 ls0.96 LEFT  "TL Alumni Network Portal"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8167 "Frame 124"                                @320.3,3757 135.3×27 [HORIZONTAL gap13]
+      RECTANGLE I7028:762;6969:8159 "image 9"                                  @322.3,3762 22×22  fill:image
+      RECTANGLE I7028:762;6969:8162 "image 10"                                 @357.3,3762 24×21  fill:image
+      BOOLEAN_OPERATION I7028:762;7019:28 "Union"                                    @394.3,3762 17.9×22  fill:#ffffff
+        VECTOR    I7028:762;7019:26 "Vector"                                   @394.3,3762 17.9×16.3  fill:#000000
+        VECTOR    I7028:762;7019:27 "Vector"                                   @401.6,3776.8 3.2×7.2  fill:#000000
+      BOOLEAN_OPERATION I7028:762;7019:33 "Union"                                    @425.2,3762 19.4×22  fill:#ffffff
+        VECTOR    I7028:762;7019:30 "Vector"                                   @425.2,3771.9 19.4×12.1  fill:#ffffff
+        VECTOR    I7028:762;7019:31 "Vector"                                   @425.2,3762 19.3×2.7  fill:#ffffff
+        VECTOR    I7028:762;7019:32 "Vector"                                   @425.2,3767 19.3×2.7  fill:#ffffff
+    TEXT      I7028:762;6969:8171 "Empowering USC's next generation of ent   @770.8,3757 135.3×18  8px/9.2 w400 ls0.64 LEFT  "Empowering USC's next generation of entrepreneurs"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    VECTOR    I7028:762;6969:8169 "Vector"                                   @770.8,3670 47×71  fill:#ffffff
+    TEXT      I7028:762;6969:8173 "© 2026 TroyLabs. All rights reserved."    @423,3829 155×9  8px/9.2 w400 ls0.64 CENTER  "© 2026 TroyLabs. All rights reserved."  fill:#ffffff
+    LINE      I7028:762;6971:8174 "Line 21"                                  @244,3616 514×0
+  INSTANCE  7033:2241    "Nav"                                      @0,0 1001×79
+    VECTOR    I7033:2241;7028:1523 "Vector"                                   @30,20 26×39  fill:#ffffff
+    TEXT      I7033:2241;7028:1524 "BUILD"                                    @389,32 40×14  12px/13.8 w400 ls0.96 CENTER  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    TEXT      I7033:2241;7028:1525 "IGNITE"                                   @479,32 45×14  12px/13.8 w400 ls0.96 CENTER  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    TEXT      I7033:2241;7028:1526 "DEMO"                                     @574,32 39×14  12px/13.8 w400 ls0.96 CENTER  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    INSTANCE  I7033:2241;7033:2231 "APPLY TO TROYLABS"                        @836,32 140×14
+      TEXT      I7033:2241;7033:2231;7028:1527 "APPLY TO TROYLABS"                        @836,32 140×14  12px/13.8 w400 ls0.96 CENTER  "APPLY TO TROYLABS"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+  GROUP     7045:2687    "Group 39633"                              @477,675 48×4
+    ELLIPSE   7045:2683    "Ellipse 207"                              @499,675 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+    ELLIPSE   7045:2684    "Ellipse 208"                              @477,675 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+    ELLIPSE   7045:2685    "Ellipse 209"                              @521,675 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  GROUP     7045:2688    "Group 39634"                              @477,574 48×4
+    ELLIPSE   7045:2689    "Ellipse 207"                              @499,574 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+    ELLIPSE   7045:2690    "Ellipse 208"                              @477,574 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+    ELLIPSE   7045:2691    "Ellipse 209"                              @521,574 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2709    "Ellipse 270"                              @78,333 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2711    "Ellipse 271"                              @252,396 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2713    "Ellipse 272"                              @237,506 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2729    "Ellipse 276"                              @155,870 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2751    "Ellipse 281"                              @167,1080 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2741    "Ellipse 277"                              @981,1304 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2747    "Ellipse 280"                              @939,1180 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2743    "Ellipse 278"                              @349,1205 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2757    "Ellipse 282"                              @666,1173 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2759    "Ellipse 283"                              @635,1266 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2745    "Ellipse 279"                              @799,1219 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2715    "Ellipse 273"                              @659,267 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2717    "Ellipse 274"                              @585,248 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2719    "Ellipse 275"                              @831,196 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568

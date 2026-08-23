@@ -1,0 +1,46 @@
+---
+/**
+ * Ignite › "NOTABLE SPEAKERS" — title 6990:1033 @386,1572 230×23 · logo grid "Frame 154" (6990:1205) @207,1682 588×449
+ * (eight vector unions, exported by scripts/figma-vectors-ignite.ts). Section y 1520–2287 du.
+ */
+import { pos } from '../../../lib/units';
+import perplexity from '../../../assets/figma/ignite-logo-perplexity.svg?raw';
+import typeOne from '../../../assets/figma/ignite-logo-type-one.svg?raw';
+import summerFridays from '../../../assets/figma/ignite-logo-summer-fridays.svg?raw';
+import partiful from '../../../assets/figma/ignite-logo-partiful.svg?raw';
+import snap from '../../../assets/figma/ignite-logo-snap.svg?raw';
+import rocket from '../../../assets/figma/ignite-logo-rocket.svg?raw';
+import twitch from '../../../assets/figma/ignite-logo-twitch.svg?raw';
+import goodgirlsnacks from '../../../assets/figma/ignite-logo-goodgirlsnacks.svg?raw';
+
+const TOP = 1520;
+const y = (v: number) => v - TOP;
+
+// Figma exports SVGs with integer viewBoxes (e.g. 186×45) but the nodes are fractional (185.9×44.1):
+// let the vector stretch to the exact Figma box instead of letterboxing inside it.
+const fit = (svg: string) => svg.replace('<svg ', '<svg preserveAspectRatio="none" ');
+
+const logos = [
+  { id: '6990:1093', name: 'Perplexity', svg: perplexity, box: [247, 1707, 164.7, 39.8] },
+  { id: '6990:1096', name: 'Type One Ventures', svg: typeOne, box: [541, 1696, 192, 62.9] },
+  { id: '6990:1136', name: 'Summer Fridays', svg: summerFridays, box: [244, 1828, 169.4, 51.8] },
+  { id: '6990:1168', name: 'Partiful', svg: partiful, box: [523, 1828, 228.7, 62.5] },
+  { id: '6990:1169', name: 'Snap Inc.', svg: snap, box: [236, 1949, 185.9, 44.1] },
+  { id: '6990:1202', name: 'Rocket', svg: rocket, box: [570, 1922, 134.5, 115] }, // TODO(designer): hand-drawn "ROCK…" mark — confirm company
+  { id: '6990:1187', name: 'Twitch', svg: twitch, box: [247, 2057, 164.8, 54.9] },
+  { id: '6990:1171', name: 'goodgirlsnacks', svg: goodgirlsnacks, box: [497, 2062, 280.2, 43.5] },
+] as const;
+---
+
+<section class="section" style="--h:767" data-figma="IgniteSpeakers" aria-labelledby="speakers-title">
+  <h2 id="speakers-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(386, y(1572), 230, 23)}>NOTABLE SPEAKERS</h2>
+  <ul class="m-0 p-0 list-none" aria-label="Notable speakers">
+    {logos.map((l) => (
+      <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+    ))}
+  </ul>
+</section>
+
+<style>
+  .logo :global(svg) { width: 100%; height: 100%; display: block; }
+</style>

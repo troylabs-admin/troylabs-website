@@ -1,0 +1,16 @@
+---
+/**
+ * DEMO › Notable investors — Section y 2500–3615 du.
+ * Figma: title 7033:2259 @389,2565 223×23 and nothing else — the design leaves ~1000 du of empty space below the
+ * heading for the investor logos. TODO(designer): investor content not yet in Figma; mirrored as-is.
+ */
+import { pos } from '../../../lib/units';
+
+const TOP = 2500;
+const y = (v: number) => v - TOP;
+---
+
+<section class="section" style="--h:1115" data-figma="DemoInvestors" aria-labelledby="investors-title">
+  <h2 id="investors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(389, y(2565), 223, 23)}>NOTABLE INVESTORS</h2>
+  <!-- TODO(designer): investor grid placeholder — empty in the Figma frame -->
+</section>

@@ -1,0 +1,92 @@
+---
+/**
+ * Build › Timeline — Section y 600–1778 du.
+ *   • title "TIMELINE" 6977:602 @294,621 104×23 · orange glow "Ellipse 247" 7033:2200 @323,789 660.4×929.4
+ *   • dotted path "Vector 5" 6982:655 @246,528 353×1247.5 (white@50% 1px dashed) — designer's dotted-path.png
+ *   • five orbs (Ellipse 236–240: #0a0a0a + white inner shadows 31.6@30% / 18.5@80%) rendered from Figma @3x
+ *   • five step frames (Frame 99–103, VERTICAL gap 8): number (ls 1.8) / title (ls 1) / body (ls 0.4)
+ *   • rocket "Group 2" 7040:2360 @575,595 (orange-glow rocket, rotated) rendered from Figma @3x
+ *   • "Vector 7/8/9" (green #00ff37 arrow + X) were the designer's review annotations for the rocket path — not rendered.
+ */
+import { Image } from 'astro:assets';
+import { pos, u } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+import path from '../../../assets/space/dotted-path.png';
+import rocket from '../../../assets/figma/build-rocket-a.png';
+import flyer from '../../../assets/space/orange-rocket.png';
+
+/* Centerline of "Vector 5" (Figma SVG export, 354×1248 user units = du) — the flight path for the motion layer */
+const PATH_D = 'M65.945 0.355235C11.9387 53.8614 -37.067 145.372 53.9436 217.38C100.949 254.571 260.968 235.382 319.474 286.388C377.981 337.394 351.478 425.905 310.473 457.908C269.469 489.912 138.453 444.407 87.4475 444.407C36.4416 444.407 21.1168 469.216 17.9394 483.911C13.9389 502.413 15.4391 525.616 45.9426 543.918C84.4471 567.021 175.958 563.921 216.963 591.424C257.967 618.927 276.47 641.43 288.471 679.434C300.472 717.438 291.471 794.947 270.969 819.95C250.466 844.953 221.963 869.456 175.958 875.957C129.097 882.578 104.95 855.954 60.9446 855.954C16.9395 855.954 -3.10568 896.275 0.937593 921.962C9.43855 975.968 75.2795 1016.81 87.4475 1028.47C130.453 1073.48 289.971 1171.99 289.971 1248 L290.0 1408.0'; // + 160 du straight extension past the frame so the rocket ends fully under the gallery photos
+import orb89 from '../../../assets/figma/build-orb-89.png';
+import orb115 from '../../../assets/figma/build-orb-115.png';
+import orb69 from '../../../assets/figma/build-orb-69.png';
+import orb92 from '../../../assets/figma/build-orb-92.png';
+import orb125 from '../../../assets/figma/build-orb-125.png';
+
+const TOP = 600;
+const y = (v: number) => v - TOP;
+
+/* Vector 5 is a 1px centered stroke: the visible box is the node box + 0.5 du each side, which is what the PNG holds (581×2048 ≈ 354×1248.5). */
+const PATH = { x: 245.5, y: 527.5, w: 354, h: 1248.5 };
+/* The rocket PNG is the Union's render bounds (absoluteRenderBounds): 115.66×94.17 du at +9.38,+21.48 inside Group 2's box @575,595. */
+const ROCKET = { x: 584.38, y: 616.48, w: 115.66, h: 94.17 };
+
+const steps = [
+  { orb: orb89,  box: [269.5, 702.5, 89],    frame: [388.5, 702.5, 184], n: '1.', title: 'MVP Submission',            bodyW: 158, body: 'Submit your Minimum Viable Product (MVP) to secure one of 5-6 exclusive spots in the BUILD cohort.' },
+  { orb: orb115, box: [530.5, 889.5, 114.8], frame: [675.4, 889.5, 158], n: '2.', title: 'Team Formation',            bodyW: 158, body: 'Get matched with a dedicated team of 6 members from each of TroyLabs’ different divisions.' },
+  { orb: orb69,  box: [303.5, 1046.5, 69],   frame: [402.5, 1046.5, 158], n: '3.', title: 'Experienced Mentorship',   bodyW: 158, body: 'Gain direct 1:1 access to seasoned founders and industry leaders to stress-test and grow your business.' },
+  { orb: orb92,  box: [488.5, 1246.5, 92],   frame: [610.5, 1246.5, 158], n: '4.', title: 'Product Development',      bodyW: 158, body: 'Refine your MVP, sharpen your go-to-market strategy, and build fast with hands-on divisional support.' },
+  { orb: orb125, box: [260.5, 1476.5, 125],  frame: [415.5, 1476.5, 158], n: '5.', title: 'LAUNCH Pitch Competition', bodyW: 158, body: 'Take the stage in front of top VCs and judges to compete for non-dilutive, equity-free funding.' },
+];
+
+const stars = [
+  { x: 170.1, y: 991.7, s: 11.5 }, { x: 699, y: 1213, s: 11.5 }, { x: 681, y: 1415, s: 11.5 }, { x: 243, y: 1655, s: 11.5 },
+  { x: 202.6, y: 636, s: 5.2, kind: 'dot' }, { x: 182.6, y: 1027, s: 5.2, kind: 'dot' }, { x: 41.6, y: 1036, s: 5.2, kind: 'dot' },
+  { x: 245, y: 1083, s: 5.2, kind: 'dot' }, { x: 676, y: 1198, s: 5.2, kind: 'dot' }, { x: 961, y: 1340, s: 5.2, kind: 'dot' },
+  { x: 926, y: 1359, s: 5.2, kind: 'dot' }, { x: 561, y: 1472, s: 5.2, kind: 'dot' }, { x: 270, y: 1615, s: 5.2, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:1178" data-figma="BuildTimeline" aria-labelledby="timeline-title">
+  <Glow x={323} y={y(789)} w={660.4} h={929.4} />
+  <Image src={path} alt="" aria-hidden="true" width={581} height={2048} class="abs pointer-events-none" style={pos(PATH.x, y(PATH.y), PATH.w, PATH.h)} />
+  <Stars items={stars} />
+
+  <!-- motion layer: the rocket flies the dotted path while this section scrolls (see motion.css). Static design above stays the rest state. -->
+  <svg class="abs pointer-events-none" style={pos(PATH.x, y(PATH.y), PATH.w, PATH.h)} viewBox="0 0 354 1248" aria-hidden="true">
+    <path id="build-timeline-path" d={PATH_D} fill="none" stroke="none" />
+  </svg>
+  <!-- .flight is 354×1248 CSS px (= du) scaled by --un, so the px-based offset-path tracks the design-unit path -->
+  <div class="abs rocket-flyer pointer-events-none" style={pos(PATH.x, y(PATH.y), PATH.w, PATH.h)} aria-hidden="true">
+    <div class="flight" style="width:354px;height:1248px;transform-origin:0 0;transform:scale(var(--un, 1))">
+      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img" style="width:42px;height:95px" />
+    </div>
+  </div>
+
+
+  <h2 id="timeline-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(294, y(621), 104, 23)}>TIMELINE</h2>
+
+  <ol class="m-0 p-0 list-none">
+    {steps.map((s) => (
+      <li>
+        <Image src={s.orb} alt="" aria-hidden="true" width={375} height={375} class="abs pointer-events-none" style={pos(s.box[0], y(s.box[1]), s.box[2], s.box[2])} />
+        <article class="abs flex flex-col" style={`${pos(s.frame[0], y(s.frame[1]), s.frame[2])};gap:${'calc(8 * var(--u))'}`}>
+          <span class="m-0 t-label italic whitespace-nowrap" aria-hidden="true">{s.n}</span>
+          <h3 class="m-0 t-step font-normal">{s.title}</h3>
+          <p class="m-0 t-caption w-du" style={`--w:${s.bodyW}`}>{s.body}</p>
+        </article>
+      </li>
+    ))}
+  </ol>
+
+  <Image src={rocket} alt="" aria-hidden="true" width={347} height={283} class="abs pointer-events-none rocket-static" style={pos(ROCKET.x, y(ROCKET.y), ROCKET.w, ROCKET.h)} />
+
+
+</section>
+
+<style>
+  .t-step { font-size: calc(12 * var(--u)); line-height: calc(13.8 * var(--u)); letter-spacing: calc(1 * var(--u)); }
+  .t-caption { letter-spacing: calc(0.4 * var(--u)); }
+  .annotations :global(svg) { width: 100%; height: 100%; display: block; }
+</style>

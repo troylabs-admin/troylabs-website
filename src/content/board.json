@@ -1,0 +1,121 @@
+[
+  {
+    "name": "Anastasia Ramirez",
+    "role": "President",
+    "row": 0,
+    "col": 1,
+    "photo": null
+  },
+  {
+    "name": "Charlotte Chang",
+    "role": "President",
+    "row": 0,
+    "col": 2,
+    "photo": null
+  },
+  {
+    "name": "Trisha Prasanna",
+    "role": "Head of BUILD",
+    "row": 1,
+    "col": 0,
+    "photo": null
+  },
+  {
+    "name": "Margaret Luwena",
+    "role": "Head of BUILD",
+    "row": 1,
+    "col": 1,
+    "photo": null
+  },
+  {
+    "name": "Pola Malkowska",
+    "role": "Head of DEMO",
+    "row": 1,
+    "col": 2,
+    "photo": null
+  },
+  {
+    "name": "Mirella Comai",
+    "role": "Head of IGNITE",
+    "row": 1,
+    "col": 3,
+    "photo": null
+  },
+  {
+    "name": "Margaux Dambaucher",
+    "role": "Head of IGNITE",
+    "row": 2,
+    "col": 0,
+    "photo": null
+  },
+  {
+    "name": "Vito Zou",
+    "role": "Head of Community",
+    "row": 2,
+    "col": 1,
+    "photo": null
+  },
+  {
+    "name": "Andy Kim",
+    "role": "Head of Community",
+    "row": 2,
+    "col": 2,
+    "photo": null
+  },
+  {
+    "name": "Laila Laduke",
+    "role": "Head of Recruitment",
+    "row": 2,
+    "col": 3,
+    "photo": null
+  },
+  {
+    "name": "Melanie Lee",
+    "role": "Head of Recruitment",
+    "row": 3,
+    "col": 0,
+    "photo": null
+  },
+  {
+    "name": "Badria Kazim",
+    "role": "Head of PM",
+    "row": 3,
+    "col": 1,
+    "photo": null
+  },
+  {
+    "name": "Yuki Fu",
+    "role": "Head of Finance/VC",
+    "row": 3,
+    "col": 2,
+    "photo": null
+  },
+  {
+    "name": "Bryan Ramirez-Gonzalez",
+    "role": "Head of Tech",
+    "row": 3,
+    "col": 3,
+    "photo": null
+  },
+  {
+    "name": "Ayush Chabra",
+    "role": "Head of Marketing",
+    "row": 4,
+    "col": 0,
+    "photo": null
+  },
+  {
+    "name": "Anika Mantripragada",
+    "role": "Head of Design",
+    "row": 4,
+    "col": 1,
+    "photo": null
+  },
+  {
+    "name": "Ellie Lin-Stevens",
+    "role": "Head of Design",
+    "row": 4,
+    "col": 2,
+    "photo": null
+  }
+]

@@ -1,0 +1,37 @@
+---
+/**
+ * Ignite › Program features — Figma "Frame 153" (6990:1030) @341,786 319×598, VERTICAL gap 72.
+ * Each item (Frame 148–152) is a VERTICAL gap-8 stack: label 319×14 (12px ls0.96 = .t-nav) · glowing dot 4×4 · blurb 283×28 (12px ls0.36 = .t-caption).
+ * Section y 740–1520 du.
+ */
+import { pos, u } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+
+const TOP = 740;
+const y = (v: number) => v - TOP;
+
+// TODO(designer): every blurb is the same placeholder copy in Figma ("Get matched with a dedicated team…")
+const BLURB = 'Get matched with a dedicated team of 6 members from each of TroyLabs’ different divisions.';
+const features = [
+  { id: '6990:1001', label: 'Workshops', text: BLURB, dotY: 808 },
+  { id: '6990:1008', label: 'Fireside Chats', text: BLURB, dotY: 942 },
+  { id: '6990:1013', label: 'Exclusive Events', text: BLURB, dotY: 1076 },
+  { id: '6990:1018', label: 'Community', text: BLURB, dotY: 1210 },
+  { id: '6990:1025', label: 'Opportunities', text: BLURB, dotY: 1344 },
+];
+// the glowing 4×4 dots ("Ellipse 228" @498.5) are drawn by Stars; the list keeps a 4 du spacer in their place
+const dots = features.map((f) => ({ x: 498.5, y: y(f.dotY), kind: 'dot' })) as any;
+---
+
+<section class="section" style="--h:780" data-figma="IgniteFeatures" aria-label="What IGNITE offers">
+  <Stars items={dots} />
+  <ul class="abs m-0 p-0 list-none flex flex-col" style={`${pos(341, y(786), 319)};gap:${u(72)}`}>
+    {features.map((f) => (
+      <li class="flex flex-col items-center text-center" style={`gap:${u(8)}`} data-figma={f.id}>
+        <h3 class="m-0 t-nav font-normal whitespace-nowrap">{f.label}</h3>
+        <span class="block shrink-0" style={`height:${u(4)}`} aria-hidden="true" />
+        <p class="m-0 t-caption w-du" style="--w:283">{f.text}</p>
+      </li>
+    ))}
+  </ul>
+</section>

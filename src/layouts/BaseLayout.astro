@@ -1,0 +1,75 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/nav/Nav.astro';
+import Footer from '../components/nav/Footer.astro';
+import { Image } from 'astro:assets';
+import rocketPng from '../assets/space/orange-rocket.png';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Which nav item is the current page */
+  current?: 'home' | 'build' | 'ignite' | 'demo';
+}
+const { title, description = "TroyLabs — where USC student builders launch, scale, and raise capital.", current } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      // Design-unit scale. CSS falls back to `100vw / 1001` (zoom-proof: the layout would re-fit the zoomed
+      // viewport so ⌘+/⌘− appear to do nothing). Instead we size from the window's UNZOOMED width:
+      // outerWidth is measured in OS pixels and does not change with page zoom, while innerWidth does.
+      // → fills the window up to --page-max at 100 %, and zooming scales the page like any normal site (whatever zoom it loaded at).
+      (() => {
+        const W = 1001, root = document.documentElement;
+        const motion = () => { if (matchMedia('(prefers-reduced-motion: no-preference)').matches) root.classList.add('motion'); };
+        motion();
+        const set = () => {
+          const max = parseFloat(getComputedStyle(root).getPropertyValue('--page-max')) || 1440;
+          const w = Math.min(max, outerWidth > 0 ? Math.min(outerWidth, innerWidth * 4) : innerWidth); // outerWidth can be 0 in odd embeds
+          root.style.setProperty('--u', `${w / W}px`);
+          root.style.setProperty('--un', `${w / W}`);
+        };
+        set();
+        addEventListener('resize', set);
+        // the view-transition router swaps <html> attributes: restore the class and scale before the new page paints
+        document.addEventListener('astro:after-swap', () => { motion(); set(); scrollTo(0, 0); });
+        // a refresh always starts at the top (the intro animations assume it)
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        addEventListener('pageshow', () => scrollTo(0, 0));
+        // after first paint (and after every client-side navigation), fetch every lazy image so fast scrolling never outruns the network
+        const eager = () => setTimeout(() => document.querySelectorAll('img[loading="lazy"]').forEach((i) => { i.loading = 'eager'; }), 300);
+        addEventListener('load', eager); document.addEventListener('astro:page-load', eager);
+      })();
+    </script>
+    <script src="../scripts/sky.ts"></script>
+    <script src="../scripts/scroll.ts"></script>
+    <script src="../scripts/motion.ts"></script>
+    <script src="../scripts/bubbles.ts"></script>
+    <script src="../scripts/pointer.ts"></script>
+    <script src="../scripts/transition.ts"></script>
+    <script src="../scripts/globe.ts"></script>
+  </head>
+  <body class="grain">
+    <!-- source image for the page-transition rocket (scripts/transition.ts); persists across navigations -->
+    <Image src={rocketPng} alt="" width={120} height={271} data-transition-rocket style="display:none" />
+    <div class="nebula" aria-hidden="true"><span class="n1"></span><span class="n2"></span><span class="n3"></span></div>
+    <div class="canvas">
+      <Nav current={current} />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

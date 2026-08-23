@@ -1,0 +1,284 @@
+[
+ {
+  "id": "7012:141",
+  "name": "ORBES Bubble",
+  "type": "GROUP",
+  "depth": 0,
+  "parent": null,
+  "x": 0,
+  "y": 0,
+  "w": 488.1,
+  "h": 487
+ },
+ {
+  "id": "7012:142",
+  "name": "Ellipse 14",
+  "type": "ELLIPSE",
+  "depth": 1,
+  "parent": "7012:141",
+  "x": 0,
+  "y": 0,
+  "w": 488.1,
+  "h": 487,
+  "rotation": 0,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "27d9eb81661f4f67c9e935472434a08898585689",
+    "scaleMode": "FILL"
+   },
+   {
+    "type": "solid",
+    "color": "#000000",
+    "alpha": 0.4
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 131.05313110351562,
+    "color": "#82401b",
+    "alpha": 0.3,
+    "offset": {
+     "x": 23.40234375,
+     "y": 10.921093940734863
+    },
+    "spread": 27.899999618530273
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 27.302734375,
+    "color": "#ffd949",
+    "alpha": 0.2,
+    "offset": {
+     "x": 0,
+     "y": -1.7999999523162842
+    },
+    "spread": 7.199999809265137
+   }
+  ]
+ },
+ {
+  "id": "7012:143",
+  "name": "techstars ‘25, flying first internal orb to the ISS in 2027",
+  "type": "TEXT",
+  "depth": 1,
+  "parent": "7012:141",
+  "x": 39,
+  "y": 232,
+  "w": 411,
+  "h": 138,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#ffffff",
+    "alpha": 1
+   }
+  ],
+  "effects": [
+   {
+    "type": "DROP_SHADOW",
+    "radius": 360,
+    "color": "#82401b",
+    "alpha": 1,
+    "offset": {
+     "x": 216,
+     "y": 216
+    }
+   },
+   {
+    "type": "INNER_SHADOW",
+    "radius": 75,
+    "color": "#ffd949",
+    "alpha": 0.4,
+    "offset": {
+     "x": 0,
+     "y": 12
+    }
+   }
+  ],
+  "text": "techstars ‘25, flying first internal orb to the ISS in 2027",
+  "font": {
+   "family": "Helvetica",
+   "weight": 700,
+   "size": 40,
+   "lineHeight": 46,
+   "letterSpacing": -0.8,
+   "align": "CENTER",
+   "valign": "CENTER"
+  }
+ },
+ {
+  "id": "7012:144",
+  "name": "IMG_1900 1 [Vectorized]",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "7012:141",
+  "x": 111,
+  "y": 137,
+  "w": 266.4,
+  "h": 62
+ },
+ {
+  "id": "7012:145",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 172.1,
+  "y": 155.7,
+  "w": 37.5,
+  "h": 24,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:146",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 255.4,
+  "y": 156.1,
+  "w": 30.3,
+  "h": 23.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:147",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 215.9,
+  "y": 156.1,
+  "w": 32.9,
+  "h": 23.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:148",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 325.4,
+  "y": 155.6,
+  "w": 32.9,
+  "h": 24,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:149",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 292.6,
+  "y": 156.1,
+  "w": 27.8,
+  "h": 23,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#efe4ce",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:150",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 146.9,
+  "y": 168.2,
+  "w": 15.4,
+  "h": 11.2,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#c2c6f1",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:151",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 146.9,
+  "y": 155.8,
+  "w": 15.3,
+  "h": 11.1,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#c2c6f1",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:152",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 130.2,
+  "y": 168.3,
+  "w": 15.2,
+  "h": 11.2,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#c2c6f1",
+    "alpha": 1
+   }
+  ]
+ },
+ {
+  "id": "7012:153",
+  "name": "Vector",
+  "type": "VECTOR",
+  "depth": 2,
+  "parent": "7012:144",
+  "x": 130.2,
+  "y": 155.8,
+  "w": 15.2,
+  "h": 11.2,
+  "fills": [
+   {
+    "type": "solid",
+    "color": "#c2c6f1",
+    "alpha": 1
+   }
+  ]
+ }
+]

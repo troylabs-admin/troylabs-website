@@ -1,0 +1,174 @@
+FRAME     6982:742     "IGNITE"                                   @0,0 1001×2543  fill:#0a0a0a fx:NOISEundefined
+  ELLIPSE   6982:852     "Ellipse 7"                                @-228,-341 878×878  fill:#070707 fx:INNER_SHADOW169.89999389648438
+  ELLIPSE   6982:752     "Ellipse 229"                              @790,28 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   6982:753     "Ellipse 228"                              @904,63 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    6982:755     "*"                                        @868,86 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  TEXT      6982:756     "IGNITE"                                   @399,253 205×63  54.64px/62.84 w700 ls4.37 CENTER  "IGNITE"  fill:gradient_linear fx:DROP_SHADOW10.899999618530273
+  TEXT      6982:757     "Your entry point into entrepreneurship.   @269,338 463×20  17.7px/20.36 w400 ls1.42 CENTER  "Your entry point into entrepreneurship."  fill:gradient_linear
+  TEXT      6990:1000    "Our general membership program that is    @341,593 323×56  12px/13.8 w400 ls0.96 CENTER  "Our general membership program that is open to all students  fill:#ffffff
+  FRAME     6990:1030    "Frame 153"                                @341,786 319×598 [VERTICAL gap72]
+    FRAME     6990:1001    "Frame 148"                                @341,786 319×62 [VERTICAL gap8]
+      TEXT      6990:1003    "Workshops"                                @341,786 319×14  12px/13.8 w400 ls0.96 CENTER  "Workshops"  fill:#ffffff
+      ELLIPSE   6990:1006    "Ellipse 228"                              @498.5,808 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+      TEXT      6990:1004    "Get matched with a dedicated team of 6    @359,820 283×28  12px/13.8 w400 ls0.36 CENTER  "Get matched with a dedicated team of 6 members from each of  fill:#ffffff
+    FRAME     6990:1008    "Frame 149"                                @341,920 319×62 [VERTICAL gap8]
+      TEXT      6990:1009    "Fireside Chats"                           @341,920 319×14  12px/13.8 w400 ls0.96 CENTER  "Fireside Chats"  fill:#ffffff
+      ELLIPSE   6990:1010    "Ellipse 228"                              @498.5,942 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+      TEXT      6990:1011    "Get matched with a dedicated team of 6    @359,954 283×28  12px/13.8 w400 ls0.36 CENTER  "Get matched with a dedicated team of 6 members from each of  fill:#ffffff
+    FRAME     6990:1013    "Frame 150"                                @341,1054 319×62 [VERTICAL gap8]
+      TEXT      6990:1014    "Exclusive Events"                         @341,1054 319×14  12px/13.8 w400 ls0.96 CENTER  "Exclusive Events"  fill:#ffffff
+      ELLIPSE   6990:1015    "Ellipse 228"                              @498.5,1076 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+      TEXT      6990:1016    "Get matched with a dedicated team of 6    @359,1088 283×28  12px/13.8 w400 ls0.36 CENTER  "Get matched with a dedicated team of 6 members from each of  fill:#ffffff
+    FRAME     6990:1018    "Frame 151"                                @341,1188 319×62 [VERTICAL gap8]
+      TEXT      6990:1019    "Community"                                @341,1188 319×14  12px/13.8 w400 ls0.96 CENTER  "Community"  fill:#ffffff
+      ELLIPSE   6990:1020    "Ellipse 228"                              @498.5,1210 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+      TEXT      6990:1021    "Get matched with a dedicated team of 6    @359,1222 283×28  12px/13.8 w400 ls0.36 CENTER  "Get matched with a dedicated team of 6 members from each of  fill:#ffffff
+    FRAME     6990:1025    "Frame 152"                                @341,1322 319×62 [VERTICAL gap8]
+      TEXT      6990:1026    "Opportunities"                            @341,1322 319×14  12px/13.8 w400 ls0.96 CENTER  "Opportunities"  fill:#ffffff
+      ELLIPSE   6990:1027    "Ellipse 228"                              @498.5,1344 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+      TEXT      6990:1028    "Get matched with a dedicated team of 6    @359,1356 283×28  12px/13.8 w400 ls0.36 CENTER  "Get matched with a dedicated team of 6 members from each of  fill:#ffffff
+  TEXT      6990:1033    "NOTABLE SPEAKERS"                         @386,1572 230×23  20px/23 w400 ls1.6 CENTER  "NOTABLE SPEAKERS"  fill:#ffffff
+  FRAME     6990:1205    "Frame 154"                                @207,1682 588×449
+    BOOLEAN_OPERATION 6990:1093    "Union"                                    @247,1707 164.7×39.8  fill:#ffffff
+      VECTOR    6990:1058    "Vector"                                   @290.3,1717.5 16×21.5  fill:#ffffff
+      VECTOR    6990:1059    "Vector"                                   @332.2,1717.5 15.9×21.5  fill:#ffffff
+      VECTOR    6990:1060    "Vector"                                   @306.9,1717.5 15.5×16.3  fill:#ffffff
+      VECTOR    6990:1061    "Vector"                                   @353.1,1717.5 15.6×16.4  fill:#ffffff
+      VECTOR    6990:1062    "Vector"                                   @367.1,1717.9 15.8×15.5  fill:#ffffff
+      VECTOR    6990:1063    "Vector"                                   @387.5,1713.8 10.1×19.6  fill:#ffffff
+      VECTOR    6990:1064    "Vector"                                   @349.4,1712.1 2.7×21.4  fill:#ffffff
+      VECTOR    6990:1065    "Vector"                                   @323.1,1717.9 8.4×15.5  fill:#ffffff
+      VECTOR    6990:1066    "Vector"                                   @383.9,1717.9 2.7×15.5  fill:#ffffff
+      VECTOR    6990:1067    "Vector"                                   @383.6,1712.9 3.2×3.4  fill:#ffffff
+      VECTOR    6990:1068    "Vector"                                   @247,1707 30.8×39.8  fill:#ffffff
+      VECTOR    6990:1069    "Vector"                                   @396.9,1717.9 14.8×21.1  fill:#ffffff
+    BOOLEAN_OPERATION 6990:1096    "Subtract"                                 @541,1696 192×62.9  fill:#ffffff
+      BOOLEAN_OPERATION 6990:1095    "Union"                                    @541,1696 192×62.9  fill:#ffffff
+        VECTOR    6990:1072    "Vector"                                   @541,1696 62.9×62.9  fill:#ffffff
+        VECTOR    6990:1075    "Vector"                                   @683.9,1709.7 14×14.9  fill:#ffffff
+        VECTOR    6990:1077    "Vector"                                   @649,1709.6 12.1×15  fill:#ffffff
+        VECTOR    6990:1079    "Vector"                                   @693.7,1730.5 12.1×14.5  fill:#ffffff
+        VECTOR    6990:1081    "Vector"                                   @648.1,1730.6 12.1×14.4  fill:#ffffff
+        VECTOR    6990:1082    "Vector"                                   @701.3,1709.9 12×14.5  fill:#ffffff
+        VECTOR    6990:1083    "Vector"                                   @664.4,1709.7 10.4×15  fill:#ffffff
+        VECTOR    6990:1084    "Vector"                                   @721.5,1730.3 11.5×14.8  fill:#ffffff
+        VECTOR    6990:1085    "Vector"                                   @717.4,1709.9 10.3×14.5  fill:#ffffff
+        VECTOR    6990:1086    "Vector"                                   @708.7,1730.5 10.3×14.4  fill:#ffffff
+        VECTOR    6990:1087    "Vector"                                   @634.6,1730.5 10.2×14.4  fill:#ffffff
+        VECTOR    6990:1088    "Vector"                                   @678.1,1730.6 11.7×14.6  fill:#ffffff
+        VECTOR    6990:1089    "Vector"                                   @618.7,1730.5 13.1×14.4  fill:#ffffff
+        VECTOR    6990:1090    "Vector"                                   @632.8,1709.7 13.4×15  fill:#ffffff
+        VECTOR    6990:1091    "Vector"                                   @618.7,1709.6 12.3×15.1  fill:#ffffff
+        VECTOR    6990:1092    "Vector"                                   @663.3,1730.5 11.9×14.4  fill:#ffffff
+      BOOLEAN_OPERATION 6990:1094    "Union"                                    @556.6,1710.9 146.4×33.2  fill:#000000
+        VECTOR    6990:1073    "Vector"                                   @556.6,1710.9 20.4×33.2  fill:#000000
+        VECTOR    6990:1074    "Vector"                                   @579.3,1710.9 9.1×9.1  fill:#000000
+        VECTOR    6990:1076    "Vector"                                   @685.9,1711.6 9.8×11.1  fill:#000000
+        VECTOR    6990:1078    "Vector"                                   @651.2,1711.5 7.7×5.6  fill:#000000
+        VECTOR    6990:1080    "Vector"                                   @695.7,1732.3 7.3×5.2  fill:#000000
+    BOOLEAN_OPERATION 6990:1168    "Union"                                    @523,1828 228.7×62.5  fill:#fefefe
+      VECTOR    6990:1138    "Vector"                                   @602.9,1847.5 25.3×30.3  fill:#fefefe
+      VECTOR    6990:1139    "Vector"                                   @629.3,1847.5 22.5×23.5  fill:#fefefe
+      VECTOR    6990:1140    "Vector"                                   @719.7,1847.8 23.8×23.1  fill:#fefefe
+      VECTOR    6990:1141    "Vector"                                   @701.5,1840 18.2×30.6  fill:#fefefe
+      VECTOR    6990:1142    "Vector"                                   @674.6,1843.2 18.6×27.8  fill:#fefefe
+      VECTOR    6990:1143    "Vector"                                   @653.9,1847.5 20.2×23.1  fill:#fefefe
+      VECTOR    6990:1144    "Vector"                                   @694,1847.9 5.9×22.7  fill:#fefefe
+      VECTOR    6990:1145    "Vector"                                   @693.5,1840.2 7×5.6  fill:#fefefe
+      VECTOR    6990:1146    "Vector"                                   @523,1828 55×62.5  fill:#fefefe
+      VECTOR    6990:1147    "Vector"                                   @745.8,1840.5 5.9×30.1  fill:#fefefe
+    BOOLEAN_OPERATION 6990:1169    "Union"                                    @236,1949 185.9×44.1  fill:#ffffff
+      VECTOR    6990:1149    "Vector"                                   @311.7,1960.8 26.3×32.4  fill:#222021
+      VECTOR    6990:1150    "Vector"                                   @363.4,1961.4 27.2×21.1  fill:#222021
+      VECTOR    6990:1151    "Vector"                                   @261.5,1961.4 27.2×21  fill:#222021
+      VECTOR    6990:1152    "Vector"                                   @289.2,1961.5 23.5×21.7  fill:#222021
+      VECTOR    6990:1153    "Vector"                                   @347.5,1950.1 15.8×32.4  fill:#222021
+      VECTOR    6990:1154    "Vector"                                   @390.6,1961.5 21.3×21.7  fill:#222021
+      VECTOR    6990:1155    "Vector"                                   @413.6,1974.9 8.3×8.3  fill:#222021
+      VECTOR    6990:1156    "Vector"                                   @236,1949 24.6×34.4  fill:#222021
+    BOOLEAN_OPERATION 6990:1202    "Union"                                    @570,1922 134.5×115  fill:#ffffff
+      VECTOR    6990:1189    "Vector"                                   @607.2,1922 68.5×88.4  fill:#ffffff
+      VECTOR    6990:1190    "Vector"                                   @629.9,1970.1 4.5×5.1  fill:#ffffff
+      VECTOR    6990:1191    "Vector"                                   @613.4,1983.8 91.1×53.2  fill:#ffffff
+      VECTOR    6990:1192    "Vector"                                   @570,1960.8 16.8×42.3  fill:#ffffff
+      VECTOR    6990:1194    "Vector"                                   @580.6,1935 21.5×25.9  fill:#ffffff
+      VECTOR    6990:1195    "Vector"                                   @584.5,1995.3 22.1×33.7  fill:#ffffff
+      VECTOR    6990:1196    "Vector"                                   @602.8,1932.7 12.7×18.1  fill:#ffffff
+      VECTOR    6990:1197    "Vector"                                   @674.8,1953.7 12.8×30.3  fill:#ffffff
+      VECTOR    6990:1198    "Vector"                                   @589.9,1964 16.8×19  fill:#ffffff
+      VECTOR    6990:1199    "Vector"                                   @669,1930 17.6×23.8  fill:#ffffff
+      VECTOR    6990:1200    "Vector"                                   @619.7,1927.9 14.7×20.1  fill:#ffffff
+      VECTOR    6990:1201    "Vector"                                   @691.5,1961.7 9.7×15.4  fill:#ffffff
+    BOOLEAN_OPERATION 6990:1187    "Subtract"                                 @247,2057 164.8×54.9  fill:#ffffff
+      VECTOR    6990:1173    "Vector"                                   @247,2057 164.8×54.9  fill:#000000
+      BOOLEAN_OPERATION 6990:1186    "Union"                                    @250.1,2059.8 158.7×36.2  fill:#ffffff
+        VECTOR    6990:1174    "Vector"                                   @274.6,2070 40.3×26  fill:#ffffff
+        VECTOR    6990:1175    "Vector"                                   @382.8,2059.9 26×36.1  fill:#ffffff
+        VECTOR    6990:1176    "Vector"                                   @332.3,2059.8 21.7×36.2  fill:#ffffff
+        VECTOR    6990:1177    "Vector"                                   @250.1,2059.9 21.6×36.2  fill:#ffffff
+        VECTOR    6990:1178    "Vector"                                   @356.8,2070 23.1×26  fill:#ffffff
+        VECTOR    6990:1179    "Vector"                                   @317.8,2070 11.6×26  fill:#ffffff
+        VECTOR    6990:1180    "Vector"                                   @317.8,2059.8 11.6×7.3  fill:#ffffff
+    BOOLEAN_OPERATION 6990:1171    "Union"                                    @497,2062 280.2×43.5  fill:#ffffff
+      BOOLEAN_OPERATION 6990:1170    "Union"                                    @497,2062.1 280.2×43.4  fill:#ffffff
+        VECTOR    6990:1158    "Vector"                                   @497,2062.1 96×43.4  fill:#bc3d35
+        VECTOR    6990:1159    "Vector"                                   @671.1,2070.3 47.3×23.1  fill:#bc3d35
+        VECTOR    6990:1160    "Vector"                                   @594.7,2069.6 30.4×35.9  fill:#bc3d35
+        VECTOR    6990:1161    "Vector"                                   @736.4,2062.1 40.8×31.5  fill:#bc3d35
+        VECTOR    6990:1162    "Vector"                                   @653.6,2069.9 16.1×23.6  fill:#bc3d35
+        VECTOR    6990:1163    "Vector"                                   @718.4,2070 16.5×23.5  fill:#bc3d35
+        VECTOR    6990:1164    "Vector"                                   @645.8,2062.1 5.9×30.9  fill:#bc3d35
+        VECTOR    6990:1165    "Vector"                                   @630.7,2070.4 13.3×22.7  fill:#bc3d35
+        VECTOR    6990:1166    "Vector"                                   @622.4,2070.8 6×22.2  fill:#bc3d35
+      VECTOR    6990:1167    "Vector"                                   @622.4,2062 6.3×6.2  fill:#bc3d35
+    BOOLEAN_OPERATION 6990:1136    "Union"                                    @244,1828 169.4×51.8  fill:#fefefe
+      VECTOR    6990:1123    "Vector"                                   @315.9,1859.9 16.1×19.6  fill:#fefefe
+      VECTOR    6990:1124    "Vector"                                   @336,1828 22.5×20.1  fill:#fefefe
+      VECTOR    6990:1125    "Vector"                                   @301,1828 22.6×20.1  fill:#fefefe
+      VECTOR    6990:1126    "Vector"                                   @271.2,1859.9 14.1×19.6  fill:#fefefe
+      VECTOR    6990:1127    "Vector"                                   @342.3,1859.5 19.2×19.9  fill:#fefefe
+      VECTOR    6990:1128    "Vector"                                   @272,1828.3 15.7×19.9  fill:#fefefe
+      VECTOR    6990:1129    "Vector"                                   @373.4,1828.3 10.9×19.5  fill:#fefefe
+      VECTOR    6990:1130    "Vector"                                   @398.2,1859.7 13.4×20.1  fill:#fefefe
+      VECTOR    6990:1131    "Vector"                                   @371.2,1859.8 16.8×19.5  fill:#fefefe
+      VECTOR    6990:1132    "Vector"                                   @245.4,1860 10.4×19.5  fill:#fefefe
+      VECTOR    6990:1133    "Vector"                                   @297.8,1859.9 4×19.6  fill:#fefefe
+      VECTOR    6990:1134    "Vector"                                   @399.3,1828.3 14.1×19.5  fill:#fefefe
+      VECTOR    6990:1135    "Vector"                                   @244,1828.2 13.3×20.1  fill:#fefefe
+  FRAME     6997:1305    "Frame 155"                                @393,412 215.6×33.6  fill:#1a1a1a@0 fx:INNER_SHADOW13.600000381469727 [HORIZONTAL gap10]
+    FRAME     6997:1306    "Frame 156"                                @405.3,417.3 191×23 [HORIZONTAL gap10]
+      TEXT      6997:1307    "APPLY TO IGNITE"                          @405.3,417.3 191×23  20px/23 w400 ls1.6 CENTER  "APPLY TO IGNITE"  fill:#ffffff
+  INSTANCE  7028:788     "Footer"                                   @0,2287 1001×256
+    FRAME     I7028:788;6969:8164 "Frame 121"                                @95,2342 135.3×113 [VERTICAL gap20]
+      TEXT      I7028:788;6969:8140 "HOME"                                     @95,2342 135.3×14  12px/13.8 w400 ls0.96 LEFT  "HOME"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:788;6969:8142 "BUILD"                                    @95,2376 135.3×14  12px/13.8 w400 ls0.96 LEFT  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:788;6969:8144 "DEMO"                                     @95,2410 135.3×14  12px/13.8 w400 ls0.96 LEFT  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:788;6969:8146 "IGNITE"                                   @95,2444 135.3×14  12px/13.8 w400 ls0.96 LEFT  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:788;6969:8165 "Frame 122"                                @320.3,2342 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:788;6969:8148 "Contact Us"                               @320.3,2342 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Contact Us"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:788;6969:8150 "troylabs@usc.edu"                         @320.3,2366 135.3×14  12px/13.8 w400 ls0.96 LEFT  "troylabs@usc.edu"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:788;6969:8166 "Frame 123"                                @545.5,2342 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:788;6969:8152 "Members Only"                             @545.5,2343 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Members Only"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:788;6969:8153 "TL Alumni Network Portal"                 @545.5,2367 135.3×28  12px/13.8 w400 ls0.96 LEFT  "TL Alumni Network Portal"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:788;6969:8167 "Frame 124"                                @320.3,2429 135.3×27 [HORIZONTAL gap13]
+      RECTANGLE I7028:788;6969:8159 "image 9"                                  @322.3,2434 22×22  fill:image
+      RECTANGLE I7028:788;6969:8162 "image 10"                                 @357.3,2434 24×21  fill:image
+      BOOLEAN_OPERATION I7028:788;7019:28 "Union"                                    @394.3,2434 17.9×22  fill:#ffffff
+        VECTOR    I7028:788;7019:26 "Vector"                                   @394.3,2434 17.9×16.3  fill:#000000
+        VECTOR    I7028:788;7019:27 "Vector"                                   @401.6,2448.8 3.2×7.2  fill:#000000
+      BOOLEAN_OPERATION I7028:788;7019:33 "Union"                                    @425.2,2434 19.4×22  fill:#ffffff
+        VECTOR    I7028:788;7019:30 "Vector"                                   @425.2,2443.9 19.4×12.1  fill:#ffffff
+        VECTOR    I7028:788;7019:31 "Vector"                                   @425.2,2434 19.3×2.7  fill:#ffffff
+        VECTOR    I7028:788;7019:32 "Vector"                                   @425.2,2439 19.3×2.7  fill:#ffffff
+    TEXT      I7028:788;6969:8171 "Empowering USC's next generation of ent   @770.8,2429 135.3×18  8px/9.2 w400 ls0.64 LEFT  "Empowering USC's next generation of entrepreneurs"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    VECTOR    I7028:788;6969:8169 "Vector"                                   @770.8,2342 47×71  fill:#ffffff
+    TEXT      I7028:788;6969:8173 "© 2026 TroyLabs. All rights reserved."    @423,2501 155×9  8px/9.2 w400 ls0.64 CENTER  "© 2026 TroyLabs. All rights reserved."  fill:#ffffff
+    LINE      I7028:788;6971:8174 "Line 21"                                  @244,2288 514×0
+  INSTANCE  7033:2248    "Nav"                                      @0,0 1001×79
+    VECTOR    I7033:2248;7028:1523 "Vector"                                   @30,20 26×39  fill:#ffffff
+    TEXT      I7033:2248;7028:1524 "BUILD"                                    @389,32 40×14  12px/13.8 w400 ls0.96 CENTER  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    TEXT      I7033:2248;7028:1525 "IGNITE"                                   @479,32 45×14  12px/13.8 w400 ls0.96 CENTER  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    TEXT      I7033:2248;7028:1526 "DEMO"                                     @574,32 39×14  12px/13.8 w400 ls0.96 CENTER  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    INSTANCE  I7033:2248;7033:2231 "APPLY TO TROYLABS"                        @836,32 140×14
+      TEXT      I7033:2248;7033:2231;7028:1527 "APPLY TO TROYLABS"                        @836,32 140×14  12px/13.8 w400 ls0.96 CENTER  "APPLY TO TROYLABS"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+  ELLIPSE   7040:2384    "Ellipse 9"                                @732,124 97×97  fill:#ffffff@0.9 fx:NOISEundefined,DROP_SHADOW21.21875

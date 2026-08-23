@@ -1,0 +1,10 @@
+GROUP     7012:203     "BUFFS Bubble"                             @0,0 488.1×487
+  GROUP     7012:204     "Group 39618"                              @0,0 488.1×487
+    ELLIPSE   7012:205     "Ellipse 15"                               @0,0 488.1×487  fill:image fx:DROP_SHADOW131.05313110351562,INNER_SHADOW27.302734375
+    TEXT      7012:206     "$1.1M pre-seed"                           @23,235 441×69  60px/68.99 w700 ls-1.2 CENTER  "$1.1M pre-seed"  fill:#ffffff fx:DROP_SHADOW360,INNER_SHADOW75
+  GROUP     7012:207     "Logo_SVG"                                 @177,140 134×51.7
+    VECTOR    7012:208     "Vector"                                   @202.7,140 26.4×51.7  fill:#fef9d9
+    VECTOR    7012:209     "Vector"                                   @286.9,140 24.1×51.7  fill:#fef9d9
+    VECTOR    7012:210     "Vector"                                   @230.9,140 26.4×51.7  fill:#fef9d9
+    VECTOR    7012:211     "Vector"                                   @259.1,140 26.4×51.7  fill:#fef9d9
+    VECTOR    7012:212     "Vector"                                   @177,140 24.1×51.6  fill:#fef9d9

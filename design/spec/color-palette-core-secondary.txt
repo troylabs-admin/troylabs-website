@@ -1,0 +1,34 @@
+FRAME     68:2         "Color Palette: Core, Secondary"           @0,0 1920×1080  fill:#000000
+  TEXT      71:10        "The core color scheme will consist of t   @100,203 649×150  20px/24.6 w500 ls0 LEFT  "The core color scheme will consist of two primary colors th  fill:#fff7db
+  TEXT      72:14        "The secondary color scheme consists of    @1039,203 641×50  20px/24.6 w500 ls0 LEFT  "The secondary color scheme consists of supplementary colors  fill:#fff7db
+  TEXT      72:15        "HEX RGB HSL"                              @100,680 39×75  20px/24.6 w500 ls0 RIGHT  "HEX\nRGB HSL"  fill:#ffffff
+  FRAME     133:5        "Frame 2"                                  @234,495 360×260
+    GROUP     73:29        "Group 1"                                  @234,495 150×260
+      FRAME     135:77       "Frame 13"                                 @234,495 150×150
+        RECTANGLE 71:12        "Rectangle 2"                              @234,495 150×150  fill:#c72119
+      TEXT      72:18        "#C72119 199, 33, 25 3, 78, 44"            @234,680 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+    GROUP     73:30        "Group 2"                                  @444,495 150×260
+      FRAME     135:78       "Frame 14"                                 @444,495 150×150
+        RECTANGLE 71:13        "Rectangle 17"                             @444,495 150×150  fill:#ffd527
+      TEXT      72:19        "#FFD527 199, 33, 25 3, 78, 44"            @444,680 97×75  20px/24.6 w500 ls0 LEFT  "#FFD527\n199, 33, 25 3, 78, 44"  fill:#ffffff
+  FRAME     133:4        "Frame 1"                                  @1037,495 780×260 [HORIZONTAL gap60]
+    GROUP     133:3        "Group 9"                                  @1037,495 150×260
+      FRAME     133:26       "Frame 12"                                 @1037,495 150×260
+        GROUP     73:31        "Group 3"                                  @1045,680 95×75
+          TEXT      72:22        "#FE7512 254, 117, 18 25, 99, 53"          @1045,680 95×75  20px/24.6 w500 ls0 LEFT  "#FE7512\n254, 117, 18\n25, 99, 53"  fill:#ffffff
+        RECTANGLE 1:3          "Rectangle 1"                              @1037,495 150×150  fill:#fe7512
+    GROUP     133:2        "Group 8"                                  @1247,495 150×260
+      FRAME     133:25       "Frame 11"                                 @1247,495 150×260
+        GROUP     73:32        "Group 4"                                  @1251,680 128×75
+          TEXT      72:23        "#FFFFFF 255, 255, 255 0, 0, 100"          @1251,680 128×75  20px/24.6 w500 ls0 LEFT  "#FFFFFF\n255, 255, 255\n0, 0, 100"  fill:#ffffff
+        RECTANGLE 73:61        "Rectangle 8"                              @1247,495 150×150  fill:#ffffff
+    GROUP     73:33        "Group 5"                                  @1457,495 150×260
+      FRAME     133:24       "Frame 10"                                 @1457,495 150×260
+        RECTANGLE 72:24        "Rectangle 21"                             @1457,495 150×150  fill:#000000
+        TEXT      72:26        "#000000 0, 0, 0 0, 0, 0"                  @1457,680 101×75  20px/24.6 w500 ls0 LEFT  "#000000\n0, 0, 0 0, 0, 0"  fill:#ffffff
+    GROUP     73:34        "Group 6"                                  @1667,495 150×260
+      FRAME     133:23       "Frame 9"                                  @1667,495 150×260 [VERTICAL gap35]
+        RECTANGLE 72:25        "Rectangle 22"                             @1667,495 150×150  fill:#ffd527
+        TEXT      72:27        "#C72119 199, 33, 25 3, 78, 44"            @1667,680 97×75  20px/24.6 w500 ls0 LEFT  "#C72119\n199, 33, 25 3, 78, 44"  fill:#ffffff
+  TEXT      2668:3517    "Core Palette"                             @100,75 347×71  61.63px/70.87 w700 ls-1.23 LEFT  "Core Palette"  fill:#fff7db
+  TEXT      2668:3519    "Secondary Palette"                        @1037,75 516×71  61.63px/70.87 w700 ls-1.23 LEFT  "Secondary Palette"  fill:#fff7db

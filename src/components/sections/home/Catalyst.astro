@@ -1,0 +1,130 @@
+---
+/**
+ * Home › "The student catalyst behind startups." — Section y 1900–3200 du.
+ *   • heading 7028:1594 + blurb 7028:1595
+ *   • 50 ACTIVE MEMBERS: starburst "Star 8" (7028:2092) @147,2139 315×316 — as in the newest Home frame (confirmed 2026-08-23)
+ *   • 13 MAJORS: 15 glass orbs (Ellipse 190…245, grey-orb.png) with labels + 4 connector lines
+ *   • 6 DIVISIONS: star icons (Frame 96), dotted timeline lines, six role cards (Frame 97–102)
+ */
+import { Image } from 'astro:assets';
+import { pos, u } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+import starburst from '../../../assets/figma/starburst.png';
+import orb from '../../../assets/space/grey-orb.png';
+import star1 from '../../../assets/space/star-1.png';
+import star2 from '../../../assets/space/star-2.png';
+import star3 from '../../../assets/space/star-3.png';
+import star4 from '../../../assets/space/star-4.png';
+import star5 from '../../../assets/space/star-5.png';
+import star6 from '../../../assets/space/star-6.png';
+
+const TOP = 1900;
+const y = (v: number) => v - TOP;
+
+/* starburst.png is a 3× Figma render of "Star 8" incl. its 11.7 du drop shadow: 1017×1019 px → 339×339.7 du */
+const burst = { w: 1017 / 3, h: 1019 / 3 };
+const burstPad = { x: (burst.w - 315.4) / 2, y: (burst.h - 316) / 2 };
+
+/* 13 majors — orb box (Figma ellipse) + label text box. 6px labels unless noted. */
+const majors = [
+  { orb: [526, 2119, 84, 84], label: 'Philosophy, Politics, and Law', box: [542, 2154, 52, 14] },
+  { orb: [564, 2176, 67, 67], label: 'Electrical & Computer Engineering', box: [572, 2199, 53, 21] },
+  { orb: [660, 2131, 51, 51], label: 'Political Science', box: [665, 2150, 42, 14] },
+  { orb: [686, 2176, 60, 60], label: 'Economics', box: [700, 2202, 31, 7] },
+  { orb: [738, 2119, 78, 78], label: 'Human Development & Aging', box: [756, 2147, 42, 21] },
+  { orb: [628, 2225, 59, 59], label: 'PR & Advertising', box: [637, 2246, 41, 14] },
+  { orb: [712, 2245, 51, 52], label: 'AI for Business', box: [717, 2263, 42, 14] },
+  { orb: [769, 2232, 85, 84], label: 'Communications', box: [780, 2270, 63, 9], size: 8, glow: true },
+  { orb: [555, 2267, 85, 85], label: 'Business Administration', box: [568, 2303, 60, 14] },
+  { orb: [711, 2307, 46, 46], label: 'History', box: [724, 2326, 20, 7] },
+  { orb: [708, 2324, 115, 114], label: 'Arts, Technology & Business', box: [740, 2374, 52, 14] },
+  { orb: [618, 2358, 45, 45], label: 'Design', box: [631, 2377, 20, 7] },
+  { orb: [538, 2374, 60, 60], label: 'Computer Science', box: [542, 2397, 51, 14] },
+] as const;
+
+/* Connector lines — endpoints derived from each LINE node's relativeTransform (origin + length·direction). */
+const links: [number, number, number, number][] = [
+  [787, 2196, 798, 2234],   // Line 28
+  [711, 2363, 635, 2329],   // Line 30
+  [717, 2287, 590, 2384],   // Line 31
+  [662, 2166, 624, 2189],   // Line 29
+];
+
+/* 6 divisions: icon, timeline (dot → line → dot), card.
+   Icon placement: the Figma STAR nodes have inner shadows that darken their edges, so the visible shape is
+   smaller than the node box. `box` is the visible extent measured in the 1:1 reference render, and `body`
+   is the measured shape/png ratio of the exported star PNG (which carries a glow halo) — together they put
+   the shape exactly where Figma draws it. */
+const divisions = [
+  { icon: star1, body: 0.864, box: [182, 2593, 38, 40], line: [201, 2665.4, 50], dots: [[197, 2656], [197, 2715.4]], card: [109, 2739.4, 184, 86], name: 'PRODUCT MANAGER', textBox: [109, 2769.4, 184], text: 'Partner with founders to set core goals, own development timelines, and run user research to ship market-ready products.' },
+  { icon: star2, body: 0.675, box: [303, 2595, 31, 36], line: [317, 2664, 213], dots: [[313, 2656], [313, 2877]], card: [226, 2907, 184, 100], name: 'FINANCE/VC', textBox: [239, 2937, 158], text: 'Build budgets, run deal analysis, and prep founders for seed-stage fundraising while connecting startups directly to VC networks.' },
+  { icon: star3, body: 0.91, box: [418, 2594, 39, 38], line: [437, 2665.4, 50], dots: [[433, 2656], [433, 2715.4]], card: [341, 2739, 184, 86], name: 'DESIGN', textBox: [351, 2769, 164], text: 'Craft intuitive UI/UX and distinct visual identities that elevate brand appeal and streamline user experiences.' },
+  { icon: star4, body: 0.677, box: [542, 2595, 36, 36], line: [559, 2664, 213], dots: [[555, 2656], [555, 2877]], card: [467, 2907, 184, 100], name: 'ENGINEER', textBox: [480, 2937, 158], text: 'Build high-performance web and mobile products across modern tech stacks. Solve complex technical problems and deploy code.' },
+  { icon: star5, body: 0.85, box: [663, 2593, 34, 40], line: [679, 2665.4, 50], dots: [[675, 2656], [675, 2715.4]], card: [588, 2739, 184, 114], name: 'DEMO', textBox: [601, 2769, 158], text: 'Manage operations, marketing, and curate our annual flagship startup conference while building high-value ecosystem networks.' },
+  { icon: star6, body: 0.71, box: [781, 2592, 39, 38], line: [799, 2664, 213], dots: [[795, 2656], [795, 2877]], card: [709, 2907, 184, 100], name: 'MARKETING', textBox: [722, 2937, 158], text: 'Execute targeted campaigns, analyze market trends, and capture growth opportunities to drive visibility and traction.' },
+];
+
+const stars = [
+  { x: 90, y: 2146.5, s: 10.4 }, { x: 58.6, y: 2080.8, s: 10.4 }, { x: 855, y: 2089 }, { x: 915, y: 2189 },
+  { x: 72.1, y: 2173.6, s: 4.6, kind: 'dot' }, { x: 203.1, y: 2143.6, s: 4.6, kind: 'dot' }, { x: 32, y: 1993, kind: 'dot' },
+  { x: 526.1, y: 2143.6, s: 4.6, kind: 'dot' }, { x: 826.1, y: 2443.6, s: 4.6, kind: 'dot' }, { x: 896.1, y: 2183.6, s: 4.6, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:1300" data-figma="Catalyst" aria-labelledby="catalyst-title">
+  <Glow x={241.9} y={y(2046.1)} w={779.7} h={901.3} />
+  <Stars items={stars} />
+
+  <h2 id="catalyst-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(305, y(1943), 349, 23)}>The student catalyst behind startups.</h2>
+  <p class="abs m-0 t-caption text-center" style={pos(207, y(1985), 549, 28)}>
+    We’re an eclectic crew of hackers, designers, and visionaries across USC.<br />
+    Different majors, same obsession: building cool stuff and backing our founders to do the same.
+  </p>
+
+  <!-- 50 active members -->
+  <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
+  <Image src={starburst} alt="" aria-hidden="true" width={1017} height={1019} class="abs pointer-events-none" style={pos(147 - burstPad.x, y(2139) - burstPad.y, burst.w, burst.h)} />
+
+  <!-- 13 majors -->
+  <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(645, y(2086), 82, 14)}>13 MAJORS</h3>
+  <svg class="abs pointer-events-none" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" aria-hidden="true" data-bubble-links>
+    {links.map(([x1, y1, x2, y2]) => <line x1={x1} y1={y(y1)} x2={x2} y2={y(y2)} stroke="#fff" stroke-width="0.4" />)}
+  </svg>
+  <ul class="m-0 p-0 list-none" aria-label="Majors represented" data-bubbles>
+    {majors.map((m) => (
+      <li data-bubble>
+        <Image src={orb} alt="" aria-hidden="true" width={400} height={400} class:list={['abs pointer-events-none bubble-orb', m.glow && 'orb-glow']} style={pos(m.orb[0], y(m.orb[1]), m.orb[2], m.orb[3])} />
+        <span class="abs text-center major bubble-label" style={`${pos(m.box[0], y(m.box[1]), m.box[2], m.box[3])};font-size:${u(m.size ?? 6)};line-height:${u((m.size ?? 6) * 1.15)}`}>{m.label}</span>
+      </li>
+    ))}
+  </ul>
+
+  <!-- 6 divisions -->
+  <h3 class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(422, y(2537), 124, 23)}>6 DIVISIONS</h3>
+  <ul class="m-0 p-0 list-none">
+    {divisions.map((d) => {
+      const [bx, by, bw, bh] = d.box; const pw = bw / d.body, ph = bh / d.body;
+      return (
+        <li data-division={d.name}>
+          <Image src={d.icon} alt="" aria-hidden="true" width={300} height={300} class="abs pointer-events-none" style={pos(bx - (pw - bw) / 2, y(by) - (ph - bh) / 2, pw, ph)} />
+          <span class="abs timeline" style={pos(d.line[0], y(d.line[1]), 0, d.line[2])} aria-hidden="true" />
+          {d.dots.map(([dx, dy]) => <span class="abs dot" style={pos(dx, y(dy), 9, 9)} aria-hidden="true" />)}
+          <article class="abs flex flex-col items-center text-center" style={`${pos(d.card[0], y(d.card[1]), d.card[2], d.card[3])};gap:${u(8)}`}>
+            <h4 class="m-0 t-label font-normal whitespace-nowrap">{d.name}</h4>
+            <hr class="m-0 border-0 border-t border-ink/100 shrink-0" style={`width:${u(58)}`} />
+            <p class="m-0 t-caption w-du" style={`--w:${d.textBox[2]}`}>{d.text}</p>
+          </article>
+        </li>
+      );
+    })}
+  </ul>
+</section>
+
+<style>
+  .major { letter-spacing: calc(0.2 * var(--u)); }
+  .orb-glow { filter: drop-shadow(0 0 calc(15.9 * var(--u)) rgb(255 255 255 / 0.4)); }
+  .timeline { border-left: calc(1 * var(--u)) solid #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
+  .dot { border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
+  .t-caption { letter-spacing: calc(0.4 * var(--u)); }
+</style>

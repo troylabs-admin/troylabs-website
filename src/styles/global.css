@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@import "./motion.css";
+@import "lenis/dist/lenis.css";
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   Design units
+   The Figma pages are drawn on a 1001px-wide artboard. Every number in this
+   codebase is that Figma number ("design units", du). One CSS variable, --u,
+   converts du → px, so the whole layout scales proportionally with the viewport:
+   at 1440px 1du = 1.4386px (body text 12du → 17px), at 1920px 1du = 1.918px. Never hardcode px for
+   layout; use u(n) / pos() from src/lib/units.ts, or calc(N * var(--u)).
+   ────────────────────────────────────────────────────────────────────────────── */
+:root {
+  --design-width: 1001;
+  --page-max: 1440px;                     /* the artboard never grows past this (≈ Figma's presentation size); wider screens get the backdrop on the sides */
+  --u: calc(min(100vw, var(--page-max)) / var(--design-width));
+  --starfield: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221400%22 height=%221000%22%3E%3Cg stroke=%22#fff%22 stroke-width=%221.90%22 stroke-linecap=%22round%22 opacity=%220.38%22%3E%3Cline x1=%22447.4%22 y1=%22150.8%22 x2=%22459.3%22 y2=%22150.8%22 transform=%22rotate%280 453.4 150.8%29%22/%3E%3Cline x1=%22447.4%22 y1=%22150.8%22 x2=%22459.3%22 y2=%22150.8%22 transform=%22rotate%2860 453.4 150.8%29%22/%3E%3Cline x1=%22447.4%22 y1=%22150.8%22 x2=%22459.3%22 y2=%22150.8%22 transform=%22rotate%28120 453.4 150.8%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.34%22 stroke-linecap=%22round%22 opacity=%220.58%22%3E%3Cline x1=%22746.1%22 y1=%22365.7%22 x2=%22754.4%22 y2=%22365.7%22 transform=%22rotate%280 750.2 365.7%29%22/%3E%3Cline x1=%22746.1%22 y1=%22365.7%22 x2=%22754.4%22 y2=%22365.7%22 transform=%22rotate%2860 750.2 365.7%29%22/%3E%3Cline x1=%22746.1%22 y1=%22365.7%22 x2=%22754.4%22 y2=%22365.7%22 transform=%22rotate%28120 750.2 365.7%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 opacity=%220.39%22%3E%3Cline x1=%2248.3%22 y1=%22433.6%22 x2=%2256.7%22 y2=%22433.6%22 transform=%22rotate%280 52.5 433.6%29%22/%3E%3Cline x1=%2248.3%22 y1=%22433.6%22 x2=%2256.7%22 y2=%22433.6%22 transform=%22rotate%2860 52.5 433.6%29%22/%3E%3Cline x1=%2248.3%22 y1=%22433.6%22 x2=%2256.7%22 y2=%22433.6%22 transform=%22rotate%28120 52.5 433.6%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.40%22 stroke-linecap=%22round%22 opacity=%220.45%22%3E%3Cline x1=%22590.0%22 y1=%22826.9%22 x2=%22598.7%22 y2=%22826.9%22 transform=%22rotate%280 594.3 826.9%29%22/%3E%3Cline x1=%22590.0%22 y1=%22826.9%22 x2=%22598.7%22 y2=%22826.9%22 transform=%22rotate%2860 594.3 826.9%29%22/%3E%3Cline x1=%22590.0%22 y1=%22826.9%22 x2=%22598.7%22 y2=%22826.9%22 transform=%22rotate%28120 594.3 826.9%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.83%22 stroke-linecap=%22round%22 opacity=%220.53%22%3E%3Cline x1=%22872.7%22 y1=%22947.7%22 x2=%22884.1%22 y2=%22947.7%22 transform=%22rotate%280 878.4 947.7%29%22/%3E%3Cline x1=%22872.7%22 y1=%22947.7%22 x2=%22884.1%22 y2=%22947.7%22 transform=%22rotate%2860 878.4 947.7%29%22/%3E%3Cline x1=%22872.7%22 y1=%22947.7%22 x2=%22884.1%22 y2=%22947.7%22 transform=%22rotate%28120 878.4 947.7%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%222.10%22 stroke-linecap=%22round%22 opacity=%220.48%22%3E%3Cline x1=%221360.2%22 y1=%2246.6%22 x2=%221373.3%22 y2=%2246.6%22 transform=%22rotate%280 1366.8 46.6%29%22/%3E%3Cline x1=%221360.2%22 y1=%2246.6%22 x2=%221373.3%22 y2=%2246.6%22 transform=%22rotate%2860 1366.8 46.6%29%22/%3E%3Cline x1=%221360.2%22 y1=%2246.6%22 x2=%221373.3%22 y2=%2246.6%22 transform=%22rotate%28120 1366.8 46.6%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.58%22 stroke-linecap=%22round%22 opacity=%220.72%22%3E%3Cline x1=%22197.0%22 y1=%22117.8%22 x2=%22206.9%22 y2=%22117.8%22 transform=%22rotate%280 202.0 117.8%29%22/%3E%3Cline x1=%22197.0%22 y1=%22117.8%22 x2=%22206.9%22 y2=%22117.8%22 transform=%22rotate%2860 202.0 117.8%29%22/%3E%3Cline x1=%22197.0%22 y1=%22117.8%22 x2=%22206.9%22 y2=%22117.8%22 transform=%22rotate%28120 202.0 117.8%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.89%22 stroke-linecap=%22round%22 opacity=%220.52%22%3E%3Cline x1=%22247.1%22 y1=%22581.6%22 x2=%22258.9%22 y2=%22581.6%22 transform=%22rotate%280 253.0 581.6%29%22/%3E%3Cline x1=%22247.1%22 y1=%22581.6%22 x2=%22258.9%22 y2=%22581.6%22 transform=%22rotate%2860 253.0 581.6%29%22/%3E%3Cline x1=%22247.1%22 y1=%22581.6%22 x2=%22258.9%22 y2=%22581.6%22 transform=%22rotate%28120 253.0 581.6%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.34%22 stroke-linecap=%22round%22 opacity=%220.44%22%3E%3Cline x1=%22762.7%22 y1=%2262.8%22 x2=%22771.0%22 y2=%2262.8%22 transform=%22rotate%280 766.8 62.8%29%22/%3E%3Cline x1=%22762.7%22 y1=%2262.8%22 x2=%22771.0%22 y2=%2262.8%22 transform=%22rotate%2860 766.8 62.8%29%22/%3E%3Cline x1=%22762.7%22 y1=%2262.8%22 x2=%22771.0%22 y2=%2262.8%22 transform=%22rotate%28120 766.8 62.8%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.58%22 stroke-linecap=%22round%22 opacity=%220.61%22%3E%3Cline x1=%22947.6%22 y1=%22427.6%22 x2=%22957.5%22 y2=%22427.6%22 transform=%22rotate%280 952.6 427.6%29%22/%3E%3Cline x1=%22947.6%22 y1=%22427.6%22 x2=%22957.5%22 y2=%22427.6%22 transform=%22rotate%2860 952.6 427.6%29%22/%3E%3Cline x1=%22947.6%22 y1=%22427.6%22 x2=%22957.5%22 y2=%22427.6%22 transform=%22rotate%28120 952.6 427.6%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%222.04%22 stroke-linecap=%22round%22 opacity=%220.66%22%3E%3Cline x1=%22628.1%22 y1=%22299.8%22 x2=%22640.8%22 y2=%22299.8%22 transform=%22rotate%280 634.5 299.8%29%22/%3E%3Cline x1=%22628.1%22 y1=%22299.8%22 x2=%22640.8%22 y2=%22299.8%22 transform=%22rotate%2860 634.5 299.8%29%22/%3E%3Cline x1=%22628.1%22 y1=%22299.8%22 x2=%22640.8%22 y2=%22299.8%22 transform=%22rotate%28120 634.5 299.8%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.78%22 stroke-linecap=%22round%22 opacity=%220.74%22%3E%3Cline x1=%22336.2%22 y1=%22574.4%22 x2=%22347.3%22 y2=%22574.4%22 transform=%22rotate%280 341.7 574.4%29%22/%3E%3Cline x1=%22336.2%22 y1=%22574.4%22 x2=%22347.3%22 y2=%22574.4%22 transform=%22rotate%2860 341.7 574.4%29%22/%3E%3Cline x1=%22336.2%22 y1=%22574.4%22 x2=%22347.3%22 y2=%22574.4%22 transform=%22rotate%28120 341.7 574.4%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%222.22%22 stroke-linecap=%22round%22 opacity=%220.40%22%3E%3Cline x1=%221014.3%22 y1=%22287.9%22 x2=%221028.2%22 y2=%22287.9%22 transform=%22rotate%280 1021.2 287.9%29%22/%3E%3Cline x1=%221014.3%22 y1=%22287.9%22 x2=%221028.2%22 y2=%22287.9%22 transform=%22rotate%2860 1021.2 287.9%29%22/%3E%3Cline x1=%221014.3%22 y1=%22287.9%22 x2=%221028.2%22 y2=%22287.9%22 transform=%22rotate%28120 1021.2 287.9%29%22/%3E%3C/g%3E%3Cg stroke=%22#fff%22 stroke-width=%221.43%22 stroke-linecap=%22round%22 opacity=%220.57%22%3E%3Cline x1=%22580.9%22 y1=%22757.1%22 x2=%22589.8%22 y2=%22757.1%22 transform=%22rotate%280 585.4 757.1%29%22/%3E%3Cline x1=%22580.9%22 y1=%22757.1%22 x2=%22589.8%22 y2=%22757.1%22 transform=%22rotate%2860 585.4 757.1%29%22/%3E%3Cline x1=%22580.9%22 y1=%22757.1%22 x2=%22589.8%22 y2=%22757.1%22 transform=%22rotate%28120 585.4 757.1%29%22/%3E%3C/g%3E%3Ccircle cx=%2254.9%22 cy=%22668.2%22 r=%222.4%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.30%22 opacity=%220.55%22/%3E%3Ccircle cx=%221225.7%22 cy=%22313.7%22 r=%222.3%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.26%22 opacity=%220.56%22/%3E%3Ccircle cx=%22811.9%22 cy=%22456.2%22 r=%222.4%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.34%22 opacity=%220.68%22/%3E%3Ccircle cx=%22663.7%22 cy=%22664.2%22 r=%221.7%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.91%22 opacity=%220.60%22/%3E%3Ccircle cx=%22906.0%22 cy=%22993.1%22 r=%222.4%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.33%22 opacity=%220.45%22/%3E%3Ccircle cx=%22540.1%22 cy=%22668.7%22 r=%221.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.89%22 opacity=%220.51%22/%3E%3Ccircle cx=%22235.3%22 cy=%22117.1%22 r=%221.7%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.91%22 opacity=%220.62%22/%3E%3Ccircle cx=%22181.1%22 cy=%22247.6%22 r=%222.0%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.10%22 opacity=%220.65%22/%3E%3Ccircle cx=%22112.8%22 cy=%22449.2%22 r=%222.1%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.18%22 opacity=%220.66%22/%3E%3Ccircle cx=%221147.0%22 cy=%22864.0%22 r=%221.9%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.03%22 opacity=%220.50%22/%3E%3Ccircle cx=%22502.3%22 cy=%22884.2%22 r=%222.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.41%22 opacity=%220.40%22/%3E%3Ccircle cx=%22246.7%22 cy=%22232.0%22 r=%221.8%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.01%22 opacity=%220.52%22/%3E%3Ccircle cx=%22824.8%22 cy=%22262.7%22 r=%221.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.88%22 opacity=%220.50%22/%3E%3Ccircle cx=%22517.0%22 cy=%22566.3%22 r=%222.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.40%22 opacity=%220.59%22/%3E%3Ccircle cx=%22721.7%22 cy=%22617.6%22 r=%222.3%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.25%22 opacity=%220.37%22/%3E%3Ccircle cx=%221259.3%22 cy=%22780.0%22 r=%222.5%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.36%22 opacity=%220.63%22/%3E%3Ccircle cx=%22549.3%22 cy=%22399.0%22 r=%221.7%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.94%22 opacity=%220.57%22/%3E%3Ccircle cx=%2287.1%22 cy=%2267.3%22 r=%221.8%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.99%22 opacity=%220.41%22/%3E%3Ccircle cx=%22476.1%22 cy=%2252.6%22 r=%221.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.88%22 opacity=%220.40%22/%3E%3Ccircle cx=%22142.1%22 cy=%22363.6%22 r=%221.6%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%220.89%22 opacity=%220.66%22/%3E%3Ccircle cx=%22859.7%22 cy=%22148.6%22 r=%221.9%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.02%22 opacity=%220.47%22/%3E%3Ccircle cx=%22509.8%22 cy=%22122.8%22 r=%222.4%22 fill=%22none%22 stroke=%22#fff%22 stroke-width=%221.35%22 opacity=%220.70%22/%3E%3Ccircle cx=%22652.4%22 cy=%22483.8%22 r=%220.6%22 fill=%22#fff%22 opacity=%220.23%22/%3E%3Ccircle cx=%22479.7%22 cy=%22264.8%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.25%22/%3E%3Ccircle cx=%2232.3%22 cy=%22951.0%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.24%22/%3E%3Ccircle cx=%22760.4%22 cy=%2227.0%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.49%22/%3E%3Ccircle cx=%221208.7%22 cy=%22696.2%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.31%22/%3E%3Ccircle cx=%22233.9%22 cy=%22771.9%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.43%22/%3E%3Ccircle cx=%22461.5%22 cy=%22223.0%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.50%22/%3E%3Ccircle cx=%221193.7%22 cy=%22806.1%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.42%22/%3E%3Ccircle cx=%22317.4%22 cy=%22517.6%22 r=%220.8%22 fill=%22#fff%22 opacity=%220.21%22/%3E%3Ccircle cx=%2239.1%22 cy=%22279.4%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.41%22/%3E%3Ccircle cx=%221339.1%22 cy=%22447.2%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.50%22/%3E%3Ccircle cx=%221337.0%22 cy=%22364.6%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.27%22/%3E%3Ccircle cx=%22275.4%22 cy=%22204.4%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.47%22/%3E%3Ccircle cx=%221176.6%22 cy=%22479.5%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.44%22/%3E%3Ccircle cx=%22118.7%22 cy=%22660.6%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.43%22/%3E%3Ccircle cx=%221050.2%22 cy=%22478.0%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.44%22/%3E%3Ccircle cx=%22465.5%22 cy=%22800.8%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.32%22/%3E%3Ccircle cx=%22561.9%22 cy=%22946.8%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.25%22/%3E%3Ccircle cx=%22177.9%22 cy=%22151.2%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.44%22/%3E%3Ccircle cx=%22204.6%22 cy=%22826.5%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.40%22/%3E%3Ccircle cx=%22490.6%22 cy=%22548.7%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.20%22/%3E%3Ccircle cx=%221359.2%22 cy=%22649.7%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.48%22/%3E%3Ccircle cx=%22607.3%22 cy=%22871.7%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.26%22/%3E%3Ccircle cx=%22352.6%22 cy=%22293.0%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.38%22/%3E%3Ccircle cx=%22363.1%22 cy=%22419.0%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.47%22/%3E%3Ccircle cx=%22495.3%22 cy=%22458.2%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.47%22/%3E%3Ccircle cx=%22588.9%22 cy=%22917.7%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.36%22/%3E%3Ccircle cx=%22732.9%22 cy=%2218.7%22 r=%220.8%22 fill=%22#fff%22 opacity=%220.25%22/%3E%3Ccircle cx=%225.5%22 cy=%22799.2%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.34%22/%3E%3Ccircle cx=%221015.3%22 cy=%22556.5%22 r=%220.8%22 fill=%22#fff%22 opacity=%220.36%22/%3E%3Ccircle cx=%22777.6%22 cy=%22784.3%22 r=%220.7%22 fill=%22#fff%22 opacity=%220.37%22/%3E%3Ccircle cx=%22347.9%22 cy=%22276.9%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.35%22/%3E%3Ccircle cx=%22786.4%22 cy=%22760.0%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.33%22/%3E%3Ccircle cx=%22857.5%22 cy=%22505.6%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.41%22/%3E%3Ccircle cx=%22633.3%22 cy=%22533.3%22 r=%220.8%22 fill=%22#fff%22 opacity=%220.48%22/%3E%3Ccircle cx=%22978.9%22 cy=%22876.5%22 r=%221.1%22 fill=%22#fff%22 opacity=%220.28%22/%3E%3Ccircle cx=%22783.3%22 cy=%22943.3%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.24%22/%3E%3Ccircle cx=%22170.3%22 cy=%22442.1%22 r=%220.6%22 fill=%22#fff%22 opacity=%220.27%22/%3E%3Ccircle cx=%22102.4%22 cy=%22669.5%22 r=%221.0%22 fill=%22#fff%22 opacity=%220.47%22/%3E%3Ccircle cx=%22216.2%22 cy=%22716.1%22 r=%220.9%22 fill=%22#fff%22 opacity=%220.24%22/%3E%3C/svg%3E");
+}
+
+@theme {
+  --color-*: initial;                      /* no default palette: only the design's colors exist */
+  --color-bg: #0a0a0a;                     /* page background (Figma frame fill) */
+  --color-ink: #ffffff;                    /* all text */
+  --color-orange: #ff7d2c;                 /* brand glow / accent */
+  --color-orange-deep: #ff3500;
+  --color-yellow: #ffc200;
+  --color-blue: #548aff;
+  --color-blue-deep: #006fff;
+  --color-planet: #070707;                 /* planet body */
+  --color-muted: #828182;
+  --color-line: #d9d9d9;
+
+  --font-sans: Helvetica, "Helvetica Neue", Arial, sans-serif;   /* as drawn in the page frames */
+
+  --breakpoint-*: initial;
+  --breakpoint-md: 48rem;                  /* below this the art-directed layout restacks (mobile pass, later) */
+}
+
+/* ── backdrop: deep space behind/beside the artboard (wide screens, zoomed-out) ── */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-color: var(--color-bg);
+  /* the artboard's star field continued into the margins: a 1400×1000 tile of the designer's "*" glyphs and
+     ∘ dots (generated once, seeded — see design/README.md), offset on the second layer so no grid shows */
+  background-image: var(--starfield), var(--starfield);
+  background-size: 1400px 1000px, 1400px 1000px;
+  background-position: 0 0, 700px 500px;
+}
+
+/* live sky (scripts/sky.ts) sits above the backdrop, behind the canvas */
+canvas.sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+html.sky-live body::before { background-image: none; }
+/* nebula: slow colour fields behind everything (transform/opacity only) */
+.nebula { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.nebula span { position: absolute; border-radius: 9999px; filter: blur(90px); mix-blend-mode: screen; will-change: transform; }
+.nebula .n1 { width: 760px; height: 760px; left: -12%; top: 10%; background: rgb(255 125 44 / 0.09); }
+.nebula .n2 { width: 640px; height: 640px; right: -10%; top: 35%; background: rgb(84 138 255 / 0.07); }
+.nebula .n3 { width: 560px; height: 560px; left: 30%; bottom: -18%; background: rgb(255 194 0 / 0.05); }
+
+/* ── base ─────────────────────────────────────────────────────────────────── */
+html { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+body { margin: 0; overflow-x: hidden; }
+
+/* The page canvas: exactly the Figma artboard, scaled and centered. Sections stack inside it. */
+.canvas { position: relative; width: calc(var(--design-width) * var(--u)); margin-inline: auto; } /* no clipping: glows and planets bleed into the margins on wide screens (no hard artboard edge); the viewport hides horizontal overflow */
+
+/* A section is a relatively-positioned strip of the artboard with its design height;
+   art-directed children are placed with .abs + pos(). */
+.section { position: relative; width: 100%; height: calc(var(--h) * var(--u)); }
+.abs { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); }
+.abs[style*="--w"] { width: calc(var(--w) * var(--u)); }
+.abs[style*="--h"] { height: calc(var(--h) * var(--u)); }
+/* Text boxes: Figma ignores the trailing letter-spacing of a line when wrapping, Chrome doesn't, so a line
+   that exactly fills its Figma box wraps one word early here. 0.6 du of slack (centered) prevents that. */
+.abs[style*="--w"]:is(p, h1, h2, h3, h4, span, a) { width: calc((var(--w) + 0.6) * var(--u)); margin-left: calc(-0.3 * var(--u)); }
+.w-du { width: calc((var(--w) + 0.6) * var(--u)); }
+
+/* ── type scale (measured from the Figma text nodes; size/line-height/letter-spacing in du) ── */
+@utility text-du-* { font-size: calc(--value(number) * var(--u)); }
+.t-nav     { font-size: calc(12 * var(--u)); line-height: calc(13.8 * var(--u)); letter-spacing: calc(0.96 * var(--u)); }
+.t-body    { font-size: calc(12 * var(--u)); line-height: calc(18 * var(--u));   letter-spacing: calc(0.36 * var(--u)); }
+.t-caption { font-size: calc(12 * var(--u)); line-height: calc(13.8 * var(--u)); letter-spacing: calc(0.36 * var(--u)); }
+.t-label   { font-size: calc(12 * var(--u)); line-height: calc(13.8 * var(--u)); letter-spacing: calc(1.8 * var(--u));  }
+.t-title   { font-size: calc(20 * var(--u)); line-height: calc(23 * var(--u));   letter-spacing: calc(1.6 * var(--u)); }
+.t-title-tight { font-size: calc(20 * var(--u)); line-height: calc(23 * var(--u)); letter-spacing: calc(0.6 * var(--u)); }
+.t-name    { font-size: calc(16 * var(--u)); line-height: calc(18.4 * var(--u)); letter-spacing: calc(0.5 * var(--u)); }
+.t-sub     { font-size: calc(16 * var(--u)); line-height: calc(18.4 * var(--u)); letter-spacing: calc(1.3 * var(--u)); }
+.t-tagline { font-size: calc(17.7 * var(--u)); line-height: calc(20.4 * var(--u)); letter-spacing: calc(1.42 * var(--u)); }
+.t-hero    { font-size: calc(54.64 * var(--u)); line-height: calc(63 * var(--u)); letter-spacing: calc(4.37 * var(--u)); font-weight: 700; }
+.t-stat    { font-size: calc(48 * var(--u)); line-height: calc(55 * var(--u)); letter-spacing: calc(3.84 * var(--u)); }
+.t-fine    { font-size: calc(8 * var(--u)); line-height: calc(9.2 * var(--u)); letter-spacing: calc(0.6 * var(--u)); }
+
+/* ── effects used throughout the design ───────────────────────────────────── */
+.glow-text { text-shadow: 0 0 calc(6.4 * var(--u)) rgb(255 255 255 / 0.56); }   /* nav/footer text: Figma drop shadow white@56% blur 6.4 */
+.glow-dot  { filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
+
+/* Figma "noise" effect on the page frame: subtle film grain */
+.grain::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;   /* fixed: covers the whole viewport, so zoomed-out margins match the page */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.065; mix-blend-mode: screen;   /* calibrated: Figma noise lifts the #0a0a0a bg to ≈#141414 average */
+}
+
+img { display: block; max-width: 100%; }
+/* art-directed images may deliberately exceed the canvas (planets bleeding off-screen) */
+img.abs, .abs > img { max-width: none; }

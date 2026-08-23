@@ -18,10 +18,9 @@ import rocket from '../../../assets/figma/build-rocket-b.png';
 import flyer from '../../../assets/space/orange-rocket.png';
 import flagMark from '../../../assets/figma/nav-rocket.svg?raw';
 
-/* "Vector 10" — the designer's curve from the rocket down to the planet (Figma SVG export, 687×742 user units = du).
-   Drawn as a review annotation in green; not rendered, but it IS the flight path for the motion layer. */
+/* Flight path for the motion layer, in a box at (99.4, 3090.8) — coordinates may run above/left of the box (the route starts in the Stats section's planet). Absolute du waypoints: (300,2520) inside the stats planet → (300,2935) → (840,3010) → (885,3430) → (430,3670) → (430,3850) → landing (819,3817). */
 const FLIGHT = { x: 99.4, y: 3090.8, w: 687, h: 742 };
-const FLIGHT_D = 'M-420,-230 C-240,-230 1,-150 1,1 C1.00024 1.46599 1.00024 1.93174 1.3195 35.1855C1.63877 68.4393 2.2773 134.467 3.1734 173.45C4.0695 212.434 5.20383 222.373 9.59119 242.066C13.9785 261.759 21.5846 290.906 29.6758 317.738C44.999 368.552 58.6594 399.786 67.1741 416.283C88.4719 457.548 103.586 484.077 149.96 534.999C170.448 557.496 190.955 574.528 212.898 594.054C236.89 615.403 255.556 625.492 269.026 633.434C296.449 649.603 324.359 665.288 355.937 677.569C376.788 685.678 408.302 695.278 430.832 701.69C453.362 708.101 466.173 710.441 505.047 713.491C543.921 716.541 608.469 720.229 643.804 722.272 C665,723.5 690,726 720,726'; // off-screen lead-in (arrives heading down, like her curve starts) + her curve + a straight horizontal final approach; her arrowhead squiggle trimmed
+const FLIGHT_D = 'M200.6,-570.8 C30.6,-530.8 -9.4,-310.8 200.6,-155.8 C370.6,-95.8 600.6,-102.8 740.6,-80.8 C875.6,-55.8 885.6,209.2 785.6,339.2 C690.6,444.2 460.6,494.2 330.6,579.2 C200.6,649.2 150.6,729.2 330.6,759.2 C500.6,789.2 660.6,741.2 720.0,726.0'; // Bryan's route (2026-08-23): out of the stats planet's left side → above "STARTUPS BACKED BY" → around the right of the logos → under the APPLY pill → loop back → land
 import planet from '../../../assets/figma/build-planet-393.png';
 import ef from '../../../assets/figma/build-logo-ef.svg?raw';
 import collab from '../../../assets/figma/build-logo-collab.svg?raw';

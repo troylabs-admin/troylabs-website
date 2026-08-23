@@ -25,36 +25,18 @@ const y = (v: number) => v - TOP;
 const burst = { w: 1017 / 3, h: 1019 / 3 };
 const burstPad = { x: (burst.w - 315.4) / 2, y: (burst.h - 316) / 2 };
 
-/* 13 majors — rendered as a constellation (decision 2026-08-23: the Figma's glass orbs were placeholders; stars + lines
-   fit the space language). Node centres are the Figma orb centres; `s` = star size class (1 small … 3 large). */
-const majors = [
-  { label: 'Philosophy, Politics & Law', c: [568, 2161], s: 3 },
-  { label: 'Electrical & Computer Engineering', c: [597.5, 2209.5], s: 2 },
-  { label: 'Political Science', c: [685.5, 2156.5], s: 1 },
-  { label: 'Economics', c: [716, 2206], s: 2 },
-  { label: 'Human Development & Aging', c: [777, 2158], s: 2 },
-  { label: 'PR & Advertising', c: [657.5, 2254.5], s: 1 },
-  { label: 'AI for Business', c: [737.5, 2271], s: 1 },
-  { label: 'Communications', c: [811.5, 2274], s: 3 },
-  { label: 'Business Administration', c: [597.5, 2309.5], s: 3 },
-  { label: 'History', c: [734, 2330], s: 1 },
-  { label: 'Arts, Technology & Business', c: [765.5, 2381], s: 3 },
-  { label: 'Design', c: [640.5, 2380.5], s: 1 },
-  { label: 'Computer Science', c: [568, 2404], s: 2 },
-];
-/* constellation edges: a minimum spanning tree over the node centres + a few closing strokes for the figure */
-function mst(pts: number[][]) {
-  const n = pts.length, inT = [0], out: [number, number][] = [];
-  while (inT.length < n) {
-    let best: [number, number, number] = [0, 0, Infinity];
-    for (const a of inT) for (let b = 0; b < n; b++) if (!inT.includes(b)) { const d = Math.hypot(pts[a][0] - pts[b][0], pts[a][1] - pts[b][1]); if (d < best[2]) best = [a, b, d]; }
-    out.push([best[0], best[1]]); inT.push(best[1]);
-  }
-  return out;
-}
-const edges: [number, number][] = [...mst(majors.map((m) => m.c)), [2, 4], [7, 10], [8, 11]];
-/* label placement: side of the node the text sits on (keeps labels clear of the lines) */
-const side: Record<number, 'l' | 'r' | 'b'> = { 0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'l', 6: 'r', 7: 'r', 8: 'l', 9: 'r', 10: 'r', 11: 'r', 12: 'b' };
+/* 13 majors — a constellation in the shape of the TroyLabs rocket mark (decision 2026-08-23; the Figma's glass orbs
+   were placeholders). 13 silhouette points of nav-rocket.svg (26×39 units), traced clockwise from the nose, scaled
+   ×7.6 and placed in the area the orbs occupied. `s` = star size class; `side` = where the label sits (outward). */
+const ROCKET = [[13.3, 0.25], [20.1, 10.6], [22.2, 20.5], [26.0, 33.2], [25.8, 38.7], [17.2, 36.7], [13.1, 34.3], [8.6, 36.5], [0.3, 38.7], [0.1, 33.3], [3.9, 20.8], [6.1, 9.7], [9.6, 4.0]];
+const RX = 625, RY = 2128, RS = 7.6;
+const names = ['Computer Science', 'Business Administration', 'Economics', 'Communications', 'Arts, Technology & Business', 'Design', 'AI for Business', 'History', 'PR & Advertising', 'Political Science', 'Philosophy, Politics & Law', 'Electrical & Computer Engineering', 'Human Development & Aging'];
+const sizes = [3, 2, 3, 3, 2, 1, 2, 1, 2, 2, 3, 3, 2];
+const majors = names.map((label, i) => ({ label, s: sizes[i], c: [RX + ROCKET[i][0] * RS, RY + ROCKET[i][1] * RS] }));
+/* edges: the outline, star to star */
+const edges: [number, number][] = majors.map((_, i) => [i, (i + 1) % majors.length] as [number, number]);
+/* label side: outward from the rocket's axis (x = 13), nose above, base below */
+const side: Record<number, 'l' | 'r' | 't' | 'b' | 'bb'> = { 0: 't', 1: 'r', 2: 'r', 3: 'r', 4: 'r', 5: 'b', 6: 'bb', 7: 'b', 8: 'l', 9: 'l', 10: 'l', 11: 'l', 12: 'l' }; // 'bb' = second row below (the nozzle sits between two base stars)
 
 /* 6 divisions: icon, timeline (dot → line → dot), card.
    Icon placement: the Figma STAR nodes have inner shadows that darken their edges, so the visible shape is
@@ -97,7 +79,7 @@ const stars = [
     {edges.map(([a, b]) => <line data-edge={`${a}-${b}`} x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
     {majors.map((m, i) => {
       const [cx, cy] = [m.c[0], y(m.c[1])]; const r = [0, 2.2, 3, 3.8][m.s];
-      const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : cy + 2.5;
+      const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : side[i] === 'bb' ? cy + r + 36 : side[i] === 't' ? cy - r - 6 : cy + 2.5;
       const anchor = side[i] === 'l' ? 'end' : side[i] === 'r' ? 'start' : 'middle';
       return (
         <g class="node" data-node={i} tabindex="0" role="img" aria-label={m.label} style={`--nx:${cx};--ny:${cy}`}>

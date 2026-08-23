@@ -1,83 +1,119 @@
-# TroyLabs website — contributor rules
+# TroyLabs website — full working context (plug-and-play)
 
-The site is a 1:1 implementation of the designer's Figma file ("Troylabs 2026", page
-"[CURRENT] website redesign"). Fidelity to the design is the primary requirement; every
-section is verified against Figma's own render with `pnpm test:fidelity`.
+Read this before touching anything. It carries the entire project context so a fresh session
+(any Claude account) can continue exactly where the last one left off.
+
+## What this is and how it got here
+USC TroyLabs (student startup accelerator; Bryan Ramirez-Gonzalez, Head of Tech, is the client — direct,
+fast feedback, expects verified work). The site is a **1:1 translation of the designer's Figma**
+("Troylabs 2026" file, key `j8DBdVOGveHEj6OP3JEQwh`, page `[CURRENT] website redesign`, designer
+Ellie Lin-Stevens), built in two phases:
+1. **Fidelity phase** — pixel-faithful implementation of the 4 desktop pages (Home, BUILD, DEMO, IGNITE),
+   verified by diffing against Figma's own renders (see Verification). Deviations are deliberate,
+   logged in `design/README.md`.
+2. **"Alive" phase** — motion layer on top (hero choreography, weighted scroll, canvas sky, planet
+   atmospheres/parallax, scroll-driven rockets, live globe, constellation, page transitions), guided by
+   2026 award-site practice: restraint, compositor-only properties, one hero effect per page.
+
+Deployed: **https://troylabs.vercel.app** (project `troylabs` on Bryan's Vercel; deploy with
+`npx vercel --prod --yes`). GitHub: `bryanrg22/troylabs-website` (private). Commits: plain messages,
+no Co-Authored-By, never mention AI.
 
 ## Stack
-Astro 7 (static), Tailwind v4 (CSS-first, `src/styles/global.css`), TypeScript, React only for
-future interactive islands. `pnpm dev` · `pnpm build` · `pnpm test:fidelity`.
+Astro 7 (static) · Tailwind v4 (CSS-first, `src/styles/global.css`) · TypeScript · Lenis (smooth scroll)
+· Motion's `inView` (reveals) · d3-geo + world-atlas (globe). No GSAP. `pnpm dev` · `pnpm build` ·
+`pnpm test:fidelity`.
 
 ## Design units — the one rule that matters
-The Figma pages are drawn on a **1001 px-wide artboard**. Every number in this codebase is that
-Figma number ("design units", du). The CSS variable `--u` converts du → px and scales the whole
-layout proportionally (1440 px viewport → 1 du = 1.4386 px; body text 12 du → 17 px).
+Figma pages are drawn on a **1001 px-wide artboard**. Every number in the code is that Figma number
+("design units", du). `--u` (set by a head script in BaseLayout from the *unzoomed* window width —
+`outerWidth`, so browser zoom works — capped at `--page-max: 1440px`) converts du → px; `--un` is the
+unitless twin. Never hardcode px; use `u(n)` / `pos(x,y,w,h)` from `src/lib/units.ts`. Numbers come from
+`design/spec/<page>.txt` — never eyeball. `.section` = artboard strip (`--h` in du), children
+`class="abs"` + `pos()` relative to the section top (`y(v) = v - TOP` per component).
+- Text boxes get +0.6 du width slack (Figma ignores trailing letter-spacing when wrapping; Chrome doesn't).
+- Colors via tokens in `global.css` or exact Figma hex with node id comment. Font: Helvetica as drawn
+  (the Style Guide's Clash Grotesk is NOT used by the page frames — decided with Bryan).
+- Type classes `.t-nav .t-body .t-title .t-hero …` encode measured Figma text styles (2-decimal metrics).
 
-- Never hardcode px for layout or type. Use `u(n)`, `pos(x, y, w, h)` from `src/lib/units.ts`,
-  or `calc(N * var(--u))`. Numbers come from `design/spec/<page>.txt` — don't eyeball.
-- A `.section` is a strip of the artboard with its design height (`style="--h:…"`); children are
-  placed with `class="abs"` + `pos()` in coordinates relative to that section's top
-  (`y(v) = v - TOP`). Section bands are listed in `tests/fidelity/visual.spec.ts`.
-- Use flex/grid where the design *is* a list or grid (nav, footer columns, board grid, cards);
-  use absolute placement for art-directed composition (planets, stars, orbit labels). Both are fine;
-  mixing them inside one section is normal.
-- Text boxes get +0.6 du of width slack automatically (Figma ignores trailing letter-spacing when
-  wrapping, Chrome doesn't). If a paragraph still wraps differently from Figma, measure — don't nudge.
-- Colors only via the tokens in `global.css` (`bg-bg`, `text-ink`, `--color-orange` …) or the exact
-  Figma hex for one-off fills, with the node id in a comment. Font is Helvetica (as drawn) via `--font-sans`.
-- Type classes (`.t-nav`, `.t-body`, `.t-title`, `.t-hero` …) encode the measured Figma text styles.
-
-## Assets
-- `src/assets/space/` — designer's master PNGs, optimized by `pnpm assets` (planets, stars, orbs,
-  rockets, wordmark). Exported glyph PNGs include glow halos: size them by the measured body ratio
-  (see `Stars.astro`, `Planet.astro`, `Catalyst.astro`), never by the raw PNG box.
-- `src/assets/figma/` — vectors/renders exported straight from Figma by `pnpm figma:vectors`
-  (wordmark letters, icons, logos, globe, starburst). Add new ones to `scripts/figma-vectors.ts`.
-- `design/figma-images/` — every image fill in the file (photos, logos), keyed by Figma imageRef;
-  `manifest.json` says where each is used. Copy what you need into `src/assets/figma/` with a real name.
-- Never `<img>` the raw masters; always go through Astro's `<Image>`.
-
-## Design source (`design/`)
-`figma.json` (REST dump) → `pnpm figma:spec` → `design/spec/<page>.{json,txt}` (flat node list:
-relative x/y/w/h, text style, fills, effects). `design/reference/<page>@1x.png` are Figma's 1:1
-renders — the fidelity baselines. Re-pull with `pnpm figma:pull` (needs `FIGMA_TOKEN` in `.env`).
-
-## Verification (required before calling anything done)
-`pnpm test:fidelity -g <page>` renders the page at a 1001 px viewport (1 du = 1 px) and diffs it
-against the Figma render. Look at `test-results/fidelity/<page>.diff.png` (red = mismatch). Targets:
-page height must equal the Figma frame height; per-section mismatch ≈ 1–2 % (antialiasing); anything
-≥ 3 % means a real difference — measure it (bounding boxes, computed styles) and fix the cause.
-
-## Structure
+## Layout of the repo
 ```
-src/components/nav/         Nav, Footer (shared by all pages; Figma components)
-src/components/ui/          small reusable pieces (ApplyLink …)
-src/components/space/       illustration layer: Stars, Glow, Planet — the only place animation hooks go later
-src/components/sections/<page>/   one file per design section, Figma node ids in the header comment
-src/content/                data that feeds sections (board.json …)
-src/pages/                  index, build, demo, ignite
+src/pages/                 index, build, demo, ignite (+ pages/lab/members.astro = design lab, unlinked)
+src/components/sections/<page>/   one file per design section, Figma node ids in header comments
+src/components/nav|ui|space/      Nav+Footer · ApplyLink/PillButton · Stars/Glow/Planet (illustration layer)
+src/scripts/               ALL motion JS (see Motion). src/styles/motion.css = all motion CSS.
+src/content/               board.json etc (copy lives here, not in components)
+design/                    spec/<page>.{json,txt} + reference/<page>@1x.png (Figma's 1:1 renders) + README.md
+scripts/                   figma:pull / figma:spec / figma:vectors / assets (all reproducible; FIGMA_TOKEN in .env)
+tests/fidelity/visual.spec.ts     the fidelity suite (see Verification)
 ```
+Figma data path: REST API one-shot dump (Bryan has a View seat; Figma MCP read tools unavailable — don't
+try them, use the scripts). `design/figma.json` + `design/figma-images/` are gitignored — regenerate with
+`pnpm figma:pull`. Raw designer masters (121 MB) live in Google Drive "TL Website Assets"; drop the folder
+at repo root and run `pnpm assets` to regenerate `src/assets/space/`.
 
-## Motion layer (`src/styles/motion.css`, `src/scripts/motion.ts`)
-- The static design is the REST state of every animation; the fidelity test runs with reduced motion and must stay green.
-- Everything is gated on `html.motion` (set in the head only when `prefers-reduced-motion: no-preference`).
-- Compositor-only properties (transform / opacity / offset-distance); scroll-linked motion is native CSS
-  scroll-driven animation (`animation-timeline`), reveals use Motion's `inView` (0.5 kB). No GSAP/Lenis.
-- Scripts (all motion-gated, re-init on `astro:page-load`): `sky.ts` canvas star field + nebula + `--mx/--my` pointer;
-  `scroll.ts` Lenis weighted scroll + `--scroll-v` velocity; `motion.ts` reveals (Motion `inView`); `pointer.ts` cursor light
-  (`--lx/--ly`, never `--x/--y` — those are positions) + magnetic CTAs; `transition.ts` rocket page transitions; `globe.ts`;
-  `bubbles.ts`. Hero choreography and everything else is CSS in `motion.css`.
-- Hooks: `.star` (twinkle), `.planet` (scroll drift) › `.parallax` (mouse depth) › `img.breathe` (breathing),
-  `data-hover="lift|scale"` (tiles + cursor light), `[data-reveal]` is added by JS to below-the-fold units.
-- Gotchas learned the hard way: entrance animations use `fill-mode: backwards` (a `both` fill pins `transform` and kills
-  hover/parallax); IntersectionObserver sees a clip-path-hidden image as zero area → observe its wrapper (`figure`);
-  `:where()` on hidden-state selectors so reveal rules can win.
-- BUILD rocket: `offset-path: url(#build-timeline-path)` inside a 354×1248 px `.flight` box scaled by `--un`
-  (url() paths are raw px, they don't scale with the SVG viewBox). Nose orientation was verified visually.
-- Home flight: `scripts/flight.ts` drives the wordmark rocket per frame (scrub-with-lag: chases a runtime
-  scroll→distance map at 9%/frame — never scroll-locked, so fast scrolling can't teleport it; the wordmark
-  hand-off is a progress-driven crossfade). Don't reintroduce CSS scroll-timeline keyframes for it.
+## Motion system (all gated on `html.motion`, set only when prefers-reduced-motion allows)
+The static design is the REST state of every animation; the fidelity suite runs reduced-motion and must stay green.
+- `sky.ts` canvas star field (3 depth bins, twinkle, mouse `--mx/--my` parallax) + nebula divs; fewer stars on phones.
+- `scroll.ts` Lenis (desktop pointers only) + `--scroll-v` velocity var (written only on change — root var
+  writes trigger full-page style recalc; that was a measured perf bug).
+- `motion.ts` reveal-on-enter: JS marks below-fold units `[data-reveal]`, Motion `inView` adds `.is-in`;
+  stat numbers (`.t-stat`) count up. Art objects opt in via `data-reveal-unit`. Gotchas: IntersectionObserver
+  sees clip-path-hidden elements as zero-area (observe the `figure` wrapper); entrance animations use
+  `fill-mode: backwards` (a `both` fill pins `transform` and kills hover/parallax); `:where()` on
+  hidden-state selectors so reveal rules can win.
+- `flight.ts` **Home's hero effect**: the wordmark's own rocket (exported vector `wordmark-rocket-flat.svg`,
+  filters stripped — SVG filters re-raster every frame) flies a page-long path and lands on the footer mark.
+  Architecture (hard-won, do not regress): cruise is scroll-LOCKED (`p = target`); when target ≥ 0.88 it
+  takes over and lands itself in 1.8 s ease-in-out, scroll-independent (this killed the "ending zoom");
+  heading is slew-limited ≤5°/frame (`offset-rotate: auto` whips at tight curves — that was the invisible
+  "teleport"); wordmark↔flyer hand-off is a progress-driven crossfade over the first 0.25 % of path (never
+  a timed swap); the scroll→distance map is computed at runtime per viewport (45 %-viewport tracking
+  blended 55/45 with arc-length-linear). `overflow-anchor: none` on html — Chrome picked the moving rocket
+  as its scroll anchor (jitter feedback loop with Lenis).
+- `transition.ts` rocket page transitions (launch → cross-fade → re-entry; skipped for same-page nav).
+- `globe.ts` d3 orthographic globe in the designer's line-art style, 30 fps, spins faster with scroll
+  velocity, PNG fallback when motion is off. Every company has an elbow leader line to a rim dot
+  (auto-generated in `Members.astro`).
+- `constellation.ts` "13 majors" = named stars tracing the TroyLabs rocket mark (ghost dashed outline +
+  ~40 minor stars), slow drift, hover lights a star and its connections.
+- `pointer.ts` cursor light on `[data-hover]` tiles (uses `--lx/--ly`; NEVER `--x/--y` — those are the
+  .abs position vars) + magnetic pull on `.pill` / header `.apply`.
+- BUILD page: two CSS scroll-driven rockets — the timeline path (`#build-timeline-path`, inside a raw-px
+  `.flight` box scaled by `--un`; url() offset paths don't scale with viewBox) and the landing rocket that
+  emerges from behind the stats planet (masked by its disc) and plants a waving TroyLabs flag.
 
-## Known placeholders in the design (mirror them, don't invent)
-Executive-board photos are a checkerboard placeholder; BUILD has a "this section tbd?" frame;
-social/portal links have no URLs in Figma. Keep a `TODO(designer)` comment on each.
+## Verification (the discipline that earned trust — do not skip)
+1. **Fidelity**: `pnpm test:fidelity` renders each page at a 1001 px viewport (1 du = 1 px) and pixel-diffs
+   against `design/reference/<page>@1x.png`. Green = heights exact (BUILD has a documented
+   `HEIGHT_OVERRIDES` entry) + mismatch ≈ 1 % (antialiasing). Deliberate deviations are masked via
+   `IGNORE_RECTS` / green-annotation color detection — never by loosening thresholds.
+2. **Motion**: numbers, not vibes. Throwaway Playwright probes (`scripts/_*.mjs`, delete after): full-scroll
+   visibility sweeps (element on screen at every 2–3 % step), three-speed wheel simulations with per-frame
+   velocity profiles (median cruise vs max at ending — the ending must stay ≤ ~3× cruise), crossfade
+   opacity traces, filmstrip screenshot sheets composited with PIL and actually looked at.
+3. Bryan reviews by scrolling like a human at several speeds. If you claim smooth, prove it at slow,
+   medium and fast. If he reports something you can't reproduce, suspect mid-HMR state (he browses
+   localhost while you edit) — verify on a hard reload of the deployed URL before arguing.
+
+## Where things stand (2026-08-23)
+- All four pages fidelity-verified; motion layer complete on Home + BUILD; deployed and shareable.
+- **Open decision — 50 ACTIVE MEMBERS**: the Figma starburst stays for now; five replacement candidates
+  are live at `/lab/members` (orbital cluster · star cluster · exhaust plume · mark formation · counter
+  swarm). Bryan picks. HARD REQUIREMENT from him: the winner must pair visually with the "13 majors"
+  rocket constellation right next to it (same star/dot language, complementary not repetitive). Build the
+  winner into `sections/home/Catalyst.astro`, then delete the lab page.
+- **Not done**: mobile (<768 px) — deliberately last, after desktop sign-off; currently a scaled desktop.
+- Perf is profiled light (idle ~4 %, scrolling ~12 % of one core; sky/globe pause off-screen and when hidden).
+- **Designer (Ellie) owes**: board photos (checkerboard placeholders), DEMO "Notable investors" content,
+  IGNITE feature copy (5× the same placeholder), Threads/Substack/Alumni-portal URLs, BUILD "previous
+  startups" section (placeholder panel removed deliberately), confirmation that Home frame `7028:1508`
+  (the newest — the site follows it) is canonical vs the older people-grid draft.
+- Full deviation log + designer questions: `design/README.md`.
+
+## Working style that works with Bryan
+Verify before claiming done — he checks, and he has been right every time he said something was off.
+When he reports a feel problem, find the *mechanism* (the "ending zoom" was rotation whip + a
+scroll-starved path tail, not "too fast"). Ship small: after each accepted change, `git push` and
+`npx vercel --prod --yes`, then tell him what to look at. When he asks for options, build live candidates
+and let him choose (that's what `/lab/members` is). He forgives bugs, not unverified claims.

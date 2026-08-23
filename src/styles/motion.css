@@ -142,7 +142,7 @@ html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s l
   }
   /* exhaust: a soft glow trailing the flyer whose size follows scroll velocity (--scroll-v from scroll.ts) */
 html.motion .flyer-img { filter: drop-shadow(0 calc(4px + min(26px, abs(var(--scroll-v, 0)) * 1.1px)) calc(3px + min(12px, abs(var(--scroll-v, 0)) * 0.5px)) rgb(255 125 44 / 0.6)); transition: filter 120ms linear; }
-html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range: entry 40% exit 30%; } /* ends well before max scroll on tall viewports too */ /* nose-first: it lands on the planet */
+html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range-start: entry 40%; animation-range-end: 67%; } /* lands while the planet is mid-screen (timeline % measured), not at the page's last pixel */ /* nose-first: it lands on the planet */
 }
 .rocket-flyer { display: none; }
 @keyframes fly { from { offset-distance: 0%; } to { offset-distance: 100%; } }

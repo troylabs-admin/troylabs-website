@@ -18,6 +18,7 @@ function init() {
   const R = SIZE / 2 - 1;
   const svg = host.querySelector('svg')!;
   const landPath = svg.querySelector<SVGPathElement>('[data-land]')!;
+  const glowPath = svg.querySelector<SVGPathElement>('[data-land-glow]')!;
   const gratPath = svg.querySelector<SVGPathElement>('[data-graticule]')!;
 
   const land = feature(land110 as any, (land110 as any).objects.land);
@@ -28,18 +29,22 @@ function init() {
   // Figma's render faces Europe/Africa: longitude −20 in view, tilted slightly north
   const START: [number, number] = [-20, -12];
   const DEG_PER_MS = 360 / 110_000;       // one revolution every ~110 s — barely perceptible, alive
-  const velocity = () => Math.abs(parseFloat(getComputedStyle(root).getPropertyValue('--scroll-v')) || 0); // from scroll.ts
+  const velocity = () => Math.abs(parseFloat(root.style.getPropertyValue('--scroll-v')) || 0); // from scroll.ts (inline var: no style recalc)
 
   let visible = false, raf = 0, last = 0, lon = START[0];
+  let acc = 0;
   const draw = (now: number) => {
+    // 30 fps is plenty for a 110 s rotation; halves the redraw cost
+    if (last && now - acc < 32) { raf = visible ? requestAnimationFrame(draw) : 0; return; }
+    acc = now;
     if (last) lon = (lon + (now - last) * DEG_PER_MS * (1 + Math.min(velocity(), 30) * 0.25)) % 360; // scrolling spins it faster
     last = now;
     projection.rotate([lon, START[1]]);
-    landPath.setAttribute('d', path(land) ?? '');
+    const d = path(land) ?? ''; landPath.setAttribute('d', d); glowPath.setAttribute('d', d);
     gratPath.setAttribute('d', path(graticule) ?? '');
     raf = visible ? requestAnimationFrame(draw) : 0;
   };
-  projection.rotate(START); landPath.setAttribute('d', path(land) ?? ''); gratPath.setAttribute('d', path(graticule) ?? '');
+  projection.rotate(START); landPath.setAttribute('d', path(land) ?? ''); glowPath.setAttribute('d', path(land) ?? ''); gratPath.setAttribute('d', path(graticule) ?? '');
   host.classList.add('is-live');
 
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = 0; if (visible && !raf) raf = requestAnimationFrame(draw); }, { rootMargin: '100px' }).observe(host);

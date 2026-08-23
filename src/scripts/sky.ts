@@ -21,8 +21,9 @@ function init() {
   const rand = mulberry32(7);
   const seed = () => {
     stars = [];
+    const density = W < 768 ? 0.45 : 1;   // phones: fewer stars, same look
     BINS.forEach((b, bin) => {
-      for (let i = 0; i < b.n; i++) stars.push({ x: rand() * W, y: rand() * H, r: b.r[0] + rand() * (b.r[1] - b.r[0]), a: 0.35 + rand() * 0.6, phase: rand() * Math.PI * 2, speed: 0.4 + rand() * 1.4, bin, glyph: bin === 2 && rand() < 0.35 });
+      for (let i = 0; i < Math.round(b.n * density); i++) stars.push({ x: rand() * W, y: rand() * H, r: b.r[0] + rand() * (b.r[1] - b.r[0]), a: 0.35 + rand() * 0.6, phase: rand() * Math.PI * 2, speed: 0.4 + rand() * 1.4, bin, glyph: bin === 2 && rand() < 0.35 });
     });
   };
   const resize = () => {
@@ -34,7 +35,7 @@ function init() {
   resize(); addEventListener('resize', resize);
 
   // pointer, lerped
-  let tx = 0, ty = 0, mx = 0, my = 0;
+  let tx = 0, ty = 0, mx = 0, my = 0, pmx = 0, pmy = 0;
   addEventListener('pointermove', (e) => { tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true });
 
   let visible = !document.hidden, raf = 0, t0 = performance.now();
@@ -43,7 +44,8 @@ function init() {
   function draw(now: number) {
     const t = (now - t0) / 1000;
     mx += (tx - mx) * 0.06; my += (ty - my) * 0.06;
-    root.style.setProperty('--mx', mx.toFixed(4)); root.style.setProperty('--my', my.toFixed(4));
+    // only touch the root vars when the pointer actually moved: every write recalcs styles for the whole page
+    if (Math.abs(mx - pmx) > 0.002 || Math.abs(my - pmy) > 0.002) { pmx = mx; pmy = my; root.style.setProperty('--mx', mx.toFixed(3)); root.style.setProperty('--my', my.toFixed(3)); }
     const sy = scrollY;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#fff';

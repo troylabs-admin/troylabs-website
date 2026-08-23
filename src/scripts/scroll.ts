@@ -13,17 +13,15 @@ const root = document.documentElement;
 function init() {
   if (lenis || !matchMedia('(hover: hover) and (pointer: fine)').matches || !root.classList.contains('motion')) return;
   lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, syncTouch: false });
-  let v = 0;
+  let v = 0, shown = 0, frame = 0;
   lenis.on('scroll', ({ velocity }: { velocity: number }) => { v = velocity; });
   const raf = (t: number) => {
     lenis!.raf(t);
     // plant the BUILD flag when the landing rocket reaches the end of its path
-    const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag');
-    if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5);
+    if ((frame++ & 7) === 0) { const flyer = document.querySelector<HTMLElement>('.flyer-backers'), flag = document.querySelector('.flag'); if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5); }
     // decay toward the live velocity so bursts read as momentum, not jitter
-    const shown = parseFloat(root.style.getPropertyValue('--scroll-v')) || 0;
     const next = shown + (v - shown) * 0.12;
-    root.style.setProperty('--scroll-v', next.toFixed(3));
+    if (Math.abs(next - shown) > 0.01 || (shown !== 0 && Math.abs(next) < 0.01)) { shown = Math.abs(next) < 0.01 ? 0 : next; root.style.setProperty('--scroll-v', shown.toFixed(2)); } // write only while it changes
     v *= 0.9;
     requestAnimationFrame(raf);
   };

@@ -92,7 +92,9 @@ const stars = [
       <circle cx="193.5" cy="193.5" r="192" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="3" filter="url(#globe-rim)" />
       <circle cx="193.5" cy="193.5" r="192" fill="url(#globe-shade)" stroke="#fff" stroke-opacity="0.7" stroke-width="0.6" />
       <path data-graticule fill="none" stroke="#fff" stroke-opacity="0.07" stroke-width="0.4" />
-      <path data-land fill="rgba(255,255,255,0.03)" stroke="#fff" stroke-opacity="0.85" stroke-width="0.9" stroke-linejoin="round" filter="url(#globe-glow)" />
+      <!-- glow = a wider faint stroke under the crisp one (an SVG blur filter here would re-rasterize every frame) -->
+      <path data-land-glow fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="3" stroke-linejoin="round" />
+      <path data-land fill="rgba(255,255,255,0.03)" stroke="#fff" stroke-opacity="0.85" stroke-width="0.9" stroke-linejoin="round" />
     </svg>
   </div>
 

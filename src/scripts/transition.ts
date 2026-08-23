@@ -8,6 +8,7 @@
 const root = document.documentElement;
 let overlay: HTMLImageElement | null = null;
 let lastNav = 0;
+let launched = false;
 
 function rocket(): HTMLImageElement {
   if (overlay) return overlay;
@@ -20,10 +21,13 @@ function rocket(): HTMLImageElement {
 
 document.addEventListener('astro:before-preparation', (e: any) => {
   if (!root.classList.contains('motion') || !e.sourceElement || !(e.sourceElement as Element).closest?.('a')) return;
+  // same page (e.g. the rocket mark while on Home): no launch — the router just refreshes the view
+  const to = new URL(e.to, location.href); if (to.pathname.replace(/\/$/, '') === location.pathname.replace(/\/$/, '')) return;
   const now = performance.now(); const skip = now - lastNav < 1500; lastNav = now;
   if (skip) return;
   const el = rocket();
   const original = e.loader;
+  launched = true;
   e.loader = async () => {
     el.style.opacity = '1';
     const anim = el.animate(
@@ -35,7 +39,8 @@ document.addEventListener('astro:before-preparation', (e: any) => {
 });
 
 document.addEventListener('astro:after-swap', () => {
-  if (!root.classList.contains('motion') || performance.now() - lastNav > 3000) return;
+  if (!root.classList.contains('motion') || performance.now() - lastNav > 3000 || !launched) return;
+  launched = false;
   overlay = null;                       // the old body (and the overlay in it) is gone — rebuild it in the new page
   const el = rocket();
   const anim = el.animate(

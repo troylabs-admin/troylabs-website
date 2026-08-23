@@ -225,8 +225,8 @@ html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
 .home-flight { display: none; z-index: 5; }
 @supports (offset-path: path("M0 0")) {
   html.motion .home-flight { display: block; }
-  html.motion .home-flyer { offset-path: url(#home-flight-path); offset-rotate: auto 90deg; opacity: 0; }
+  html.motion .home-flyer { offset-path: url(#home-flight-path); offset-rotate: 90deg; opacity: 0; }  /* heading is slew-limited in flight.ts */
 }
 /* on touchdown the white footer mark yields to the arrived orange one */
 html.motion footer .mark svg { transition: opacity 400ms ease; }
-html.motion.landed footer .mark svg { opacity: 0; } 100% { transform: scale(0.712); } }
+html.motion.landed footer .mark svg { opacity: 0; }

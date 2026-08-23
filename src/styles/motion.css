@@ -140,11 +140,10 @@ html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s l
   }
   /* exhaust: a soft glow trailing the flyer whose size follows scroll velocity (--scroll-v from scroll.ts) */
 html.motion .flyer-img { filter: drop-shadow(0 calc(4px + min(26px, abs(var(--scroll-v, 0)) * 1.1px)) calc(3px + min(12px, abs(var(--scroll-v, 0)) * 0.5px)) rgb(255 125 44 / 0.6)); transition: filter 120ms linear; }
-html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both, fly-emerge linear both; animation-timeline: --build-backers; animation-range-start: entry 40%; animation-range-end: 67%; } /* lands while the planet is mid-screen (timeline % measured), not at the page's last pixel */ /* nose-first: it lands on the planet */
+html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation: fly linear both; animation-timeline: --build-backers; animation-range-start: entry 40%; animation-range-end: 67%; } /* lands while the planet is mid-screen (timeline % measured), not at the page's last pixel */ /* nose-first: it lands on the planet */
 }
 .rocket-flyer { display: none; }
 @keyframes fly { from { offset-distance: 0%; } to { offset-distance: 100%; } }
-@keyframes fly-emerge { 0%, 4% { opacity: 0; } 9%, 100% { opacity: 1; } } /* the backers rocket is inside the stats planet at the start: fade in as it leaves it */
 
 /* ── hover lift/scale — after the reveal rules so the hover transform wins on revealed units ── */
 @media (hover: hover) and (pointer: fine) {
@@ -202,6 +201,8 @@ html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
 .constellation line { stroke: #fff; stroke-opacity: 0.28; stroke-width: 0.5; transition: stroke-opacity 300ms var(--ease-out-expo); }
 .constellation line.lit { stroke-opacity: 0.9; }
 .constellation .core { fill: #fff; }
+.constellation .figure { fill: rgb(255 255 255 / 0.025); stroke: #fff; stroke-opacity: 0.24; vector-effect: non-scaling-stroke; stroke-width: 0.8px; stroke-dasharray: 2 3; }
+.constellation .minor { fill: #fff; opacity: 0.55; }
 .constellation .halo { fill: #fff; opacity: 0.10; transition: opacity 300ms var(--ease-out-expo); }
 .constellation text { fill: #fff; font-size: 7.5px; letter-spacing: 0.4px; opacity: 0.85; transition: opacity 300ms; }
 .constellation .node { cursor: default; outline: none; }

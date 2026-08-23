@@ -40,6 +40,12 @@ const ROCKET_PATH_D = rocketMark.match(/ d="([^"]+)"/)![1];
 const MINORS = [[21.3,32.8],[19.3,34.7],[17.1,34.3],[17,31.6],[15.7,29.2],[18.4,28.8],[18.7,26.9],[16.1,27.4],[14.3,28.8],[14.5,31.5],[11.4,31.1],[11.6,28.4],[9.4,27.3],[6.7,26.8],[7.9,28.9],[9.9,29.6],[8.7,32],[6.2,34.3],[4.3,33.4],[2.7,35.6],[0,29.8],[0.5,27.1],[1.9,24.8],[4.3,17.4],[4.7,14.7],[5.3,12.1],[7.2,7],[16.1,3.1],[17.7,5.3],[19,7.7],[20.8,12.8],[21.3,15.4],[21.6,18.1],[22.9,23.2],[24.5,25.4],[25.7,27.8],[26,30.5],[25.9,35.9],[22.9,35]];
 /* edges: the outline, star to star */
 const edges: [number, number][] = majors.map((_, i) => [i, (i + 1) % majors.length] as [number, number]);
+/* entrance stagger: ranked by vertical position so the constellation assembles top-to-bottom (nose first,
+   sweeping down to the base) — not in outline order. An edge appears when the sweep reaches its lower star. */
+const rank: number[] = [];
+majors.map((m, i) => [m.c[1], i] as const).sort((a, b) => a[0] - b[0]).forEach(([, i], r) => (rank[i] = r));
+const minorRank: number[] = [];
+MINORS.map((m, i) => [m[1], i] as const).sort((a, b) => a[0] - b[0]).forEach(([, i], r) => (minorRank[i] = r));
 /* label side: outward from the rocket's axis (x = 13), nose above, base below */
 const side: Record<number, 'l' | 'r' | 't' | 'b' | 'bb'> = { 0: 't', 1: 'r', 2: 'r', 3: 'r', 4: 'r', 5: 'b', 6: 'bb', 7: 'b', 8: 'l', 9: 'l', 10: 'l', 11: 'l', 12: 'l' }; // 'bb' = second row below (the nozzle sits between two base stars)
 
@@ -78,18 +84,21 @@ const stars = [
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
   <Image src={starburst} alt="" aria-hidden="true" width={1017} height={1019} data-reveal-unit class="abs pointer-events-none" style={pos(147 - burstPad.x, y(2139) - burstPad.y, burst.w, burst.h)} />
 
-  <!-- 13 majors: constellation (scripts/constellation.ts drifts the stars and brightens links on hover) -->
+  <!-- 13 majors: constellation (scripts/constellation.ts drifts the stars and brightens links on hover).
+       The svg spans the whole section, so the generic reveal would fire off-screen — instead the sentinel
+       marks the artwork's box and constellation.ts assembles the figure when IT scrolls into view. -->
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(645, y(2086), 82, 14)}>13 MAJORS</h3>
-  <svg class="abs constellation" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" data-reveal-unit data-constellation aria-label="Majors represented">
+  <div class="abs pointer-events-none" style={pos(520, y(2060), 400, 400)} data-constellation-sentinel aria-hidden="true" />
+  <svg class="abs constellation" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" data-constellation aria-label="Majors represented">
     <path class="figure" d={ROCKET_PATH_D} transform={`translate(${RX} ${y(RY)}) scale(${RS})`} />
-    {MINORS.map(([mx, my]) => <circle class="minor" cx={RX + mx * RS} cy={y(RY + my * RS)} r="0.9" />)}
-    {edges.map(([a, b]) => <line data-edge={`${a}-${b}`} x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
+    {MINORS.map(([mx, my], mi) => <circle class="minor" style={`--j:${minorRank[mi]}`} cx={RX + mx * RS} cy={y(RY + my * RS)} r="0.9" />)}
+    {edges.map(([a, b]) => <line data-edge={`${a}-${b}`} style={`--i:${Math.max(rank[a], rank[b])}`} x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
     {majors.map((m, i) => {
       const [cx, cy] = [m.c[0], y(m.c[1])]; const r = [0, 2.2, 3, 3.8][m.s];
       const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : side[i] === 'bb' ? cy + r + 46 : side[i] === 't' ? cy - r - 6 : cy + 2.5;
       const anchor = side[i] === 'l' ? 'end' : side[i] === 'r' ? 'start' : 'middle';
       return (
-        <g class="node" data-node={i} tabindex="0" role="img" aria-label={m.label} style={`--nx:${cx};--ny:${cy}`}>
+        <g class="node" data-node={i} tabindex="0" role="img" aria-label={m.label} style={`--nx:${cx};--ny:${cy};--i:${rank[i]}`}>
           <circle class="halo" cx={cx} cy={cy} r={r * 4} />
           <circle class="core" cx={cx} cy={cy} r={r} />
           <text x={tx} y={ty} text-anchor={anchor}>{m.label}</text>

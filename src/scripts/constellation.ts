@@ -22,6 +22,23 @@ function init() {
   });
 
   if (!root.classList.contains('motion')) return;
+
+  // Assemble-on-enter: the svg spans the whole Catalyst section, so the generic reveal in motion.ts would
+  // fire when the section's leading edge crosses — long before the artwork is on screen. The sentinel sits
+  // on the artwork's own box; when IT enters, the figure fades in and the stars pop on around the rocket
+  // outline (CSS in motion.css, staggered by --i).
+  const sentinel = document.querySelector('[data-constellation-sentinel]');
+  if (sentinel) {
+    svg.classList.add('cx-arm');
+    new IntersectionObserver(([e], obs) => {
+      if (!e.isIntersecting) return;
+      svg.classList.add('is-in');
+      obs.disconnect();
+      // drop the staggered entrance transitions once done so hover brightening stays instant
+      setTimeout(() => svg.classList.remove('cx-arm'), 2100);
+    }, { threshold: 0.1 }).observe(sentinel);
+  }
+
   const phase = nodes.map((_, i) => i * 1.7), period = nodes.map((_, i) => 9 + (i * 3.1) % 7);
   let visible = false, raf = 0;
   const tick = (t: number) => {

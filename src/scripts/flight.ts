@@ -7,7 +7,8 @@
  *  • mapping scroll → path distance is computed at runtime for the real viewport (rocket stays ~45% down
  *    the screen, launch eases over the first 6% of scroll, the landing hook resolves by 97%)
  *  • the wordmark's own rocket and the flyer CROSSFADE over the first 2% of flight — no swap moment
- *  • lands (class `landed`) when progress ≥ 99%; scale eases from wordmark size to footer-mark size
+ *  • the timed landing is anchored to the FOOTER: it starts when the footer mark reaches the viewport's
+ *    bottom edge (never earlier) and sets the rocket down exactly on the mark (class `landed` at p ≥ 0.9995)
  */
 const root = document.documentElement;
 
@@ -67,31 +68,44 @@ function init() {
   const flyer = document.querySelector<HTMLElement>('.home-flyer');
   const pathEl = document.querySelector<SVGPathElement>('#home-flight-path');
   const wmRocket = document.querySelector<SVGPathElement>('.wordmark path[fill^="url("]');
-  if (!flyer || !pathEl || flyer.dataset.ready || !root.classList.contains('motion')) return;
+  const mark = document.querySelector<HTMLElement>('footer .mark');
+  if (!flyer || !pathEl || !mark || flyer.dataset.ready || !root.classList.contains('motion')) return;
   flyer.dataset.ready = '1';
 
   let map = buildMap(pathEl);
   const totalLen = () => pathEl.getTotalLength();
-  addEventListener('resize', () => { map = buildMap(pathEl); }, { passive: true });
+  // The footer mark's page-y (px) — the landing is anchored to the FOOTER, not a path fraction.
+  let markPageY = 0;
+  const measure = () => {
+    map = buildMap(pathEl);
+    const r = mark.getBoundingClientRect();
+    markPageY = r.top + scrollY + r.height / 2;
+  };
+  measure();
+  addEventListener('resize', measure, { passive: true });
 
   let p = 0, raf = 0, ang = 90;
-  // Cruise is scroll-LOCKED (p = target — the feel of pure scrub). When the target passes TAKE (the rocket
-  // is above the footer), the rocket takes over and flies itself to the mark in 1.8s (ease-in-out) — the
-  // user never has to drag it in with scroll. Scrolling back above BACK returns control with a short blend.
-  const TAKE = 0.88, BACK = 0.84;
+  // Cruise is scroll-LOCKED (p = target — the feel of pure scrub). The timed landing begins only once the
+  // user has actually brought the footer to the viewport's bottom edge (the "Members Only" column height):
+  // the rocket then flies itself the last few percent of the path onto the mark in 1.8s (ease-in-out), so
+  // the user never has to drag it in with scroll. Scrolling back up past the hysteresis returns control
+  // with a short blend. If the user simply scrolls to the very bottom, scrub alone reaches the dock (t = 1).
   let mode: 'scrub' | 'landing' = 'scrub';
   let landT0 = 0, landP0 = 0, blend = false;
   const tick = (now: number) => {
     const maxScroll = document.documentElement.scrollHeight - innerHeight;
-    const t = Math.min(target(map, maxScroll > 0 ? scrollY / maxScroll : 0), 0.995);
-    if (mode === 'scrub' && t >= TAKE) { mode = 'landing'; landT0 = now; landP0 = p; }
-    else if (mode === 'landing' && t < BACK) { mode = 'scrub'; blend = true; }
+    const t = Math.min(target(map, maxScroll > 0 ? scrollY / maxScroll : 0), 1);
+    const takeY = markPageY - innerHeight * 0.98;   // mark center enters at the viewport's bottom edge
+    const backY = takeY - innerHeight * 0.3;        // hysteresis so the hand-off can't oscillate
+    if (mode === 'scrub' && scrollY >= takeY) { mode = 'landing'; landT0 = now; landP0 = p; }
+    else if (mode === 'landing' && scrollY < backY) { mode = 'scrub'; blend = true; }
     if (mode === 'landing') {
       const q = Math.min(1, (now - landT0) / 1800);
       const e = q < 0.5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
       p = landP0 + (1 - landP0) * e;
     } else if (blend) {
-      p += (t - p) * 0.22;                          // brief ease back into scroll-lock after an aborted landing
+      const d = t - p;
+      p += Math.sign(d) * Math.min(Math.abs(d) * 0.22, 0.004); // capped fly-back: ease into scroll-lock, never lunge
       if (Math.abs(t - p) < 0.002) { p = t; blend = false; }
     } else {
       p = t;                                        // scroll-locked cruise
@@ -100,7 +114,11 @@ function init() {
     // slew-limited heading: offset-rotate:auto snaps around tight curves; chase the tangent at ≤5°/frame
     const Lp = totalLen();
     const a = pathEl.getPointAtLength(Math.max(0, p - 0.004) * Lp), b = pathEl.getPointAtLength(Math.min(1, p + 0.004) * Lp);
-    const want = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI + 90;
+    const raw = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI + 90;
+    // landing flare: the footer mark is vertical, but the backward-looking tangent window still reads the
+    // hook's diagonal at the very end (rests at 20.4°) — straighten to nose-up over the last 2% of the path
+    const flare = Math.min(1, Math.max(0, (p - 0.98) / 0.02));
+    const want = raw * (1 - flare * flare * (3 - 2 * flare));
     const diff = ((want - ang + 540) % 360) - 180;
     ang += Math.sign(diff) * Math.min(Math.abs(diff), 5);
     flyer.style.offsetRotate = `${ang.toFixed(2)}deg`;
@@ -110,7 +128,9 @@ function init() {
     const k = Math.min(1, p / 0.0025);
     flyer.style.opacity = k.toFixed(3);
     if (wmRocket) wmRocket.style.opacity = (1 - k).toFixed(3);
-    root.classList.toggle('landed', p >= 0.995);
+    // the white footer mark yields only once the orange rocket is truly on top of it — at 0.995 the hook
+    // still has ~35 du to run, so hiding the mark there left a visible hole
+    root.classList.toggle('landed', p >= 0.9995);
     raf = requestAnimationFrame(tick);
   };
   raf = requestAnimationFrame(tick);

@@ -62,7 +62,8 @@ const stars = [
     <path id="build-backers-path" d={FLIGHT_D} fill="none" stroke="none" />
   </svg>
   <!-- the flag planted on touchdown (motion only): pole at the landing point, cloth waves gently -->
-  <div class="abs flag pointer-events-none" style={pos(783.9, y(3814.4) - 52, 40, 52)} aria-hidden="true">
+  <!-- rocket rests with its centre at the path end (819, 3817); its tail is ~47 du left of that → pole at x≈772 -->
+  <div class="abs flag pointer-events-none" style={pos(769, y(3822) - 88, 66, 88)} aria-hidden="true">
     <span class="pole"></span>
     <span class="cloth" set:html={flagMark} />
   </div>

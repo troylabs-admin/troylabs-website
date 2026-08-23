@@ -21,7 +21,7 @@ function init() {
     for (const section of sections) {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];
-      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring')) {
+      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring, [data-reveal-unit]')) {
         if (el.closest('[data-figma="Hero"], .no-reveal')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)
@@ -39,8 +39,8 @@ function init() {
         .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
         .forEach((u, i) => {
           u.dataset.reveal = '';
-          u.style.setProperty('--stagger', String(Math.min(i, 6)));
-          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, { amount: 0.15, margin: '0px 0px -15% 0px' }); // fires when the unit is ~15% up from the bottom edge
+          u.style.setProperty('--stagger', String(Math.min(i, 4)));
+          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, { amount: 0.08, margin: '0px 0px -5% 0px' }); // fire early: just past the bottom edge
         });
     }
   }

@@ -76,11 +76,11 @@ const stars = [
 
   <!-- 50 active members -->
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
-  <Image src={starburst} alt="" aria-hidden="true" width={1017} height={1019} class="abs pointer-events-none" style={pos(147 - burstPad.x, y(2139) - burstPad.y, burst.w, burst.h)} />
+  <Image src={starburst} alt="" aria-hidden="true" width={1017} height={1019} data-reveal-unit class="abs pointer-events-none" style={pos(147 - burstPad.x, y(2139) - burstPad.y, burst.w, burst.h)} />
 
   <!-- 13 majors: constellation (scripts/constellation.ts drifts the stars and brightens links on hover) -->
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(645, y(2086), 82, 14)}>13 MAJORS</h3>
-  <svg class="abs constellation" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" data-constellation aria-label="Majors represented">
+  <svg class="abs constellation" style={pos(0, 0, 1001, 1300)} viewBox="0 0 1001 1300" data-reveal-unit data-constellation aria-label="Majors represented">
     <path class="figure" d={ROCKET_PATH_D} transform={`translate(${RX} ${y(RY)}) scale(${RS})`} />
     {MINORS.map(([mx, my]) => <circle class="minor" cx={RX + mx * RS} cy={y(RY + my * RS)} r="0.9" />)}
     {edges.map(([a, b]) => <line data-edge={`${a}-${b}`} x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}

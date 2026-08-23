@@ -61,7 +61,7 @@ html.sky-live body::before { background-image: none; }
 .nebula .n3 { width: 560px; height: 560px; left: 30%; bottom: -18%; background: rgb(255 194 0 / 0.05); }
 
 /* ── base ─────────────────────────────────────────────────────────────────── */
-html { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+html { overflow-anchor: none; /* the scroll-driven rocket must never become Chrome's scroll anchor (causes jitter) */ background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 body { margin: 0; overflow-x: hidden; }
 
 /* The page canvas: exactly the Figma artboard, scaled and centered. Sections stack inside it. */

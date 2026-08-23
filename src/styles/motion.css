@@ -220,17 +220,22 @@ html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
 .constellation .core { filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.9)); }
 
 /* ── Home: the wordmark's rocket flies the page and docks on the footer mark ── */
-.home-flight { display: none; }
+.home-flight { display: none; z-index: 5; }
 @supports (animation-timeline: scroll()) and (offset-path: path("M0 0")) {
   html.motion .home-flight { display: block; }
   html.motion .home-flyer {
     offset-path: url(#home-flight-path);
     offset-rotate: auto 90deg;                       /* nose-first */
-    /* scroll→distance keyframes (generated: scripts note in Flight.astro) keep the rocket at ~45% viewport height */
-    animation: home-fly linear both, home-flight-fade linear both;
+    /* scroll→distance keyframes (generated — see Flight.astro) keep the rocket at ~45% viewport height */
+    animation: home-fly linear both, home-fly-scale linear both;
     animation-timeline: scroll(root), scroll(root);
+    opacity: 0; transition: opacity 250ms ease;
   }
+  /* the hand-off: past the first bit of scroll the flyer is the rocket, and the wordmark's own goes dark */
+  html.motion.flying .home-flyer { opacity: 1; }
+  html.motion.flying .wordmark path[fill^="url("] { opacity: 0; }
+  html.motion .wordmark path[fill^="url("] { transition: opacity 250ms ease; }
 }
-/* hidden while parked in the wordmark, fades in as it lifts, fades out as it docks on the footer mark */
-@keyframes home-flight-fade { 0%, 1% { opacity: 0; } 5%, 96% { opacity: 1; } 99.5%, 100% { opacity: 0; } }
-@keyframes home-fly { 0.4% { offset-distance: 0.0%; } 3.8% { offset-distance: 7.5%; } 7.2% { offset-distance: 10.0%; } 10.6% { offset-distance: 12.5%; } 13.8% { offset-distance: 15.0%; } 16.1% { offset-distance: 17.5%; } 18.1% { offset-distance: 20.0%; } 20.8% { offset-distance: 22.5%; } 23.7% { offset-distance: 25.0%; } 26.0% { offset-distance: 27.5%; } 28.6% { offset-distance: 30.0%; } 31.5% { offset-distance: 32.5%; } 34.8% { offset-distance: 35.0%; } 38.1% { offset-distance: 37.5%; } 40.1% { offset-distance: 40.0%; } 40.9% { offset-distance: 42.5%; } 41.5% { offset-distance: 45.0%; } 42.4% { offset-distance: 47.5%; } 44.5% { offset-distance: 50.0%; } 47.6% { offset-distance: 52.5%; } 50.9% { offset-distance: 55.0%; } 54.3% { offset-distance: 57.5%; } 57.7% { offset-distance: 60.0%; } 61.0% { offset-distance: 62.5%; } 64.2% { offset-distance: 65.0%; } 67.4% { offset-distance: 67.5%; } 70.7% { offset-distance: 70.0%; } 74.0% { offset-distance: 72.5%; } 77.3% { offset-distance: 75.0%; } 80.7% { offset-distance: 77.5%; } 84.1% { offset-distance: 80.0%; } 87.4% { offset-distance: 82.5%; } 90.8% { offset-distance: 85.0%; } 94.1% { offset-distance: 87.5%; } 97.2% { offset-distance: 90.0%; } 99.9% { offset-distance: 92.5%; } 100.0% { offset-distance: 100.0%; } }
+@keyframes home-fly { 0.0% { offset-distance: 0.0%; } 0.7% { offset-distance: 5.0%; } 2.9% { offset-distance: 6.7%; } 5.1% { offset-distance: 8.3%; } 7.4% { offset-distance: 10.0%; } 9.7% { offset-distance: 11.7%; } 11.9% { offset-distance: 13.3%; } 14.0% { offset-distance: 15.0%; } 15.6% { offset-distance: 16.7%; } 16.9% { offset-distance: 18.3%; } 18.3% { offset-distance: 20.0%; } 20.1% { offset-distance: 21.7%; } 22.2% { offset-distance: 23.3%; } 24.0% { offset-distance: 25.0%; } 25.6% { offset-distance: 26.7%; } 27.2% { offset-distance: 28.3%; } 29.0% { offset-distance: 30.0%; } 31.0% { offset-distance: 31.7%; } 33.2% { offset-distance: 33.3%; } 35.4% { offset-distance: 35.0%; } 37.7% { offset-distance: 36.7%; } 39.5% { offset-distance: 38.3%; } 40.3% { offset-distance: 40.0%; } 40.8% { offset-distance: 41.7%; } 41.6% { offset-distance: 45.0%; } 42.3% { offset-distance: 46.7%; } 43.5% { offset-distance: 48.3%; } 45.2% { offset-distance: 50.0%; } 47.4% { offset-distance: 51.7%; } 49.6% { offset-distance: 53.3%; } 51.9% { offset-distance: 55.0%; } 54.2% { offset-distance: 56.7%; } 56.5% { offset-distance: 58.3%; } 58.7% { offset-distance: 60.0%; } 61.0% { offset-distance: 61.7%; } 63.2% { offset-distance: 63.3%; } 65.2% { offset-distance: 65.0%; } 67.5% { offset-distance: 66.7%; } 69.7% { offset-distance: 68.3%; } 71.9% { offset-distance: 70.0%; } 74.1% { offset-distance: 71.7%; } 76.4% { offset-distance: 73.3%; } 78.7% { offset-distance: 75.0%; } 80.9% { offset-distance: 76.7%; } 83.2% { offset-distance: 78.3%; } 85.5% { offset-distance: 80.0%; } 87.8% { offset-distance: 81.7%; } 90.0% { offset-distance: 83.3%; } 92.3% { offset-distance: 85.0%; } 94.5% { offset-distance: 86.7%; } 96.6% { offset-distance: 88.3%; } 98.7% { offset-distance: 90.0%; } 100.0% { offset-distance: 91.7%; } 100.0% { offset-distance: 100.0%; } }
+/* the footer mark is 47×71 vs the wordmark's 66×98: shrink en route so it sets down at the mark's size */
+@keyframes home-fly-scale { 0%, 30% { transform: scale(1); } 100% { transform: scale(0.712); } }

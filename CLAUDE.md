@@ -73,7 +73,10 @@ src/pages/                  index, build, demo, ignite
   hover/parallax); IntersectionObserver sees a clip-path-hidden image as zero area → observe its wrapper (`figure`);
   `:where()` on hidden-state selectors so reveal rules can win.
 - BUILD rocket: `offset-path: url(#build-timeline-path)` inside a 354×1248 px `.flight` box scaled by `--un`
-  (url() paths are raw px, they don't scale with the SVG viewBox). Nose orientation `auto -90deg` was verified visually.
+  (url() paths are raw px, they don't scale with the SVG viewBox). Nose orientation was verified visually.
+- Home flight: `scripts/flight.ts` drives the wordmark rocket per frame (scrub-with-lag: chases a runtime
+  scroll→distance map at 9%/frame — never scroll-locked, so fast scrolling can't teleport it; the wordmark
+  hand-off is a progress-driven crossfade). Don't reintroduce CSS scroll-timeline keyframes for it.
 
 ## Known placeholders in the design (mirror them, don't invent)
 Executive-board photos are a checkerboard placeholder; BUILD has a "this section tbd?" frame;

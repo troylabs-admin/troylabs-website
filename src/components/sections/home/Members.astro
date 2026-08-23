@@ -46,6 +46,7 @@ const leaders = [
 ];
 const dots = [[366, 3438], [338, 3472], [312, 3532], [310, 3617]];
 
+
 /* Company wordmarks (monochrome, currentColor) replace Figma's plain-text names — Bryan's call 2026-08-23, to match
    the vector logos (Google/Anthropic/Sony/Apple) she drew. Each is centred on the original text box; `h` is the
    logo height in du, chosen so the set reads as one family. Sources: Wikimedia Commons SVGs (see design/README.md).
@@ -65,6 +66,20 @@ const marks = [
   { name: 'AWS', svg: aws, key: 'aws', h: 26, box: [489, 3855, 29] },
 ] as const;
 const ASPECT: Record<string, number> = {"kleiner": 9.526, "meta": 4.963, "tesla": 7.671, "estee": 1.669, "aws": 1.67, "disney": 6.605, "ibm": 2.68, "nvidia": 7.022, "vercel": 4.369, "ramp": 3.692};
+/* auto leader lines for every other company: from the logo's globe-facing edge, an orthogonal elbow to a dot
+   on the rim along the direction to the globe's centre (same language as the designer's four hand-drawn ones) */
+const C = [503.5, 3581.5], R = 192;
+const AUTO = marks.map((m) => {
+  const [bx, by, bw] = m.box; const h = 'h' in m ? (m as any).h : 14;
+  const cx = bx + bw / 2, cy = by + h / 2;
+  const horiz = Math.abs(cx - C[0]) > Math.abs(cy - C[1]) * 1.15;
+  const anchor: [number, number] = horiz ? [cx < C[0] ? bx + bw + 8 : bx - 8, cy] : [cx, cy < C[1] ? by + h + 8 : by - 10];
+  const v: [number, number] = [C[0] - anchor[0], C[1] - anchor[1]]; const L = Math.hypot(...v);
+  const dot: [number, number] = [C[0] - (v[0] / L) * (R + 3), C[1] - (v[1] / L) * (R + 3)];
+  const elbow: [number, number] = horiz ? [dot[0], anchor[1]] : [anchor[0], dot[1]];
+  return { pts: [anchor, elbow, dot], dot };
+});
+
 
 const stars = [
   { x: 113, y: 3426, s: 12.7 }, { x: 177.3, y: 3344.7, s: 11.2 }, { x: 66, y: 3223, s: 11 }, { x: 43, y: 3209, s: 5, kind: 'dot' },
@@ -101,6 +116,8 @@ const stars = [
   <svg class="abs pointer-events-none leaders" style={pos(0, 0, 1001, 850)} viewBox="0 0 1001 850" aria-hidden="true">
     {leaders.map((pts) => <polyline points={pts.map(([px, py]) => `${px},${y(py)}`).join(' ')} fill="none" stroke="#fff" stroke-width="0.33" />)}
     {dots.map(([dx, dy]) => <circle cx={dx + 3.5} cy={y(dy) + 3.5} r="3.5" fill="#fff" />)}
+    {AUTO.map((l) => <polyline points={l.pts.map(([px, py]) => `${px},${y(py)}`).join(' ')} fill="none" stroke="#fff" stroke-width="0.33" opacity="0.75" />)}
+    {AUTO.map((l) => <circle cx={l.dot[0]} cy={y(l.dot[1])} r="3.2" fill="#fff" />)}
   </svg>
 
   <ul class="m-0 p-0 list-none" aria-label="Companies our members have worked at">

@@ -21,7 +21,7 @@ function init() {
     for (const section of sections) {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];
-      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring, [data-reveal-unit]')) {
+      for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring, .t-stat, [data-reveal-unit]')) {
         if (el.closest('[data-figma="Hero"], .no-reveal')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)
@@ -46,7 +46,11 @@ function init() {
           // opt-ins also skip the -5% bottom margin: an element sitting in the viewport's bottom band at
           // load (the mission text on tall windows) must fire now, not after a scroll that may never come
           const opts = u.hasAttribute('data-reveal-unit') ? { amount: 0.08 } : { amount: 0.08, margin: '0px 0px -5% 0px' };
-          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, opts);
+          inView(u, () => {
+            u.classList.add('is-in');
+            const stats = u.classList.contains('t-stat') ? [u] : [...u.querySelectorAll<HTMLElement>('.t-stat')];
+            stats.forEach(countUp);
+          }, opts);
         });
     }
   }

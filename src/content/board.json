@@ -4,118 +4,135 @@
     "role": "President",
     "row": 0,
     "col": 1,
-    "photo": "stasia"
+    "photo": "stasia",
+    "linkedin": "https://www.linkedin.com/in/stasia-ramirez/"
   },
   {
     "name": "Charlotte Chang",
     "role": "President",
     "row": 0,
     "col": 2,
-    "photo": "charlotte"
+    "photo": "charlotte",
+    "linkedin": "https://www.linkedin.com/in/charlottetnchang/"
   },
   {
     "name": "Trisha Prasanna",
     "role": "Head of BUILD",
     "row": 1,
     "col": 0,
-    "photo": "trisha"
+    "photo": "trisha",
+    "linkedin": "https://www.linkedin.com/in/trisha-prasanna/"
   },
   {
     "name": "Margaret Luwena",
     "role": "Head of BUILD",
     "row": 1,
     "col": 1,
-    "photo": "margaret"
+    "photo": "margaret",
+    "linkedin": "https://www.linkedin.com/in/margaretluwena/"
   },
   {
     "name": "Pola Malkowska",
     "role": "Head of DEMO",
     "row": 1,
     "col": 2,
-    "photo": "pola"
+    "photo": "pola",
+    "linkedin": "https://www.linkedin.com/in/pola-malkowska-6111453a8/"
   },
   {
     "name": "Mirella Comai",
     "role": "Head of IGNITE",
     "row": 1,
     "col": 3,
-    "photo": "mirella"
+    "photo": "mirella",
+    "linkedin": "https://www.linkedin.com/in/mirella-comai/"
   },
   {
     "name": "Margaux Dambaucher",
     "role": "Head of IGNITE",
     "row": 2,
     "col": 0,
-    "photo": "margaux"
+    "photo": "margaux",
+    "linkedin": "https://www.linkedin.com/in/margaux-dambacher-01301b247/"
   },
   {
     "name": "Vito Zou",
     "role": "Head of Community",
     "row": 2,
     "col": 1,
-    "photo": "vito"
+    "photo": "vito",
+    "linkedin": "https://www.linkedin.com/in/vito-zou/"
   },
   {
     "name": "Andy Kim",
     "role": "Head of Community",
     "row": 2,
     "col": 2,
-    "photo": "andy"
+    "photo": "andy",
+    "linkedin": "https://www.linkedin.com/in/andyakim/"
   },
   {
     "name": "Laila Laduke",
     "role": "Head of Recruitment",
     "row": 2,
     "col": 3,
-    "photo": "laila"
+    "photo": "laila",
+    "linkedin": "https://www.linkedin.com/in/lailaladuke/"
   },
   {
     "name": "Melanie Lee",
     "role": "Head of Recruitment",
     "row": 3,
     "col": 0,
-    "photo": "melanie"
+    "photo": "melanie",
+    "linkedin": "https://www.linkedin.com/in/melanietlee/"
   },
   {
     "name": "Badria Kazim",
     "role": "Head of PM",
     "row": 3,
     "col": 1,
-    "photo": "badria"
+    "photo": "badria",
+    "linkedin": "https://www.linkedin.com/in/bkazim/"
   },
   {
     "name": "Yuki Fu",
     "role": "Head of Finance/VC",
     "row": 3,
     "col": 2,
-    "photo": "yuki"
+    "photo": "yuki",
+    "linkedin": "https://www.linkedin.com/in/yukifu/"
   },
   {
     "name": "Bryan Ramirez-Gonzalez",
     "role": "Head of Tech",
     "row": 3,
     "col": 3,
-    "photo": "bryan"
+    "photo": "bryan",
+    "linkedin": "https://www.linkedin.com/in/bryanrg22/"
   },
   {
     "name": "Ayush Chabra",
     "role": "Head of Marketing",
     "row": 4,
     "col": 0,
-    "photo": "ayush"
+    "photo": "ayush",
+    "linkedin": "https://www.linkedin.com/in/ayush-chhabra0/"
   },
   {
     "name": "Anika Mantripragada",
     "role": "Head of Design",
     "row": 4,
     "col": 1,
-    "photo": "anika"
+    "photo": "anika",
+    "linkedin": "https://www.linkedin.com/in/anikamantri/"
   },
   {
     "name": "Ellie Lin-Stevens",
     "role": "Head of Design",
     "row": 4,
     "col": 2,
-    "photo": "ellie"
+    "photo": "ellie",
+    "linkedin": "https://www.linkedin.com/in/ellie-lin-stevens/"
   }
 ]

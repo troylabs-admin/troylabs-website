@@ -45,14 +45,14 @@ const stars = [
     <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full object-cover" style="height:calc(558 * var(--u))" />
   </figure>
 
-  <ul class="m-0 p-0 list-none" aria-label="DEMO by the numbers">
+  <dl class="m-0">
     {stats.map((s) => (
-      <li>
-        <span class="abs t-stat text-center whitespace-nowrap stat" style={pos(s.num[0], y(s.num[1]), s.num[2], 55)}>{s.value}</span>
-        <span class="abs t-title text-center whitespace-nowrap stat" style={pos(s.lab[0], y(s.lab[1]), s.lab[2], 23)}>{s.label}</span>
-      </li>
+      <div>
+        <dd class="abs m-0 t-stat text-center whitespace-nowrap stat" style={pos(s.num[0], y(s.num[1]), s.num[2], 55)}>{s.value}</dd>
+        <dt class="abs m-0 t-title text-center whitespace-nowrap stat" style={pos(s.lab[0], y(s.lab[1]), s.lab[2], 23)}>{s.label}</dt>
+      </div>
     ))}
-  </ul>
+  </dl>
 </section>
 
 <style>

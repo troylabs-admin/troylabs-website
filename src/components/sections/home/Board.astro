@@ -9,6 +9,7 @@
  * Members & placement come from src/content/board.json (generated from the Figma grid).
  * Photos: real headshots in src/assets/board/ (pnpm assets:board from the raw "E-Board Photos/" folder,
  * keyed by board.json's "photo" field); the checkerboard placeholder remains as the fallback.
+ * Each card is a LinkedIn link (new tab) — URLs live on the member records.
  */
 import { Image } from 'astro:assets';
 import { pos, u } from '../../../lib/units';
@@ -31,13 +32,22 @@ const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
 
   <ul class="m-0 p-0 list-none">
     {board.map((m) => (
-      <li class="abs flex flex-col items-center text-center" data-hover="lift" style={`${pos(COLS[m.col], y(ROWS[m.row]), 148.8)};gap:${u(6.56)}`}>
-        <Image
-          src={photoFor(m.photo) ?? placeholder} alt={m.photo ? m.name : ''} width={256} height={256}
-          class="shrink-0 object-cover" style={`width:${u(145)};height:${u(145)};border-radius:${u(16.4)}`}
-        />
-        <h3 class="m-0 t-name font-normal">{m.name}</h3>
-        <p class="m-0 t-caption italic">{m.role}</p>
+      <li class="abs" data-hover="lift" style={pos(COLS[m.col], y(ROWS[m.row]), 148.8)}>
+        <a
+          href={m.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex flex-col items-center text-center no-underline text-ink"
+          style={`gap:${u(6.56)}`}
+          aria-label={`${m.name}, ${m.role} — LinkedIn`}
+        >
+          <Image
+            src={photoFor(m.photo) ?? placeholder} alt="" width={256} height={256}
+            class="shrink-0 object-cover" style={`width:${u(145)};height:${u(145)};border-radius:${u(16.4)}`}
+          />
+          <h3 class="m-0 t-name font-normal">{m.name}</h3>
+          <p class="m-0 t-caption italic">{m.role}</p>
+        </a>
       </li>
     ))}
   </ul>

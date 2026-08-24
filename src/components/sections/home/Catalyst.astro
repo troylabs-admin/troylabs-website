@@ -8,8 +8,8 @@
  *     block scrolls in (scrubbed view() timeline — scrolling back disperses them); hovering scatters each
  *     along its own vector and it reforms on leave. Layout is baked in
  *     (points sampled once inside the glyph, 900 150px Helvetica on a 300×160 canvas, seed 1, min gap 9)
- *     so the render is deterministic and the formed numeral is the reduced-motion rest state. 100 dots, not
- *     50 — Bryan (2026-08-24, twice): a bigger, denser, legible "50" beats a literal dot-count.
+ *     so the render is deterministic and the formed numeral is the reduced-motion rest state. 200 dots
+ *     (min gap 5.4) so the "50" reads at a glance; scatter / gather are unchanged.
  *   • 13 MAJORS: 15 glass orbs (Ellipse 190…245, grey-orb.png) with labels + 4 connector lines
  *   • 6 DIVISIONS: star icons (Frame 96), dotted timeline lines, six role cards (Frame 97–102)
  */
@@ -28,18 +28,28 @@ import rocketMark from '../../../assets/figma/nav-rocket.svg?raw';
 const TOP = 1900;
 const y = (v: number) => v - TOP;
 
-/* 50 active members — counter swarm. Points are canvas coords (300×160) inside the "50" glyph, mapped into
-   a 440×316 box at x81 (scale ×440/300, numeral centred vertically). Solid white glow dots — the same
-   recipe as the divisions' timeline dots and the constellation cores, so the swarm speaks the site's
-   star/dot language. Seeded rng: sizes, scatter vectors; twinkle phases via the shared .star rule. */
-const SWARM_PTS = [[183,115],[136,78],[118,122],[85,30],[177,127],[216,72],[123,39],[90,108],[98,115],[162,45],[157,68],[205,55],[162,90],[187,37],[120,108],[195,127],[140,95],[130,32],[176,93],[167,54],[168,36],[91,46],[103,134],[200,36],[79,120],[119,132],[108,71],[208,113],[126,67],[81,110],[167,99],[223,48],[87,128],[221,102],[214,63],[86,64],[209,42],[211,89],[93,83],[82,81],[84,39],[174,67],[97,34],[124,80],[113,79],[78,69],[95,66],[133,114],[135,105],[175,107],[211,127],[193,117],[110,128],[118,62],[96,126],[167,76],[164,110],[173,45],[130,126],[108,38],[223,111],[157,104],[178,32],[139,36],[221,88],[78,56],[204,103],[113,28],[219,39],[123,95],[207,77],[71,103],[227,75],[187,132],[199,25],[89,118],[173,116],[224,61],[177,56],[208,29],[129,88],[164,122],[171,85],[157,80],[156,59],[138,27],[188,25],[101,44],[131,44],[107,117],[217,120],[88,73],[100,77],[212,98],[94,56],[202,121],[216,54],[106,62],[72,113],[79,47]];
+/* 50 active members — counter swarm. Points are canvas coords (300×160) inside the "50" glyph
+   (900 150px Helvetica, centered, y=5). Tight bbox mapped to 286 du tall to match the 13-majors
+   rocket figure (~294 du). 16 du pad = hover target. 200 dots, min gap 5.4. Seeded rng: sizes, scatter, twinkle. */
+const GLYPH = { x0: 70, y0: 19, w: 157, h: 110 };
+const SWARM_PAD = 16;
+const SWARM_SCALE = 286 / GLYPH.h;
+const SWARM = {
+  x: 40,
+  y: 2118,
+  w: GLYPH.w * SWARM_SCALE + SWARM_PAD * 2,
+  h: 286 + SWARM_PAD * 2,
+};
+const SWARM_PTS = [[172,88],[199,20],[94,76],[101,126],[176,124],[211,49],[86,101],[77,67],[112,128],[167,69],[162,72],[137,33],[222,64],[171,44],[192,34],[119,27],[83,64],[169,50],[184,37],[88,25],[92,67],[142,83],[125,109],[220,51],[212,38],[129,93],[85,78],[93,105],[203,37],[156,69],[140,106],[92,43],[79,105],[161,56],[211,65],[169,34],[203,101],[88,47],[177,25],[221,87],[76,115],[84,43],[219,100],[81,53],[222,95],[197,122],[210,119],[81,98],[167,119],[162,112],[189,24],[105,115],[136,74],[93,121],[133,99],[122,122],[209,32],[191,125],[123,63],[187,31],[170,56],[126,74],[95,28],[114,110],[84,114],[90,53],[116,117],[206,95],[180,31],[117,74],[208,75],[131,39],[179,108],[86,37],[182,126],[109,57],[218,114],[223,44],[74,109],[118,34],[117,65],[176,77],[177,54],[180,118],[161,89],[103,35],[101,28],[130,24],[211,107],[111,63],[111,34],[132,111],[79,76],[172,105],[217,108],[195,25],[138,89],[217,56],[210,91],[157,60],[96,22],[206,110],[75,100],[165,96],[164,62],[106,22],[173,114],[176,63],[212,85],[216,75],[124,100],[108,124],[208,23],[216,95],[93,115],[202,30],[100,62],[164,78],[190,115],[165,107],[94,37],[164,84],[216,33],[84,123],[127,83],[136,115],[180,43],[203,122],[109,74],[122,21],[86,108],[208,55],[170,25],[225,73],[73,79],[138,24],[162,41],[156,51],[206,82],[125,27],[226,91],[183,25],[132,69],[194,111],[82,33],[93,58],[123,94],[129,104],[78,40],[112,25],[176,37],[121,79],[127,33],[77,59],[81,21],[217,41],[175,93],[157,98],[173,68],[128,123],[163,48],[141,94],[223,56],[106,69],[158,82],[118,127],[77,47],[120,104],[205,46],[227,85],[100,118],[95,128],[133,83],[126,68],[114,39],[173,82],[218,68],[155,76],[90,31],[213,27],[195,129],[177,48],[220,81],[207,69],[97,110],[102,73],[227,61],[82,70],[155,88],[176,99],[169,75],[187,120],[131,118],[131,77],[124,38],[89,62],[183,113],[112,69],[200,112],[85,58]];
 const swarmRng = (() => { let a = 7; return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; })();
 const swarm = SWARM_PTS.map(([px, py], i) => {
-  const d = 2.8 + swarmRng() * 1.8;                        // dot diameter in du (solid, like the divisions' dots)
+  const d = 3.0 + swarmRng() * 2.0;
   return {
-    x: px * (440 / 300) - d / 2, y: 40.6 + py * (440 / 300) - d / 2, d, // numeral spans the 440-wide box; 234.7 tall, centred
-    sx: ((swarmRng() - 0.5) * 260).toFixed(1), sy: ((swarmRng() - 0.5) * 190).toFixed(1), // scatter vector (du)
-    dur: (2.6 + ((i * 7) % 5) * 0.45).toFixed(2),          // twinkle spread, same recipe as Stars.astro
+    x: SWARM_PAD + (px - GLYPH.x0) * SWARM_SCALE - d / 2,
+    y: SWARM_PAD + (py - GLYPH.y0) * SWARM_SCALE - d / 2,
+    d,
+    sx: ((swarmRng() - 0.5) * 340).toFixed(1), sy: ((swarmRng() - 0.5) * 250).toFixed(1),
+    dur: (2.6 + ((i * 7) % 5) * 0.45).toFixed(2),
   };
 });
 
@@ -98,10 +108,10 @@ const stars = [
   </p>
 
   <!-- 50 active members: the counter swarm (hover scatters, motion.css reforms it) -->
-  <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
-  <div class="abs swarm" aria-hidden="true" style={pos(81, y(2139), 440, 316)}>
+  <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(184, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
+  <div class="abs swarm" aria-hidden="true" style={pos(SWARM.x, y(SWARM.y), SWARM.w, SWARM.h)}>
     {swarm.map((d, i) => (
-      <span class="abs swarm-dot" style={`${pos(d.x, d.y, d.d, d.d)};--i:${i};--dur:${d.dur}s;--dim:0.5;--sx:${d.sx};--sy:${d.sy}`}><i class="star" /></span>
+      <span class="abs swarm-dot" style={`${pos(d.x, d.y, d.d, d.d)};--i:${i};--dur:${d.dur}s;--dim:0.78;--sx:${d.sx};--sy:${d.sy}`}><i class="star" /></span>
     ))}
   </div>
 
@@ -152,6 +162,6 @@ const stars = [
 <style>
   .timeline { border-left: calc(1 * var(--u)) solid #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .dot { border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
-  .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
+  .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(8.5 * var(--u)) rgb(255 255 255 / 0.7)); }
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
 </style>

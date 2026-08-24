@@ -19,12 +19,13 @@ const y = (v: number) => v - TOP;
 
 // TODO(designer): every blurb is the same placeholder copy in Figma ("Get matched with a dedicated team…")
 const BLURB = 'Get matched with a dedicated team of 6 members from each of TroyLabs’ different divisions.';
+/* Ellie combined Workshops and Fireside Chats (2026-08-24) — four nodes now, re-spaced to keep the
+   fuse's rhythm even. The Figma still shows the old five; this is ahead of her file. */
 const FEATURES = [
-  { id: '6990:1001', label: 'Workshops',        side: 'l', ny: 800 },
-  { id: '6990:1008', label: 'Fireside Chats',   side: 'r', ny: 950 },
-  { id: '6990:1013', label: 'Exclusive Events', side: 'l', ny: 1100 },
-  { id: '6990:1018', label: 'Community',        side: 'r', ny: 1250 },
-  { id: '6990:1025', label: 'Opportunities',    side: 'l', ny: 1400 },
+  { id: '6990:1001', label: 'Workshops & Fireside Chats', side: 'l', ny: 830 },
+  { id: '6990:1013', label: 'Exclusive Events',           side: 'r', ny: 1010 },
+  { id: '6990:1018', label: 'Community',                  side: 'l', ny: 1190 },
+  { id: '6990:1025', label: 'Opportunities',              side: 'r', ny: 1370 },
 ].map((f) => ({ ...f, text: BLURB, nx: f.side === 'l' ? 460 : 540 }));
 
 /* fuse path in raw px (= du) inside the .flight box — url() offset paths don't scale with viewBox,
@@ -32,13 +33,12 @@ const FEATURES = [
    the spark's passage through each junction smooth. */
 const FUSE_D = [
   'M 500 10',
-  'C 480 25, 460 40, 460 60',    // → Workshops node
-  'C 460 95, 540 175, 540 210',  // → Fireside Chats node
-  'C 540 245, 460 325, 460 360', // → Exclusive Events node
-  'C 460 395, 540 475, 540 510', // → Community node
-  'C 540 545, 460 625, 460 660', // → Opportunities node
-  'C 460 700, 480 720, 490 745', // tail bends back toward centre…
-  'C 500 775, 502 820, 502 880', // …and dives BEHIND the photo strip (photos start at box y801; this
+  'C 480 30, 460 55, 460 90',     // → Workshops & Fireside Chats
+  'C 460 145, 540 215, 540 270',  // → Exclusive Events
+  'C 540 325, 460 395, 460 450',  // → Community
+  'C 460 505, 540 575, 540 630',  // → Opportunities
+  'C 540 690, 500 718, 494 750',  // tail bends back toward centre…
+  'C 500 790, 502 830, 502 890',  // …and dives BEHIND the photo mosaic (it starts at box y 784)
 ].join(' ');                     //  section paints under the next one, so the spark vanishes behind the photos)
 /* branch stubs: node → its card (same dash style as the fuse) */
 const branch = (f: (typeof FEATURES)[number]) =>
@@ -54,7 +54,7 @@ const stars = [
   { x: 860, y: 1300, s: 5.2, kind: 'dot' }, { x: 90, y: 1442, s: 5.2, kind: 'dot' },
 ].map((st) => ({ ...st, y: y(st.y) })) as any;
 
-const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) / 870);
+const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) / 880);
 ---
 
 <section class="section" style="--h:780" data-figma="IgniteFeatures" aria-label="What IGNITE offers">
@@ -79,7 +79,7 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
         <li data-figma={f.id}>
           <span
             class="abs fuse-node pointer-events-none"
-            data-frac={((f.ny - TOP - 10) / 870).toFixed(4)}
+            data-frac={((f.ny - TOP - 10) / 880).toFixed(4)}
             style={`${pos(f.nx - 4.5, y(f.ny) - 4.5, 9, 9)};--ig0:cover ${(t - 6).toFixed(1)}%;--ig1:cover ${t.toFixed(1)}%`}
             aria-hidden="true"
           />
@@ -102,7 +102,7 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
   <ul class="m-0 p-0 list-none m-feat-list">
     {FEATURES.map((f, i) => (
       <li class="m-feat-item">
-        <span class="fuse-node m-node" data-frac={(0.06 + (0.88 * i) / 4).toFixed(3)} aria-hidden="true" />
+        <span class="fuse-node m-node" data-frac={(0.06 + (0.88 * i) / (FEATURES.length - 1)).toFixed(3)} aria-hidden="true" />
         <h3 class="m-0 t-feature font-normal">{f.label}</h3>
         <p class="m-0 t-caption" style="margin-top:6px">{f.text}</p>
       </li>

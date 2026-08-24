@@ -5,11 +5,14 @@
  *   padding 5/12, label 20px/23 ls1.6 centered (.t-title).
  */
 import { pos } from '../../lib/units';
+import { APPLY_HREF } from '../../lib/links';
 interface Props { label: string; href?: string; x: number; y: number; w: number; h: number }
-const { label, href = '/apply', x, y, w, h } = Astro.props;
+const { label, href, x, y, w, h } = Astro.props;
+const dest = href ?? APPLY_HREF;
+const external = /^https?:\/\//.test(dest);
 ---
 
-<a href={href} class="abs pill t-title flex items-center justify-center whitespace-nowrap no-underline text-ink" style={pos(x, y, w, h)}>{label}</a>
+<a href={dest} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} class="abs pill t-title flex items-center justify-center whitespace-nowrap no-underline text-ink" style={pos(x, y, w, h)}>{label}</a>
 
 <style>
   .pill {

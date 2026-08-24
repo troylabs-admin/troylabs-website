@@ -23,7 +23,7 @@ const links = [
 <header class="section z-10" style="--h:79" data-figma="Nav">
   <a href="/" class="abs" style={`${pos(30, 20, 26, 39)};--i:0`} aria-label="TroyLabs home" set:html={rocket} />
 
-  <nav class="abs flex" style={`${pos(299, 32)};gap:${u(50)}`} aria-label="Primary">
+  <nav class="abs flex" style={`${pos(0, 32)};left:50%;transform:translateX(-50%);gap:${u(50)}`} aria-label="Primary">
     {links.map((l, i) => (
       <a href={l.href} class="t-nav glow-text whitespace-nowrap" style={`--i:${i + 1}`} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
     ))}

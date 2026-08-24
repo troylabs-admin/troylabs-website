@@ -40,3 +40,4 @@ design/figma-images/
 dist/
 .vercel
 .env*
+node_modules

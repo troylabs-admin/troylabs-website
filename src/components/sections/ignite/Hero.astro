@@ -28,7 +28,8 @@ const stars = [
   <h1 id="ignite-title" class="abs m-0 t-hero text-center whitespace-nowrap title" style={pos(399, y(253), 205, 63)}>IGNITE</h1>
   <p class="abs m-0 t-tagline text-center whitespace-nowrap tagline" style={pos(269, y(338), 463, 20)}>Your entry point into entrepreneurship.</p>
 
-  <PillButton label="APPLY TO IGNITE" x={393} y={y(412)} w={215.6} h={33.6} />
+  {/* APPLY TO IGNITE pulled (Bryan, 2026-08-24): applications only open with a new cohort. Restore the
+      PillButton here when they reopen — geometry was x 393, y 412, 215.6x33.6 du. */}
 </section>
 
 <!-- mobile -->
@@ -39,7 +40,6 @@ const stars = [
   </div>
   <h1 class="m-0 t-hero m-center title">IGNITE</h1>
   <p class="m-0 t-tagline m-center tagline">Your entry point into entrepreneurship.</p>
-  <a href="/apply" class="pill t-title m-pill no-underline text-ink">APPLY TO IGNITE</a>
 </div>
 
 <style>

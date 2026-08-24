@@ -34,12 +34,12 @@ const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
     {board.map((m) => (
       <li class="abs" data-hover="lift" style={pos(COLS[m.col], y(ROWS[m.row]), 148.8)}>
         <a
-          href={m.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={m.linkedin ?? undefined}
+          target={m.linkedin ? '_blank' : undefined}
+          rel={m.linkedin ? 'noopener noreferrer' : undefined}
           class="flex flex-col items-center text-center no-underline text-ink"
           style={`gap:${u(6.56)}`}
-          aria-label={`${m.name}, ${m.role} — LinkedIn`}
+          aria-label={m.linkedin ? `${m.name}, ${m.role} — LinkedIn` : `${m.name}, ${m.role}`}
         >
           <Image
             src={photoFor(m.photo) ?? placeholder} alt="" width={256} height={256}

@@ -104,10 +104,18 @@
     "linkedin": "https://www.linkedin.com/in/yukifu/"
   },
   {
-    "name": "Bryan Ramirez-Gonzalez",
-    "role": "Head of Tech",
+    "name": "Mandy Guo",
+    "role": "Head of Finance/VC",
     "row": 3,
     "col": 3,
+    "photo": null,
+    "linkedin": null
+  },
+  {
+    "name": "Bryan Ramirez-Gonzalez",
+    "role": "Head of Tech",
+    "row": 4,
+    "col": 0,
     "photo": "bryan",
     "linkedin": "https://www.linkedin.com/in/bryanrg22/"
   },
@@ -115,7 +123,7 @@
     "name": "Ayush Chabra",
     "role": "Head of Marketing",
     "row": 4,
-    "col": 0,
+    "col": 1,
     "photo": "ayush",
     "linkedin": "https://www.linkedin.com/in/ayush-chhabra0/"
   },
@@ -123,7 +131,7 @@
     "name": "Anika Mantripragada",
     "role": "Head of Design",
     "row": 4,
-    "col": 1,
+    "col": 2,
     "photo": "anika",
     "linkedin": "https://www.linkedin.com/in/anikamantri/"
   },
@@ -131,7 +139,7 @@
     "name": "Ellie Lin-Stevens",
     "role": "Head of Design",
     "row": 4,
-    "col": 2,
+    "col": 3,
     "photo": "ellie",
     "linkedin": "https://www.linkedin.com/in/ellie-lin-stevens/"
   }

@@ -1,6 +1,8 @@
 ---
 /**
  * DEMO › Notable investors — Section y 2936–3695 du (2026-08-23 Figma update: content landed).
+ * DEVIATION (Bryan, 2026-08-24): section shortened 130 du — the gap above PAST SPONSORS & PARTNERS read
+ * as a hole. Everything below shifts up with it (sections stack).
  * Figma: title 7033:2259 @404,2936 223×23 · logo frame "Frame 180" (7073:2940) @156,3028 720.1×427:
  * three rows of two white vector logos (exported by scripts/figma-vectors-update.ts).
  */
@@ -34,7 +36,7 @@ const stars = [
 ].map((s) => ({ ...s, y: y(s.y) })) as any;
 ---
 
-<section class="section" style="--h:759" data-figma="DemoInvestors" aria-labelledby="investors-title">
+<section class="section" style="--h:629" data-figma="DemoInvestors" aria-labelledby="investors-title">
   <Stars items={stars} />
   <h2 id="investors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(404, y(2936), 223, 23)}>NOTABLE INVESTORS</h2>
   <ul class="m-0 p-0 list-none" aria-label="Notable investors">

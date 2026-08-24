@@ -24,7 +24,7 @@ const SECTIONS: Record<string, Record<string, [number, number]>> = {
     members: [3200, 4050], board: [4050, 5433], footer: [5433, 5689],
   },
   build: { nav: [0, 79], hero: [79, 600], timeline: [600, 1778], gallery: [1778, 2174], stats: [2174, 2900], backers: [2900, 4000] }, // previous/footer bands dropped: placeholder panel removed (HEIGHT_OVERRIDES)
-  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1919], speakers: [1919, 2936], investors: [2936, 3695], sponsors: [3695, 5315], footer: [5315, 5555] },
+  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1919], speakers: [1919, 2936], investors: [2936, 3565], sponsors: [3565, 5185], footer: [5185, 5425] },
   ignite: { nav: [0, 79], hero: [79, 560], intro: [560, 740], features: [740, 1520], photos: [1520, 1960], speakers: [1960, 3076], footer: [3076, 3332] },
 };
 const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/demo', ignite: '/ignite' };
@@ -33,7 +33,7 @@ const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/dem
 const HEIGHT_OVERRIDES: Record<string, number> = {
   build: 5463 - 1184, // "previous startups" section removed entirely (Bryan, 2026-08-23; see build.astro)
   home: 5839 - 150, // board→footer empty band shrunk 150 du (Bryan, 2026-08-23; see Board.astro)
-  demo: 5705 + 16 - 150, // footer overflow rendered whole (+16) · sponsors→dome gap tightened 150 du (Bryan, 2026-08-24)
+  demo: 5705 + 16 - 150 - 130, // footer overflow whole (+16) · sponsors→dome gap −150 · investors→sponsors gap −130 (Bryan, 2026-08-24)
 };
 
 /** Header link row: HOME added next to BUILD/IGNITE/DEMO (Bryan, 2026-08-24). Rocket + Apply stay put. */
@@ -55,7 +55,9 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
   // DEMO footer: the whole instance sits 15 du right of the canvas in Figma (designer slack) — we render the
   // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
   demo: [NAV_LINKS,
-         [0, 4791, 1001, 780], // sponsors→dome gap tightened 150 du: everything below the last sponsor row is shifted (incl. the off-canvas footer)
+         // PAST SPONSORS & PARTNERS pulled up 130 du (Bryan, 2026-08-24) — everything from that title down
+         // sits above where Figma draws it; VioletX was also replaced by Entrepreneurs First in that wall
+         [0, 3540, 1001, 1900],
          [0, 821, 1001, 526]], // stage media: viewport-width breakout + sky-blend vignette, video-ready (Bryan, 2026-08-24)
   // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
   ignite: [NAV_LINKS,

@@ -4,6 +4,9 @@
  *   row 1 (y 1778): Frame 127 @0 w299 · Frame 131 @301 w200 · Frame 170 @500 w299 · Frame 171 @799 w202
  *   row 2 (y 1976): Frame 175 @0 w202 · Frame 172 @202 w299 · Frame 174 @501 w202 · Frame 173 @702 w299
  * Photos are pre-cropped to each frame's Figma crop (FILL = cover, STRETCH = imageTransform) at 3× du.
+ * FULL BLEED (Bryan, 2026-08-24): the strip breaks out of the 1440-capped artboard to true viewport width
+ * so the photography runs edge to edge on any monitor — the same treatment DEMO's stage reel got. The
+ * mosaic keeps its Figma proportions; only the container widens. On phones it becomes a swipeable strip.
  */
 import { Image } from 'astro:assets';
 import { pos } from '../../../lib/units';
@@ -31,7 +34,7 @@ const photos = [
 ];
 ---
 
-<section class="section" style="--h:396" data-figma="BuildGallery" aria-label="Photos from BUILD">
+<section class="section gal-bleed" style="--h:396" data-figma="BuildGallery" aria-label="Photos from BUILD">
   <ul class="m-0 p-0 list-none">
     {photos.map((p) => (
       <li class="abs overflow-hidden" style={pos(p.box[0], y(p.box[1]), p.box[2], p.box[3])} data-figma={p.id}>
@@ -51,8 +54,19 @@ const photos = [
 </ul>
 
 <style>
+  /* break out of the centred artboard: full viewport width, mosaic scaled to match */
+  .gal-bleed { width: 100vw; margin-left: calc((100% - 100vw) / 2); }
+  .gal-bleed > ul { position: absolute; inset: 0; transform-origin: 0 0; transform: scale(calc(100vw / (1001 * var(--u)))); width: calc(1001 * var(--u)); height: 100%; }
   @media (max-width: 767px) {
-    .m-gal { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-    .m-gal-cell { aspect-ratio: 3 / 2; overflow: hidden; }
+    /* a swipeable strip: phones get the gallery as horizontal overflow with snap points, so all eight
+       photos stay full-height instead of shrinking into a tiny grid (Bryan, 2026-08-24) */
+    .m-gal {
+      display: grid; grid-auto-flow: column; grid-auto-columns: 74vw; gap: 6px;
+      overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+      padding-inline: 16px; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .m-gal::-webkit-scrollbar { display: none; }
+    .m-gal-cell { aspect-ratio: 3 / 2; overflow: hidden; border-radius: 10px; scroll-snap-align: center; }
   }
 </style>

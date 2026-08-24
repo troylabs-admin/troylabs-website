@@ -137,6 +137,11 @@ const stars = [
     // the muted CONTENT attribute only sets a default — after a ClientRouter swap engines can create the
     // element un-muted while still reporting muted (Bryan heard sound on first /demo visit). Force it.
     video.muted = true; video.defaultMuted = true;
+    // iOS Safari: with preload="none", a video created by a ClientRouter DOM swap never fetches its poster
+    // or first frame (it only does that at initial document parse), and the IO's play() can be deferred
+    // until a gesture — so after tapping to /demo the reel area stayed blank until a refresh re-parsed it.
+    // load() forces the fetch on every wiring; harmless no-op on desktop and on first load.
+    video.load();
     const btn = wrap.querySelector<HTMLButtonElement>('.sound');
     if (!document.documentElement.classList.contains('motion')) { btn?.remove(); return; }
     new IntersectionObserver(([e]) => { if (e.isIntersecting) video.play().catch(() => {}); else video.pause(); }, { threshold: 0.25 }).observe(wrap);

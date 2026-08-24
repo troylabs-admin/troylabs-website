@@ -1,6 +1,0 @@
-COMPONENT_SET 7033:2221    "APPLY TO TROYLABS"                        @0,0 180×88
-  COMPONENT 7033:2217    "Property 1=Default"                       @20,20 140×14
-    TEXT      7028:1527    "APPLY TO TROYLABS"                        @20,20 140×14  12px/13.8 w400 ls0.96 CENTER  "APPLY TO TROYLABS"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-  COMPONENT 7033:2222    "Property 1=Variant2"                      @20,54 140×14 fx:DROP_SHADOW12.300000190734863,DROP_SHADOW4
-    STAR      7033:2229    "Star 4"                                   @113,21 80.6×80.6  fill:#1a1a1a@0 fx:INNER_SHADOW8.05952262878418,DROP_SHADOW13.499700546264648
-    TEXT      7033:2223    "APPLY TO TROYLABS"                        @20,54 140×14  12px/13.8 w400 ls0.96 CENTER  "APPLY TO TROYLABS"  fill:gradient_linear fx:DROP_SHADOW6.400000095367432

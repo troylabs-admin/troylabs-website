@@ -1,4 +1,0 @@
-GROUP     7012:129     "Playbook Bubble"                          @0,0 488.1×487
-  ELLIPSE   7012:130     "Ellipse 14"                               @0,0 488.1×487  fill:image fx:DROP_SHADOW131.05313110351562,INNER_SHADOW27.302734375
-  TEXT      7012:131     "acquired by $12M design studio"           @39,228 411×104  45px/51.75 w700 ls-0.9 CENTER  "acquired by $12M design studio"  fill:#ffffff fx:DROP_SHADOW360,INNER_SHADOW75
-  RECTANGLE 7012:132     "YPsxj5nu3p3EqWtedzgCh2BGzo 2"             @128.9,158.9 229.8×47.8  fill:image

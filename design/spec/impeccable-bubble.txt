@@ -1,4 +1,0 @@
-GROUP     7012:133     "Impeccable Bubble"                        @0,0 488.1×487
-  ELLIPSE   7012:134     "Ellipse 15"                               @0,0 488.1×487  fill:image fx:DROP_SHADOW131.05313110351562,INNER_SHADOW27.302734375
-  TEXT      7012:135     "shark tank s17, 7-fig revenue in <1 yea   @22.9,228.2 441×104  45px/51.75 w700 ls-0.9 CENTER  "shark tank s17, 7-fig revenue in <1 year"  fill:#ffffff fx:DROP_SHADOW360,INNER_SHADOW75
-  RECTANGLE 7012:136     "logo_final 1"                             @118.9,153.9 250.8×44.3  fill:image

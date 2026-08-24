@@ -36,22 +36,32 @@
      sections — inside a short .m-art wrapper it slides the planet over neighbouring content */
   .m-art .planet { animation: none !important; }
 
-  /* ── mobile type scale (same class names as the artboard, fixed sizes) ── */
-  .m .t-hero { font-size: 44px; line-height: 50px; letter-spacing: 4px; }
-  .m .t-title, .m .t-title-tight { font-size: 16px; line-height: 20px; letter-spacing: 1.6px; }
-  .m .t-sub { font-size: 14px; line-height: 18px; letter-spacing: 1px; }
-  .m .t-tagline { font-size: 13px; line-height: 19px; letter-spacing: 0.8px; }
-  .m .t-body { font-size: 13px; line-height: 21px; letter-spacing: 0.5px; }
-  .m .t-caption { font-size: 12px; line-height: 17px; letter-spacing: 0.35px; }
-  .m .t-nav { font-size: 11px; line-height: 14px; letter-spacing: 1px; }
-  .m .t-label { font-size: 11px; line-height: 13px; letter-spacing: 1.4px; }
-  .m .t-name { font-size: 13px; line-height: 16px; letter-spacing: 0.4px; }
-  .m .t-stat { font-size: 34px; line-height: 38px; letter-spacing: 2.6px; }
-  .m .t-feature { font-size: 15px; line-height: 18px; letter-spacing: 0.5px; }
-  .m .t-fine { font-size: 9px; line-height: 12px; letter-spacing: 0.5px; }
+  /* ── mobile type scale ────────────────────────────────────────────────────────────────────────────
+     Art direction, not reduction (Val Head's rule for responsive motion applies to type too): a phone
+     held at arm's length wants FEWER, BIGGER things — so headings step UP relative to the artboard's
+     ratios while body copy stays comfortable, and everything gets more air. Sizes are clamped against
+     viewport width so a 320 px phone and a 430 px phone both read correctly. */
+  .m .t-hero { font-size: clamp(46px, 14.5vw, 62px); line-height: 1.06; letter-spacing: 0.09em; }
+  .m .t-title, .m .t-title-tight { font-size: clamp(19px, 5.4vw, 23px); line-height: 1.28; letter-spacing: 0.1em; }
+  .m .t-sub { font-size: 16px; line-height: 22px; letter-spacing: 1px; }
+  .m .t-tagline { font-size: clamp(14px, 4vw, 17px); line-height: 1.5; letter-spacing: 0.045em; }
+  .m .t-body { font-size: 14.5px; line-height: 24px; letter-spacing: 0.4px; }
+  .m .t-caption { font-size: 13.5px; line-height: 21px; letter-spacing: 0.3px; }
+  .m .t-nav { font-size: 12px; line-height: 15px; letter-spacing: 1.1px; }
+  .m .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
+  .m .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
+  .m .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }
+  .m .t-feature { font-size: 17px; line-height: 21px; letter-spacing: 0.4px; }
+  .m .t-fine { font-size: 10px; line-height: 14px; letter-spacing: 0.5px; }
 
   /* ── layout primitives ── */
-  .m-pad { padding-inline: 22px; }
+  .m-pad { padding-inline: 24px; }
+  /* breathing room: every mobile block gets a generous rhythm so sections read as separate scenes
+     rather than a continuous column of text (the desktop artboard buys this with whitespace we don't
+     have; on a phone it has to be bought with vertical pacing) */
+  main .m + .m { margin-top: clamp(26px, 8vw, 44px); }
+  .m h2, .m h3 { text-wrap: balance; }
+  .m p { text-wrap: pretty; }
   .m-center { text-align: center; }
   .m-stack { display: flex; flex-direction: column; align-items: center; }
   .m-art { position: relative; margin-inline: auto; }
@@ -68,6 +78,12 @@
   }
 
   /* zero-g / hover glows carry over; hover-only affordances are inert on touch, which is fine */
+
+  /* ── the cold-idle rule ───────────────────────────────────────────────────────────────────────────
+     Nothing animates in a block you cannot see. scripts/mobile.ts adds .awake to blocks within one
+     screen of the viewport; everything else is paused, not merely off-screen. Paused animations cost
+     nothing to composite, so the GPU idles between sections instead of running the whole page at once. */
+  .m:not(.awake) *, .m:not(.awake) { animation-play-state: paused !important; }
 }
 
 /* ── mobile motion: the BUILD rail rocket rides the timeline as it scrolls. The timeline must be NAMED

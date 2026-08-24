@@ -24,6 +24,25 @@ function apply() {
     if (ah) el.style.height = `${Math.round(ah * u)}px`;
   }
 }
+/**
+ * Wake-on-approach: only the mobile blocks near the viewport are allowed to animate. WebKit's own power
+ * guidance is to run animations only while visible (and to prefer declarative animations the engine can
+ * optimise away) — on a page carrying hundreds of twinkling dots, floating logos and breathing planets
+ * that is the difference between a warm phone and a cool one. `.awake` gates animation-play-state in
+ * mobile.css; the rootMargin wakes a block one screen early so nothing is ever caught mid-fade.
+ */
+function wake() {
+  if (!matchMedia('(max-width: 767px)').matches) return;
+  const blocks = document.querySelectorAll<HTMLElement>('main .m');
+  if (!blocks.length || (blocks[0] as any)._wake) return;
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.target.classList.toggle('awake', e.isIntersecting)),
+    { rootMargin: '100% 0px' },
+  );
+  blocks.forEach((b) => { (b as any)._wake = 1; io.observe(b); });
+}
+
 apply();
+wake();
 addEventListener('resize', apply);
-document.addEventListener('astro:page-load', apply);
+document.addEventListener('astro:page-load', () => { apply(); wake(); });

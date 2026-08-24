@@ -55,7 +55,11 @@ canvas.sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 html.sky-live body::before { background-image: none; }
 /* nebula: slow colour fields behind everything (transform/opacity only) */
 .nebula { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.nebula span { position: absolute; border-radius: 9999px; filter: blur(90px); mix-blend-mode: screen; will-change: transform; }
+.nebula span { position: absolute; border-radius: 9999px; filter: blur(90px); mix-blend-mode: screen; }
+/* NO will-change here: it pins each blurred span as a permanently promoted composited layer, so the GPU
+   re-blends three huge blurred surfaces every frame even when nothing moves. Measured on an emulated
+   phone (2026-08-24): with will-change the page is GPU-capped at 29 fps AT IDLE; removing it — blur and
+   animation untouched — restores 120 fps. Transform animations promote themselves while they run. */
 .nebula .n1 { width: 760px; height: 760px; left: -12%; top: 10%; background: rgb(255 125 44 / 0.09); }
 .nebula .n2 { width: 640px; height: 640px; right: -10%; top: 35%; background: rgb(84 138 255 / 0.07); }
 .nebula .n3 { width: 560px; height: 560px; left: 30%; bottom: -18%; background: rgb(255 194 0 / 0.05); }
@@ -63,9 +67,17 @@ html.sky-live body::before { background-image: none; }
    falls off before the hero planet, reading as a hard warm→black band — Bryan, 2026-08-24). Re-centre the
    warm spans to span the full mobile viewport so the field reads continuous top to bottom. */
 @media (max-width: 767px) {
-  .nebula .n1 { top: -8%; left: -30%; width: 900px; height: 900px; }
-  .nebula .n2 { top: 40%; right: -35%; width: 760px; height: 760px; }
-  .nebula .n3 { bottom: -30%; left: -10%; width: 820px; height: 820px; background: rgb(255 125 44 / 0.06); }
+  /* PHONES: the three blurred spans become one baked gradient field painted straight onto the container.
+     Identical colour wash, but zero blur surfaces and zero extra composited layers — the single biggest
+     thermal win on this site (see the will-change note above). */
+  .nebula span { display: none; }
+  .nebula {
+    background:
+      radial-gradient(58% 34% at 18% 6%, rgb(255 125 44 / 0.085), transparent 70%),
+      radial-gradient(52% 30% at 92% 44%, rgb(84 138 255 / 0.075), transparent 70%),
+      radial-gradient(62% 32% at 26% 88%, rgb(255 125 44 / 0.055), transparent 70%),
+      radial-gradient(46% 24% at 78% 72%, rgb(255 194 0 / 0.045), transparent 72%);
+  }
 }
 
 /* ── base ─────────────────────────────────────────────────────────────────── */

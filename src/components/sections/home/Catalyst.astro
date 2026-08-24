@@ -170,7 +170,7 @@ const stars = [
   <h3 class="m-0 t-label m-center font-normal" style="margin-top:40px">50 ACTIVE MEMBERS</h3>
   <div class="m-art" data-aw={SWARM.w} data-ah={SWARM.h} style="width:92%;margin-top:6px">
     <div class="swarm" aria-hidden="true" style="position:absolute;inset:0">
-      {swarm.map((d, i) => (
+      {swarm.filter((_, i) => i % 2 === 0).map((d, i) => (
         <span class="abs swarm-dot" style={`${pos(d.x, d.y, d.d, d.d)};--i:${i};--dur:${d.dur}s;--dim:0.5;--sx:${d.sx};--sy:${d.sy}`}><i class="star" /></span>
       ))}
     </div>

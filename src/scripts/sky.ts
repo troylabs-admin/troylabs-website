@@ -24,13 +24,13 @@ function init() {
   const rand = mulberry32(7);
   const seed = () => {
     stars = [];
-    const density = W < 768 ? 0.45 : 1;   // phones: fewer stars, same look
+    const density = W < 768 ? 0.34 : 1;   // phones: fewer stars, same look
     BINS.forEach((b, bin) => {
       for (let i = 0; i < Math.round(b.n * density); i++) stars.push({ x: rand() * W, y: rand() * H, r: b.r[0] + rand() * (b.r[1] - b.r[0]), a: 0.35 + rand() * 0.6, phase: rand() * Math.PI * 2, speed: 0.4 + rand() * 1.4, bin, glyph: bin === 2 && rand() < 0.35 });
     });
   };
   const resize = () => {
-    dpr = Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1.5 : 2); W = innerWidth; H = innerHeight; // phones: 1.5 keeps them cool; the star glows read identically
+    dpr = Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1.25 : 2); W = innerWidth; H = innerHeight; // phones: fewer device pixels per frame
     canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (!stars.length) seed();
@@ -54,7 +54,13 @@ function init() {
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
 
+  // phones render the sky at 30 fps: half the GPU wake-ups for a field that drifts at 1-5 px/s — the
+  // motion is indistinguishable, the thermal saving is not (WebKit: coalesce work into fewer wake-ups).
+  const HALF = matchMedia('(max-width: 767px)').matches;
+  let odd = false;
+
   function draw(now: number) {
+    if (HALF && (odd = !odd)) { raf = visible ? requestAnimationFrame(draw) : 0; return; }
     const t = (now - t0) / 1000;
     mx += (tx - mx) * 0.06; my += (ty - my) * 0.06;
     // only touch the root vars when the pointer actually moved: every write recalcs styles for the whole page
@@ -68,7 +74,7 @@ function init() {
       const y = wrap(s.y - sy * b.sy - my * b.px, H);
       const tw = 0.75 + 0.25 * Math.sin(t * s.speed + s.phase);
       ctx.globalAlpha = s.a * tw;
-      if (s.glyph) {
+      if (s.glyph && !HALF) {
         // the designer's "*" glyph: three thin strokes
         ctx.save(); ctx.translate(x, y); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.9; ctx.lineCap = 'round';
         for (let k = 0; k < 3; k++) { ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(-s.r * 2.2, 0); ctx.lineTo(s.r * 2.2, 0); ctx.stroke(); }

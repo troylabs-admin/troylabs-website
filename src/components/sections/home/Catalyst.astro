@@ -110,10 +110,10 @@ const stars = [
   <!-- 6 divisions -->
   <h3 class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(422, y(2537), 124, 23)}>6 DIVISIONS</h3>
   <ul class="m-0 p-0 list-none">
-    {divisions.map((d) => {
+    {divisions.map((d, i) => {
       const [bx, by, bw, bh] = d.box; const pw = bw / d.body, ph = bh / d.body;
       return (
-        <li data-division={d.name}>
+        <li data-division={d.name} style={`--i:${i}`}>
           <Image src={d.icon} alt="" aria-hidden="true" width={300} height={300} class="abs pointer-events-none" style={pos(bx - (pw - bw) / 2, y(by) - (ph - bh) / 2, pw, ph)} />
           <span class="abs timeline" style={pos(d.line[0], y(d.line[1]), 0, d.line[2])} aria-hidden="true" />
           {d.dots.map(([dx, dy]) => <span class="abs dot" style={pos(dx, y(dy), 9, 9)} aria-hidden="true" />)}

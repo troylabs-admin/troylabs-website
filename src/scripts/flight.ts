@@ -91,8 +91,10 @@ function init() {
   // the user never has to drag it in with scroll. Scrolling back up past the hysteresis returns control
   // with a short blend. If the user simply scrolls to the very bottom, scrub alone reaches the dock (t = 1).
   let mode: 'scrub' | 'landing' = 'scrub';
-  let landT0 = 0, landP0 = 0, blend = false;
+  let landT0 = 0, landP0 = 0, blend = false, lastNow = 0;
   const tick = (now: number) => {
+    const dt = Math.min(100, Math.max(0, now - (lastNow || now)));
+    lastNow = now;
     const maxScroll = document.documentElement.scrollHeight - innerHeight;
     const t = Math.min(target(map, maxScroll > 0 ? scrollY / maxScroll : 0), 1);
     const takeY = markPageY - innerHeight * 0.98;   // mark center enters at the viewport's bottom edge
@@ -104,8 +106,10 @@ function init() {
       const e = q < 0.5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
       p = landP0 + (1 - landP0) * e;
     } else if (blend) {
-      const d = t - p;
-      p += Math.sign(d) * Math.min(Math.abs(d) * 0.22, 0.004); // capped fly-back: ease into scroll-lock, never lunge
+      // exponential re-lock (frame-rate independent, ~120ms time constant): after an aborted landing the
+      // rocket peels off the mark and rides back WITH the scroll — a distance cap here once made the trip
+      // home take ~4 s and left the wordmark without its rocket meanwhile
+      p += (t - p) * (1 - Math.exp(-dt / 120));
       if (Math.abs(t - p) < 0.002) { p = t; blend = false; }
     } else {
       p = t;                                        // scroll-locked cruise

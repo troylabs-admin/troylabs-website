@@ -35,12 +35,18 @@ function init() {
         units.push(unit);
       }
       units
-        .filter((u) => u.getBoundingClientRect().top > innerHeight)
+        // explicit opt-ins (data-reveal-unit) arm even above the fold — inView fires immediately there,
+        // so they get a load-time entrance instead of never animating (the mission paragraph sits ~935px,
+        // right at the fold: on tall windows the fold filter used to skip it entirely)
+        .filter((u) => u.hasAttribute('data-reveal-unit') || u.getBoundingClientRect().top > innerHeight)
         .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
         .forEach((u, i) => {
           u.dataset.reveal = '';
           u.style.setProperty('--stagger', String(Math.min(i, 4)));
-          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, { amount: 0.08, margin: '0px 0px -5% 0px' }); // fire early: just past the bottom edge
+          // opt-ins also skip the -5% bottom margin: an element sitting in the viewport's bottom band at
+          // load (the mission text on tall windows) must fire now, not after a scroll that may never come
+          const opts = u.hasAttribute('data-reveal-unit') ? { amount: 0.08 } : { amount: 0.08, margin: '0px 0px -5% 0px' };
+          inView(u, () => { u.classList.add('is-in'); if (u.classList.contains('t-stat')) countUp(u); }, opts);
         });
     }
   }

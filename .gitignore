@@ -39,3 +39,4 @@ design/figma.json
 design/figma-images/
 dist/
 .vercel
+.env*

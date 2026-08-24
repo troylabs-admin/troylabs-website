@@ -24,7 +24,7 @@ function init() {
   const rand = mulberry32(7);
   const seed = () => {
     stars = [];
-    const density = W < 768 ? 0.34 : 1;   // phones: fewer stars, same look
+    const density = W < 768 ? 0.4 : 1;    // phones: fewer stars, same look
     BINS.forEach((b, bin) => {
       for (let i = 0; i < Math.round(b.n * density); i++) stars.push({ x: rand() * W, y: rand() * H, r: b.r[0] + rand() * (b.r[1] - b.r[0]), a: 0.35 + rand() * 0.6, phase: rand() * Math.PI * 2, speed: 0.4 + rand() * 1.4, bin, glyph: bin === 2 && rand() < 0.35 });
     });
@@ -54,13 +54,11 @@ function init() {
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
 
-  // phones render the sky at 30 fps: half the GPU wake-ups for a field that drifts at 1-5 px/s — the
-  // motion is indistinguishable, the thermal saving is not (WebKit: coalesce work into fewer wake-ups).
-  const HALF = matchMedia('(max-width: 767px)').matches;
-  let odd = false;
+  // NO frame-skipping on phones: iOS already throttles rAF to 30 fps in Low Power Mode, and a skip on
+  // top of that reads as a frozen sky (Bryan, 2026-08-24). The phone savings come from DPR and density.
+  const HALF = matchMedia('(max-width: 767px)').matches; // still used to simplify the glyph stars
 
   function draw(now: number) {
-    if (HALF && (odd = !odd)) { raf = visible ? requestAnimationFrame(draw) : 0; return; }
     const t = (now - t0) / 1000;
     mx += (tx - mx) * 0.06; my += (ty - my) * 0.06;
     // only touch the root vars when the pointer actually moved: every write recalcs styles for the whole page

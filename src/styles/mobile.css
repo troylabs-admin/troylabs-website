@@ -80,10 +80,13 @@
   /* zero-g / hover glows carry over; hover-only affordances are inert on touch, which is fine */
 
   /* ── the cold-idle rule ───────────────────────────────────────────────────────────────────────────
-     Nothing animates in a block you cannot see. scripts/mobile.ts adds .awake to blocks within one
-     screen of the viewport; everything else is paused, not merely off-screen. Paused animations cost
-     nothing to composite, so the GPU idles between sections instead of running the whole page at once. */
-  .m:not(.awake) *, .m:not(.awake) { animation-play-state: paused !important; }
+     Ambient LOOPS pause in blocks you cannot see (scripts/mobile.ts adds .awake within one screen).
+     Scoped to the infinite loops only — twinkles, zero-g drift, planet breathing, atmospheres, the
+     swarm — NEVER to entrance/reveal animations: a paused entrance freezes content invisible, and the
+     pause/resume at screen edges is visible stutter. Loops resume mid-phase, which no one can see. */
+  .m:not(.awake) :is(.star, .zg, .breathe, .atmo, .swarm-dot, .swarm-dot i, .fuse-node, .m-node) {
+    animation-play-state: paused !important;
+  }
 }
 
 /* ── mobile motion: the BUILD rail rocket rides the timeline as it scrolls. The timeline must be NAMED

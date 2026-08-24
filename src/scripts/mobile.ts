@@ -33,7 +33,7 @@ function apply() {
  */
 function wake() {
   if (!matchMedia('(max-width: 767px)').matches) return;
-  const blocks = document.querySelectorAll<HTMLElement>('main .m');
+  const blocks = document.querySelectorAll<HTMLElement>('.m'); // ALL mobile blocks — nav and footer included
   if (!blocks.length || (blocks[0] as any)._wake) return;
   const io = new IntersectionObserver(
     (entries) => entries.forEach((e) => e.target.classList.toggle('awake', e.isIntersecting)),

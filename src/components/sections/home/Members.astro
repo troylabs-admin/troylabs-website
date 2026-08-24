@@ -133,6 +133,22 @@ const stars = [
   </ul>
 </section>
 
+<!-- mobile: globe render + the companies as a wrapped wall -->
+<div class="m m-members m-pad m-stack" data-m="Members">
+  <h2 class="m-0 t-sub m-center font-normal">Our members are part of</h2>
+  <div class="m-art" data-aw={g.w} data-ah={g.h} style="width:64%;margin-top:18px">
+    <Image src={globe} alt="" width={1202} height={1201} style="position:absolute;inset:0;width:100%;height:100%" />
+  </div>
+  <ul class="m-marks m-0 p-0 list-none" aria-label="Companies our members have worked at">
+    {logos.map((l) => <li class="m-mark-logo" style={`width:${l.box[2] * 1.35}px`} aria-label={l.name} set:html={l.svg} />)}
+    {marks.map((m) => {
+      if ('text' in m) return <li class="company whitespace-nowrap" aria-label={m.name}>{m.text}</li>;
+      const w = m.h * ASPECT[m.key] * 1.35;
+      return <li class="m-mark-logo" style={`width:${w}px`} aria-label={m.name} set:html={m.svg} />;
+    })}
+  </ul>
+</div>
+
 <style>
   .globe-live { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
   .globe.is-live .globe-live { display: block; }
@@ -140,4 +156,10 @@ const stars = [
   .logo :global(svg) { width: 100%; height: 100%; display: block; }
   .leaders { filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .company { font-size: calc(10 * var(--u)); line-height: calc(14 * var(--u)); letter-spacing: calc(2 * var(--u)); font-weight: 700; }
+  @media (max-width: 767px) {
+    .m-members { padding-block: 8px 34px; }
+    .m-marks { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 22px 26px; margin-top: 26px; max-width: 340px; }
+    .m-mark-logo :global(svg) { width: 100%; height: auto; display: block; }
+    .m-members .company { font-size: 10px; line-height: 14px; letter-spacing: 2px; }
+  }
 </style>

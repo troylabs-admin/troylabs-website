@@ -35,6 +35,16 @@ const stars = [
   </p>
 </section>
 
+<!-- mobile -->
+<div class="m m-dhero m-pad m-stack" data-m="DemoHero">
+  <div class="m-art m-dplanet" data-aw={1379} data-ah={430}>
+    <Planet kind="blue" x={-190} y={-390} w={1379} h={906} />
+  </div>
+  <h1 class="m-0 t-hero m-center title">DEMO</h1>
+  <p class="m-0 t-tagline m-center subtitle" style="max-width:300px">SoCal's largest student-run entrepreneurship conference</p>
+  <p class="m-0 t-caption italic m-center sponsor-m">Sponsored by the USC Lloyd Greif Center for Entrepreneurial Studies</p>
+</div>
+
 <style>
   /* The group is wider than the 1001 du canvas: lift the global `img { max-width:100% }` cap (it would squash the
      planet to 1001×906), and paint it under the nav rocket/links (z-index −1 still sits above the html background). */
@@ -51,4 +61,10 @@ const stars = [
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .sponsor { letter-spacing: calc(1 * var(--u)); }
+  @media (max-width: 767px) {
+    .m-dhero { gap: 12px; padding-bottom: 36px; overflow: hidden; }
+    .m-dplanet { width: 100%; margin-bottom: -30px; }
+    .m-dplanet :global([data-planet="blue"]) { max-width: none; }
+    .sponsor-m { letter-spacing: 1px; opacity: .85; }
+  }
 </style>

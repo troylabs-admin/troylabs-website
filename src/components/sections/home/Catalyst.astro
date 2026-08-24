@@ -159,9 +159,69 @@ const stars = [
   </ul>
 </section>
 
+<!-- mobile: heading · swarm · constellation · divisions, stacked -->
+<div class="m m-cat m-pad" data-m="Catalyst">
+  <h2 class="m-0 t-title-tight m-center font-normal">The student catalyst behind startups.</h2>
+  <p class="m-0 t-caption m-center" style="margin-top:12px">
+    We're an eclectic crew of hackers, designers, and visionaries across USC.
+    Different majors, same obsession: building cool stuff and backing our founders to do the same.
+  </p>
+
+  <h3 class="m-0 t-label m-center font-normal" style="margin-top:40px">50 ACTIVE MEMBERS</h3>
+  <div class="m-art" data-aw={SWARM.w} data-ah={SWARM.h} style="width:92%;margin-top:6px">
+    <div class="swarm" aria-hidden="true" style="position:absolute;inset:0">
+      {swarm.map((d, i) => (
+        <span class="abs swarm-dot" style={`${pos(d.x, d.y, d.d, d.d)};--i:${i};--dur:${d.dur}s;--dim:0.5;--sx:${d.sx};--sy:${d.sy}`}><i class="star" /></span>
+      ))}
+    </div>
+  </div>
+
+  <h3 class="m-0 t-label m-center font-normal" style="margin-top:34px">13 MAJORS</h3>
+  <div class="m-const">
+    <svg class="constellation constellation-m" viewBox="470 200 490 350" aria-label="Majors represented">
+      <path class="figure" d={ROCKET_PATH_D} transform={`translate(${RX} ${y(RY)}) scale(${RS})`} />
+      {MINORS.map(([mx, my]) => <circle class="minor" cx={RX + mx * RS} cy={y(RY + my * RS)} r="0.9" />)}
+      {edges.map(([a, b]) => <line style="stroke-opacity:0.28" x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
+      {majors.map((m, i) => {
+        const [cx, cy] = [m.c[0], y(m.c[1])]; const r = [0, 2.2, 3, 3.8][m.s];
+        const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : side[i] === 'bb' ? cy + r + 46 : side[i] === 't' ? cy - r - 6 : cy + 2.5;
+        const anchor = side[i] === 'l' ? 'end' : side[i] === 'r' ? 'start' : 'middle';
+        return (
+          <g class="node" role="img" aria-label={m.label}>
+            <circle class="halo" cx={cx} cy={cy} r={r * 4} />
+            <circle class="core" cx={cx} cy={cy} r={r} />
+            <text x={tx} y={ty} text-anchor={anchor}>{m.label}</text>
+          </g>
+        );
+      })}
+    </svg>
+  </div>
+
+  <h3 class="m-0 t-title-tight m-center font-normal" style="margin-top:40px">6 DIVISIONS</h3>
+  <ul class="m-divs m-0 p-0 list-none">
+    {divisions.map((d) => (
+      <li class="m-div">
+        <span class="m-div-head">
+          <Image src={d.icon} alt="" aria-hidden="true" width={300} height={300} class="m-div-icon" />
+          <h4 class="m-0 t-label font-normal">{d.name}</h4>
+        </span>
+        <p class="m-0 t-caption">{d.text}</p>
+      </li>
+    ))}
+  </ul>
+</div>
+
 <style>
   .timeline { border-left: calc(1 * var(--u)) solid #fff; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6); }
   .dot { border-radius: 9999px; background: #fff; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6); }
   .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; box-shadow: 0 0 calc(8.5 * var(--u)) rgb(255 255 255 / 0.7); } /* box-shadow, not filter: 200 filtered layers were heavy (Safari especially) */
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
+  @media (max-width: 767px) {
+    .m-cat { padding-block: 26px 34px; }
+    .m-const { width: 100%; }
+    .m-const svg { width: 100%; height: auto; display: block; }
+    .m-divs { margin-top: 6px; display: flex; flex-direction: column; gap: 22px; }
+    .m-div-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .m-div-icon { width: 30px; height: 30px; object-fit: contain; }
+  }
 </style>

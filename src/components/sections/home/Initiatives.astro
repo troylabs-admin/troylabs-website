@@ -64,7 +64,25 @@ const stars = [
   ))}
 </section>
 
+<!-- mobile: title + three planet cards -->
+<div class="m m-init m-pad" data-m="Initiatives">
+  <h2 class="m-0 t-title m-center font-normal">OUR THREE INITIATIVES</h2>
+  {initiatives.map((i) => (
+    <a href={i.href} class="m-card m-stack no-underline text-ink" aria-label={`${i.title} — learn more`}>
+      <div class="m-art" data-aw={i.planet.w} data-ah={'h' in i.planet ? i.planet.h : i.planet.w} style="width:62%">
+        <Planet kind={i.planet.kind} x={0} y={0} w={i.planet.w} h={'h' in i.planet ? i.planet.h : undefined} />
+      </div>
+      <h3 class="m-0 t-title font-normal">{i.title}</h3>
+      <p class="m-0 t-caption m-center" style="max-width:300px">{i.text}</p>
+    </a>
+  ))}
+</div>
+
 <style>
   .ring { border-radius: 9999px; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.4); cursor: pointer; }
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
+  @media (max-width: 767px) {
+    .m-init { padding-block: 12px 30px; }
+    .m-card { margin-top: 34px; gap: 10px; }
+  }
 </style>

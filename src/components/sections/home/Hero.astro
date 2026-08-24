@@ -6,6 +6,9 @@
 import { pos } from '../../../lib/units';
 import Stars from '../../space/Stars.astro';
 import wordmark from '../../../assets/figma/tl-wordmark.svg?raw';
+/* the svg is inlined twice (desktop + mobile); the hidden desktop copy owns the original defs ids, and
+   url(#…) refs into a display:none subtree don't paint — so the mobile copy namespaces every id */
+const wordmarkM = wordmark.replace(/id="/g, 'id="m-').replace(/url\(#/g, 'url(#m-');
 
 const TOP = 79; // section starts below the nav; Figma y − TOP = section y
 // The exported wordmark SVG carries its drop-shadow filter region (619×439) around the 578×98.4 letters.
@@ -31,8 +34,22 @@ const stars = [
   </p>
 </section>
 
+<!-- mobile: wordmark + tagline, sky behind -->
+<div class="m m-hero m-pad m-stack" data-m="Hero">
+  <h1 class="m-0 wordmark m-wordmark" set:html={wordmarkM}></h1>
+  <span class="sr-only">TroyLabs</span>
+  <p class="m-0 t-tagline m-center tagline">Where USC student builders launch, scale, and raise capital.</p>
+</div>
+
 <style>
   .wordmark :global(svg) { width: 100%; height: 100%; display: block; }
+  @media (max-width: 767px) {
+    .m-hero { padding-top: 46px; padding-bottom: 40px; }
+    /* the export's filter region pads the letters heavily: oversize + crop so the LETTERS span the width */
+    .m-wordmark { width: 100%; overflow: visible; }
+    .m-wordmark :global(svg) { width: 107%; margin-left: -3.5%; height: auto; margin-top: -26%; margin-bottom: -24%; }
+    .m-hero .tagline { margin-top: 6px; }
+  }
   /* Figma gradient_linear, handles (1,.5)→(0,.5): orange at the right end, white from 10% leftwards */
   .tagline {
     background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);

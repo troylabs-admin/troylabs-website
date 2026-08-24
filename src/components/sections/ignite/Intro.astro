@@ -17,3 +17,21 @@ const dots = [477, 499, 521].flatMap((x) => [{ x, y: 574 - TOP, kind: 'dot' }, {
     Our general membership program that is open to all students. Expand your network, develop core founder skills, and engage with the startup community on a timeline that fits your schedule.
   </p>
 </section>
+
+<!-- mobile -->
+<div class="m m-iintro m-pad m-stack" data-m="IgniteIntro">
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+  <p class="m-0 t-nav m-center normal-case" style="max-width:330px;text-transform:none">
+    Our general membership program that is open to all students. Expand your network, develop core founder skills, and engage with the startup community on a timeline that fits your schedule.
+  </p>
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+</div>
+
+<style is:global>
+  @media (max-width: 767px) {
+    .m-iintro { padding-block: 4px 30px; gap: 18px; }
+    .m-iintro .m-dots { display: flex; gap: 18px; }
+    .m-iintro .m-dots i { width: 4px; height: 4px; border-radius: 999px; background: #fff; box-shadow: 0 0 7px rgb(255 255 255 / 0.7); }
+    .m-iintro p { font-size: 12px; line-height: 19px; letter-spacing: 0.6px; }
+  }
+</style>

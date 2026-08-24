@@ -45,18 +45,17 @@ function apply() {
   // half the nodes' ignitions already passed (Bryan, 2026-08-24: "the dot starts on Exclusive Events").
   // Re-anchor the spark's range start to the scroll-zero progress and remap every node's ignition %
   // into the new span so spark/node sync is preserved (same fraction math as Features.astro).
-  const spark = document.querySelector<HTMLElement>('.fuse-spark');
-  const sec3 = document.querySelector<HTMLElement>('[data-figma="IgniteFeatures"]');
-  if (spark && sec3) {
+  for (const spark of document.querySelectorAll<HTMLElement>('.fuse-spark')) {
+    if (spark.offsetParent === null) continue;             // only the visible tree (desktop OR mobile)
+    const sec3 = spark.closest<HTMLElement>('[data-figma="IgniteFeatures"], [data-m="IgniteFeatures"]');
+    if (!sec3) continue;
     const { top, h } = box(sec3);
     const atLoad = Math.max(0, (vh - top) / (h + vh));
-    const start = Math.max(0.10, atLoad + 0.02);          // the stylesheet's cover 10%, pushed past load
+    const start = Math.max(0.10, atLoad + 0.02);          // the stylesheet's cover 10-12%, pushed past load
     const END = 0.80;
     spark.style.animationRangeStart = `cover ${(start * 100).toFixed(2)}%`;
-    const u = h / 780;                                     // section is 780 du tall
     for (const node of sec3.querySelectorAll<HTMLElement>('.fuse-node')) {
-      const r = node.getBoundingClientRect();
-      const frac = ((r.y + r.height / 2 + scrollY - top) / u - 10) / 870; // path fraction (Features.astro)
+      const frac = Number(node.dataset.frac);              // path fraction, baked per layout in the template
       const t = start + (END - start) * frac;
       const ramp = 0.06 * (END - start) / 0.70;
       node.style.setProperty('--ig0', `cover ${((t - ramp) * 100).toFixed(2)}%`);

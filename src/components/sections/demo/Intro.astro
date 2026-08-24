@@ -19,6 +19,25 @@ const dots = [477, 499, 521].flatMap((x) => [{ x, y: 574 - TOP, kind: 'dot' }, {
   </p>
 </section>
 
+<!-- mobile -->
+<div class="m m-dintro m-pad m-stack" data-m="DemoIntro">
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+  <p class="m-0 t-caption m-center" style="max-width:330px">
+    DEMO is the premier annual gathering for student founders, bringing together startups, investors and students.
+    Spend a full day pitching, networking, and scaling through our startup exhibition, keynote sessions, pitch
+    competition, and interactive workshops.
+  </p>
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+</div>
+
+<style is:global>
+  @media (max-width: 767px) {
+    .m-dintro { padding-block: 4px 26px; gap: 18px; }
+    .m-dintro .m-dots { display: flex; gap: 18px; }
+    .m-dintro .m-dots i { width: 4px; height: 4px; border-radius: 999px; background: #fff; box-shadow: 0 0 7px rgb(255 255 255 / 0.7); }
+  }
+</style>
+
 <style>
   .intro { letter-spacing: calc(1 * var(--u)); }
 </style>

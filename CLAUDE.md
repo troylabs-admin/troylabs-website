@@ -105,7 +105,12 @@ The static design is the REST state of every animation; the fidelity suite runs 
 - **IGNITE features redesigned (2026-08-24)**: "ignition fuse" — dotted fuse down the section, features
   alternating left/right, scroll-scrubbed spark ignites each node (Features.astro + motion.css; fidelity
   masks the whole band). DEMO may get a similar liveliness pass next — ask Bryan.
-- **Not done**: mobile (<768 px) — deliberately last, after desktop sign-off; currently a scaled desktop.
+- **Mobile (<768 px) — built (2026-08-24)**: the desktop artboard hides below 768 and every section
+  provides a flowed `.m` subtree (src/styles/mobile.css + scripts/mobile.ts). Signature art is REUSED via
+  `.m-art[data-aw]` wrappers that re-anchor --u/--un locally (swarm, planets, stats, dome); the BUILD
+  timeline & IGNITE fuse become left rails with the rocket/spark riding a named view timeline (ranges
+  pinned by build-flight.ts via data-frac). Sky/visitors/zero-g/reveals carry over. Desktop untouched
+  (fidelity identical). Polish pass with Bryan's phone feedback still to come.
 - Perf is profiled light (idle ~4 %, scrolling ~12 % of one core; sky/globe pause off-screen and when hidden).
 - **2026-08-23 Figma update (batch 2) implemented** across BUILD/DEMO/IGNITE: colorful timeline orbs +
   comet, previous-startups removed entirely, DEMO full-bleed photo / bigger stats planet / Tim Ellis /

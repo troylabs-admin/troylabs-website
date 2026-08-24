@@ -32,6 +32,24 @@ const links = [
   <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} />
 </header>
 
+<!-- mobile: one tight row -->
+<header class="m m-nav" data-m="Nav">
+  <a href="/" class="m-mark" aria-label="TroyLabs home" set:html={rocket} />
+  <nav class="m-links" aria-label="Primary">
+    {links.map((l) => (
+      <a href={l.href} class="t-nav glow-text whitespace-nowrap" aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
+    ))}
+  </nav>
+  <ApplyLink class="m-apply t-nav" label="APPLY" />
+</header>
+
 <style>
   header :global(svg) { width: 100%; height: 100%; }
+  .m-nav { display: none; }
+  @media (max-width: 767px) {
+    .m-nav { display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px; }
+    .m-mark { width: 17px; height: 26px; flex: none; }
+    .m-links { display: flex; gap: 13px; flex: 1; justify-content: center; }
+    .m-apply { flex: none; }
+  }
 </style>

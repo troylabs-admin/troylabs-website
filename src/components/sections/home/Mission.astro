@@ -23,3 +23,25 @@ const dots = [477, 499, 521].flatMap((x) => [{ x, y: 612 - TOP, kind: 'dot' }, {
     vibrant ecosystem where USC startups can flourish and make a lasting impact.
   </p>
 </section>
+
+<!-- mobile -->
+<div class="m m-mission m-pad m-stack" data-m="Mission">
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+  <p class="m-0 t-body m-center" data-reveal-unit>
+    TroyLabs is a student-run organization at the University of Southern California, proudly sponsored by the{' '}
+    <a href="https://www.marshall.usc.edu/departments/lloyd-greif-center-entrepreneurial-studies" class="underline" target="_blank" rel="noopener noreferrer">Lloyd Greif Center for Entrepreneurship</a>{' '}
+    and <a href="https://www.marshall.usc.edu/" class="underline" target="_blank" rel="noopener noreferrer">Marshall School of Business</a>.
+    We're dedicated to fostering entrepreneurship and supporting early-stage startups at USC. Our mission is to
+    encourage innovation, empower student founders, and promote entrepreneurial curiosity across campus, creating a
+    vibrant ecosystem where USC startups can flourish and make a lasting impact.
+  </p>
+  <span class="m-dots" aria-hidden="true"><i /><i /><i /></span>
+</div>
+
+<style>
+  @media (max-width: 767px) {
+    .m-mission { padding-block: 8px 34px; gap: 22px; }
+    .m-dots { display: flex; gap: 18px; }
+    .m-dots i { width: 4px; height: 4px; border-radius: 999px; background: #fff; box-shadow: 0 0 7px rgb(255 255 255 / 0.7); }
+  }
+</style>

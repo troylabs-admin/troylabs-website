@@ -66,10 +66,34 @@ const stars = [
   </ul>
 </section>
 
+<!-- mobile: photo+logo pairs stacked -->
+<div class="m m-dspk m-pad" data-m="DemoSpeakers">
+  <h2 class="m-0 t-title-tight m-center font-normal">NOTABLE KEYNOTE SPEAKERS</h2>
+  <ul class="m-0 p-0 list-none m-spk-list">
+    {speakers.map((s2) => (
+      <li class="m-spk m-stack">
+        <div class="m-spk-tiles">
+          <Image src={s2.photo} alt={s2.name} width={416} height={416} class="tile m-tile" />
+          <Image src={s2.logo} alt={`${s2.company} logo`} width={416} height={416} class:list={['tile', 'm-tile', s2.cover ? 'object-cover' : 'object-fill']} />
+        </div>
+        <h3 class="m-0 t-name font-normal m-center">{s2.name}</h3>
+        <p class="m-0 t-name italic m-center">{s2.title}</p>
+      </li>
+    ))}
+  </ul>
+</div>
+
 <style>
   /* image 159/160: radius 20, 0.33 white inside stroke, drop shadow #ffcaaa@40% 16.7 */
   .tile {
     border-radius: calc(20 * var(--u));
     box-shadow: inset 0 0 0 calc(0.33 * var(--u)) #fff, 0 0 calc(16.7 * var(--u)) rgb(255 202 170 / 0.4);
+  }
+  @media (max-width: 767px) {
+    .m-dspk { padding-block: 16px 30px; }
+    .m-spk-list { display: flex; flex-direction: column; gap: 30px; margin-top: 24px; }
+    .m-spk { gap: 4px; }
+    .m-spk-tiles { display: flex; gap: 12px; margin-bottom: 10px; }
+    .m-tile { width: 132px; height: 132px; }
   }
 </style>

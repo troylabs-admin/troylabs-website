@@ -40,3 +40,19 @@ const photos = [
     ))}
   </ul>
 </section>
+
+<!-- mobile: 2-col mosaic, edge to edge -->
+<ul class="m m-gal m-0 p-0 list-none" data-m="BuildGallery" aria-label="Photos from BUILD">
+  {photos.map((p) => (
+    <li class="m-gal-cell">
+      <Image src={p.src} alt={p.alt} width={p.box[2] * 3} height={p.box[3] * 3} class="w-full h-full object-cover" />
+    </li>
+  ))}
+</ul>
+
+<style>
+  @media (max-width: 767px) {
+    .m-gal { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .m-gal-cell { aspect-ratio: 3 / 2; overflow: hidden; }
+  }
+</style>

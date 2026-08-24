@@ -79,6 +79,7 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
         <li data-figma={f.id}>
           <span
             class="abs fuse-node pointer-events-none"
+            data-frac={((f.ny - TOP - 10) / 870).toFixed(4)}
             style={`${pos(f.nx - 4.5, y(f.ny) - 4.5, 9, 9)};--ig0:cover ${(t - 6).toFixed(1)}%;--ig1:cover ${t.toFixed(1)}%`}
             aria-hidden="true"
           />
@@ -92,8 +93,30 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
   </ul>
 </section>
 
+<!-- mobile: the fuse as a left rail — spark rides down, nodes ignite, cards sit right of it -->
+<div class="m m-feat m-pad" data-m="IgniteFeatures">
+  <div class="m-fuse-rail" aria-hidden="true">
+    <span class="m-fuse-dash"></span>
+    <span class="fuse-spark"></span>
+  </div>
+  <ul class="m-0 p-0 list-none m-feat-list">
+    {FEATURES.map((f, i) => (
+      <li class="m-feat-item">
+        <span class="fuse-node m-node" data-frac={(0.06 + (0.88 * i) / 4).toFixed(3)} aria-hidden="true" />
+        <h3 class="m-0 t-feature font-normal">{f.label}</h3>
+        <p class="m-0 t-caption" style="margin-top:6px">{f.text}</p>
+      </li>
+    ))}
+  </ul>
+</div>
+
 <style>
   /* feature labels lead, blurbs support (Bryan, 2026-08-24) — t-name metrics, a step up from the 12px body */
   .t-feature { font-size: calc(16 * var(--u)); line-height: calc(18.4 * var(--u)); letter-spacing: calc(0.48 * var(--u)); transition: color 200ms var(--ease-out-expo); }
+  @media (max-width: 767px) {
+    /* the du-calc size above outranks the generic mobile scale (scoped specificity) — re-set it here */
+    .m-feat .t-feature { font-size: 15px; line-height: 18px; letter-spacing: 0.5px; }
+    .m-feat .t-caption { font-size: 12px; line-height: 17px; letter-spacing: 0.35px; }
+  }
   .t-caption { letter-spacing: calc(0.36 * var(--u)); }
 </style>

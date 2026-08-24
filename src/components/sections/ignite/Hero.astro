@@ -31,6 +31,17 @@ const stars = [
   <PillButton label="APPLY TO IGNITE" x={393} y={y(412)} w={215.6} h={33.6} />
 </section>
 
+<!-- mobile -->
+<div class="m m-ihero m-pad m-stack" data-m="IgniteHero">
+  <div class="m-art m-iplanet" data-aw={831} data-ah={420}>
+    <Planet kind="yellow" x={-210} y={-430} w={831} />
+    <Planet kind="moon" x={700} y={130} w={80} />
+  </div>
+  <h1 class="m-0 t-hero m-center title">IGNITE</h1>
+  <p class="m-0 t-tagline m-center tagline">Your entry point into entrepreneurship.</p>
+  <a href="/apply" class="pill t-title m-pill no-underline text-ink">APPLY TO IGNITE</a>
+</div>
+
 <style>
   :global(.ignite-planet) { z-index: -1; }   /* paints under the nav (earlier in the DOM), matching Figma layer order; :global because the class lands on Planet’s <img> */
   /* 6982:756 fill: gradient_linear (0.5,0)→(0.5,1) #ff3500 → #ffc200; drop shadow black@70% blur 10.9 */
@@ -43,5 +54,9 @@ const stars = [
   .tagline {
     background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  @media (max-width: 767px) {
+    .m-ihero { gap: 14px; padding-bottom: 40px; overflow: hidden; }
+    .m-iplanet { width: 100%; margin-bottom: -36px; }
   }
 </style>

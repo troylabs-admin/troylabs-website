@@ -50,6 +50,21 @@ const logos = [
   </ul>
 </section>
 
+<!-- mobile -->
+<div class="m m-ispk m-pad m-stack" data-m="IgniteSpeakers">
+  <h2 class="m-0 t-title m-center font-normal">NOTABLE SPEAKERS</h2>
+  <ul class="m-0 p-0 list-none m-ispk-list" aria-label="Notable speakers">
+    {logos.map((l, i) => (
+      <li class="zg m-ispk-logo" style={`width:${l.box[2] * 0.62}px;--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} set:html={fit(l.svg)} />
+    ))}
+  </ul>
+</div>
+
 <style>
   .logo :global(svg) { width: 100%; height: 100%; display: block; }
+  @media (max-width: 767px) {
+    .m-ispk { padding-block: 20px 34px; }
+    .m-ispk-list { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 26px 32px; margin-top: 26px; max-width: 330px; }
+    .m-ispk-logo :global(svg) { width: 100%; height: auto; display: block; }
+  }
 </style>

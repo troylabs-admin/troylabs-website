@@ -67,6 +67,7 @@ function target(map: [number, number][], s: number): number {
 }
 
 function init() {
+  if (matchMedia('(max-width: 767px)').matches) return;  // mobile: no page flight (the .home-flight layer is hidden)
   const flyer = document.querySelector<HTMLElement>('.home-flyer');
   const pathEl = document.querySelector<SVGPathElement>('#home-flight-path');
   const wmRocket = document.querySelector<SVGPathElement>('.wordmark path[fill^="url("]');

@@ -83,13 +83,50 @@ const stars = [
   </dl>
 </section>
 
+<!-- mobile: the reel full-width, stats planet under it -->
+<div class="m m-dstage" data-m="DemoStage">
+  <figure class="m-0 overflow-hidden media m-media">
+    {videoSrc ? (
+      <>
+        <video class="w-full h-full object-cover" crossorigin="anonymous" poster={photo.src} muted loop playsinline preload="none" aria-label="Highlights from DEMO">
+          <source src={videoSrc} type="video/mp4" />
+          <track kind="captions" src={captionsUrl} srclang="en" label="English" default />
+        </video>
+        <button class="sound" type="button" aria-label="Unmute video" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none" />
+            <path class="wave" d="M15 9.2a4.2 4.2 0 0 1 0 5.6" />
+            <path class="wave" d="M17.6 6.8a8 8 0 0 1 0 10.4" />
+            <line class="slash" x1="4" y1="20" x2="20" y2="4" />
+          </svg>
+        </button>
+        <p class="cap" aria-hidden="true"></p>
+      </>
+    ) : (
+      <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full h-full object-cover" />
+    )}
+  </figure>
+  <div class="m-pad m-stack">
+    <div class="m-art m-dstats-art" data-aw={689} data-ah={689}>
+      <Image src={planet} alt="" aria-hidden="true" width={2067} height={2067} style="position:absolute;inset:0;width:100%;height:100%" />
+      <div class="m-dstats-in m-stack">
+        {stats.map((st) => (
+          <div class="m-stack" style="gap:2px"><span class="t-stat stat">{st.value}</span><span class="t-title stat">{st.label}</span></div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   /* the reel: plays only while on screen (muted), pauses off-screen; the corner button toggles sound.
      Reduced motion: no autoplay — the poster stands, and the sound button (which only serves the
      autoplaying reel) is removed. Re-runs after ClientRouter swaps. */
   function initReel() {
-    const wrap = document.querySelector<HTMLElement>('[data-figma="DemoStage"] .media');
-    const video = wrap?.querySelector('video');
+    for (const wrap of document.querySelectorAll<HTMLElement>('.media')) wireReel(wrap);
+  }
+  function wireReel(wrap: HTMLElement) {
+    const video = wrap.querySelector('video');
     if (!wrap || !video || video.dataset.wired) return;
     video.dataset.wired = '1';
     // the muted CONTENT attribute only sets a default — after a ClientRouter swap engines can create the
@@ -126,6 +163,16 @@ const stars = [
   .media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(180deg, rgb(10 10 11 / 0.85), transparent 14%, transparent 86%, rgb(10 10 11 / 0.85)); }
   .stat { text-shadow: 0 0 calc(7.3 * var(--u)) rgb(255 255 255 / 0.7); }
+  @media (max-width: 767px) {
+    .m-dstage { padding-block: 4px 20px; }
+    .m-media { position: relative; width: 100%; aspect-ratio: 16 / 9; }
+    .m-media .cap { font-size: 10px; line-height: 14px; max-width: 80%; bottom: 12px; padding: 3px 8px; }
+    .m-media .sound { width: 36px; height: 36px; padding: 8px; right: 12px; bottom: 12px; }
+    .m-dstats-art { width: 88%; margin-top: 24px; }
+    .m-dstats-in { position: absolute; inset: 0; justify-content: center; gap: 14px; }
+    .m-dstats-in .t-stat { font-size: 26px; line-height: 30px; letter-spacing: 2px; }
+    .m-dstats-in .t-title { font-size: 12px; letter-spacing: 1.4px; }
+  }
   /* tiny captions: our own renderer, bottom-centre, above the vignette */
   .cap {
     position: absolute; z-index: 1; left: 50%; bottom: calc(26 * var(--u)); transform: translateX(-50%);

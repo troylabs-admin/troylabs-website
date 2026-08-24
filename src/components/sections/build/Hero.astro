@@ -35,6 +35,21 @@ const stars = [
   <PillButton label="APPLY TO BUILD" x={399} y={y(412)} w={205.6} h={33.6} />
 </section>
 
+<!-- mobile -->
+<div class="m m-bhero m-pad m-stack" data-m="BuildHero">
+  <div class="m-art m-bplanet" data-aw={872} data-ah={430}>
+    <Planet kind="orange" x={-260} y={-442} w={872} />
+  </div>
+  <h1 class="m-0 t-hero m-center title">BUILD</h1>
+  <p class="m-0 t-tagline m-center tagline" style="max-width:320px">
+    Our 8-week flagship accelerator that provides hands-on consulting to USC's premier startups.
+  </p>
+  <a href="/apply" class="pill t-title m-pill no-underline text-ink">APPLY TO BUILD</a>
+</div>
+
+<style>
+  /* 6977:598 — gradient_linear handles (.5,0)→(.5,1): #ff3500 at the top, #ffc200 at the bottom */
+
 <style>
   /* 6977:598 — gradient_linear handles (.5,0)→(.5,1): #ff3500 at the top, #ffc200 at the bottom */
   .title {
@@ -46,5 +61,9 @@ const stars = [
   .tagline {
     background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  @media (max-width: 767px) {
+    .m-bhero { gap: 14px; padding-bottom: 40px; overflow: hidden; }
+    .m-bplanet { width: 100%; margin-bottom: -40px; }
   }
 </style>

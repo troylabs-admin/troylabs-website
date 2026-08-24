@@ -53,6 +53,25 @@ const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
   </ul>
 </section>
 
+<!-- mobile: two-column grid -->
+<div class="m m-board m-pad" data-m="Board">
+  <h2 class="m-0 t-title-tight m-center font-normal">EXECUTIVE BOARD</h2>
+  <ul class="m-grid m-0 p-0 list-none">
+    {board.map((mb) => (
+      <li class="m-stack" style="gap:6px">
+        <Image src={photoFor(mb.photo) ?? placeholder} alt={mb.photo ? mb.name : ''} width={256} height={256} class="m-photo" />
+        <h3 class="m-0 t-name font-normal m-center">{mb.name}</h3>
+        <p class="m-0 t-caption italic m-center">{mb.role}</p>
+      </li>
+    ))}
+  </ul>
+</div>
+
 <style>
   .t-caption { letter-spacing: calc(0.36 * var(--u)); }
+  @media (max-width: 767px) {
+    .m-board { padding-block: 10px 40px; }
+    .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 18px; margin-top: 26px; }
+    .m-photo { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+  }
 </style>

@@ -58,8 +58,34 @@ const stars = [
   <p class="abs m-0 t-fine-10 text-center whitespace-nowrap glow" style={pos(447, y(2860), 107, 11)}>season 17 episode 2</p>
 </section>
 
+<!-- mobile: the stats planet with the numbers inside it, logos below -->
+<div class="m m-bstats m-pad m-stack" data-m="BuildStats">
+  <div class="m-art m-bstat-art" data-aw={751} data-ah={751}>
+    <Image src={planet} alt="" aria-hidden="true" width={2253} height={2253} style="position:absolute;inset:0;width:100%;height:100%" />
+    <div class="m-bstat-in m-stack">
+      <dl class="m-0 glow m-stack" style="gap:18px">
+        <div class="m-stack"><dd class="m-0 t-stat">100+</dd><dt class="t-title">STARTUPS</dt></div>
+        <div class="m-stack"><dd class="m-0 t-stat">$28M+</dd><dt class="t-title">ALUMNI PORTFOLIO</dt></div>
+      </dl>
+    </div>
+  </div>
+  <h2 class="m-0 t-title m-center font-normal glow" style="margin-top:8px">STARTUPS FEATURED ON</h2>
+  <ul class="m-blogos m-0 p-0 list-none" aria-label="Press and programs our startups were featured on">
+    {logos.map((l) => <li class="m-blogo" style={`width:${l.box[2] * 0.62}px`} aria-label={l.name} set:html={l.svg} />)}
+  </ul>
+  <p class="m-0 t-fine glow m-center">season 17 episode 2</p>
+</div>
+
 <style>
   .logo :global(svg) { width: 100%; height: 100%; display: block; }
   .glow { text-shadow: 0 0 calc(8 * var(--u)) rgb(255 255 255 / 0.6); }
   .t-fine-10 { font-size: calc(10 * var(--u)); line-height: calc(11.5 * var(--u)); letter-spacing: calc(0.8 * var(--u)); }
+  @media (max-width: 767px) {
+    .m-bstats { padding-block: 26px 34px; }
+    .m-bstat-art { width: 96%; }
+    .m-bstat-in { position: absolute; inset: 0; justify-content: center; }
+    .m-blogos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px 26px; margin-top: 18px; }
+    .m-blogo :global(svg) { width: 100%; height: auto; display: block; }
+    .m-bstats .t-fine { margin-top: 10px; opacity: .8; }
+  }
 </style>

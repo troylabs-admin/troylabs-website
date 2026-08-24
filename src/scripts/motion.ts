@@ -22,7 +22,11 @@ function init() {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];
       for (const el of section.querySelectorAll<HTMLElement>('h2, h3, h4, p, dt, dd, article, li, figure, img:not(.planet):not(.abs), .ring, .t-stat, [data-reveal-unit]')) {
-        if (el.closest('[data-figma="Hero"], .no-reveal')) continue;
+        // .planet: the `img:not(.planet)` above never excluded planets — .planet/.abs sit on the WRAPPER,
+        // the img itself only carries .breathe — so every planet was silently armed to fade in, against the
+        // intent that art is present and only opts into motion via data-reveal-unit. Visible on mobile BUILD,
+        // where the flag arrived ahead of the planet it is planted on (Bryan, 2026-08-24).
+        if (el.closest('[data-figma="Hero"], .no-reveal, .planet')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)
         let unit: HTMLElement = el;

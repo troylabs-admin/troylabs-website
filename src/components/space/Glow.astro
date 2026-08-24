@@ -2,15 +2,21 @@
 /**
  * Soft ambient glow — Figma: blurred VECTOR ellipse (fill color@alpha, LAYER_BLUR radius).
  * e.g. "Ellipse 247" 700×925 du, #ff7d2c @ 10%, blur 156.5, rotated 2.7°.
+ * PERF (2026-08-24): painted as fill + box-shadow instead of filter:blur() — the huge live blur
+ * surfaces were the heaviest layers on the site (Safari re-rasterizes them on scroll). A box-shadow
+ * with blur b is the border box gaussian-blurred at σ = b/2, i.e. exactly "this ellipse, blurred"
+ * (σ matches the old filter's u(blur/2)), painted once into the layer. Crucially box-shadow is INK
+ * overflow: unlike a padded gradient box it never grows the document's scroll height (the board glow
+ * bleeds past the page bottom by design). Verified against the fidelity references.
  */
 import { pos, u } from '../../lib/units';
 interface Props { x: number; y: number; w: number; h: number; color?: string; alpha?: number; blur?: number; rotate?: number }
 const { x, y, w, h, color = 'var(--color-orange)', alpha = 0.05, blur = 156.5, rotate = 0 } = Astro.props;
+const fill = `color-mix(in srgb, ${color} ${(alpha * 100).toFixed(2)}%, transparent)`;
 ---
 
 <div
   class="abs rounded-full pointer-events-none"
   aria-hidden="true"
-  style={`${pos(x, y, w, h)};background:color-mix(in srgb, ${color} ${alpha * 100}%, transparent);filter:blur(${u(blur / 2)});transform:rotate(${rotate}deg)`}
+  style={`${pos(x, y, w, h)};background:${fill};box-shadow:0 0 ${u(blur)} ${fill};transform:rotate(${rotate}deg)`}
 />
-<!-- CSS blur() sigma ≈ Figma blur radius / 2 — verified visually against the 1:1 reference -->

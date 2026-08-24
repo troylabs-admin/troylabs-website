@@ -160,8 +160,8 @@ const stars = [
 </section>
 
 <style>
-  .timeline { border-left: calc(1 * var(--u)) solid #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
-  .dot { border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
-  .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(8.5 * var(--u)) rgb(255 255 255 / 0.7)); }
+  .timeline { border-left: calc(1 * var(--u)) solid #fff; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6); }
+  .dot { border-radius: 9999px; background: #fff; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6); }
+  .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; box-shadow: 0 0 calc(8.5 * var(--u)) rgb(255 255 255 / 0.7); } /* box-shadow, not filter: 200 filtered layers were heavy (Safari especially) */
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
 </style>

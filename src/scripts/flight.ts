@@ -9,7 +9,8 @@
  *  • the wordmark's own rocket and the flyer CROSSFADE over the first 2% of flight — no swap moment
  *  • the timed landing is anchored to the FOOTER: it starts when the footer mark reaches the viewport's
  *    bottom edge (never earlier) and sets the rocket down exactly on the mark (class `landed` at p ≥ 0.9995)
- *  • clicking the docked rocket flies it home on its own direct line (mode `return`), scroll driven in sync
+ *  • clicking the docked rocket flies it home on its own bowed curve (mode `return`): banks right, swings
+ *    back, rises dead-vertical into the wordmark; scroll glued to the rocket; distance-based dock crossfade
  */
 const root = document.documentElement;
 
@@ -99,22 +100,26 @@ function init() {
   // constant spot in the viewport while the page glides under it; the crossfade docks it into the logo.
   // Capture-phase click so the view-transition router never treats it as a navigation; wheel/touch aborts.
   const RET_MS = 4500;
-  let retT0 = 0, retSy0 = 0, retAng = 0;
+  let retT0 = 0, retLen = 0, retViewY0 = 0;
   const retPath = document.querySelector<SVGPathElement>('#home-return-path');
   const HOME = { x: 617, y: 221 };   // the wordmark rocket's spot = the main path's start (box coords)
+  const unPx = () => Math.min(innerWidth, 1440) / 1001;
   const endReturn = () => flyer.style.removeProperty('offset-path');
   document.querySelector('footer .mark')?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (mode === 'return' || !retPath) return;
     const pt = pathEl.getPointAtLength(p * totalLen()); // lift off from wherever the rocket rests (normally the mark)
-    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} L ${HOME.x} ${HOME.y}`);
-    retAng = (Math.atan2(HOME.y - pt.y, HOME.x - pt.x) * 180) / Math.PI + 90;
+    const H = pt.y - HOME.y;
+    // bow out over the right margin, then swing back and rise DEAD-VERTICAL into the wordmark (the final
+    // control point sits straight below the logo, so the arrival tangent is exactly nose-up)
+    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} C ${(pt.x + 250).toFixed(1)} ${(pt.y - H * 0.32).toFixed(1)}, ${HOME.x} ${(HOME.y + H * 0.25).toFixed(1)}, ${HOME.x} ${HOME.y}`);
+    retLen = retPath.getTotalLength();
+    retViewY0 = (pt.y + 79) * unPx() - scrollY;          // the rocket's viewport height at liftoff — held all ride
     flyer.style.offsetPath = 'url(#home-return-path)';
     root.classList.remove('landed');                     // the white mark returns as it lifts off
     mode = 'return';
     retT0 = performance.now();
-    retSy0 = scrollY;
   }, true);
   const abortReturn = () => {
     endReturn();
@@ -132,13 +137,20 @@ function init() {
     if (mode === 'return') {
       const r = Math.min(1, (now - retT0) / RET_MS);
       const e = r < 0.5 ? 4 * r * r * r : 1 - Math.pow(-2 * r + 2, 3) / 2;
-      window.scrollTo(0, retSy0 * (1 - e));           // same eased progress as the flight: constant view height
       flyer.style.offsetDistance = `${(e * 100).toFixed(3)}%`;
-      const dr = ((retAng - ang + 540) % 360) - 180;
+      // the scroll is glued to the rocket: it holds its viewport height while the page glides under it
+      const pt = retPath.getPointAtLength(e * retLen);
+      window.scrollTo(0, (pt.y + 79) * unPx() - retViewY0);
+      // bank through the curve: chase the return path's tangent (it arrives exactly vertical by construction)
+      const a2 = retPath.getPointAtLength(Math.max(0, e - 0.004) * retLen), b2 = retPath.getPointAtLength(Math.min(1, e + 0.004) * retLen);
+      const wantR = (Math.atan2(b2.y - a2.y, b2.x - a2.x) * 180) / Math.PI + 90;
+      const dr = ((wantR - ang + 540) % 360) - 180;
       ang += Math.sign(dr) * Math.min(Math.abs(dr), 5);
       flyer.style.offsetRotate = `${ang.toFixed(2)}deg`;
       flyer.style.transform = `scale(${(0.712 + 0.288 * e).toFixed(4)})`;   // footer-mark size → wordmark size
-      const k = Math.min(1, Math.max(0, (e - 0.96) / 0.04));                // dock into the logo over the last 4%
+      // dock: the wordmark's rocket appears only within the last ~10 px of travel — the flyer is already
+      // on top of it by then, so there is never a premature double (a progress-based fade showed it ~300 px early)
+      const k = Math.min(1, Math.max(0, 1 - ((1 - e) * retLen * unPx()) / 10));
       flyer.style.opacity = (1 - k).toFixed(3);
       if (wmRocket) wmRocket.style.opacity = k.toFixed(3);
       if (r >= 1) { endReturn(); mode = 'scrub'; p = 0; }

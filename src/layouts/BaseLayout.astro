@@ -14,6 +14,9 @@ interface Props {
   current?: 'home' | 'build' | 'ignite' | 'demo';
 }
 const { title, description = "TroyLabs — where USC student builders launch, scale, and raise capital.", current } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://usctroylabs.com').href;
+const ogImage = new URL('/og.jpg', Astro.site ?? 'https://usctroylabs.com').href;
 ---
 
 <!doctype html>
@@ -25,6 +28,22 @@ const { title, description = "TroyLabs — where USC student builders launch, sc
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    {/* Share cards: without these, pasting the link into Instagram, LinkedIn, iMessage or Slack shows a
+        bare URL. og.jpg is the site's own hero, captured at 1200x630. */}
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TroyLabs" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="theme-color" content="#0a0a0b" />
     <ClientRouter />
     <script is:inline>
       // Design-unit scale. CSS falls back to `100vw / 1001` (zoom-proof: the layout would re-fit the zoomed

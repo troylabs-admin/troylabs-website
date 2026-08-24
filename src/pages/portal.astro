@@ -1,0 +1,71 @@
+---
+/**
+ * TL Alumni Network Portal — placeholder gate. The real portal is being built separately; until it ships,
+ * this page gives the footer link a real destination. Every password is rejected (by design).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pos } from '../lib/units';
+---
+
+<BaseLayout title="TL Alumni Network Portal — TroyLabs" description="Alumni portal for the TroyLabs network.">
+  <section class="section" style="--h:600" aria-label="Alumni portal sign in">
+    <form id="portal-gate" class="abs flex flex-col items-center" style={pos(300.5, 180, 400)} novalidate>
+      <span class="t-label text-muted">MEMBERS ONLY</span>
+      <h1 class="m-0 t-title-tight font-normal text-center" style="margin-top:calc(18 * var(--u))">TL ALUMNI NETWORK PORTAL</h1>
+      <input
+        id="portal-password" type="password" name="password" autocomplete="current-password"
+        placeholder="Password" aria-label="Password" class="t-caption"
+        style={`width:calc(320 * var(--u));height:calc(40 * var(--u));margin-top:calc(34 * var(--u));padding-left:calc(18 * var(--u))`}
+      />
+      <button type="submit" class="gate-btn t-title whitespace-nowrap" style={`width:calc(120 * var(--u));height:calc(33.6 * var(--u));margin-top:calc(20 * var(--u))`}>ENTER</button>
+      <p id="portal-error" class="m-0 t-fine text-center" role="alert" style="margin-top:calc(18 * var(--u))">Incorrect password. Please try again.</p>
+      <p class="m-0 t-fine text-muted text-center" style="margin-top:calc(10 * var(--u))">Access is limited to TroyLabs alumni.</p>
+    </form>
+  </section>
+</BaseLayout>
+
+<style>
+  /* input + button echo the pill CTA: 0.3 du inner stroke, inner white glow (PillButton.astro) */
+  #portal-password {
+    appearance: none; border: 0; outline: none; background: transparent; color: var(--color-ink);
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.5), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.12);
+    transition: box-shadow 150ms ease;
+  }
+  #portal-password::placeholder { color: var(--color-muted); }
+  #portal-password:focus { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.3); }
+  .gate-btn {
+    border: 0; cursor: pointer; background: transparent; color: var(--color-ink);
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4);
+    transition: box-shadow 150ms ease;
+  }
+  .gate-btn:hover, .gate-btn:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
+  #portal-error { color: var(--color-orange); opacity: 0; transition: opacity 200ms ease; }
+  #portal-gate.denied #portal-error { opacity: 1; }
+  #portal-gate.denied #portal-password { animation: gate-shake 400ms ease; }
+  @keyframes gate-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(calc(-7 * var(--u))); }
+    45% { transform: translateX(calc(6 * var(--u))); }
+    70% { transform: translateX(calc(-3.5 * var(--u))); }
+    90% { transform: translateX(calc(1.5 * var(--u))); }
+  }
+</style>
+
+<script is:inline>
+  // Placeholder gate: every attempt is denied, on purpose, until the real portal ships.
+  (() => {
+    const form = document.getElementById('portal-gate');
+    const input = document.getElementById('portal-password');
+    if (!form || !input || form.dataset.ready) return;
+    form.dataset.ready = '1';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      form.classList.remove('denied');
+      void form.offsetWidth; // restart the shake
+      form.classList.add('denied');
+      input.select();
+    });
+  })();
+</script>

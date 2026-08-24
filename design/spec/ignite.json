@@ -5158,15 +5158,128 @@
   ]
  },
  {
-  "id": "7102:3944",
-  "name": "Frame 183",
+  "id": "7153:4037",
+  "name": "Frame 127",
   "type": "FRAME",
   "depth": 1,
   "parent": "6982:742",
-  "x": -1,
-  "y": 1541,
-  "w": 501,
-  "h": 327,
+  "x": 0,
+  "y": 1524,
+  "w": 300,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "685b8dd6296c335272ca8b4dd3e8693a407a27ab",
+    "scaleMode": "STRETCH"
+   }
+  ]
+ },
+ {
+  "id": "7153:4038",
+  "name": "Frame 170",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 501,
+  "y": 1524,
+  "w": 300,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "f696af2117aebcc0895ac08474ee208bde0998d0",
+    "scaleMode": "STRETCH"
+   },
+   {
+    "type": "image",
+    "ref": "eec8f099f0adc454932b8ffcf42992fd580998f3",
+    "scaleMode": "FILL"
+   }
+  ]
+ },
+ {
+  "id": "7153:4039",
+  "name": "Frame 131",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 0,
+  "y": 1722,
+  "w": 202,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "fe34e3d173cea5c46f2b6c756d359e353f6e857d",
+    "scaleMode": "FILL"
+   }
+  ]
+ },
+ {
+  "id": "7153:4040",
+  "name": "Frame 171",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 801,
+  "y": 1524,
+  "w": 202,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "f696af2117aebcc0895ac08474ee208bde0998d0",
+    "scaleMode": "STRETCH"
+   }
+  ]
+ },
+ {
+  "id": "7153:4041",
+  "name": "Frame 172",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 202,
+  "y": 1722,
+  "w": 300,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "2be46822b973071afc93f4871953d3be354c8a02",
+    "scaleMode": "STRETCH"
+   }
+  ]
+ },
+ {
+  "id": "7153:4042",
+  "name": "Frame 173",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 703,
+  "y": 1722,
+  "w": 300,
+  "h": 198,
+  "fills": [
+   {
+    "type": "image",
+    "ref": "36cb690500880991dafd4542881c4ac6fa145aca",
+    "scaleMode": "STRETCH"
+   }
+  ]
+ },
+ {
+  "id": "7153:4043",
+  "name": "Frame 174",
+  "type": "FRAME",
+  "depth": 1,
+  "parent": "6982:742",
+  "x": 502,
+  "y": 1722,
+  "w": 202,
+  "h": 198,
   "fills": [
    {
     "type": "image",
@@ -5176,20 +5289,20 @@
   ]
  },
  {
-  "id": "7102:3945",
-  "name": "Frame 184",
+  "id": "7153:4044",
+  "name": "Frame 175",
   "type": "FRAME",
   "depth": 1,
   "parent": "6982:742",
-  "x": 500,
-  "y": 1541,
-  "w": 501,
-  "h": 327,
+  "x": 300,
+  "y": 1524,
+  "w": 202,
+  "h": 198,
   "fills": [
    {
     "type": "image",
-    "ref": "e21a08a9536ca21b64baad5192e81dc86608bc89",
-    "scaleMode": "STRETCH"
+    "ref": "a955f56355040524a45435bba60431da9b0bf613",
+    "scaleMode": "FILL"
    }
   ]
  }

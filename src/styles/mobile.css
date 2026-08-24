@@ -92,6 +92,17 @@
     box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.4); padding: 0 24px; box-sizing: border-box;
   }
 
+  /* ── photo mosaics as swipe strips (BUILD gallery, IGNITE photos) ─────────────────────────────────
+     Phones get the mosaic as horizontal overflow with snap points, so every photo stays full height
+     instead of shrinking into a tiny grid (Bryan, 2026-08-24). */
+  .m-gal {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 74vw; gap: 6px;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    padding-inline: 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .m-gal::-webkit-scrollbar { display: none; }
+  .m-gal-cell { aspect-ratio: 3 / 2; overflow: hidden; border-radius: 10px; scroll-snap-align: center; }
+
   /* zero-g / hover glows carry over; hover-only affordances are inert on touch, which is fine */
 
   /* ── the cold-idle rule ───────────────────────────────────────────────────────────────────────────

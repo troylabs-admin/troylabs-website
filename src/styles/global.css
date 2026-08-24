@@ -143,3 +143,13 @@ img.abs, .abs > img { max-width: none; }
 #to-top:hover, #to-top:focus-visible { opacity: 1; color: var(--color-orange); box-shadow: inset 0 0 0 0.5px #fff, inset 0 0 14px rgb(255 255 255 / 0.28), 0 0 22px rgb(255 125 44 / 0.25); }
 #to-top svg { width: 100%; height: 100%; display: block; }
 @media (max-width: 767px) { #to-top { width: 42px; height: 42px; padding: 12px; } }
+
+/* ── full-bleed photo mosaics (BUILD gallery, IGNITE photos) ──────────────────────────────────────────
+   The strip breaks out of the centred, 1440-capped artboard to true viewport width; the mosaic inside
+   keeps its Figma proportions and is scaled to match, so the photography runs edge to edge on any
+   monitor. Shared by both sections (Bryan, 2026-08-24). */
+.gal-bleed { width: 100vw; margin-left: calc((100% - 100vw) / 2); overflow: hidden; } /* clip: IGNITE's mosaic is 1003 du wide, a hair past the 1001 artboard */
+.gal-bleed > ul {
+  position: absolute; inset: 0; width: calc(1001 * var(--u)); height: 100%;
+  transform-origin: 0 0; transform: scale(calc(100vw / (1001 * var(--u))));
+}

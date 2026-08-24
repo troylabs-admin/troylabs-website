@@ -1,30 +1,55 @@
 ---
 /**
- * Ignite › Full-bleed photo strip — Section y 1520–1960 du (new in the 2026-08-23 Figma update).
- * Figma: "Frame 183" (7102:3944) @-1,1541 501×327 and "Frame 184" (7102:3945) @500,1541 501×327 —
- * two image-fill frames spanning the full canvas width (the −1/overlap du are designer slack;
- * rendered as an exact half-and-half 0–500.5–1001 split). Exported @3x with their fill crops applied.
+ * Ignite › Photo mosaic — Section y 1520–1960 du (2026-08-24 Figma update: the designer replaced the two
+ * wide photos with an eight-frame mosaic, the same construction BUILD's gallery uses).
+ *   row 1 (y 1524): Frame 127 @0 w300 · Frame 175 @300 w202 · Frame 170 @501 w300 · Frame 171 @801 w202
+ *   row 2 (y 1722): Frame 131 @0 w202 · Frame 172 @202 w300 · Frame 174 @502 w202 · Frame 173 @703 w300
+ * Photos are rendered per frame at 3× so Figma's own crop of each image fill is baked in
+ * (scripts/figma-photos-ignite.ts).
+ * FULL BLEED (Bryan, 2026-08-24): like BUILD's gallery and DEMO's reel, the strip breaks out of the
+ * 1440-capped artboard to true viewport width; on phones it becomes a snap-scrolling swipe strip.
  */
 import { Image } from 'astro:assets';
 import { pos } from '../../../lib/units';
-import photo1 from '../../../assets/figma/ignite-photo-1.png';
-import photo2 from '../../../assets/figma/ignite-photo-2.png';
+import p1 from '../../../assets/figma/ignite-photo-1.jpg';
+import p2 from '../../../assets/figma/ignite-photo-2.jpg';
+import p3 from '../../../assets/figma/ignite-photo-3.jpg';
+import p4 from '../../../assets/figma/ignite-photo-4.jpg';
+import p5 from '../../../assets/figma/ignite-photo-5.jpg';
+import p6 from '../../../assets/figma/ignite-photo-6.jpg';
+import p7 from '../../../assets/figma/ignite-photo-7.jpg';
+import p8 from '../../../assets/figma/ignite-photo-8.jpg';
 
 const TOP = 1520;
 const y = (v: number) => v - TOP;
+
+const photos = [
+  { src: p1, box: [0, 1524, 300, 198], id: '7153:4037', alt: 'IGNITE cohort after a session' },
+  { src: p2, box: [300, 1524, 202, 198], id: '7153:4044', alt: 'A speaker mid-talk at an IGNITE fireside chat' },
+  { src: p3, box: [501, 1524, 300, 198], id: '7153:4038', alt: 'Members together at an IGNITE event' },
+  { src: p4, box: [801, 1524, 202, 198], id: '7153:4040', alt: 'An IGNITE session in a USC lecture hall' },
+  { src: p5, box: [0, 1722, 202, 198], id: '7153:4039', alt: 'A panel discussion at IGNITE' },
+  { src: p6, box: [202, 1722, 300, 198], id: '7153:4041', alt: 'The room during an IGNITE workshop' },
+  { src: p7, box: [502, 1722, 202, 198], id: '7153:4043', alt: 'Members working through a workshop exercise' },
+  { src: p8, box: [703, 1722, 300, 198], id: '7153:4042', alt: 'Group photo at the end of an IGNITE event' },
+];
 ---
 
-<section class="section" style="--h:440" data-figma="IgnitePhotos" aria-label="Photos from IGNITE">
-  <figure class="abs m-0" style={pos(0, y(1541), 500.5, 327)}>
-    <Image src={photo1} alt="Students at an IGNITE session" width={1503} height={981} class="w-full h-full object-cover" />
-  </figure>
-  <figure class="abs m-0" style={pos(500.5, y(1541), 500.5, 327)}>
-    <Image src={photo2} alt="A fireside chat at IGNITE" width={1503} height={981} class="w-full h-full object-cover" />
-  </figure>
+<section class="section gal-bleed" style="--h:440" data-figma="IgnitePhotos" aria-label="Photos from IGNITE">
+  <ul class="m-0 p-0 list-none">
+    {photos.map((p) => (
+      <li class="abs overflow-hidden" style={pos(p.box[0], y(p.box[1]), p.box[2], p.box[3])} data-figma={p.id}>
+        <Image src={p.src} alt={p.alt} width={p.box[2] * 3} height={p.box[3] * 3} class="w-full h-full object-cover" />
+      </li>
+    ))}
+  </ul>
 </section>
 
-<!-- mobile: stacked full-width -->
-<div class="m m-iph" data-m="IgnitePhotos">
-  <Image src={photo1} alt="Students at an IGNITE session" width={1503} height={981} class="w-full" style="display:block" />
-  <Image src={photo2} alt="A fireside chat at IGNITE" width={1503} height={981} class="w-full" style="display:block" />
-</div>
+<!-- mobile: the mosaic becomes a swipeable strip (same treatment as BUILD's gallery) -->
+<ul class="m m-gal m-0 p-0 list-none" data-m="IgnitePhotos" aria-label="Photos from IGNITE">
+  {photos.map((p) => (
+    <li class="m-gal-cell">
+      <Image src={p.src} alt={p.alt} width={p.box[2] * 3} height={p.box[3] * 3} class="w-full h-full object-cover" />
+    </li>
+  ))}
+</ul>

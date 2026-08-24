@@ -53,20 +53,5 @@ const photos = [
   ))}
 </ul>
 
-<style>
-  /* break out of the centred artboard: full viewport width, mosaic scaled to match */
-  .gal-bleed { width: 100vw; margin-left: calc((100% - 100vw) / 2); }
-  .gal-bleed > ul { position: absolute; inset: 0; transform-origin: 0 0; transform: scale(calc(100vw / (1001 * var(--u)))); width: calc(1001 * var(--u)); height: 100%; }
-  @media (max-width: 767px) {
-    /* a swipeable strip: phones get the gallery as horizontal overflow with snap points, so all eight
-       photos stay full-height instead of shrinking into a tiny grid (Bryan, 2026-08-24) */
-    .m-gal {
-      display: grid; grid-auto-flow: column; grid-auto-columns: 74vw; gap: 6px;
-      overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
-      padding-inline: 16px; -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .m-gal::-webkit-scrollbar { display: none; }
-    .m-gal-cell { aspect-ratio: 3 / 2; overflow: hidden; border-radius: 10px; scroll-snap-align: center; }
-  }
-</style>
+{/* .gal-bleed / .m-gal live in styles/global.css + mobile.css: IGNITE's photo mosaic uses the same
+    construction, and Astro scoped blocks have silently dropped rules in this project before. */}

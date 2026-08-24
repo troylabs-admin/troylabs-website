@@ -233,5 +233,11 @@ FRAME     6982:742     "IGNITE"                                   @0,0 1001×333
       VECTOR    7104:4006    "Vector"                                   @731.5,2838 17.4×20.4  fill:#ffffff
       VECTOR    7104:4007    "Vector"                                   @674.8,2838.2 11.6×20.1  fill:#ffffff
       VECTOR    7104:4008    "Vector"                                   @676.9,2828 7.3×7.3  fill:#ffffff
-  FRAME     7102:3944    "Frame 183"                                @-1,1541 501×327  fill:image
-  FRAME     7102:3945    "Frame 184"                                @500,1541 501×327  fill:image
+  FRAME     7153:4037    "Frame 127"                                @0,1524 300×198  fill:image
+  FRAME     7153:4038    "Frame 170"                                @501,1524 300×198  fill:image
+  FRAME     7153:4039    "Frame 131"                                @0,1722 202×198  fill:image
+  FRAME     7153:4040    "Frame 171"                                @801,1524 202×198  fill:image
+  FRAME     7153:4041    "Frame 172"                                @202,1722 300×198  fill:image
+  FRAME     7153:4042    "Frame 173"                                @703,1722 300×198  fill:image
+  FRAME     7153:4043    "Frame 174"                                @502,1722 202×198  fill:image
+  FRAME     7153:4044    "Frame 175"                                @300,1524 202×198  fill:image

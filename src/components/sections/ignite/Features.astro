@@ -9,7 +9,10 @@
  * Node/spark sync: node k finishes igniting at the same --ignite-fuse timeline % the spark reaches it
  * (both scrubbed off one named timeline, so the sync holds at any viewport height).
  */
+import { Image } from 'astro:assets';
 import { pos, u } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import comet from '../../../assets/figma/comet-streak.png';
 
 const TOP = 740;
 const y = (v: number) => v - TOP;
@@ -34,8 +37,9 @@ const FUSE_D = [
   'C 540 245, 460 325, 460 360', // → Exclusive Events node
   'C 460 395, 540 475, 540 510', // → Community node
   'C 540 545, 460 625, 460 660', // → Opportunities node
-  'C 460 700, 490 740, 500 770', // tail out toward the photo strip
-].join(' ');
+  'C 460 700, 480 720, 490 745', // tail bends back toward centre…
+  'C 500 775, 502 820, 502 880', // …and dives BEHIND the photo strip (photos start at box y801; this
+].join(' ');                     //  section paints under the next one, so the spark vanishes behind the photos)
 /* branch stubs: node → its card (same dash style as the fuse) */
 const branch = (f: (typeof FEATURES)[number]) =>
   f.side === 'l' ? `M 414 ${f.ny - TOP} H ${f.nx - 8}` : `M ${f.nx + 8} ${f.ny - TOP} H 587`;
@@ -43,7 +47,14 @@ const branch = (f: (typeof FEATURES)[number]) =>
 /* ignition timeline %: the spark sweeps offset-distance 0→100% over cover 10%→80% of the section
    timeline; node k's ignition completes at the % where the spark reaches it (path fraction ≈ y/775 —
    verified against getPointAtLength within ~1%). */
-const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) / 760);
+/* the same comet BUILD and DEMO carry (its star sits at the head, +5/+97 in the streak's box) */
+const COMET = { x: 740, y: 1010 };
+const stars = [
+  { x: COMET.x + 5, y: COMET.y + 97, s: 11.5 }, { x: 180, y: 870, s: 9 },
+  { x: 860, y: 1300, s: 5.2, kind: 'dot' }, { x: 90, y: 1442, s: 5.2, kind: 'dot' },
+].map((st) => ({ ...st, y: y(st.y) })) as any;
+
+const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) / 870);
 ---
 
 <section class="section" style="--h:780" data-figma="IgniteFeatures" aria-label="What IGNITE offers">
@@ -58,6 +69,9 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
     </div>
   </div>
 
+  <Image src={comet} alt="" aria-hidden="true" width={428} height={339} class="abs pointer-events-none" style={pos(COMET.x, y(COMET.y), 142.6, 113)} />
+  <Stars items={stars} />
+
   <ul class="m-0 p-0 list-none">
     {FEATURES.map((f) => {
       const t = sparkAt(f);
@@ -68,8 +82,8 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
             style={`${pos(f.nx - 4.5, y(f.ny) - 4.5, 9, 9)};--ig0:cover ${(t - 6).toFixed(1)}%;--ig1:cover ${t.toFixed(1)}%`}
             aria-hidden="true"
           />
-          <article class={`abs flex flex-col ${f.side === 'l' ? 'items-end text-right' : 'items-start text-left'}`} style={`${pos(f.side === 'l' ? 127 : 591, y(f.ny) - 16, 283)};gap:${u(8)}`}>
-            <h3 class="m-0 t-nav font-normal whitespace-nowrap">{f.label}</h3>
+          <article class={`abs flex flex-col ${f.side === 'l' ? 'items-end text-right' : 'items-start text-left'}`} style={`${pos(f.side === 'l' ? 127 : 591, y(f.ny) - 9, 283)};gap:${u(8)}`}>
+            <h3 class="m-0 t-feature font-normal whitespace-nowrap">{f.label}</h3>
             <p class="m-0 t-caption w-du" style="--w:283">{f.text}</p>
           </article>
         </li>
@@ -79,5 +93,7 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
 </section>
 
 <style>
+  /* feature labels lead, blurbs support (Bryan, 2026-08-24) — t-name metrics, a step up from the 12px body */
+  .t-feature { font-size: calc(16 * var(--u)); line-height: calc(18.4 * var(--u)); letter-spacing: calc(0.48 * var(--u)); transition: color 200ms var(--ease-out-expo); }
   .t-caption { letter-spacing: calc(0.36 * var(--u)); }
 </style>

@@ -335,9 +335,12 @@ html.motion .swarm:hover .swarm-dot i { transform: translate(calc(var(--sx) * va
 @keyframes fuse-run {
   0% { offset-distance: 0%; opacity: 0; }
   4% { opacity: 1; }
-  96% { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
+  100% { offset-distance: 100%; opacity: 1; } /* no end fade — the path dives behind the photo strip */
 }
+html.motion [data-figma="IgniteFeatures"] .fuse-node { transition: filter 250ms var(--ease-out-expo); }
+html.motion [data-figma="IgniteFeatures"] li:has(article:hover) .fuse-node { filter: brightness(1.35) drop-shadow(0 0 calc(12 * var(--u)) rgb(255 125 44 / 0.9)); }
+html.motion [data-figma="IgniteFeatures"] li:has(article:hover) h3 { color: var(--color-orange); }
+
 @keyframes node-ignite {
   from { opacity: 0.35; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.2); }
   to { opacity: 1; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6), 0 0 calc(18 * var(--u)) rgb(255 125 44 / 0.55); }

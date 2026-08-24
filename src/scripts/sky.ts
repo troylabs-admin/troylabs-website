@@ -51,24 +51,46 @@ function init() {
   let sat: { s0: number; dur: number; y0: number; drift: number; dir: 1 | -1; spin: number; k: number } | null = null;
   let nextSat = FAST ? 4 : 3.5 + rand() * 2;
 
-  let visible = !document.hidden, raf = 0, t0 = performance.now();
-  document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
-
   // The sky renders at 30 fps. Measured: at 60 fps a star drifts 0.009-0.029 px per frame and its twinkle
   // alpha moves 0.0075 — every increment is far below one pixel or one perceptible step, so halving the
   // rate cannot be seen in the drift or the twinkle, and it halves the canvas's share of the main thread.
   // The pointer lerp is doubled to compensate exactly, so the parallax still settles in the same
   // wall-clock time rather than feeling sluggish (this is the part that WOULD have been noticeable).
-  // Phones excluded from the skip: iOS already throttles rAF to 30 fps in Low Power Mode, and skipping on
-  // top of that reads as a frozen sky (Bryan, 2026-08-24).
   const PHONE = matchMedia('(max-width: 767px)').matches;
   const HALF = PHONE;                        // glyph stars stay simplified on phones
-  let odd = false;
+  // Frame-gate by TIME, not frame parity: on a 120 Hz display an every-other-frame skip still draws at
+  // 60 fps and wakes the main thread 120×/s. Instead, after each drawn frame we arm the next callback
+  // ~33 ms out via setTimeout→rAF, so the loop SCHEDULES at 30 fps on any refresh rate (it previously
+  // scheduled at the full display rate: measured as the entire residual rAF cost of every page).
+  // rAF still drives the actual draw, so frames stay vsync-aligned and never tear.
+  // This gate is safe on phones in Low Power Mode: iOS throttles rAF to ~30 fps there, so frames already
+  // arrive ≥33 ms apart and the gate is a no-op — the sky never freezes. Out of Low Power Mode phones run
+  // the sky at full tilt (measured 120 fps on a 120 Hz emulator), which is the phone-heating loop Bryan
+  // reported; gating them to 30 fps is the single biggest mobile thermal win on the site.
+  let visible = !document.hidden, raf = 0, t0 = performance.now();
+  const FRAME_MS = 33.4;
+  let lastDraw = -Infinity, timer = 0;
+
+  // On hide, drop whatever is pending; on return, cancel BOTH possible pending callbacks and re-arm
+  // fresh. (`raf` holds a stale handle for most of each cycle — during the setTimeout wait — so gating
+  // the re-arm on `!raf` deadlocks: hide during that window cleared the timer, and the stale handle
+  // then blocks the restart forever. Measured: one tab switch froze the sky until reload.)
+  document.addEventListener('visibilitychange', () => {
+    visible = !document.hidden;
+    if (timer) { clearTimeout(timer); timer = 0; }
+    if (visible) { lastDraw = -Infinity; cancelAnimationFrame(raf); raf = 0; arm(); }   // draw immediately on return
+  });
+
+  function arm() {
+    if (!visible) { raf = 0; return; }
+    const wait = Math.max(0, FRAME_MS - (performance.now() - lastDraw));
+    timer = setTimeout(() => { timer = 0; raf = requestAnimationFrame(draw); }, wait) as unknown as number;
+  }
 
   function draw(now: number) {
-    if (!PHONE && (odd = !odd)) { raf = visible ? requestAnimationFrame(draw) : 0; return; }
+    lastDraw = now;
     const t = (now - t0) / 1000;
-    const lerp = PHONE ? 0.06 : 0.12;        // half the frames, twice the step = same settling time
+    const lerp = 0.12;                       // both desktop and phone now draw at 30 fps — one step size keeps the same parallax settling time
     mx += (tx - mx) * lerp; my += (ty - my) * lerp;
     // only touch the root vars when the pointer actually moved: every write recalcs styles for the whole page
     if (Math.abs(mx - pmx) > 0.002 || Math.abs(my - pmy) > 0.002) { pmx = mx; pmy = my; root.style.setProperty('--mx', mx.toFixed(3)); root.style.setProperty('--my', my.toFixed(3)); }
@@ -132,7 +154,7 @@ function init() {
         drawSatellite(ctx, x, sat.y0 + sat.drift * p, t * 0.12 * sat.spin, sat.k);
       }
     }
-    raf = visible ? requestAnimationFrame(draw) : 0;
+    arm();
   }
   raf = requestAnimationFrame(draw);
 }

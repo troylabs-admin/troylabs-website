@@ -42,7 +42,7 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
           [600, 3515, 545, 545]], // backers: designer's textured orange planet + atmosphere replace Figma's flat disc (Bryan, 2026-08-23)
   // Home "members" company names → wordmark logos (decision 2026-08-23): the 12 text boxes, widened for the marks
   home: [[500, 2100, 400, 380], // "13 majors": Figma's glass orbs replaced by a constellation (decision 2026-08-23)
-         [66, 2120, 470, 350], // "50 active members": Figma's starburst replaced by the counter swarm (Bryan, 2026-08-24)
+         [20, 2095, 490, 360], // "50 active members": Figma's starburst replaced by the counter swarm (Bryan, 2026-08-24)
          [385, 3319, 120, 38], [547, 3320, 162, 40], [668, 3403, 125, 38], [706, 3485, 201, 38], [761, 3570, 115, 38], [713, 3641, 110, 38],
          [178, 3704, 104, 38], [670, 3718, 106, 38], [182, 3773, 175, 38], [532, 3798, 244, 38], [346, 3812, 112, 38], [449, 3838, 109, 38],
          [127, 4168, 769, 1098], // board: real headshots replace the checkerboard placeholders (Bryan, 2026-08-23)
@@ -51,7 +51,8 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
   // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
   demo: [[0, 5465, 1001, 240]],
   // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
-  ignite: [[0, 3076, 1001, 256]],
+  ignite: [[0, 3076, 1001, 256],
+           [0, 740, 1001, 780]], // features: Figma's centered text list redesigned as the ignition fuse (Bryan, 2026-08-24; see Features.astro)
 };
 /** The designer's bright-green (#00ff37) review scribbles are ignored wherever they appear in a reference. */
 const isAnnotationGreen = (r: number, g: number, b: number) => g > 180 && r < 120 && b < 140;

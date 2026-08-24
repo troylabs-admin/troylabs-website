@@ -301,3 +301,44 @@ html.motion .swarm:hover .swarm-dot i { transform: translate(calc(var(--sx) * va
   from { transform: translate(calc(var(--sx) * 1.4 * var(--u)), calc(var(--sy) * 1.4 * var(--u))); opacity: 0.3; }
   to { transform: none; opacity: 1; }
 }
+
+/* ── IGNITE: the ignition fuse (Features.astro) ──────────────────────────────────────────────────────
+   A dotted fuse winds down the section; a glowing spark travels it as the section scrolls (scrubbed on
+   the section's named view timeline) and each feature's node ignites as the spark reaches it — spark and
+   nodes scrub the SAME timeline, so the sync holds at any viewport height. Rest state (reduced motion /
+   no scroll-driven support): fuse drawn, all nodes lit, no spark. */
+.fuse-line { stroke: rgb(255 255 255 / 0.35); stroke-width: 1.2; stroke-dasharray: 1 6; stroke-linecap: round; fill: none; }
+.fuse-node { border-radius: 9999px; background: #fff; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6), 0 0 calc(18 * var(--u)) rgb(255 125 44 / 0.55); }
+.fuse-spark { display: none; }
+@supports (animation-timeline: view()) and (offset-path: path("M0 0")) {
+  html.motion [data-figma="IgniteFeatures"] { view-timeline-name: --ignite-fuse; }
+  html.motion .fuse-spark {
+    display: block; position: absolute; width: 6px; height: 6px; border-radius: 9999px; background: #fff;
+    box-shadow: 0 0 6px 2px rgb(255 255 255 / 0.9), 0 0 18px 7px rgb(255 125 44 / 0.75), 0 0 42px 18px rgb(255 125 44 / 0.3);
+    offset-path: url(#ignite-fuse-path);
+    /* longhands only — see the .planet note: the minifier must not merge animation-timeline into the shorthand */
+    animation-name: fuse-run;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --ignite-fuse;
+    animation-range: cover 10% cover 80%;
+  }
+  html.motion .fuse-node {
+    animation-name: node-ignite;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --ignite-fuse;
+    animation-range-start: var(--ig0);
+    animation-range-end: var(--ig1);
+  }
+}
+@keyframes fuse-run {
+  0% { offset-distance: 0%; opacity: 0; }
+  4% { opacity: 1; }
+  96% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes node-ignite {
+  from { opacity: 0.35; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.2); }
+  to { opacity: 1; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6), 0 0 calc(18 * var(--u)) rgb(255 125 44 / 0.55); }
+}

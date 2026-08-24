@@ -102,6 +102,9 @@ The static design is the REST state of every animation; the fidelity suite runs 
   50 of the designer's glow dots, hover scatters & reforms). Built into `sections/home/Catalyst.astro`
   (baked seeded layout, shares Stars.astro's dot glyph/twinkle so it pairs with the 13-majors constellation);
   starburst masked in the fidelity suite; `/lab/members` deleted.
+- **IGNITE features redesigned (2026-08-24)**: "ignition fuse" — dotted fuse down the section, features
+  alternating left/right, scroll-scrubbed spark ignites each node (Features.astro + motion.css; fidelity
+  masks the whole band). DEMO may get a similar liveliness pass next — ask Bryan.
 - **Not done**: mobile (<768 px) — deliberately last, after desktop sign-off; currently a scaled desktop.
 - Perf is profiled light (idle ~4 %, scrolling ~12 % of one core; sky/globe pause off-screen and when hidden).
 - **2026-08-23 Figma update (batch 2) implemented** across BUILD/DEMO/IGNITE: colorful timeline orbs +

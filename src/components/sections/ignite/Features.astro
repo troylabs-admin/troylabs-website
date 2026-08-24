@@ -1,37 +1,83 @@
 ---
 /**
- * Ignite › Program features — Figma "Frame 153" (6990:1030) @341,786 319×598, VERTICAL gap 72.
- * Each item (Frame 148–152) is a VERTICAL gap-8 stack: label 319×14 (12px ls0.96 = .t-nav) · glowing dot 4×4 · blurb 283×28 (12px ls0.36 = .t-caption).
- * Section y 740–1520 du.
+ * Ignite › Program features — REDESIGNED as the "ignition fuse" (Bryan, 2026-08-24; masked in the
+ * fidelity suite). The Figma frame ("Frame 153" 6990:1030) is a plain centered text list — Bryan asked
+ * for the section to live up to the page name without another rocket. So: a dotted fuse winds down the
+ * centre, the five features alternate left/right off it, and a glowing spark travels the fuse as you
+ * scroll (scrubbed view() timeline, motion.css), igniting each feature's node as it passes. Rest state
+ * (reduced motion / no scroll-driven support): fuse + all nodes lit, no spark. Section y 740–1520 du.
+ * Node/spark sync: node k finishes igniting at the same --ignite-fuse timeline % the spark reaches it
+ * (both scrubbed off one named timeline, so the sync holds at any viewport height).
  */
 import { pos, u } from '../../../lib/units';
-import Stars from '../../space/Stars.astro';
 
 const TOP = 740;
 const y = (v: number) => v - TOP;
 
 // TODO(designer): every blurb is the same placeholder copy in Figma ("Get matched with a dedicated team…")
 const BLURB = 'Get matched with a dedicated team of 6 members from each of TroyLabs’ different divisions.';
-const features = [
-  { id: '6990:1001', label: 'Workshops', text: BLURB, dotY: 808 },
-  { id: '6990:1008', label: 'Fireside Chats', text: BLURB, dotY: 942 },
-  { id: '6990:1013', label: 'Exclusive Events', text: BLURB, dotY: 1076 },
-  { id: '6990:1018', label: 'Community', text: BLURB, dotY: 1210 },
-  { id: '6990:1025', label: 'Opportunities', text: BLURB, dotY: 1344 },
-];
-// the glowing 4×4 dots ("Ellipse 228" @498.5) are drawn by Stars; the list keeps a 4 du spacer in their place
-const dots = features.map((f) => ({ x: 498.5, y: y(f.dotY), kind: 'dot' })) as any;
+const FEATURES = [
+  { id: '6990:1001', label: 'Workshops',        side: 'l', ny: 800 },
+  { id: '6990:1008', label: 'Fireside Chats',   side: 'r', ny: 950 },
+  { id: '6990:1013', label: 'Exclusive Events', side: 'l', ny: 1100 },
+  { id: '6990:1018', label: 'Community',        side: 'r', ny: 1250 },
+  { id: '6990:1025', label: 'Opportunities',    side: 'l', ny: 1400 },
+].map((f) => ({ ...f, text: BLURB, nx: f.side === 'l' ? 460 : 540 }));
+
+/* fuse path in raw px (= du) inside the .flight box — url() offset paths don't scale with viewBox,
+   so the box is raw-px scaled by --un (BUILD timeline pattern). Vertical tangents at every node keep
+   the spark's passage through each junction smooth. */
+const FUSE_D = [
+  'M 500 10',
+  'C 480 25, 460 40, 460 60',    // → Workshops node
+  'C 460 95, 540 175, 540 210',  // → Fireside Chats node
+  'C 540 245, 460 325, 460 360', // → Exclusive Events node
+  'C 460 395, 540 475, 540 510', // → Community node
+  'C 540 545, 460 625, 460 660', // → Opportunities node
+  'C 460 700, 490 740, 500 770', // tail out toward the photo strip
+].join(' ');
+/* branch stubs: node → its card (same dash style as the fuse) */
+const branch = (f: (typeof FEATURES)[number]) =>
+  f.side === 'l' ? `M 414 ${f.ny - TOP} H ${f.nx - 8}` : `M ${f.nx + 8} ${f.ny - TOP} H 587`;
+
+/* ignition timeline %: the spark sweeps offset-distance 0→100% over cover 10%→80% of the section
+   timeline; node k's ignition completes at the % where the spark reaches it (path fraction ≈ y/775 —
+   verified against getPointAtLength within ~1%). */
+const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) / 760);
 ---
 
 <section class="section" style="--h:780" data-figma="IgniteFeatures" aria-label="What IGNITE offers">
-  <Stars items={dots} />
-  <ul class="abs m-0 p-0 list-none flex flex-col" style={`${pos(341, y(786), 319)};gap:${u(72)}`}>
-    {features.map((f) => (
-      <li class="flex flex-col items-center text-center" style={`gap:${u(8)}`} data-figma={f.id}>
-        <h3 class="m-0 t-nav font-normal whitespace-nowrap">{f.label}</h3>
-        <span class="block shrink-0" style={`height:${u(4)}`} aria-hidden="true" />
-        <p class="m-0 t-caption w-du" style="--w:283">{f.text}</p>
-      </li>
-    ))}
+  <!-- the fuse + travelling spark (motion layer; the line and lit nodes are the rest state) -->
+  <div class="abs pointer-events-none" style={pos(0, 0, 1001, 780)} aria-hidden="true">
+    <div class="flight" style="width:1001px;height:780px;transform-origin:0 0;transform:scale(var(--un, 1))">
+      <svg width="1001" height="780" style="position:absolute;inset:0;overflow:visible">
+        <path id="ignite-fuse-path" d={FUSE_D} class="fuse-line" />
+        {FEATURES.map((f) => <path d={branch(f)} class="fuse-line" />)}
+      </svg>
+      <span class="fuse-spark"></span>
+    </div>
+  </div>
+
+  <ul class="m-0 p-0 list-none">
+    {FEATURES.map((f) => {
+      const t = sparkAt(f);
+      return (
+        <li data-figma={f.id}>
+          <span
+            class="abs fuse-node pointer-events-none"
+            style={`${pos(f.nx - 4.5, y(f.ny) - 4.5, 9, 9)};--ig0:cover ${(t - 6).toFixed(1)}%;--ig1:cover ${t.toFixed(1)}%`}
+            aria-hidden="true"
+          />
+          <article class={`abs flex flex-col ${f.side === 'l' ? 'items-end text-right' : 'items-start text-left'}`} style={`${pos(f.side === 'l' ? 127 : 591, y(f.ny) - 16, 283)};gap:${u(8)}`}>
+            <h3 class="m-0 t-nav font-normal whitespace-nowrap">{f.label}</h3>
+            <p class="m-0 t-caption w-du" style="--w:283">{f.text}</p>
+          </article>
+        </li>
+      );
+    })}
   </ul>
 </section>
+
+<style>
+  .t-caption { letter-spacing: calc(0.36 * var(--u)); }
+</style>

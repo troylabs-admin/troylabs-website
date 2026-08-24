@@ -37,6 +37,11 @@ See the header comments in `src/components/sections/<page>/*.astro` and the `SEC
 `tests/fidelity/visual.spec.ts`.
 
 ## Known deviations / decisions
+
+- **IGNITE features → "ignition fuse" (2026-08-24, Bryan).** The Figma's centered text list (Frame 153)
+  is redesigned: a dotted fuse winds down the section, the five features alternate left/right off it, and
+  a glowing spark travels the fuse on scroll, igniting each feature's node. Masked in the fidelity suite
+  (whole 740–1520 band). Figma still shows the old list — flag to Ellie.
 - **Scale**: the artboard fills the viewport width (1 du = 100vw/1001; at 1440 px body text is 17 px). Proportional, so nothing in the composition changes.
 - **Decorative layers** (planets, stars, orbs, wordmark glow) use the designer's exported PNG masters rather than re-drawing the Figma vector effects; exact placement is measured against the 1:1 render.
 - **Text wrapping**: +0.6 du width slack on text boxes (Figma ignores trailing letter-spacing when wrapping).

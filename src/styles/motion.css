@@ -133,10 +133,14 @@ html.motion .planet img.breathe[data-period="11s"] { --p: 11s; } html.motion .pl
 @keyframes breathe { from { transform: translate3d(calc(-3 * var(--u)), calc(2 * var(--u)), 0) scale(1); } to { transform: translate3d(calc(3 * var(--u)), calc(-3 * var(--u)), 0) scale(1.025); } }
 /* the page-level star glyphs get a touch of depth too (content layer = near) */
 html.motion [data-figma] > div[aria-hidden="true"]:has(> .star) { transform: translate3d(calc(var(--mx, 0) * 6px), calc(var(--my, 0) * 6px), 0); transition: transform 80ms linear; }
-/* nebula: 40–70 s loops, never in sync */
-html.motion .nebula .n1 { animation: nebula-a 52s ease-in-out infinite alternate; }
-html.motion .nebula .n2 { animation: nebula-b 67s ease-in-out infinite alternate; }
-html.motion .nebula .n3 { animation: nebula-a 44s 10s ease-in-out infinite alternate-reverse; }
+/* nebula: 40–70 s loops, never in sync — DESKTOP ONLY. On phones the three always-on blurred
+     (filter:blur(90px)) transform animations keep the GPU compositing every frame and ran the device hot
+     (Bryan, 2026-08-24). Mobile gets the static nebula fields (same colours, no drift) instead. */
+@media (min-width: 768px) {
+  html.motion .nebula .n1 { animation: nebula-a 52s ease-in-out infinite alternate; }
+  html.motion .nebula .n2 { animation: nebula-b 67s ease-in-out infinite alternate; }
+  html.motion .nebula .n3 { animation: nebula-a 44s 10s ease-in-out infinite alternate-reverse; }
+}
 @keyframes nebula-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(14vw, -8vh, 0) scale(1.25); } }
 @keyframes nebula-b { from { transform: translate3d(0, 0, 0) scale(1.1); } to { transform: translate3d(-12vw, 10vh, 0) scale(0.9); } }
 
@@ -281,19 +285,12 @@ html.motion .constellation.cx-arm:not(.is-in) .core { opacity: 0; transform: sca
 html.motion footer .mark svg { transition: opacity 400ms ease; }
 html.motion.landed footer .mark svg { opacity: 0; }
 
-/* ── Home MOBILE: the same flight on the mobile layout (MobileFlight.astro + flight.ts's mobile branch).
-     The layer sits above the mobile copy (z 6) so the rocket reads as flying over the page, exactly like
-     desktop; pointer-events none so it never blocks taps. Hidden on desktop, static when motion is off. ── */
+/* ── Home MOBILE flight: DISABLED (2026-08-24). Bryan: the rAF-driven rocket ran hot and laggy on the
+     phone — removed until we revisit. The layer stays in the DOM (MobileFlight.astro) but is never shown;
+     .m-flight keeps its default display:none, so the wordmark rocket and footer mark render statically.
+     To re-enable, restore the @media (max-width:767px) block that set .m-flight{display:block} + the
+     flyer's offset-path, and the flight.ts mobile branch will drive it again. ── */
 .m-flight { display: none; }
-@supports (offset-path: path("M0 0")) {
-  @media (max-width: 767px) {
-    html.motion .m-flight { display: block; position: absolute; z-index: 6; }
-    html.motion .m-flight .home-flyer { offset-path: url(#m-flight-path); offset-rotate: 90deg; opacity: 0; }
-    /* on touchdown the white footer mark yields to the arrived orange one (mobile footer mark) */
-    html.motion footer .m-rocket svg { transition: opacity 400ms ease; }
-    html.motion.landed footer .m-rocket svg { opacity: 0; }
-  }
-}
 
 /* ── Home › 50 ACTIVE MEMBERS counter swarm (Catalyst.astro) ─────────────────────────────────────────
    Scattered stars GATHER into the "50" as the block scrolls in (scrubbed, so scrolling back up disperses
@@ -354,6 +351,12 @@ html.motion .swarm:hover .swarm-dot i { transform: translate(calc(var(--sx) * va
   0% { offset-distance: 0%; opacity: 0; }
   4% { opacity: 1; }
   100% { offset-distance: 100%; opacity: 1; } /* no end fade — the path dives behind the photo strip */
+}
+/* Mobile: no fuse spark (Bryan, 2026-08-24 — phone ran hot; all rocket/spark motion off on phones for now).
+     The mobile .m tree reuses .fuse-spark, so the desktop @supports block above would still animate it —
+     this wins on specificity+order and keeps the phone static. The fuse nodes still ignite on scroll. */
+@media (max-width: 767px) {
+  html.motion .m .fuse-spark, html.motion .m-feat .fuse-spark { display: none; animation: none; }
 }
 html.motion [data-figma="IgniteFeatures"] .fuse-node { transition: filter 250ms var(--ease-out-expo); }
 html.motion [data-figma="IgniteFeatures"] li:has(article:hover) .fuse-node { filter: brightness(1.35) drop-shadow(0 0 calc(12 * var(--u)) rgb(255 125 44 / 0.9)); }

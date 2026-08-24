@@ -59,6 +59,14 @@ html.sky-live body::before { background-image: none; }
 .nebula .n1 { width: 760px; height: 760px; left: -12%; top: 10%; background: rgb(255 125 44 / 0.09); }
 .nebula .n2 { width: 640px; height: 640px; right: -10%; top: 35%; background: rgb(84 138 255 / 0.07); }
 .nebula .n3 { width: 560px; height: 560px; left: 30%; bottom: -18%; background: rgb(255 194 0 / 0.05); }
+/* phones are tall+narrow: the desktop nebula leaves the lower viewport cold (the warm n1 centres ~45% and
+   falls off before the hero planet, reading as a hard warm→black band — Bryan, 2026-08-24). Re-centre the
+   warm spans to span the full mobile viewport so the field reads continuous top to bottom. */
+@media (max-width: 767px) {
+  .nebula .n1 { top: -8%; left: -30%; width: 900px; height: 900px; }
+  .nebula .n2 { top: 40%; right: -35%; width: 760px; height: 760px; }
+  .nebula .n3 { bottom: -30%; left: -10%; width: 820px; height: 820px; background: rgb(255 125 44 / 0.06); }
+}
 
 /* ── base ─────────────────────────────────────────────────────────────────── */
 html { overflow-anchor: none; /* the scroll-driven rocket must never become Chrome's scroll anchor (causes jitter) */ background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }

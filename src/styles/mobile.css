@@ -84,17 +84,15 @@
   .m-node { position: absolute; left: -38.5px; top: 4px; width: 9px; height: 9px; border-radius: 999px; background: #fff;
     box-shadow: 0 0 7px rgb(255 255 255 / 0.6), 0 0 16px rgb(255 125 44 / 0.55); } /* px units: --u is desktop-scaled here */
 }
+/* Mobile rocket/spark scroll animations DISABLED (2026-08-24): Bryan reported the phone ran hot/laggy.
+     Off: the BUILD rail rocket (.m-tl-rocket rides --m-tl) and the IGNITE fuse spark (.fuse-spark rides
+     --m-fuse). Kept: the node-ignite fade (cheap, not a moving object) so the fuse rail still reads.
+     The rockets/sparks stay in the DOM as static rest-state art. Re-enable by restoring the two
+     animation-timeline blocks below. */
 @supports (animation-timeline: view()) {
   @media (max-width: 767px) {
     html.motion .m-feat { view-timeline-name: --m-fuse; }
-    html.motion .m-feat .fuse-spark {
-      display: block; position: absolute;
-      animation-name: m-fuse-run;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --m-fuse;
-      animation-range: cover 12% cover 80%;
-    }
+    /* fuse spark hidden — static fuse nodes still ignite on scroll (below) */
     html.motion .m-node {
       animation-name: m-node-ignite;
       animation-timing-function: linear;
@@ -103,14 +101,7 @@
       animation-range-start: var(--ig0, cover 20%);
       animation-range-end: var(--ig1, cover 30%);
     }
-    html.motion .m-tl { view-timeline-name: --m-tl; }
-    html.motion .m-tl-rocket {
-      animation-name: m-tl-fly;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --m-tl;
-      animation-range: cover 18% cover 85%;
-    }
+    /* BUILD rail rocket: no view-timeline flight — it rests at the top of the rail (its markup default) */
   }
 }
 @keyframes m-lift { from { transform: translate(0, 0) rotate(-12deg); } to { transform: translate(70px, -620px) rotate(-4deg); } }

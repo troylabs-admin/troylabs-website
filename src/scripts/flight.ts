@@ -67,6 +67,10 @@ function target(map: [number, number][], s: number): number {
 
 function init() {
   const mobile = matchMedia('(max-width: 767px)').matches;
+  // Mobile flight disabled (2026-08-24): the rAF scrub loop ran hot on phones. Bail before any work —
+  // no rAF, no per-frame getPointAtLength — so mobile renders the static wordmark/footer rockets only.
+  // The desktop flight below is untouched. Re-enable by deleting this early return (and the CSS gate).
+  if (mobile) return;
   const flyer = document.querySelector<HTMLElement>(mobile ? '.m-flight .home-flyer' : '.home-flyer');
   const pathEl = document.querySelector<SVGPathElement>(mobile ? '#m-flight-path' : '#home-flight-path');
   const wmRocket = document.querySelector<SVGPathElement>(mobile ? '.m-wordmark path[fill^="url("]' : '.wordmark path[fill^="url("]');

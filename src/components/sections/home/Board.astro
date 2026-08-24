@@ -1,8 +1,11 @@
 ---
 /**
- * Home › Executive Board — Section y 4050–5583 du.
+ * Home › Executive Board — Section y 4050–5433 du.
  * Figma: title 7028:1996 · grid "Frame 109" @127,4168: 4 columns at x = 127 / 334.8 / 542.5 / 750.3,
  * 5 rows at y = 4168 / 4397.1 / 4626.2 / 4873.4 / 5120.4. Card = 145×145 photo (r 16.4) + name + role, gap 6.56.
+ * DEVIATION (Bryan, 2026-08-23): section ends 150 du earlier than the Figma's 5583 — the empty band under
+ * the last row read as a hole once real photos filled the grid. The flight path's final hook shifted with
+ * it, and the ambient glow is trimmed to end at the new page bottom (its tail is ~invisible at 5% alpha).
  * Members & placement come from src/content/board.json (generated from the Figma grid).
  * Photos: real headshots in src/assets/board/ (pnpm assets:board from the raw "E-Board Photos/" folder,
  * keyed by board.json's "photo" field); the checkerboard placeholder remains as the fallback.
@@ -22,8 +25,8 @@ const COLS = [127, 334.8, 542.5, 750.3];
 const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
 ---
 
-<section class="section" style="--h:1533" data-figma="Board" aria-labelledby="board-title">
-  <Glow x={310} y={y(4847)} w={745.3} h={914.3} />
+<section class="section" style="--h:1383" data-figma="Board" aria-labelledby="board-title">
+  <Glow x={310} y={y(4847)} w={745.3} h={842} />
   <h2 id="board-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(414, y(4082), 199, 23)}>EXECUTIVE BOARD</h2>
 
   <ul class="m-0 p-0 list-none">

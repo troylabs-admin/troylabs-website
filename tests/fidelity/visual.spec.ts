@@ -21,7 +21,7 @@ const OUT = 'test-results/fidelity';
 const SECTIONS: Record<string, Record<string, [number, number]>> = {
   home: {
     nav: [0, 79], hero: [79, 600], mission: [600, 900], initiatives: [900, 1900], catalyst: [1900, 3200],
-    members: [3200, 4050], board: [4050, 5583], footer: [5583, 5839],
+    members: [3200, 4050], board: [4050, 5433], footer: [5433, 5689],
   },
   build: { nav: [0, 79], hero: [79, 600], timeline: [600, 1778], gallery: [1778, 2174], stats: [2174, 2900], backers: [2900, 4000] }, // previous/footer bands dropped: placeholder panel removed (HEIGHT_OVERRIDES)
   demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1560], speakers: [1560, 2500], investors: [2500, 3615], footer: [3615, 3871] },
@@ -32,6 +32,7 @@ const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/dem
 /** Deliberate deviations from the Figma frame height (documented in the section components). */
 const HEIGHT_OVERRIDES: Record<string, number> = {
   build: 5463 - 1184 + 160, // "this section tbd?" placeholder panel not rendered (Previous.astro)
+  home: 5839 - 150, // board→footer empty band shrunk 150 du (Bryan, 2026-08-23; see Board.astro)
 };
 
 /** Reference regions we deliberately don't reproduce (du rects) — see the component comments. */
@@ -42,7 +43,7 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
          [385, 3319, 120, 38], [547, 3320, 162, 40], [668, 3403, 125, 38], [706, 3485, 201, 38], [761, 3570, 115, 38], [713, 3641, 110, 38],
          [178, 3704, 104, 38], [670, 3718, 106, 38], [182, 3773, 175, 38], [532, 3798, 244, 38], [346, 3812, 112, 38], [449, 3838, 109, 38],
          [127, 4168, 769, 1098], // board: real headshots replace the checkerboard placeholders (Bryan, 2026-08-23)
-         [95, 5633, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
+         [95, 5483, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
   demo: [[95, 3665, 140, 130]], // footer nav: current page's link omitted, top-nav order
   ignite: [[95, 2337, 140, 130]], // footer nav: current page's link omitted, top-nav order
 };

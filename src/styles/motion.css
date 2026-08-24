@@ -74,16 +74,21 @@ html.motion .star:not([data-figma$="Hero"] .star) {
 }
 @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: var(--dim, 0.35); } }
 
-/* ── 6 divisions: the star icons idle with a slow celestial spin (each its own period, alternating
-   directions) + a soft twinkle; hovering the card brightens its star. Compositor-only: rotate + opacity. ── */
+/* ── 6 divisions: the star icons are ALIVE — a visible spin with a scale pulse at the half-turn (each its
+   own period, alternating directions) + a quick glinting sparkle; hovering the card brightens its star.
+   Compositor-only: rotate/scale + opacity. ── */
 html.motion [data-division] img {
-  --dim: 0.72;                                       /* gentler than the field stars — these carry meaning */
-  animation: division-spin calc(26s + var(--i, 0) * 5s) linear infinite,
-             twinkle calc(4.6s + var(--i, 0) * 0.8s) ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * -6.3s), calc(var(--i, 0) * -1.1s);
+  animation: division-spin calc(14s + var(--i, 0) * 3s) linear infinite,
+             division-sparkle calc(3.8s + var(--i, 0) * 0.7s) ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -4.1s), calc(var(--i, 0) * -1.3s);
 }
 html.motion [data-division]:nth-child(even) img { animation-direction: reverse, normal; }
-@keyframes division-spin { to { transform: rotate(1turn); } }
+@keyframes division-spin {
+  0%   { transform: rotate(0) scale(1); }
+  50%  { transform: rotate(0.5turn) scale(1.08); }
+  100% { transform: rotate(1turn) scale(1); }
+}
+@keyframes division-sparkle { 0%, 100% { opacity: 1; } 5% { opacity: 0.3; } 10% { opacity: 1; } }
 [data-division] img { transition: filter 300ms var(--ease-out-expo); }
 [data-division]:hover img { filter: brightness(1.3) drop-shadow(0 0 calc(6 * var(--u)) rgb(255 255 255 / 0.45)); }
 

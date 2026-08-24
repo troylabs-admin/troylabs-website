@@ -10,6 +10,8 @@
  *  • the timed landing is anchored to the FOOTER: it starts when the footer mark reaches the viewport's
  *    bottom edge (never earlier) and sets the rocket down exactly on the mark (class `landed` at p ≥ 0.9995)
  */
+import { rideHome } from './scroll';
+
 const root = document.documentElement;
 
 function buildMap(path: SVGPathElement): [number, number][] {
@@ -92,6 +94,18 @@ function init() {
   // with a short blend. If the user simply scrolls to the very bottom, scrub alone reaches the dock (t = 1).
   let mode: 'scrub' | 'landing' = 'scrub';
   let landT0 = 0, landP0 = 0, blend = false, lastNow = 0;
+  // Guided return: clicking the footer mark rides the rocket back up the path (it flips nose-first — a
+  // blast-off, not a rewind — at the slew limit) while the page smooth-scrolls home; the wordmark
+  // crossfade docks it. Capture-phase so the view-transition router never treats it as a navigation.
+  let guided = false;
+  document.querySelector('footer .mark')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    guided = true;
+    rideHome(3);
+  }, true);
+  addEventListener('wheel', () => { guided = false; }, { passive: true });   // user grabs the wheel mid-ride
+  addEventListener('touchmove', () => { guided = false; }, { passive: true });
   const tick = (now: number) => {
     const dt = Math.min(100, Math.max(0, now - (lastNow || now)));
     lastNow = now;
@@ -122,7 +136,9 @@ function init() {
     // landing flare: the footer mark is vertical, but the backward-looking tangent window still reads the
     // hook's diagonal at the very end (rests at 20.4°) — straighten to nose-up over the last 2% of the path
     const flare = Math.min(1, Math.max(0, (p - 0.98) / 0.02));
-    const want = raw * (1 - flare * flare * (3 - 2 * flare));
+    let want = raw * (1 - flare * flare * (3 - 2 * flare));
+    if (guided) want += 180;                            // ride home nose-first (the tangent points down-page)
+    if (guided && p < 0.002) guided = false;            // docked into the wordmark
     const diff = ((want - ang + 540) % 360) - 180;
     ang += Math.sign(diff) * Math.min(Math.abs(diff), 5);
     flyer.style.offsetRotate = `${ang.toFixed(2)}deg`;

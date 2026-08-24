@@ -14,7 +14,7 @@ import rocket from '../../../assets/figma/wordmark-rocket-flat.svg?raw'; // filt
 
 /* container spans the artboard below the nav: main-relative y = page y − 79 */
 const TOP = 79;
-const BOX = { x: 0, y: 0, w: 1001, h: 5760 };
+const BOX = { x: 0, y: 0, w: 1001, h: 5610 };
 /* path in page du (y absolute, converted to box coords below) */
 const D = [
   'M 617 300',
@@ -27,8 +27,8 @@ const D = [
   'C 60 2560, 40 2800, 40 3050',      // left margin, past the division cards
   'C 40 3300, 60 3500, 140 3650',     // past the globe's left
   'C 240 3830, 60 4050, 60 4400',     // swing out and down the board's left margin
-  'C 60 4900, 90 5300, 300 5520',     // toward the footer
-  'C 480 5660, 794.5 5780, 794.5 5674',  // shorter final hook: rises to set down nose-up on the footer mark
+  'C 60 4900, 90 5150, 300 5370',     // toward the footer
+  'C 480 5510, 794.5 5630, 794.5 5524',  // shorter final hook: rises to set down nose-up on the footer mark
 ].join(' ');
 const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x, y) => `${x} ${(parseFloat(y) - TOP).toFixed(1)}`);
 ---

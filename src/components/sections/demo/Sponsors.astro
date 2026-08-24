@@ -22,7 +22,7 @@ import msStartups from '../../../assets/figma/demo-sp-ms-startups.svg?raw';
 import superset from '../../../assets/figma/demo-sp-superset.svg?raw';
 import doorlist from '../../../assets/figma/demo-sp-doorlist.svg?raw';
 import rilla from '../../../assets/figma/demo-sp-rilla.svg?raw';
-import efirst from '../../../assets/figma/demo-inv-ef.svg?raw'; // Entrepreneurs First replaces VioletX (Bryan, 2026-08-24)
+import efirst from '../../../assets/figma/demo-sp-ef.png'; // Entrepreneurs First — the designer's own lockup (Ellie, 2026-08-24), recoloured white for the dark wall
 import ditto from '../../../assets/figma/demo-sp-ditto.svg?raw';
 import framer from '../../../assets/figma/demo-sp-framer.svg?raw';
 import zfellows from '../../../assets/figma/demo-sp-zfellows.svg?raw';
@@ -44,7 +44,7 @@ const logos = [
   { id: '7074:3205', name: 'super{set}', svg: superset, box: [567.2, 3963.8, 255.1, 47.2] },
   { id: '7074:3233', name: 'doorlist', svg: doorlist, box: [189, 4104.4, 288.6, 75.9] },
   { id: '7074:3219', name: 'Rilla', svg: rilla, box: [546.5, 4113.6, 296.4, 57.5] },
-  { id: '7074:3437', name: 'Entrepreneurs First', svg: efirst, box: [189, 4243, 250, 72] },
+  { id: '7074:3437', name: 'Entrepreneurs First', img: efirst, box: [189, 4258, 270, 29.3] }, // 368x40 lockup at its own ratio
   { id: '7074:3427', name: 'Ditto', svg: ditto, box: [600.8, 4249.2, 187.8, 59.6] },
   { id: '7074:3672', name: 'Framer', svg: framer, box: [189, 4377.7, 288.6, 77.9] },
   { id: '7074:3475', name: 'Z Fellows', svg: zfellows, box: [550.4, 4392.4, 288.6, 48.7] },
@@ -73,7 +73,9 @@ const stars = [
   <h2 id="sponsors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(358, y(3695), 315, 23)}>PAST SPONSORS & PARTNERS</h2>
   <ul class="m-0 p-0 list-none" aria-label="Past sponsors and partners">
     {logos.map((l, i) => (
-      <li class="abs logo zg" data-hover="scale" style={`${pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])};--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+      <li class="abs logo zg" data-hover="scale" style={`${pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])};--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} data-figma={l.id}>
+        {'img' in l ? <Image src={l.img} alt="" width={736} height={80} class="w-full h-full object-contain" /> : <Fragment set:html={fit(l.svg)} />}
+      </li>
     ))}
   </ul>
 
@@ -89,7 +91,9 @@ const stars = [
     <h2 class="m-0 t-title-tight m-center font-normal">PAST SPONSORS & PARTNERS</h2>
     <ul class="m-0 p-0 list-none m-sp-list">
       {logos.map((l, i) => (
-        <li class="zg m-sp" style={`width:${l.box[2] * (l.box[3] > 70 ? 0.42 : 0.58)}px;--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} set:html={fit(l.svg)} />
+        <li class="zg m-sp" style={`width:${l.box[2] * (l.box[3] > 70 ? 0.42 : 0.58)}px;--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name}>
+          {'img' in l ? <Image src={l.img} alt="" width={736} height={80} class="w-full h-auto" /> : <Fragment set:html={fit(l.svg)} />}
+        </li>
       ))}
     </ul>
   </div>

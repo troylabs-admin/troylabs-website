@@ -17,32 +17,35 @@ import comet from '../../../assets/figma/comet-streak.png';
 const TOP = 740;
 const y = (v: number) => v - TOP;
 
-// TODO(designer): every blurb is the same placeholder copy in Figma ("Get matched with a dedicated team…")
-const BLURB = 'Get matched with a dedicated team of 6 members from each of TroyLabs’ different divisions.';
+/* The designer's final copy (Ellie, 2026-08-24), replacing the repeated Figma placeholder. */
 /* Ellie combined Workshops and Fireside Chats (2026-08-24) — four nodes now, re-spaced to keep the
    fuse's rhythm even. The Figma still shows the old five; this is ahead of her file. */
 const FEATURES = [
-  { id: '6990:1001', label: 'Workshops & Fireside Chats', side: 'l', ny: 830 },
-  { id: '6990:1013', label: 'Exclusive Events',           side: 'r', ny: 1010 },
-  { id: '6990:1018', label: 'Community',                  side: 'l', ny: 1190 },
-  { id: '6990:1025', label: 'Opportunities',              side: 'r', ny: 1370 },
-].map((f) => ({ ...f, text: BLURB, nx: f.side === 'l' ? 460 : 540 }));
+  { id: '6990:1001', label: 'Workshops & Fireside Chats', side: 'l', ny: 815,
+    text: 'Learn from seasoned veterans who lead hands-on crash courses on everything from branding and storytelling, recruiting for big tech, to navigating careers in different industries — and so much more.' },
+  { id: '6990:1013', label: 'Exclusive Events', side: 'r', ny: 1005,
+    text: 'Visit company campuses across the Greater Los Angeles area, connect with industry leaders, and build your network — past events include NFL HQ, Google, and Riot Games.' },
+  { id: '6990:1018', label: 'Community', side: 'l', ny: 1195,
+    text: 'Connect with equally inquisitive, highly driven tinkerers and start building friendships within SoCal’s entrepreneurial circles.' },
+  { id: '6990:1025', label: 'Opportunities', side: 'r', ny: 1385,
+    text: 'Get exclusive access to our newsletter, and members with strong engagement earn an automatic first-round interview with TroyLabs.' },
+].map((f) => ({ ...f, nx: f.side === 'l' ? 460 : 540 }));
 
 /* fuse path in raw px (= du) inside the .flight box — url() offset paths don't scale with viewBox,
    so the box is raw-px scaled by --un (BUILD timeline pattern). Vertical tangents at every node keep
    the spark's passage through each junction smooth. */
 const FUSE_D = [
   'M 500 10',
-  'C 480 30, 460 55, 460 90',     // → Workshops & Fireside Chats
-  'C 460 145, 540 215, 540 270',  // → Exclusive Events
-  'C 540 325, 460 395, 460 450',  // → Community
-  'C 460 505, 540 575, 540 630',  // → Opportunities
-  'C 540 690, 500 718, 494 750',  // tail bends back toward centre…
-  'C 500 790, 502 830, 502 890',  // …and dives BEHIND the photo mosaic (it starts at box y 784)
+  'C 480 28, 460 50, 460 75',     // → Workshops & Fireside Chats
+  'C 460 135, 540 205, 540 265',  // → Exclusive Events
+  'C 540 325, 460 395, 460 455',  // → Community
+  'C 460 515, 540 585, 540 645',  // → Opportunities
+  'C 540 700, 500 722, 494 752',  // tail bends back toward centre…
+  'C 500 792, 502 832, 502 890',  // …and dives BEHIND the photo mosaic (it starts at box y 784)
 ].join(' ');                     //  section paints under the next one, so the spark vanishes behind the photos)
 /* branch stubs: node → its card (same dash style as the fuse) */
 const branch = (f: (typeof FEATURES)[number]) =>
-  f.side === 'l' ? `M 414 ${f.ny - TOP} H ${f.nx - 8}` : `M ${f.nx + 8} ${f.ny - TOP} H 587`;
+  f.side === 'l' ? `M 420 ${f.ny - TOP} H ${f.nx - 8}` : `M ${f.nx + 8} ${f.ny - TOP} H 581`;
 
 /* ignition timeline %: the spark sweeps offset-distance 0→100% over cover 10%→80% of the section
    timeline; node k's ignition completes at the % where the spark reaches it (path fraction ≈ y/775 —
@@ -83,9 +86,9 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
             style={`${pos(f.nx - 4.5, y(f.ny) - 4.5, 9, 9)};--ig0:cover ${(t - 6).toFixed(1)}%;--ig1:cover ${t.toFixed(1)}%`}
             aria-hidden="true"
           />
-          <article class={`abs flex flex-col ${f.side === 'l' ? 'items-end text-right' : 'items-start text-left'}`} style={`${pos(f.side === 'l' ? 127 : 591, y(f.ny) - 9, 283)};gap:${u(8)}`}>
+          <article class={`abs flex flex-col ${f.side === 'l' ? 'items-end text-right' : 'items-start text-left'}`} style={`${pos(f.side === 'l' ? 96 : 591, y(f.ny) - 9, 314)};gap:${u(8)}`}>
             <h3 class="m-0 t-feature font-normal whitespace-nowrap">{f.label}</h3>
-            <p class="m-0 t-caption w-du" style="--w:283">{f.text}</p>
+            <p class="m-0 t-caption w-du" style="--w:314">{f.text}</p>
           </article>
         </li>
       );

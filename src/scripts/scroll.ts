@@ -18,8 +18,12 @@ function init() {
   // loop alive forever. Real input (wheel/touch/key/resize) is what restarts it.
   lenis.on('scroll', ({ velocity }: { velocity: number }) => { v = velocity; });
   // cache the flag pair once: querySelector + getComputedStyle in the loop forced a style resolution
-  // eight times a second forever, on every page, whether or not anything was moving
+  // eight times a second forever, on every page, whether or not anything was moving.
+  // The cache MUST be dropped on every client-side navigation — this init body runs once for the whole
+  // session, so a cache taken on one page is null (or a detached element) on the next, and the flag
+  // never plants after navigating home → BUILD (found on the deployed site, 2026-08-24).
   let flyer: HTMLElement | null = null, flag: Element | null = null, looked = false;
+  document.addEventListener('astro:page-load', () => { flyer = null; flag = null; looked = false; });
   const raf = (t: number) => {
     lenis!.raf(t);
     // plant the BUILD flag when the landing rocket reaches the end of its path

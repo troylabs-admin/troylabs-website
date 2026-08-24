@@ -49,7 +49,8 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
          [95, 5483, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
   // DEMO footer: the whole instance sits 15 du right of the canvas in Figma (designer slack) — we render the
   // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
-  demo: [[0, 5465, 1001, 240]],
+  demo: [[0, 5465, 1001, 240],
+         [0, 821, 1001, 526]], // stage media: viewport-width breakout + sky-blend vignette, video-ready (Bryan, 2026-08-24)
   // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
   ignite: [[0, 3076, 1001, 256],
            [0, 740, 1001, 780]], // features: Figma's centered text list redesigned as the ignition fuse (Bryan, 2026-08-24; see Features.astro)

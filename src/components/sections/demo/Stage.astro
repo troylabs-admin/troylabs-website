@@ -6,6 +6,11 @@
  * dark planet "Ellipse 8" (7045:2727) @160,1037 689×689 with blue inner shadows (demo-stats-planet.png @3x) ·
  * stats "Frame 171" (7019:18) @197,1539: 100+ INVESTORS · 50 STARTUPS · 1000+ ATTENDEES, white@70% glow 7.3 ·
  * comet "Ellipse 289" (7074:3769) @73,1758 142.6×113 + its star (7074:3770) @199.2,1855 · star field.
+ * MEDIA (Bryan, 2026-08-24): the stage media breaks out of the 1440-capped page to true viewport width
+ * (edge-to-edge on any monitor; at the 1001 fidelity viewport 100vw = the page, so the suite is
+ * unaffected) with a top/bottom vignette that blends it into the sky — deliberately NO decorative frame.
+ * VIDEO-READY: drop the reel at src/assets/demo-stage.mp4 (or .webm) and the slot switches from the
+ * photo to an autoplaying muted loop (photo stays as poster) — no code change needed.
  */
 import { Image } from 'astro:assets';
 import { pos } from '../../../lib/units';
@@ -13,6 +18,10 @@ import Stars from '../../space/Stars.astro';
 import photo from '../../../assets/figma/demo-stage-photo.png';
 import planet from '../../../assets/figma/demo-stats-planet.png';
 import comet from '../../../assets/figma/comet-streak-demo.png'; // DEMO's comet (7074:3769) is the mirror of BUILD's — own export
+
+/* the reel, if it has landed (see MEDIA note above) */
+const vids = import.meta.glob<string>('../../../assets/demo-stage.{mp4,webm}', { eager: true, query: '?url', import: 'default' });
+const videoSrc = Object.values(vids)[0];
 
 const TOP = 760;
 const y = (v: number) => v - TOP;
@@ -40,9 +49,11 @@ const stars = [
   <Stars items={stars} />
   <Image src={comet} alt="" aria-hidden="true" width={428} height={339} class="abs pointer-events-none" style={pos(73, y(1758), 142.6, 113)} />
 
-  <!-- "Frame 170" (7099:3772) @1,821 1000×526 clips the 558-tall photo rectangle: 32 du cut off the bottom -->
-  <figure class="abs m-0 overflow-hidden" style={pos(1, y(821), 1000, 526)}>
-    <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full object-cover" style="height:calc(558 * var(--u))" />
+  <!-- "Frame 170" band @821, broken out to true viewport width (see MEDIA note) -->
+  <figure class="abs m-0 overflow-hidden media" style={`${pos(0, y(821), 1000, 526)};width:100vw;margin-left:calc((100% - 100vw) / 2)`}>
+    {videoSrc
+      ? <video class="w-full h-full object-cover" src={videoSrc} poster={photo.src} autoplay muted loop playsinline preload="metadata" aria-label="Highlights from DEMO" />
+      : <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full h-full object-cover" />}
   </figure>
 
   <dl class="m-0">
@@ -56,5 +67,8 @@ const stars = [
 </section>
 
 <style>
+  /* blend the media into the sky instead of framing it: soft dark falloff top and bottom, hard sides */
+  .media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgb(10 10 11 / 0.85), transparent 14%, transparent 86%, rgb(10 10 11 / 0.85)); }
   .stat { text-shadow: 0 0 calc(7.3 * var(--u)) rgb(255 255 255 / 0.7); }
 </style>

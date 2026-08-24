@@ -3,7 +3,8 @@
  * twinkle, slow drift, and mouse + scroll parallax (deeper bins move less). Replaces the static tiled
  * starfield (body::before) when motion is on. Canvas 2D, DPR ≤ 2, ~450 stars, pauses when hidden.
  * Also publishes the lerped pointer as --mx / --my (−1…1) for CSS parallax elsewhere (planets).
- * Visitors: an occasional shooting star, and — rarely — a small line-art saucer drifting across (same
+ * Visitors (Bryan wants them APPARENT, 2026-08-24): shooting stars every ~7-15 s, the saucer every
+ * ~35-65 s, and a tumbling satellite every ~30-55 s — all line-art (same
  * 1px-white drawing language as the globe). Append ?skyfast to a URL to preview both without the wait.
  */
 const root = document.documentElement;
@@ -44,9 +45,11 @@ function init() {
   //    has your attention; after that it's an easter egg. ?skyfast previews both immediately.
   const FAST = location.search.includes('skyfast');
   let meteor: { x: number; y: number; vx: number; vy: number; s0: number; dur: number } | null = null;
-  let nextMeteor = FAST ? 1 : 8 + rand() * 18;
+  let nextMeteor = FAST ? 1 : 3 + rand() * 6;
   let ufo: { s0: number; dur: number; y: number; dir: 1 | -1 } | null = null;
-  let nextUfo = FAST ? 2 : 20 + rand() * 15;
+  let nextUfo = FAST ? 2 : 6 + rand() * 6;
+  let sat: { s0: number; dur: number; y0: number; drift: number; dir: 1 | -1; spin: number } | null = null;
+  let nextSat = FAST ? 4 : 14 + rand() * 10;
 
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
@@ -83,7 +86,7 @@ function init() {
     }
     if (meteor) {
       const p = (t - meteor.s0) / meteor.dur;
-      if (p >= 1) { meteor = null; nextMeteor = t + (FAST ? 3 : 16 + rand() * 24); }
+      if (p >= 1) { meteor = null; nextMeteor = t + (FAST ? 3 : 7 + rand() * 8); }
       else {
         const hx = meteor.x + meteor.vx * p, hy = meteor.y + meteor.vy * p;
         const nv = Math.hypot(meteor.vx, meteor.vy), ux = meteor.vx / nv, uy = meteor.vy / nv;
@@ -100,10 +103,20 @@ function init() {
     if (!ufo && t > nextUfo) ufo = { s0: t, dur: 15 + rand() * 5, y: H * (0.08 + rand() * 0.25), dir: rand() < 0.5 ? 1 : -1 };
     if (ufo) {
       const p = (t - ufo.s0) / ufo.dur;
-      if (p >= 1) { ufo = null; nextUfo = t + (FAST ? 6 : 110 + rand() * 60); }
+      if (p >= 1) { ufo = null; nextUfo = t + (FAST ? 6 : 35 + rand() * 30); }
       else {
         const x = ufo.dir === 1 ? -60 + (W + 120) * p : W + 60 - (W + 120) * p;
         drawSaucer(ctx, x, ufo.y + 12 * Math.sin(t * 0.9), Math.sin(t * 1.3) * 0.06, t);
+      }
+    }
+    // the satellite: a slow tumbling line-art bird crossing on a shallow diagonal
+    if (!sat && t > nextSat) sat = { s0: t, dur: 20 + rand() * 8, y0: H * (0.06 + rand() * 0.4), drift: (rand() - 0.5) * H * 0.25, dir: rand() < 0.5 ? 1 : -1, spin: 0.5 + rand() * 0.6 };
+    if (sat) {
+      const p = (t - sat.s0) / sat.dur;
+      if (p >= 1) { sat = null; nextSat = t + (FAST ? 8 : 30 + rand() * 25); }
+      else {
+        const x = sat.dir === 1 ? -40 + (W + 80) * p : W + 40 - (W + 80) * p;
+        drawSatellite(ctx, x, sat.y0 + sat.drift * p, t * 0.12 * sat.spin);
       }
     }
     raf = visible ? requestAnimationFrame(draw) : 0;
@@ -123,6 +136,24 @@ function drawSaucer(ctx: CanvasRenderingContext2D, x: number, y: number, tilt: n
     ctx.beginPath(); ctx.arc(k * 9, 3.2, 1.1, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1; ctx.restore();
+}
+
+/* line-art satellite, ~46px tip to tip: bus + truss + two 3-cell solar panels + antenna, tumbling slowly */
+function drawSatellite(ctx: CanvasRenderingContext2D, x: number, y: number, rot: number) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
+  ctx.strokeRect(-4.5, -3, 9, 6);                                     // bus
+  for (const d of [-1, 1]) {
+    ctx.beginPath(); ctx.moveTo(d * 4.5, 0); ctx.lineTo(d * 8, 0); ctx.stroke();   // truss
+    ctx.strokeRect(d * 8 + (d === 1 ? 0 : -13), -3.5, 13, 7);                      // panel
+    for (let k = 1; k < 3; k++) {                                                  // cell dividers
+      const px = d * 8 + (d === 1 ? (13 * k) / 3 : -(13 * k) / 3);
+      ctx.beginPath(); ctx.moveTo(px, -3.5); ctx.lineTo(px, 3.5); ctx.stroke();
+    }
+  }
+  ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(0, -8); ctx.stroke();             // antenna
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(0, -9, 1, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
 }
 
 const wrap = (v: number, m: number) => ((v % m) + m) % m;

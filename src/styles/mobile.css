@@ -25,7 +25,7 @@
   .m { display: block; position: relative; }
   /* planets are composited (transform) layers and would paint over static text once reveals release
      their transforms — keep all mobile copy in its own layer above the art */
-  .m h1, .m h2, .m h3, .m h4, .m p, .m .pill, .m-ring { position: relative; z-index: 1; }
+  .m h1, .m h2, .m h3, .m h4, .m p, .m .pill { position: relative; z-index: 1; }
   .m-nav { position: relative; z-index: 30; }           /* nothing may cover the nav (the hero art bleeds up) */
   .m-nav a { display: inline-block; padding: 12px 4px; }   /* touch targets (inline-block so padding counts) */
   .m-mark { display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 44px; margin: -9px 0; }
@@ -59,7 +59,9 @@
   /* breathing room: every mobile block gets a generous rhythm so sections read as separate scenes
      rather than a continuous column of text (the desktop artboard buys this with whitespace we don't
      have; on a phone it has to be bought with vertical pacing) */
-  main .m + .m { margin-top: clamp(26px, 8vw, 44px); }
+  /* `~` not `+`: every mobile block is preceded in the DOM by its own hidden desktop <section>, so an
+     adjacent-sibling rule never matched and the sections had no rhythm at all (Bryan, 2026-08-24) */
+  main .m ~ .m { margin-top: clamp(40px, 11vw, 64px); }
   .m h2, .m h3 { text-wrap: balance; }
   .m p { text-wrap: pretty; }
   .m-center { text-align: center; }
@@ -76,6 +78,18 @@
     min-height: 44px; padding: 10px 26px; border-radius: 9999px;
     box-shadow: inset 0 0 0 0.5px #fff, inset 0 0 14px rgb(255 255 255 / 0.4);
     text-decoration: none;
+  }
+
+  /* ── HOME › three initiatives: the halo ring is an OVERLAY on the disc ────────────────────────────
+     Desktop sits the ring high on the planet (its centre ~0.3 planet-heights above the planet's, its top
+     slightly proud of the disc). Reproducing that with a negative margin shrank each card and stacked
+     them into each other; absolute positioning keeps the geometry exact and the rhythm intact.
+     Lives here, not in the component: Astro scoped blocks have silently dropped rules before. */
+  .m-card { position: relative; margin-top: 44px; padding-top: 58px; }
+  .m-ring {
+    position: absolute; z-index: 1; top: 0; left: 50%; transform: translateX(-50%);
+    width: 250px; height: 250px; border-radius: 9999px; justify-content: center; gap: 10px;
+    box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.4); padding: 0 24px; box-sizing: border-box;
   }
 
   /* zero-g / hover glows carry over; hover-only affordances are inert on touch, which is fine */

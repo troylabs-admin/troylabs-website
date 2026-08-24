@@ -27,9 +27,9 @@ header a[aria-label="TroyLabs home"]:hover, header a[aria-label="TroyLabs home"]
 header a[aria-label="TroyLabs home"] svg, header a[aria-label="TroyLabs home"] svg *, footer .mark svg, footer .mark svg * { fill: currentColor; }
 footer .social .mask { display: block; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
 
-[data-initiative] h3 span { transition: color 200ms var(--ease-out-expo); }
+[data-initiative] h3 span { transition: color 520ms cubic-bezier(0.33, 1, 0.68, 1); } /* slower, softer fade (designer, 2026-08-24) */
 [data-initiative]:hover h3 span, [data-initiative]:has(.ring:focus-visible) h3 span { color: var(--color-orange); }
-[data-initiative] .ring { transition: box-shadow 300ms var(--ease-out-expo); }
+[data-initiative] .ring { transition: box-shadow 560ms cubic-bezier(0.33, 1, 0.68, 1); }
 [data-initiative]:hover .ring { box-shadow: inset 0 0 0 calc(0.33 * var(--u)) rgb(255 255 255 / 0.9), 0 0 calc(24 * var(--u)) rgb(255 125 44 / 0.25); }
 
 

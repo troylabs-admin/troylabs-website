@@ -69,7 +69,7 @@ const stars = [
   <h2 class="m-0 t-title m-center font-normal">OUR THREE INITIATIVES</h2>
   {initiatives.map((i) => (
     <a href={i.href} class="m-card m-stack no-underline text-ink" aria-label={`${i.title} — learn more`}>
-      <div class="m-art" data-aw={i.planet.w} data-ah={'h' in i.planet ? i.planet.h : i.planet.w} style="width:62%">
+      <div class="m-art" data-aw={i.planet.w} data-ah={'h' in i.planet ? i.planet.h : i.planet.w} style="width:88%">
         <Planet kind={i.planet.kind} x={0} y={0} w={i.planet.w} h={'h' in i.planet ? i.planet.h : undefined} />
       </div>
       <span class="m-ring m-stack">
@@ -86,8 +86,7 @@ const stars = [
   @media (max-width: 767px) {
     .m-init { padding-block: 12px 30px; }
     .m-card { margin-top: 20px; gap: 0; }
-    /* the designer's halo ring holds the copy and overlaps the planet, like the desktop composition */
-    .m-ring { width: 252px; height: 252px; border-radius: 9999px; justify-content: center; gap: 10px;
-      box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.4); margin-top: -64px; padding: 0 26px; box-sizing: border-box; }
+    /* .m-card / .m-ring live in styles/mobile.css: Astro scoped blocks have silently dropped rules
+       here before (see CLAUDE.md), and this geometry is too fiddly to debug twice. */
   }
 </style>

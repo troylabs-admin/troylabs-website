@@ -75,5 +75,22 @@ const { title, description = "TroyLabs — where USC student builders launch, sc
       </main>
       <Footer current={current} />
     </div>
+
+    <!-- back to top: appears once you're a screen down, flies you home (designer, 2026-08-24) -->
+    <button id="to-top" type="button" aria-label="Back to top" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19V5M6 11l6-6 6 6" />
+      </svg>
+    </button>
+    <script>
+      (() => {
+        const btn = document.getElementById('to-top');
+        if (!btn) return;
+        const show = () => { const on = scrollY > innerHeight * 0.9; btn.hidden = false; btn.classList.toggle('is-on', on); };
+        addEventListener('scroll', show, { passive: true });
+        show();
+        btn.addEventListener('click', () => scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+      })();
+    </script>
   </body>
 </html>

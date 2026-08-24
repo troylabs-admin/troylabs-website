@@ -374,3 +374,22 @@ html.motion .zg { animation: zerog var(--zg-dur, 6s) ease-in-out var(--zg-delay,
 html.motion .zg svg { transition: transform 250ms var(--ease-out-expo); transform-origin: 50% 50%; }
 html.motion .zg:hover svg { transform: scale(1.05); }
 @keyframes zerog { from { transform: translateY(calc(-2.5 * var(--u))); } to { transform: translateY(calc(2.5 * var(--u))); } }
+
+/* ── Idle cost: only animate what is on screen, and nothing at all in a background tab ────────────────
+   Measured on the deployed site (2026-08-24): sitting completely still on the home page burned ~50% of a
+   CPU core, and stayed there with the tab hidden — every twinkle, drift and float on the whole page runs
+   simultaneously, forever, whether or not you can see it. Two rules fix that with zero visual change:
+
+   1. Ambient LOOPS pause in any section more than a screen away (scripts/awake.ts adds .awake).
+   2. Everything pauses while the tab is in the background.
+
+   Scoped deliberately to infinite ambient loops. Scroll-driven animations (the rockets, the fuse spark,
+   planet drift) are positioned by scroll offset, not time — pausing those would freeze them mid-flight.
+   Entrance/reveal animations are excluded too: a paused entrance leaves content invisible. */
+html.motion .section:not(.awake) :is(.star, .zg, .breathe, .atmo, .swarm-dot, .swarm-dot i, .orbit-dot, [data-division] img, .flag .mark),
+html.motion .section:not(.awake).planet {
+  animation-play-state: paused !important;   /* !important: the base rules set the `animation` shorthand, which resets play-state */
+}
+html.tab-hidden :is(.star, .zg, .breathe, .atmo, .swarm-dot, .swarm-dot i, .orbit-dot, [data-division] img, .flag .mark, .nebula span) {
+  animation-play-state: paused !important;
+}

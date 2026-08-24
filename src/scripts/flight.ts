@@ -248,9 +248,21 @@ function init() {
     // the white footer mark yields only once the orange rocket is truly on top of it — at 0.995 the hook
     // still has ~35 du to run, so hiding the mark there left a visible hole
     root.classList.toggle('landed', p >= 0.9995);
+
+    // Rest when there is nothing to fly. In scrub mode with the scroll settled the rocket is parked, yet
+    // this loop still ran at 60 fps writing five inline styles a frame — measured as the home page's
+    // largest idle cost (2026-08-24). Park after a few still frames; any input or mode change wakes it.
+    const still = mode === 'scrub' && !blend && Math.abs(p - lastP) < 1e-5 && scrollY === lastY;
+    lastP = p; lastY = scrollY;
+    if (document.hidden || (still && ++restFrames > 12)) { raf = 0; return; }
+    if (!still) restFrames = 0;
     raf = requestAnimationFrame(tick);
   };
+  let lastP = -1, lastY = -1, restFrames = 0;
+  const fly = () => { restFrames = 0; if (!raf && !document.hidden) raf = requestAnimationFrame(tick); };
   raf = requestAnimationFrame(tick);
+  for (const ev of ['scroll', 'wheel', 'touchmove', 'resize', 'keydown']) addEventListener(ev, fly, { passive: true });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) fly(); });
   document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
 }
 init();

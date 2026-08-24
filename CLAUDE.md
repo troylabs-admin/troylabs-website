@@ -98,11 +98,10 @@ The static design is the REST state of every animation; the fidelity suite runs 
 
 ## Where things stand (2026-08-23)
 - All four pages fidelity-verified; motion layer complete on Home + BUILD; deployed and shareable.
-- **Open decision — 50 ACTIVE MEMBERS**: the Figma starburst stays for now; five replacement candidates
-  are live at `/lab/members` (orbital cluster · star cluster · exhaust plume · mark formation · counter
-  swarm). Bryan picks. HARD REQUIREMENT from him: the winner must pair visually with the "13 majors"
-  rocket constellation right next to it (same star/dot language, complementary not repetitive). Build the
-  winner into `sections/home/Catalyst.astro`, then delete the lab page.
+- **50 ACTIVE MEMBERS — decided (2026-08-24)**: Bryan picked the **counter swarm** ("50" numeral formed by
+  50 of the designer's glow dots, hover scatters & reforms). Built into `sections/home/Catalyst.astro`
+  (baked seeded layout, shares Stars.astro's dot glyph/twinkle so it pairs with the 13-majors constellation);
+  starburst masked in the fidelity suite; `/lab/members` deleted.
 - **Not done**: mobile (<768 px) — deliberately last, after desktop sign-off; currently a scaled desktop.
 - Perf is profiled light (idle ~4 %, scrolling ~12 % of one core; sky/globe pause off-screen and when hidden).
 - **2026-08-23 Figma update (batch 2) implemented** across BUILD/DEMO/IGNITE: colorful timeline orbs +

@@ -20,7 +20,7 @@ const SVG: Record<string, string> = {
 };
 const PNG: Record<string, string> = {
   'globe': '7028:1968',                // Group 3 — vectorized earth with inner shadows
-  'starburst': '7028:2092',            // Star 8 — "50 active members" burst
+  // 'starburst' (7028:2092) no longer exported — replaced by the counter swarm in Catalyst.astro (2026-08-24)
 };
 
 await mkdir('src/assets/figma', { recursive: true });

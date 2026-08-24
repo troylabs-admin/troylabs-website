@@ -222,15 +222,29 @@ footer nav a:hover, footer .t-nav[href]:hover { background-size: 100% 1px; }
 .flag { display: none; transform-origin: 6% 100%; }   /* pivot at the pole's base */
 html.motion .flag { display: block; }
 .flag .pole { position: absolute; left: calc(4 * var(--u)); bottom: 0; width: calc(2.8 * var(--u)); height: 100%; background: #fff; border-radius: 1px; box-shadow: 0 0 calc(8 * var(--u)) rgb(255 255 255 / 0.6); }
-.flag .cloth { position: absolute; left: calc(7 * var(--u)); top: 0; width: calc(64 * var(--u)); height: calc(42 * var(--u)); background: var(--color-orange); border-radius: 0 calc(3 * var(--u)) calc(3 * var(--u)) 0; display: grid; place-items: center; transform-origin: 0 50%; box-shadow: 0 0 calc(14 * var(--u)) rgb(255 125 44 / 0.45); }
-.flag .cloth svg { width: calc(22 * var(--u)); height: auto; }
+.flag .cloth { position: absolute; left: calc(7 * var(--u)); top: 0; width: calc(64 * var(--u)); height: calc(42 * var(--u)); display: flex; filter: drop-shadow(0 0 calc(7 * var(--u)) rgb(255 125 44 / 0.45)); }
+/* cloth = 7 phase-delayed strips; amplitude grows toward the free end, so a ripple travels pole → tip */
+.flag .strip { flex: 1; background: var(--color-orange); transform-origin: 0 50%; }
+.flag .strip:first-child { border-radius: calc(1.5 * var(--u)) 0 0 calc(1.5 * var(--u)); }
+.flag .strip:nth-last-child(2) { border-radius: 0 calc(3 * var(--u)) calc(3 * var(--u)) 0; }
+html.motion .flag .strip { animation: strip-waver 2.1s ease-in-out infinite; animation-delay: calc(var(--i) * -0.15s); }
+@keyframes strip-waver {
+  0%, 100% { transform: translateY(0) skewY(0deg); }
+  25% { transform: translateY(calc(-0.4 * var(--u) * (0.4 + var(--i) * 0.32))) skewY(calc(-1deg * (0.5 + var(--i) * 0.9))); }
+  75% { transform: translateY(calc(0.4 * var(--u) * (0.4 + var(--i) * 0.32))) skewY(calc(1deg * (0.5 + var(--i) * 0.9))); }
+}
+/* the rocket mark rides the middle of the cloth */
+.flag .mark { position: absolute; inset: 0; display: grid; place-items: center; }
+.flag .mark svg { width: calc(22 * var(--u)); height: auto; }
+html.motion .flag .mark { animation: mark-rock 2.1s ease-in-out infinite; animation-delay: -0.45s; }
+@keyframes mark-rock { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(calc(-1.2 * var(--u))) rotate(-2.4deg); } 75% { transform: translateY(calc(1.2 * var(--u))) rotate(2.4deg); } }
 html.motion .flag { opacity: 0; transform: rotate(var(--tilt, 0deg)) translateY(calc(10 * var(--u))) scaleY(0); transition: opacity 350ms var(--ease-out-expo), transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1); }
 html.motion .flag.is-planted { opacity: 1; transform: rotate(var(--tilt, 0deg)); }   /* toggled by scroll.ts when the rocket reaches the end of its path (viewport-size independent) */
-html.motion .flag .cloth { animation: wave 2.1s ease-in-out infinite; }
-@keyframes wave { 0%, 100% { transform: skewY(-5.5deg) rotate(1.2deg) scaleX(1); } 50% { transform: skewY(5.5deg) rotate(-2.2deg) scaleX(0.93); } }
 
 /* ── Home: "13 majors" constellation (see Catalyst.astro + scripts/constellation.ts) ── */
-.constellation { overflow: visible; }
+.constellation { overflow: visible; pointer-events: none; } /* the svg spans the whole section — without this it
+   steals hover from everything under it (the 50-members swarm sits beneath); only the star nodes are interactive */
+.constellation .node { pointer-events: auto; }
 .constellation line { stroke: #fff; stroke-opacity: 0.28; stroke-width: 0.5; transition: stroke-opacity 300ms var(--ease-out-expo); }
 .constellation line.lit { stroke-opacity: 0.9; }
 .constellation .core { fill: #fff; }
@@ -272,3 +286,28 @@ html.motion .constellation.cx-arm:not(.is-in) .core { opacity: 0; transform: sca
 /* on touchdown the white footer mark yields to the arrived orange one */
 html.motion footer .mark svg { transition: opacity 400ms ease; }
 html.motion.landed footer .mark svg { opacity: 0; }
+
+/* ── Home › 50 ACTIVE MEMBERS counter swarm (Catalyst.astro) ─────────────────────────────────────────
+   Scattered stars GATHER into the "50" as the block scrolls in (scrubbed, so scrolling back up disperses
+   them again — outer span). Hover scatters each dot along its baked vector (--sx/--sy, du) and the 700 ms
+   expo-out transition reforms the numeral (inner <i>, so the two transforms compose). The inner <i> is the
+   visual + twinkle (.star); the wrapper gets the star-field mouse parallax explicitly (the generic
+   `:has(> .star)` rule no longer matches with the star one level down).
+   Reduced motion (and browsers without scroll-driven animations): the formed "50" is the rest state. */
+html.motion .swarm { transform: translate3d(calc(var(--mx, 0) * 6px), calc(var(--my, 0) * 6px), 0); transition: transform 80ms linear; }
+html.motion .swarm .swarm-dot i { transition: transform 700ms var(--ease-out-expo); }
+html.motion .swarm:hover .swarm-dot i { transform: translate(calc(var(--sx) * var(--u)), calc(var(--sy) * var(--u))); }
+@supports (animation-timeline: view()) {
+  html.motion .swarm-dot {
+    /* longhands only — see the .planet note: the minifier must not merge animation-timeline into the shorthand */
+    animation-name: swarm-gather;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 24%;   /* fully gathered before the numeral reaches mid-screen (measured) */
+  }
+}
+@keyframes swarm-gather {
+  from { transform: translate(calc(var(--sx) * 1.4 * var(--u)), calc(var(--sy) * 1.4 * var(--u))); opacity: 0.3; }
+  to { transform: none; opacity: 1; }
+}

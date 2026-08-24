@@ -4,9 +4,12 @@
  *   • heading 7028:1594 + blurb 7028:1595
  *   • 50 ACTIVE MEMBERS: counter swarm (Bryan's pick 2026-08-24, replacing the Figma starburst "Star 8"
  *     7028:2092 @147,2139 315×316 — masked in the fidelity suite): 50 of the designer's glow dots hold the
- *     numeral "50"; hovering scatters each along its own vector and it reforms on leave. Layout is baked in
- *     (points sampled once inside the glyph, 900 150px Helvetica on a 300×160 canvas, seed 7, min gap 13)
- *     so the render is deterministic and the formed numeral is the reduced-motion rest state.
+ *     numeral "50"; the scattered stars GATHER into the numeral as the
+ *     block scrolls in (scrubbed view() timeline — scrolling back disperses them); hovering scatters each
+ *     along its own vector and it reforms on leave. Layout is baked in
+ *     (points sampled once inside the glyph, 900 150px Helvetica on a 300×160 canvas, seed 1, min gap 10)
+ *     so the render is deterministic and the formed numeral is the reduced-motion rest state. 80 dots, not
+ *     50 — Bryan (2026-08-24): a bigger, denser, legible "50" beats a literal dot-count.
  *   • 13 MAJORS: 15 glass orbs (Ellipse 190…245, grey-orb.png) with labels + 4 connector lines
  *   • 6 DIVISIONS: star icons (Frame 96), dotted timeline lines, six role cards (Frame 97–102)
  */
@@ -14,7 +17,6 @@ import { Image } from 'astro:assets';
 import { pos, u } from '../../../lib/units';
 import Stars from '../../space/Stars.astro';
 import Glow from '../../space/Glow.astro';
-import swarmDot from '../../../assets/space/small-circle.png';
 import star1 from '../../../assets/space/star-1.png';
 import star2 from '../../../assets/space/star-2.png';
 import star3 from '../../../assets/space/star-3.png';
@@ -27,17 +29,15 @@ const TOP = 1900;
 const y = (v: number) => v - TOP;
 
 /* 50 active members — counter swarm. Points are canvas coords (300×160) inside the "50" glyph, mapped into
-   the starburst's old 315×316 box (×1.05, numeral centred vertically). Each dot is the designer's glow-dot
-   glyph (small-circle.png, ring = 25.4% of the png — same scale Stars.astro uses), so the swarm speaks the
-   exact star/dot language of the constellation beside it. Seeded rng: sizes, scatter vectors, twinkle. */
-const SWARM_PTS = [[156,64],[139,38],[165,116],[87,85],[166,99],[110,68],[210,110],[217,87],[128,102],[93,37],[194,128],[182,117],[131,76],[168,46],[197,25],[207,62],[117,114],[139,89],[90,110],[208,41],[104,126],[92,64],[117,130],[75,117],[221,60],[184,39],[90,127],[119,44],[171,75],[130,27],[141,105],[222,102],[77,67],[160,82],[167,33],[132,121],[107,30],[216,74],[79,49],[121,89],[175,129],[99,76],[80,31],[78,104],[175,60],[207,97],[104,44],[209,126],[92,50],[173,88]];
+   a 380×316 box at x120 (scale ×380/300, numeral centred vertically). Solid white glow dots — the same
+   recipe as the divisions' timeline dots and the constellation cores, so the swarm speaks the site's
+   star/dot language. Seeded rng: sizes, scatter vectors; twinkle phases via the shared .star rule. */
+const SWARM_PTS = [[183,115],[136,78],[118,122],[85,30],[177,127],[216,72],[123,39],[90,108],[98,115],[162,45],[157,68],[205,55],[162,90],[187,37],[120,108],[195,127],[140,95],[176,93],[127,29],[167,54],[168,36],[91,46],[103,134],[200,36],[79,120],[119,132],[108,71],[208,113],[126,67],[136,36],[167,99],[223,48],[87,128],[221,102],[86,64],[209,42],[211,89],[93,83],[82,81],[174,67],[97,34],[124,80],[219,58],[133,114],[175,107],[211,127],[193,117],[79,103],[103,62],[167,76],[164,110],[98,72],[173,45],[130,126],[108,38],[79,39],[107,120],[178,32],[221,88],[78,56],[204,103],[113,28],[123,95],[207,77],[227,75],[130,103],[199,25],[220,118],[177,56],[75,70],[164,122],[157,80],[207,65],[188,25],[142,105],[211,30],[186,133],[219,38],[157,100],[173,117]];
 const swarmRng = (() => { let a = 7; return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; })();
-const DOT_SCALE = 1 / 0.254; // glyph png body ratio (Stars.astro)
 const swarm = SWARM_PTS.map(([px, py], i) => {
-  const d = 3.2 + swarmRng() * 1.8;                        // dot body in du
-  const box = d * DOT_SCALE;
+  const d = 2.8 + swarmRng() * 1.8;                        // dot diameter in du (solid, like the divisions' dots)
   return {
-    x: px * 1.05 - box / 2, y: 74 + py * 1.05 - box / 2, box, // numeral spans the box width; 160×1.05 tall, centred
+    x: px * (380 / 300) - d / 2, y: 56.6 + py * (380 / 300) - d / 2, d, // numeral spans the 380-wide box; 202.7 tall, centred
     sx: ((swarmRng() - 0.5) * 260).toFixed(1), sy: ((swarmRng() - 0.5) * 190).toFixed(1), // scatter vector (du)
     dur: (2.6 + ((i * 7) % 5) * 0.45).toFixed(2),          // twinkle spread, same recipe as Stars.astro
   };
@@ -99,9 +99,9 @@ const stars = [
 
   <!-- 50 active members: the counter swarm (hover scatters, motion.css reforms it) -->
   <h3 class="abs m-0 t-label font-normal whitespace-nowrap" style={pos(225, y(2086), 153, 14)}>50 ACTIVE MEMBERS</h3>
-  <div class="abs swarm" data-reveal-unit aria-hidden="true" style={pos(147, y(2139), 315, 316)}>
+  <div class="abs swarm" aria-hidden="true" style={pos(120, y(2139), 380, 316)}>
     {swarm.map((d, i) => (
-      <Image src={swarmDot} alt="" width={48} height={48} class="abs star" style={`${pos(d.x, d.y, d.box, d.box)};--i:${i};--dur:${d.dur}s;--dim:0.5;--sx:${d.sx};--sy:${d.sy}`} />
+      <span class="abs swarm-dot" style={`${pos(d.x, d.y, d.d, d.d)};--i:${i};--dur:${d.dur}s;--dim:0.5;--sx:${d.sx};--sy:${d.sy}`}><i class="star" /></span>
     ))}
   </div>
 
@@ -152,5 +152,6 @@ const stars = [
 <style>
   .timeline { border-left: calc(1 * var(--u)) solid #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .dot { border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
+  .swarm-dot i { display: block; width: 100%; height: 100%; border-radius: 9999px; background: #fff; filter: drop-shadow(0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6)); }
   .t-caption { letter-spacing: calc(0.4 * var(--u)); }
 </style>

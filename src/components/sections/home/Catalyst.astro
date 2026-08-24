@@ -178,7 +178,9 @@ const stars = [
 
   <h3 class="m-0 t-label m-center font-normal" style="margin-top:34px">13 MAJORS</h3>
   <div class="m-const">
-    <svg class="constellation constellation-m" viewBox="470 200 490 350" aria-label="Majors represented">
+    <!-- wider crop than desktop's artboard region so the outboard labels ("Electrical & Computer
+         Engineering", "Arts, Technology & Business") are never clipped at the phone's edge -->
+    <svg class="constellation constellation-m" viewBox="430 195 570 360" aria-label="Majors represented">
       <path class="figure" d={ROCKET_PATH_D} transform={`translate(${RX} ${y(RY)}) scale(${RS})`} />
       {MINORS.map(([mx, my]) => <circle class="minor" cx={RX + mx * RS} cy={y(RY + my * RS)} r="0.9" />)}
       {edges.map(([a, b]) => <line style="stroke-opacity:0.28" x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}

@@ -232,8 +232,9 @@ html.motion .flag { opacity: 0; transform: rotate(var(--tilt, 0deg)) translateY(
 html.motion .flag.is-planted { opacity: 1; transform: rotate(var(--tilt, 0deg)); }   /* toggled by scroll.ts when the rocket reaches the end of its path (viewport-size independent) */
 
 /* ── Home: "13 majors" constellation (see Catalyst.astro + scripts/constellation.ts) ── */
-/* mobile copy: static (no drift/hover script), cropped viewBox — labels need a bigger svg-unit size */
-.constellation.constellation-m text { font-size: 14px; } /* ~10px rendered at 390 wide; doubled class outranks the base 7.5px rule below */
+/* mobile copy: static (no drift/hover script), cropped viewBox — labels sized to read at phone width
+   without spilling past the wider crop (viewBox 430 195 570 360) */
+.constellation.constellation-m text { font-size: 13px; } /* doubled class outranks the base 7.5px rule below */
 .constellation-m .node { pointer-events: none; }
 .constellation { overflow: visible; pointer-events: none; } /* the svg spans the whole section — without this it
    steals hover from everything under it (the 50-members swarm sits beneath); only the star nodes are interactive */
@@ -279,6 +280,20 @@ html.motion .constellation.cx-arm:not(.is-in) .core { opacity: 0; transform: sca
 /* on touchdown the white footer mark yields to the arrived orange one */
 html.motion footer .mark svg { transition: opacity 400ms ease; }
 html.motion.landed footer .mark svg { opacity: 0; }
+
+/* ── Home MOBILE: the same flight on the mobile layout (MobileFlight.astro + flight.ts's mobile branch).
+     The layer sits above the mobile copy (z 6) so the rocket reads as flying over the page, exactly like
+     desktop; pointer-events none so it never blocks taps. Hidden on desktop, static when motion is off. ── */
+.m-flight { display: none; }
+@supports (offset-path: path("M0 0")) {
+  @media (max-width: 767px) {
+    html.motion .m-flight { display: block; position: absolute; z-index: 6; }
+    html.motion .m-flight .home-flyer { offset-path: url(#m-flight-path); offset-rotate: 90deg; opacity: 0; }
+    /* on touchdown the white footer mark yields to the arrived orange one (mobile footer mark) */
+    html.motion footer .m-rocket svg { transition: opacity 400ms ease; }
+    html.motion.landed footer .m-rocket svg { opacity: 0; }
+  }
+}
 
 /* ── Home › 50 ACTIVE MEMBERS counter swarm (Catalyst.astro) ─────────────────────────────────────────
    Scattered stars GATHER into the "50" as the block scrolls in (scrubbed, so scrolling back up disperses

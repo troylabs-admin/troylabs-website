@@ -1,0 +1,65 @@
+---
+/**
+ * Home › the page-long flight, MOBILE twin (motion layer only; nothing at rest).
+ * The wordmark's own "A" rocket lifts out of the logo on scroll and flies the whole mobile page —
+ * arcing right of the mission copy, threading the three initiative planets, past the 50-swarm and the
+ * majors constellation, down the divisions rail, past the members globe, down the board's margin — and
+ * finally curves in to DOCK on the footer's rocket mark, exactly like the desktop flight (flight.ts
+ * drives it; this component only supplies the mobile geometry: path + anchors).
+ *
+ * Geometry is authored in a 390-wide mobile design space (mdu). The .flight box is raw mdu px scaled
+ * by --mun (= innerWidth/390, set by scripts/mobile.ts) so the same path fits 320–430 px phones;
+ * scripts/flight.ts measures the wordmark/footer anchors live and normalizes the path, so small drifts
+ * in mobile layout never strand the dock.
+ *
+ * Anchor space here is MAIN-relative (y measured from main's top = below the fixed-feel nav), which is
+ * what flight.ts computes against (it subtracts main's page offset before converting to box coords).
+ */
+import rocket from '../../../assets/figma/wordmark-rocket-flat.svg?raw'; // the same vector the desktop flyer uses (filters stripped)
+
+/* 390-wide mobile design space. y numbers are main-relative px at 390w, measured on the live mobile
+   layout (scripts/_boxes/_detail probes): hero 0–220, mission 220–524, initiatives 524–1485,
+   catalyst 1485–4361, members 4361–4989, board 4989–10126, footer 10126–10535. */
+export const MOBILE_W = 390;
+const D = [
+  'M 259 185',                            // the wordmark's "A" rocket (main-relative; the path start IS the logo slot)
+  'C 259 120, 320 110, 340 170',         // straight up out of the wordmark, then arc right
+  'C 362 250, 360 320, 340 400',         // down the right of the mission copy
+  'C 320 470, 330 520, 300 570',         // toward the BUILD planet
+  'C 250 640, 150 640, 110 720',         // thread left of the orange planet
+  'C 80 790, 120 880, 200 920',          // between orange and yellow
+  'C 300 960, 360 1030, 340 1120',       // right of the yellow planet
+  'C 322 1200, 250 1260, 150 1300',      // toward the blue planet's ring
+  'C 80 1330, 60 1400, 90 1470',         // around the ring's left
+  'C 130 1560, 320 1560, 350 1660',      // sweep right past the 50 swarm
+  'C 370 1760, 340 1900, 250 1980',      // in toward the constellation
+  'C 160 2060, 80 2120, 70 2260',        // left margin past the constellation
+  'C 60 2400, 60 2600, 70 2800',         // down the divisions rail (top half)
+  'C 78 3000, 78 3300, 70 3560',         // down the divisions rail (bottom half)
+  'C 64 3760, 90 3960, 140 4150',        // toward the members globe
+  'C 190 4330, 300 4360, 330 4480',      // right of the globe
+  'C 355 4600, 350 4750, 330 4900',      // past the company marks
+  'C 315 5050, 330 5200, 340 5400',      // into the board's right margin
+  'C 352 5700, 352 6200, 344 6700',      // long straight down the board (right margin)
+  'C 338 7200, 340 7800, 342 8400',      // still the board
+  'C 344 9000, 340 9500, 320 9900',      // board's last rows
+  'C 300 10150, 200 10300, 120 10400',   // curve in toward the footer
+  'C 70 10470, 45.5 10480, 45.5 10437',  // the hook: rise and set down nose-up on the footer mark
+].join(' ');
+const BOX_H = 10535; // mobile doc height in mdu at 390w (main top → doc bottom); flight.ts re-measures live
+---
+
+<div class="m-flight pointer-events-none" style={`position:absolute;left:0;top:0;width:${MOBILE_W}px;height:${BOX_H}px`} aria-hidden="true">
+  <div class="flight" style={`width:${MOBILE_W}px;height:${BOX_H}px;transform-origin:0 0;transform:scale(var(--mun, 1))`}>
+    <svg width={MOBILE_W} height={BOX_H} style="position:absolute;inset:0;overflow:visible">
+      <path id="m-flight-path" d={D} fill="none" stroke="none" />
+      <!-- guided return: its direct line is built at click time (flight.ts) -->
+      <path id="m-return-path" d="M 0 0" fill="none" stroke="none" />
+    </svg>
+    <!-- the wordmark's own rocket (glow padding is symmetric, body = 66.4×98.5 centred) -->
+    <div class="home-flyer" style="width:407px;height:439px">
+      <span class="halo" aria-hidden="true"></span>
+      <Fragment set:html={rocket} />
+    </div>
+  </div>
+</div>

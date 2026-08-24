@@ -14,9 +14,8 @@
  */
 const root = document.documentElement;
 
-function buildMap(path: SVGPathElement): [number, number][] {
+function buildMap(path: SVGPathElement, yToPage: (boxY: number) => number): [number, number][] {
   const L = path.getTotalLength();
-  const un = Math.min(innerWidth, 1440) / 1001;
   const maxScroll = document.documentElement.scrollHeight - innerHeight;
   // Two candidate mappings, blended:
   //  • s_track: the rocket rides ~45% down the viewport (guarantees visibility, but its speed varies with
@@ -31,7 +30,7 @@ function buildMap(path: SVGPathElement): [number, number][] {
     const pt = path.getPointAtLength(L * dist);
     acc += Math.hypot(pt.x - prev.x, pt.y - prev.y); prev = pt;
     arc.push(acc);
-    const pageY = (pt.y + 79) * un;
+    const pageY = yToPage(pt.y);
     let s = Math.min(1, Math.max(0, (pageY - innerHeight * 0.45) / maxScroll));
     for (let k = 0; k < 6; k++) {
       const frac = 0.45 + 0.43 * Math.min(1, Math.max(0, (s - 0.78) / 0.22));
@@ -67,25 +66,74 @@ function target(map: [number, number][], s: number): number {
 }
 
 function init() {
-  if (matchMedia('(max-width: 767px)').matches) return;  // mobile: no page flight (the .home-flight layer is hidden)
-  const flyer = document.querySelector<HTMLElement>('.home-flyer');
-  const pathEl = document.querySelector<SVGPathElement>('#home-flight-path');
-  const wmRocket = document.querySelector<SVGPathElement>('.wordmark path[fill^="url("]');
-  const mark = document.querySelector<HTMLElement>('footer .mark');
+  const mobile = matchMedia('(max-width: 767px)').matches;
+  const flyer = document.querySelector<HTMLElement>(mobile ? '.m-flight .home-flyer' : '.home-flyer');
+  const pathEl = document.querySelector<SVGPathElement>(mobile ? '#m-flight-path' : '#home-flight-path');
+  const wmRocket = document.querySelector<SVGPathElement>(mobile ? '.m-wordmark path[fill^="url("]' : '.wordmark path[fill^="url("]');
+  const mark = document.querySelector<HTMLElement>(mobile ? 'footer .m-rocket' : 'footer .mark');
   if (!flyer || !pathEl || !mark || flyer.dataset.ready || !root.classList.contains('motion')) return;
   flyer.dataset.ready = '1';
 
-  let map = buildMap(pathEl);
+  // ── geometry source: desktop (du, +79 header offset, --un scale) vs mobile (mdu, main-relative, --mun) ──
+  const MOBILE_W = 390;
+  const un = mobile ? innerWidth / MOBILE_W : Math.min(innerWidth, 1440) / 1001;
+  const main = document.querySelector('main');
+  // mainTop must be re-measured, never frozen: at init the mobile layout is still settling (the nav pushes
+  // main down ~71px after DCL), and a stale mainTop stranded every anchor +yToPage by exactly that drift.
+  const mainTop = () => (mobile ? (main?.getBoundingClientRect().top ?? 0) + scrollY : 0);
+  const yToPage = mobile ? (boxY: number) => mainTop() + boxY * un : (boxY: number) => (boxY + 79) * un;
+  // The mobile flight box is a nominal 390-wide sketch (taller than the real content). Clamp it to main's
+  // actual height so the layer never overhangs the footer and inflates the document (that overhang added
+  // ~1.5k px of dead scroll and moved the dock). The footer mark anchor below targets the true dock point.
+  if (mobile && main) {
+    const realH = (main as HTMLElement).offsetHeight;
+    const layer = flyer.closest<HTMLElement>('.m-flight');
+    const inner = layer?.querySelector<HTMLElement>('.flight');
+    const svg = layer?.querySelector('svg');
+    if (layer) layer.style.height = `${realH}px`;
+    if (inner) inner.style.height = `${realH}px`;
+    if (svg) svg.setAttribute('height', String(realH));
+  }
+
+  // On mobile the authored path is a nominal 390-wide sketch: MEASURE the real wordmark-rocket and
+  // footer-mark anchors and translate the path's endpoints so the flight always starts exactly in the
+  // logo and lands exactly on the mark, whatever the live mobile layout does.
+  let pathStart = pathEl.getPointAtLength(0);
+  let pathEnd = pathEl.getPointAtLength(pathEl.getTotalLength());
+  const anchor = () => {
+    if (!mobile) return;
+    const L = pathEl.getTotalLength();
+    const s = pathEl.getPointAtLength(0), e = pathEl.getPointAtLength(L);
+    const wr = wmRocket?.getBoundingClientRect();
+    const sx = wr ? (wr.x + wr.width / 2) / un : s.x;
+    const sy = wr ? (wr.y + scrollY + wr.height / 2 - mainTop()) / un : s.y;   // the rocket path's centre
+    const mr = mark.getBoundingClientRect();
+    const ex = (mr.x + mr.width / 2) / un;
+    const ey = (mr.y + scrollY + mr.height / 2 - mainTop()) / un;              // the flyer rests nose-up ON the mark
+    pathEl.setAttribute('d', pathEl.getAttribute('d')!.replace(/^M\s*-?[\d.]+[ ,]-?[\d.]+/, `M ${sx.toFixed(1)} ${sy.toFixed(1)}`));
+    pathEl.setAttribute('d', pathEl.getAttribute('d')!.replace(/-?[\d.]+[ ,]-?[\d.]+\s*$/, `${ex.toFixed(1)} ${ey.toFixed(1)}`));
+    pathStart = { x: sx, y: sy }; pathEnd = { x: ex, y: ey };
+  };
+
+  let map = buildMap(pathEl, yToPage);
   const totalLen = () => pathEl.getTotalLength();
   // The footer mark's page-y (px) — the landing is anchored to the FOOTER, not a path fraction.
   let markPageY = 0;
   const measure = () => {
-    map = buildMap(pathEl);
+    anchor();
+    map = buildMap(pathEl, yToPage);
     const r = mark.getBoundingClientRect();
     markPageY = r.top + scrollY + r.height / 2;
   };
   measure();
   addEventListener('resize', measure, { passive: true });
+  // the mobile footer sits after a tall image board: re-anchor once media/fonts have settled so the
+  // dock lands on the mark's true resting place, not its pre-layout position
+  if (mobile) {
+    addEventListener('load', measure, { once: true });
+    if (document.fonts?.ready) document.fonts.ready.then(measure);
+    setTimeout(measure, 1200);
+  }
 
   let p = 0, raf = 0, ang = 90;
   // Cruise is scroll-LOCKED (p = target — the feel of pure scrub). The timed landing begins only once the
@@ -102,22 +150,22 @@ function init() {
   // Capture-phase click so the view-transition router never treats it as a navigation; wheel/touch aborts.
   const RET_MS = 4500;
   let retT0 = 0, retLen = 0, retViewY0 = 0;
-  const retPath = document.querySelector<SVGPathElement>('#home-return-path');
-  const HOME = { x: 617, y: 221 };   // the wordmark rocket's spot = the main path's start (box coords)
-  const unPx = () => Math.min(innerWidth, 1440) / 1001;
+  const retPath = document.querySelector<SVGPathElement>(mobile ? '#m-return-path' : '#home-return-path');
+  const HOME = () => ({ x: pathStart.x, y: pathStart.y });   // the wordmark rocket's spot = the main path's (anchored) start
+  const unPx = () => un;
   const endReturn = () => flyer.style.removeProperty('offset-path');
-  document.querySelector('footer .mark')?.addEventListener('click', (e) => {
+  mark.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (mode === 'return' || !retPath) return;
     const pt = pathEl.getPointAtLength(p * totalLen()); // lift off from wherever the rocket rests (normally the mark)
-    const H = pt.y - HOME.y;
+    const H = pt.y - HOME().y;
     // bow out over the right margin, then swing back and rise DEAD-VERTICAL into the wordmark (the final
     // control point sits straight below the logo, so the arrival tangent is exactly nose-up)
-    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} C ${(pt.x + 250).toFixed(1)} ${(pt.y - H * 0.32).toFixed(1)}, ${HOME.x} ${(HOME.y + H * 0.25).toFixed(1)}, ${HOME.x} ${HOME.y}`);
+    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} C ${(pt.x + 250).toFixed(1)} ${(pt.y - H * 0.32).toFixed(1)}, ${HOME().x} ${(HOME().y + H * 0.25).toFixed(1)}, ${HOME().x} ${HOME().y}`);
     retLen = retPath.getTotalLength();
-    retViewY0 = (pt.y + 79) * unPx() - scrollY;          // the rocket's viewport height at liftoff — held all ride
-    flyer.style.offsetPath = 'url(#home-return-path)';
+    retViewY0 = yToPage(pt.y) - scrollY;          // the rocket's viewport height at liftoff — held all ride
+    flyer.style.offsetPath = `url(#${mobile ? 'm-return-path' : 'home-return-path'})`;
     root.classList.remove('landed');                     // the white mark returns as it lifts off
     mode = 'return';
     retT0 = performance.now();
@@ -141,7 +189,7 @@ function init() {
       flyer.style.offsetDistance = `${(e * 100).toFixed(3)}%`;
       // the scroll is glued to the rocket: it holds its viewport height while the page glides under it
       const pt = retPath.getPointAtLength(e * retLen);
-      window.scrollTo(0, (pt.y + 79) * unPx() - retViewY0);
+      window.scrollTo(0, yToPage(pt.y) - retViewY0);
       // bank through the curve: chase the return path's tangent (it arrives exactly vertical by construction)
       const a2 = retPath.getPointAtLength(Math.max(0, e - 0.004) * retLen), b2 = retPath.getPointAtLength(Math.min(1, e + 0.004) * retLen);
       const wantR = (Math.atan2(b2.y - a2.y, b2.x - a2.x) * 180) / Math.PI + 90;

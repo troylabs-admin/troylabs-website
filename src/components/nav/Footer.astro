@@ -92,8 +92,10 @@ const socials = [
   @media (max-width: 767px) {
     .m-footer { padding-top: 8px; }
     .m-rule { border: 0; border-top: 1px solid rgb(255 255 255 / 0.3); width: 78%; margin: 0 auto 26px; }
-    .m-cols { display: flex; justify-content: space-between; gap: 20px; max-width: 340px; margin: 0 auto; }
-    .m-col { display: flex; flex-direction: column; gap: 12px; }
+    .m-cols { display: flex; justify-content: space-between; gap: 28px; max-width: 340px; margin: 0 auto; }
+    .m-col { display: flex; flex-direction: column; gap: 14px; }
+    /* the nav column's links must never run together ("BUILDIGNITEDEMO") */
+    .m-col nav, nav.m-col { gap: 16px; }
     .m-social { display: flex; justify-content: center; gap: 16px; list-style: none; margin: 26px 0 0; padding: 0; align-items: center; }
     .m-rocket { display: block; width: 34px; height: 51px; margin: 24px auto 10px; }
   }

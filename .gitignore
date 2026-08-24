@@ -46,9 +46,9 @@ node_modules
 # The Figma sync pipeline, the pixel-fidelity suite and the design source of truth are development
 # tooling, not part of the website. They remain in this project's git history (and on the maintainer's
 # machine) and can be restored with:  git checkout <older-sha> -- design scripts tests
-design/
-scripts/
-tests/
+/design/
+/scripts/
+/tests/
 playwright.config.ts
 CLAUDE.md
 .claude/

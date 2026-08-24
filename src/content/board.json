@@ -4,118 +4,118 @@
     "role": "President",
     "row": 0,
     "col": 1,
-    "photo": null
+    "photo": "stasia"
   },
   {
     "name": "Charlotte Chang",
     "role": "President",
     "row": 0,
     "col": 2,
-    "photo": null
+    "photo": "charlotte"
   },
   {
     "name": "Trisha Prasanna",
     "role": "Head of BUILD",
     "row": 1,
     "col": 0,
-    "photo": null
+    "photo": "trisha"
   },
   {
     "name": "Margaret Luwena",
     "role": "Head of BUILD",
     "row": 1,
     "col": 1,
-    "photo": null
+    "photo": "margaret"
   },
   {
     "name": "Pola Malkowska",
     "role": "Head of DEMO",
     "row": 1,
     "col": 2,
-    "photo": null
+    "photo": "pola"
   },
   {
     "name": "Mirella Comai",
     "role": "Head of IGNITE",
     "row": 1,
     "col": 3,
-    "photo": null
+    "photo": "mirella"
   },
   {
     "name": "Margaux Dambaucher",
     "role": "Head of IGNITE",
     "row": 2,
     "col": 0,
-    "photo": null
+    "photo": "margaux"
   },
   {
     "name": "Vito Zou",
     "role": "Head of Community",
     "row": 2,
     "col": 1,
-    "photo": null
+    "photo": "vito"
   },
   {
     "name": "Andy Kim",
     "role": "Head of Community",
     "row": 2,
     "col": 2,
-    "photo": null
+    "photo": "andy"
   },
   {
     "name": "Laila Laduke",
     "role": "Head of Recruitment",
     "row": 2,
     "col": 3,
-    "photo": null
+    "photo": "laila"
   },
   {
     "name": "Melanie Lee",
     "role": "Head of Recruitment",
     "row": 3,
     "col": 0,
-    "photo": null
+    "photo": "melanie"
   },
   {
     "name": "Badria Kazim",
     "role": "Head of PM",
     "row": 3,
     "col": 1,
-    "photo": null
+    "photo": "badria"
   },
   {
     "name": "Yuki Fu",
     "role": "Head of Finance/VC",
     "row": 3,
     "col": 2,
-    "photo": null
+    "photo": "yuki"
   },
   {
     "name": "Bryan Ramirez-Gonzalez",
     "role": "Head of Tech",
     "row": 3,
     "col": 3,
-    "photo": null
+    "photo": "bryan"
   },
   {
     "name": "Ayush Chabra",
     "role": "Head of Marketing",
     "row": 4,
     "col": 0,
-    "photo": null
+    "photo": "ayush"
   },
   {
     "name": "Anika Mantripragada",
     "role": "Head of Design",
     "row": 4,
     "col": 1,
-    "photo": null
+    "photo": "anika"
   },
   {
     "name": "Ellie Lin-Stevens",
     "role": "Head of Design",
     "row": 4,
     "col": 2,
-    "photo": null
+    "photo": "ellie"
   }
 ]

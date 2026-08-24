@@ -13,6 +13,7 @@
     "figma:pull": "tsx scripts/figma-pull.ts",
     "figma:spec": "tsx scripts/figma-spec.ts",
     "assets": "tsx scripts/optimize-assets.ts",
+    "assets:board": "tsx scripts/optimize-board.ts",
     "test:fidelity": "playwright test",
     "figma:vectors": "tsx scripts/figma-vectors.ts"
   },

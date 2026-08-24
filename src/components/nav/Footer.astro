@@ -10,12 +10,16 @@ import substack from '../../assets/figma/icon-substack.svg?raw';
 import instagram from '../../assets/figma/icon-instagram.png';
 import x from '../../assets/figma/icon-x.png';
 
+// Same order as the top nav; the current page's own link is omitted.
 const pages = [
-  { href: '/', label: 'HOME' },
-  { href: '/build', label: 'BUILD' },
-  { href: '/demo', label: 'DEMO' },
-  { href: '/ignite', label: 'IGNITE' },
-];
+  { href: '/', label: 'HOME', key: 'home' },
+  { href: '/build', label: 'BUILD', key: 'build' },
+  { href: '/ignite', label: 'IGNITE', key: 'ignite' },
+  { href: '/demo', label: 'DEMO', key: 'demo' },
+] as const;
+interface Props { current?: 'home' | 'build' | 'ignite' | 'demo' }
+const { current } = Astro.props;
+const links = pages.filter((p) => p.key !== current);
 // Instagram + X confirmed by Bryan (2026-08-23). TODO(designer): Threads and Substack URLs still unconfirmed.
 const socials = [
   { href: 'https://www.instagram.com/troy.labs/', label: 'Instagram' },
@@ -29,7 +33,7 @@ const socials = [
   <hr class="abs m-0 border-0 border-t border-ink/30" style={pos(244, 1, 514)} />
 
   <nav class="abs flex flex-col" style={`${pos(95, 55, 135)};gap:${u(20)}`} aria-label="Footer">
-    {pages.map((p) => <a href={p.href} class="t-nav glow-text">{p.label}</a>)}
+    {links.map((p) => <a href={p.href} class="t-nav glow-text">{p.label}</a>)}
   </nav>
 
   <div class="abs flex flex-col" style={`${pos(320, 55, 135)};gap:${u(10)}`}>

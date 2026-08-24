@@ -28,6 +28,8 @@ pnpm-debug.log*
 # raw design masters (121 MB) — stay on Drive / local disk
 /TL Website Assets/
 /assets-src/
+# raw e-board headshots — processed by pnpm assets:board into src/assets/board/
+/E-Board Photos/
 # scratch
 design/_*.json
 design/reference/_thumbs/

@@ -36,12 +36,17 @@ const HEIGHT_OVERRIDES: Record<string, number> = {
   demo: 5705 + 16 - 150, // footer overflow rendered whole (+16) · sponsors→dome gap tightened 150 du (Bryan, 2026-08-24)
 };
 
+/** Header link row: HOME added next to BUILD/IGNITE/DEMO (Bryan, 2026-08-24). Rocket + Apply stay put. */
+const NAV_LINKS: [number, number, number, number] = [290, 24, 380, 32];
+
 /** Reference regions we deliberately don't reproduce (du rects) — see the component comments. */
 const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
-  build: [[211, 3299, 431, 115], // stray colored ZhenFund logo (7041:2529)
+  build: [NAV_LINKS,
+          [211, 3299, 431, 115], // stray colored ZhenFund logo (7041:2529)
           [600, 3515, 545, 545]], // backers: designer's textured orange planet + atmosphere replace Figma's flat disc (Bryan, 2026-08-23)
   // Home "members" company names → wordmark logos (decision 2026-08-23): the 12 text boxes, widened for the marks
-  home: [[500, 2100, 400, 380], // "13 majors": Figma's glass orbs replaced by a constellation (decision 2026-08-23)
+  home: [NAV_LINKS,
+         [500, 2100, 400, 380], // "13 majors": Figma's glass orbs replaced by a constellation (decision 2026-08-23)
          [20, 2095, 490, 360], // "50 active members": Figma's starburst replaced by the counter swarm (Bryan, 2026-08-24)
          [385, 3319, 120, 38], [547, 3320, 162, 40], [668, 3403, 125, 38], [706, 3485, 201, 38], [761, 3570, 115, 38], [713, 3641, 110, 38],
          [178, 3704, 104, 38], [670, 3718, 106, 38], [182, 3773, 175, 38], [532, 3798, 244, 38], [346, 3812, 112, 38], [449, 3838, 109, 38],
@@ -49,10 +54,12 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
          [95, 5483, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
   // DEMO footer: the whole instance sits 15 du right of the canvas in Figma (designer slack) — we render the
   // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
-  demo: [[0, 4791, 1001, 780], // sponsors→dome gap tightened 150 du: everything below the last sponsor row is shifted (incl. the off-canvas footer)
+  demo: [NAV_LINKS,
+         [0, 4791, 1001, 780], // sponsors→dome gap tightened 150 du: everything below the last sponsor row is shifted (incl. the off-canvas footer)
          [0, 821, 1001, 526]], // stage media: viewport-width breakout + sky-blend vignette, video-ready (Bryan, 2026-08-24)
   // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
-  ignite: [[0, 3076, 1001, 256],
+  ignite: [NAV_LINKS,
+           [0, 3076, 1001, 256],
            [0, 740, 1001, 780]], // features: Figma's centered text list redesigned as the ignition fuse (Bryan, 2026-08-24; see Features.astro)
 };
 /** The designer's bright-green (#00ff37) review scribbles are ignored wherever they appear in a reference. */

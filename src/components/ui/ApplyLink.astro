@@ -2,12 +2,23 @@
 /**
  * "APPLY TO TROYLABS" — Figma component set 7033:2221.
  *   Default: white text, glow.  Variant2 (hover): text fades white → orange (#ff7d2c) left-to-right.
+ *   Destination lives in lib/links.ts (APPLY_HREF). When that's an https URL, this opens a new tab.
  */
+import { APPLY_HREF } from '../../lib/links';
+
 interface Props { href?: string; class?: string; style?: string; label?: string }
-const { href = '/apply', class: cls = '', style, label = 'APPLY TO TROYLABS' } = Astro.props;
+const { href: hrefProp, class: cls = '', style, label = 'APPLY TO TROYLABS' } = Astro.props;
+const href = hrefProp ?? (APPLY_HREF || '/apply');
+const external = /^https?:\/\//.test(href);
 ---
 
-<a href={href} class:list={['apply t-nav glow-text whitespace-nowrap text-center', cls]} style={style}>{label}</a>
+<a
+  href={href}
+  class:list={['apply t-nav glow-text whitespace-nowrap text-center', cls]}
+  style={style}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>{label}</a>
 
 <style>
   .apply { transition: color 150ms ease; }

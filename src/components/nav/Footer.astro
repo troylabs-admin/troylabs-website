@@ -20,11 +20,11 @@ const pages = [
 interface Props { current?: 'home' | 'build' | 'ignite' | 'demo' }
 const { current } = Astro.props;
 const links = pages.filter((p) => p.key !== current);
-// Instagram + X confirmed by Bryan (2026-08-23). TODO(designer): Threads and Substack URLs still unconfirmed.
+// Instagram + X confirmed by Bryan (2026-08-23). Linktree replaces Threads (Bryan, 2026-08-24).
 const socials = [
   { href: 'https://www.instagram.com/troy.labs/', label: 'Instagram' },
   { href: 'https://x.com/TroyLabsVC', label: 'X' },
-  { href: 'https://www.threads.net/@troy.labs', label: 'Threads' },
+  { href: 'https://linktr.ee/TroyLabs', label: 'Linktree' },
   { href: 'https://troylabs.substack.com', label: 'Substack' },
 ];
 ---

@@ -38,7 +38,8 @@ const HEIGHT_OVERRIDES: Record<string, number> = {
 
 /** Reference regions we deliberately don't reproduce (du rects) — see the component comments. */
 const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
-  build: [[211, 3299, 431, 115]], // stray colored ZhenFund logo (7041:2529)
+  build: [[211, 3299, 431, 115], // stray colored ZhenFund logo (7041:2529)
+          [600, 3515, 545, 545]], // backers: designer's textured orange planet + atmosphere replace Figma's flat disc (Bryan, 2026-08-23)
   // Home "members" company names → wordmark logos (decision 2026-08-23): the 12 text boxes, widened for the marks
   home: [[500, 2100, 400, 380], // "13 majors": Figma's glass orbs replaced by a constellation (decision 2026-08-23)
          [385, 3319, 120, 38], [547, 3320, 162, 40], [668, 3403, 125, 38], [706, 3485, 201, 38], [761, 3570, 115, 38], [713, 3641, 110, 38],

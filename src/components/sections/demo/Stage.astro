@@ -92,6 +92,9 @@ const stars = [
     const video = wrap?.querySelector('video');
     if (!wrap || !video || video.dataset.wired) return;
     video.dataset.wired = '1';
+    // the muted CONTENT attribute only sets a default — after a ClientRouter swap engines can create the
+    // element un-muted while still reporting muted (Bryan heard sound on first /demo visit). Force it.
+    video.muted = true; video.defaultMuted = true;
     const btn = wrap.querySelector<HTMLButtonElement>('.sound');
     if (!document.documentElement.classList.contains('motion')) { btn?.remove(); return; }
     new IntersectionObserver(([e]) => { if (e.isIntersecting) video.play().catch(() => {}); else video.pause(); }, { threshold: 0.25 }).observe(wrap);

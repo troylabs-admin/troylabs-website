@@ -42,7 +42,7 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
           [600, 3515, 545, 545]], // backers: designer's textured orange planet + atmosphere replace Figma's flat disc (Bryan, 2026-08-23)
   // Home "members" company names → wordmark logos (decision 2026-08-23): the 12 text boxes, widened for the marks
   home: [[500, 2100, 400, 380], // "13 majors": Figma's glass orbs replaced by a constellation (decision 2026-08-23)
-         [105, 2120, 395, 350], // "50 active members": Figma's starburst replaced by the counter swarm (Bryan, 2026-08-24)
+         [66, 2120, 470, 350], // "50 active members": Figma's starburst replaced by the counter swarm (Bryan, 2026-08-24)
          [385, 3319, 120, 38], [547, 3320, 162, 40], [668, 3403, 125, 38], [706, 3485, 201, 38], [761, 3570, 115, 38], [713, 3641, 110, 38],
          [178, 3704, 104, 38], [670, 3718, 106, 38], [182, 3773, 175, 38], [532, 3798, 244, 38], [346, 3812, 112, 38], [449, 3838, 109, 38],
          [127, 4168, 769, 1098], // board: real headshots replace the checkerboard placeholders (Bryan, 2026-08-23)

@@ -3,6 +3,8 @@
  * twinkle, slow drift, and mouse + scroll parallax (deeper bins move less). Replaces the static tiled
  * starfield (body::before) when motion is on. Canvas 2D, DPR ≤ 2, ~450 stars, pauses when hidden.
  * Also publishes the lerped pointer as --mx / --my (−1…1) for CSS parallax elsewhere (planets).
+ * Visitors: an occasional shooting star, and — rarely — a small line-art saucer drifting across (same
+ * 1px-white drawing language as the globe). Append ?skyfast to a URL to preview both without the wait.
  */
 const root = document.documentElement;
 
@@ -38,6 +40,14 @@ function init() {
   let tx = 0, ty = 0, mx = 0, my = 0, pmx = 0, pmy = 0;
   addEventListener('pointermove', (e) => { tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true });
 
+  // ── visitors: shooting stars + (rarely) a little saucer. First saucer flyby comes while the page still
+  //    has your attention; after that it's an easter egg. ?skyfast previews both immediately.
+  const FAST = location.search.includes('skyfast');
+  let meteor: { x: number; y: number; vx: number; vy: number; s0: number; dur: number } | null = null;
+  let nextMeteor = FAST ? 1 : 8 + rand() * 18;
+  let ufo: { s0: number; dur: number; y: number; dir: 1 | -1 } | null = null;
+  let nextUfo = FAST ? 2 : 20 + rand() * 15;
+
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
 
@@ -65,9 +75,54 @@ function init() {
       }
     }
     ctx.globalAlpha = 1;
+
+    // shooting star: a quick gradient streak, alpha enveloped so it blooms and dies
+    if (!meteor && t > nextMeteor) {
+      const dir = rand() < 0.5 ? -1 : 1;
+      meteor = { x: W * (0.15 + rand() * 0.7), y: H * (0.05 + rand() * 0.35), vx: dir * W * (0.35 + rand() * 0.2), vy: W * (0.12 + rand() * 0.08), s0: t, dur: 0.7 + rand() * 0.4 };
+    }
+    if (meteor) {
+      const p = (t - meteor.s0) / meteor.dur;
+      if (p >= 1) { meteor = null; nextMeteor = t + (FAST ? 3 : 16 + rand() * 24); }
+      else {
+        const hx = meteor.x + meteor.vx * p, hy = meteor.y + meteor.vy * p;
+        const nv = Math.hypot(meteor.vx, meteor.vy), ux = meteor.vx / nv, uy = meteor.vy / nv;
+        const a = Math.sin(Math.PI * p) * 0.8, L = 110;
+        const g = ctx.createLinearGradient(hx, hy, hx - ux * L, hy - uy * L);
+        g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx - ux * L, hy - uy * L); ctx.stroke();
+        ctx.globalAlpha = a; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(hx, hy, 1.3, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+    // the saucer: slow shallow drift with a gentle bob, running lights blinking out of phase
+    if (!ufo && t > nextUfo) ufo = { s0: t, dur: 15 + rand() * 5, y: H * (0.08 + rand() * 0.25), dir: rand() < 0.5 ? 1 : -1 };
+    if (ufo) {
+      const p = (t - ufo.s0) / ufo.dur;
+      if (p >= 1) { ufo = null; nextUfo = t + (FAST ? 6 : 110 + rand() * 60); }
+      else {
+        const x = ufo.dir === 1 ? -60 + (W + 120) * p : W + 60 - (W + 120) * p;
+        drawSaucer(ctx, x, ufo.y + 12 * Math.sin(t * 0.9), Math.sin(t * 1.3) * 0.06, t);
+      }
+    }
     raf = visible ? requestAnimationFrame(draw) : 0;
   }
   raf = requestAnimationFrame(draw);
+}
+
+/* line-art flying saucer, ~42px wide: hull ellipse + dome arc + three blinking running lights */
+function drawSaucer(ctx: CanvasRenderingContext2D, x: number, y: number, tilt: number, t: number) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.ellipse(0, 0, 21, 6.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(0, -4.5, 9, 7, 0, Math.PI, 0); ctx.stroke();
+  ctx.fillStyle = '#fff';
+  for (let k = -1; k <= 1; k++) {
+    ctx.globalAlpha = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * 4 + k * 2.1));
+    ctx.beginPath(); ctx.arc(k * 9, 3.2, 1.1, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1; ctx.restore();
 }
 
 const wrap = (v: number, m: number) => ((v % m) + m) % m;

@@ -1,0 +1,25 @@
+# Build check on every push and PR.
+#
+# Deliberately does NOT run the fidelity suite: it pixel-diffs against Figma renders and depends on the
+# exact font rasterisation of the machine it runs on (the design uses Helvetica as drawn). On Linux CI
+# the numbers drift for reasons that have nothing to do with the change under review, which would train
+# people to ignore a red check. Fidelity is run locally before shipping — see the PR checklist.
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build

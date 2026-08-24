@@ -45,11 +45,11 @@ function init() {
   //    has your attention; after that it's an easter egg. ?skyfast previews both immediately.
   const FAST = location.search.includes('skyfast');
   let meteor: { x: number; y: number; vx: number; vy: number; s0: number; dur: number } | null = null;
-  let nextMeteor = FAST ? 1 : 3 + rand() * 6;
+  let nextMeteor = FAST ? 1 : 1.5 + rand() * 1.5;   // first visitors arrive fast — nobody should miss them (Bryan)
   let ufo: { s0: number; dur: number; y: number; dir: 1 | -1; k: number } | null = null;
-  let nextUfo = FAST ? 2 : 4 + rand() * 4;
+  let nextUfo = FAST ? 2 : 2 + rand() * 1.5;
   let sat: { s0: number; dur: number; y0: number; drift: number; dir: 1 | -1; spin: number; k: number } | null = null;
-  let nextSat = FAST ? 4 : 9 + rand() * 6;
+  let nextSat = FAST ? 4 : 3.5 + rand() * 2;
 
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });

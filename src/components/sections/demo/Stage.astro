@@ -19,9 +19,10 @@ import photo from '../../../assets/figma/demo-stage-photo.png';
 import planet from '../../../assets/figma/demo-stats-planet.png';
 import comet from '../../../assets/figma/comet-streak-demo.png'; // DEMO's comet (7074:3769) is the mirror of BUILD's — own export
 
-/* the reel, if it has landed (see MEDIA note above) */
+/* the reel, if it has landed (see MEDIA note above) + its captions (auto-transcribed, corrected by ear) */
 const vids = import.meta.glob<string>('../../../assets/demo-stage.{mp4,webm}', { eager: true, query: '?url', import: 'default' });
 const videoSrc = Object.values(vids)[0];
+import captionsUrl from '../../../assets/demo-stage.vtt?url';
 
 const TOP = 760;
 const y = (v: number) => v - TOP;
@@ -53,7 +54,11 @@ const stars = [
   <figure class="abs m-0 overflow-hidden media" style={`${pos(0, y(821), 1000, 526)};width:100vw;margin-left:calc((100% - 100vw) / 2)`}>
     {videoSrc ? (
       <>
-        <video class="w-full h-full object-cover" src={videoSrc} poster={photo.src} muted loop playsinline preload="none" aria-label="Highlights from DEMO" />
+        <video class="w-full h-full object-cover" crossorigin="anonymous" poster={photo.src} muted loop playsinline preload="none" aria-label="Highlights from DEMO">
+          <source src={videoSrc} type="video/mp4" />
+          <track kind="captions" src={captionsUrl} srclang="en" label="English" default />
+        </video>
+        <p class="cap" aria-hidden="true"></p>
         <button class="sound" type="button" aria-label="Unmute video" aria-pressed="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none" />
@@ -90,6 +95,17 @@ const stars = [
     const btn = wrap.querySelector<HTMLButtonElement>('.sound');
     if (!document.documentElement.classList.contains('motion')) { btn?.remove(); return; }
     new IntersectionObserver(([e]) => { if (e.isIntersecting) video.play().catch(() => {}); else video.pause(); }, { threshold: 0.25 }).observe(wrap);
+    // captions: native track kept hidden, rendered into our own tiny pill (native cue chrome is huge)
+    const cap = wrap.querySelector<HTMLElement>('.cap');
+    const track = video.textTracks[0];
+    if (cap && track) {
+      track.mode = 'hidden';
+      track.addEventListener('cuechange', () => {
+        const cue = track.activeCues?.[0] as VTTCue | undefined;
+        cap.textContent = cue?.text ?? '';
+        cap.classList.toggle('is-on', !!cue);
+      });
+    }
     btn?.addEventListener('click', () => {
       video.muted = !video.muted;
       if (!video.muted) video.volume = 1;
@@ -107,6 +123,15 @@ const stars = [
   .media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(180deg, rgb(10 10 11 / 0.85), transparent 14%, transparent 86%, rgb(10 10 11 / 0.85)); }
   .stat { text-shadow: 0 0 calc(7.3 * var(--u)) rgb(255 255 255 / 0.7); }
+  /* tiny captions: our own renderer, bottom-centre, above the vignette */
+  .cap {
+    position: absolute; z-index: 1; left: 50%; bottom: calc(26 * var(--u)); transform: translateX(-50%);
+    max-width: 62%; margin: 0; padding: calc(4 * var(--u)) calc(12 * var(--u));
+    font-size: calc(13 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: calc(0.4 * var(--u)); text-align: center;
+    color: rgb(255 255 255 / 0.95); background: rgb(0 0 0 / 0.55); border-radius: calc(6 * var(--u));
+    opacity: 0; transition: opacity 200ms var(--ease-out-expo); pointer-events: none;
+  }
+  .cap.is-on { opacity: 1; }
   /* sound toggle: the site's pill language, sitting above the vignette (::after has no z-index) */
   .sound {
     position: absolute; z-index: 1; right: calc(28 * var(--u)); bottom: calc(28 * var(--u));

@@ -27,7 +27,7 @@ const ROWS = [4168, 4397.1, 4626.2, 4873.4, 5120.4];
 ---
 
 <section class="section" style="--h:1383" data-figma="Board" aria-labelledby="board-title">
-  <Glow x={310} y={y(4847)} w={745.3} h={842} />
+  <Glow x={310} y={y(4847)} w={745.3} h={842} pad={0} /> {/* page-bottom glow: padding would grow the document (see Glow.astro) */}
   <h2 id="board-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(414, y(4082), 199, 23)}>EXECUTIVE BOARD</h2>
 
   <ul class="m-0 p-0 list-none">

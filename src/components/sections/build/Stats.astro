@@ -71,7 +71,7 @@ const stars = [
   </div>
   <h2 class="m-0 t-title m-center font-normal glow" style="margin-top:8px">STARTUPS FEATURED ON</h2>
   <ul class="m-blogos m-0 p-0 list-none" aria-label="Press and programs our startups were featured on">
-    {logos.map((l) => <li class="m-blogo" style={`width:${l.box[2] * 0.62}px`} aria-label={l.name} set:html={l.svg} />)}
+    {logos.map((l) => <li class="m-blogo" style={`width:${l.box[2] * (l.box[3] > 60 ? 0.42 : 0.62)}px`} aria-label={l.name} set:html={l.svg} />)} {/* tall stacked marks (Shark Tank) scale down so the wall reads optically even (QA) */}
   </ul>
   <p class="m-0 t-fine glow m-center">season 17 episode 2</p>
 </div>

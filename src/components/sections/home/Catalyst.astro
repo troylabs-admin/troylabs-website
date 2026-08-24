@@ -186,7 +186,7 @@ const stars = [
       {edges.map(([a, b]) => <line style="stroke-opacity:0.28" x1={majors[a].c[0]} y1={y(majors[a].c[1])} x2={majors[b].c[0]} y2={y(majors[b].c[1])} />)}
       {majors.map((m, i) => {
         const [cx, cy] = [m.c[0], y(m.c[1])]; const r = [0, 2.2, 3, 3.8][m.s];
-        const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : side[i] === 'bb' ? cy + r + 46 : side[i] === 't' ? cy - r - 6 : cy + 2.5;
+        const tx = side[i] === 'l' ? cx - r - 6 : side[i] === 'r' ? cx + r + 6 : cx; const ty = side[i] === 'b' ? cy + r + 11 : side[i] === 'bb' ? cy + r + 62 : side[i] === 't' ? cy - r - 6 : cy + 2.5; /* bb pushed lower: at the mobile label size, 46 collided with History/Design (QA) */
         const anchor = side[i] === 'l' ? 'end' : side[i] === 'r' ? 'start' : 'middle';
         return (
           <g class="node" role="img" aria-label={m.label}>

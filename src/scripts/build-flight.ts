@@ -45,10 +45,10 @@ function apply() {
   // half the nodes' ignitions already passed (Bryan, 2026-08-24: "the dot starts on Exclusive Events").
   // Re-anchor the spark's range start to the scroll-zero progress and remap every node's ignition %
   // into the new span so spark/node sync is preserved (same fraction math as Features.astro).
-  for (const spark of document.querySelectorAll<HTMLElement>('.fuse-spark')) {
-    if (spark.offsetParent === null) continue;             // only the visible tree (desktop OR mobile)
-    const sec3 = spark.closest<HTMLElement>('[data-figma="IgniteFeatures"], [data-m="IgniteFeatures"]');
-    if (!sec3) continue;
+  for (const sec3 of document.querySelectorAll<HTMLElement>('[data-figma="IgniteFeatures"], [data-m="IgniteFeatures"]')) {
+    if (sec3.offsetParent === null) continue;              // only the visible tree — test the SECTION, not the
+    const spark = sec3.querySelector<HTMLElement>('.fuse-spark'); // spark: display:none until motion CSS shows
+    if (!spark) continue;                                  // it, so its own offsetParent is null (QA, 2026-08-24)
     const { top, h } = box(sec3);
     const atLoad = Math.max(0, (vh - top) / (h + vh));
     const start = Math.max(0.10, atLoad + 0.02);          // the stylesheet's cover 10-12%, pushed past load

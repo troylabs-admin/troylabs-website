@@ -89,7 +89,7 @@ const stars = [
     <h2 class="m-0 t-title-tight m-center font-normal">PAST SPONSORS & PARTNERS</h2>
     <ul class="m-0 p-0 list-none m-sp-list">
       {logos.map((l, i) => (
-        <li class="zg m-sp" style={`width:${l.box[2] * 0.58}px;--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} set:html={fit(l.svg)} />
+        <li class="zg m-sp" style={`width:${l.box[2] * (l.box[3] > 70 ? 0.42 : 0.58)}px;--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} set:html={fit(l.svg)} />
       ))}
     </ul>
   </div>

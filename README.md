@@ -3,7 +3,7 @@
 The website for [USC TroyLabs](https://linktr.ee/TroyLabs), a student-run startup accelerator at the
 University of Southern California.
 
-**Live:** https://troylabs.vercel.app
+**Live:** https://usctroylabs.com  ·  `troylabs.vc` redirects here
 
 ## Getting started
 
@@ -35,7 +35,7 @@ src/
   scripts/               small client-side scripts (starfield, scroll effects)
   assets/                images and video
   lib/                   shared helpers
-public/                  files served as-is (favicon, robots.txt)
+public/                  files served as-is (favicon, share card, robots.txt, sitemap.xml)
 ```
 
 ## Editing content
@@ -48,6 +48,8 @@ Most updates don't require touching layout code:
 | Where "Apply" links to | `src/lib/links.ts` |
 | Section copy | the data array at the top of that section's component |
 | The DEMO video | `src/assets/demo-stage.mp4` (desktop), `demo-stage-mobile.mp4` (phones), `demo-stage.vtt` (captions) |
+| The link-preview card | `public/og.jpg` (1200×630) — shown when the site is pasted into Instagram, LinkedIn or iMessage |
+| Page titles and descriptions | the `<BaseLayout title=… description=…>` line at the top of each page |
 
 ## Layout notes
 
@@ -73,8 +75,12 @@ is connected; you can also deploy the current working tree directly:
 npx vercel --prod
 ```
 
-To use the `troylabs.vc` domain: add it to the Vercel project, then add the DNS records Vercel provides
-at the domain registrar. No code changes are needed.
+### Domains
+
+`usctroylabs.com` is the real address; `troylabs.vc` is set to redirect to it (Vercel → Settings → Domains
+→ "Redirect to"). Both are registered at Name.com. If the primary domain ever changes, update `site` in
+`astro.config.mjs` and the URLs in `public/sitemap.xml` and `public/robots.txt` — those are the only three
+places it is written down.
 
 ---
 

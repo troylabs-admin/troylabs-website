@@ -1,0 +1,51 @@
+---
+/**
+ * /apply — the APPLY CTA's destination until the real application form URL lands.
+ * TODO(Bryan): paste the form URL into src/lib/links.ts (APPLY_HREF) and every APPLY pill site-wide
+ * will open it in a new tab automatically — this page then becomes unreachable and can be deleted.
+ * Until then the most prominent CTA on the site must not 404 (found by the mobile QA pass, 2026-08-24):
+ * it routes people to the Linktree (where current application links live) and the club inbox.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pos } from '../lib/units';
+---
+
+<BaseLayout title="Apply — TroyLabs" description="Apply to TroyLabs: BUILD, IGNITE, and DEMO.">
+  <section class="section" style="--h:600" aria-labelledby="apply-title">
+    <div class="abs flex flex-col items-center text-center" style={pos(250.5, 150, 500)}>
+      <span class="t-label text-muted">APPLICATIONS</span>
+      <h1 id="apply-title" class="m-0 t-title-tight font-normal" style="margin-top:calc(18 * var(--u))">APPLY TO TROYLABS</h1>
+      <p class="m-0 t-caption" style="margin-top:calc(22 * var(--u));max-width:calc(400 * var(--u))">
+        Applications for BUILD and IGNITE open through our Linktree at the start of each semester.
+        Questions, pitches, or anything else — the inbox is always open.
+      </p>
+      <a href="https://linktr.ee/TroyLabs" target="_blank" rel="noopener noreferrer" class="pill-link t-title whitespace-nowrap">OPEN OUR LINKTREE</a>
+      <a href="mailto:troylabs@usc.edu" class="t-nav glow-text normal-case" style="margin-top:calc(22 * var(--u))">troylabs@usc.edu</a>
+    </div>
+  </section>
+
+  <!-- mobile -->
+  <div class="m m-pad m-stack m-apply-page">
+    <span class="t-label text-muted">APPLICATIONS</span>
+    <h1 class="m-0 t-title-tight font-normal m-center">APPLY TO TROYLABS</h1>
+    <p class="m-0 t-caption m-center" style="max-width:320px">
+      Applications for BUILD and IGNITE open through our Linktree at the start of each semester.
+      Questions, pitches, or anything else — the inbox is always open.
+    </p>
+    <a href="https://linktr.ee/TroyLabs" target="_blank" rel="noopener noreferrer" class="m-pill t-title text-ink">OPEN OUR LINKTREE</a>
+    <a href="mailto:troylabs@usc.edu" class="t-nav glow-text normal-case">troylabs@usc.edu</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .pill-link {
+    display: flex; align-items: center; justify-content: center; color: var(--color-ink); text-decoration: none;
+    margin-top: calc(34 * var(--u)); padding: calc(10 * var(--u)) calc(28 * var(--u)); border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4);
+    transition: box-shadow 150ms ease;
+  }
+  .pill-link:hover, .pill-link:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
+  @media (max-width: 767px) {
+    .m-apply-page { padding-block: 60px 80px; gap: 18px; }
+  }
+</style>

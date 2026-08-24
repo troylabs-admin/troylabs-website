@@ -21,7 +21,20 @@
   .canvas .section { display: none; }
   .home-flight { display: none; }
 
+  html, body { overflow-x: clip; }  /* scattered swarm transforms and bleeding planets must never widen the viewport */
   .m { display: block; position: relative; }
+  /* planets are composited (transform) layers and would paint over static text once reveals release
+     their transforms — keep all mobile copy in its own layer above the art */
+  .m h1, .m h2, .m h3, .m h4, .m p, .m .pill, .m-ring { position: relative; z-index: 1; }
+  .m-nav { position: relative; z-index: 30; }           /* nothing may cover the nav (the hero art bleeds up) */
+  .m-nav a { display: inline-block; padding: 12px 4px; }   /* touch targets (inline-block so padding counts) */
+  .m-mark { display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 44px; margin: -9px 0; }
+  .m-footer a { display: inline-block; padding: 9px 0; }
+  /* min-* so the inline width/height the icons carry can't shrink the target */
+  .m-social a { display: flex; align-items: center; justify-content: center; min-width: 38px; min-height: 38px; }
+  /* reused planets keep breathing + atmosphere, but the scroll DRIFT is tuned for full-height desktop
+     sections — inside a short .m-art wrapper it slides the planet over neighbouring content */
+  .m-art .planet { animation: none !important; }
 
   /* ── mobile type scale (same class names as the artboard, fixed sizes) ── */
   .m .t-hero { font-size: 44px; line-height: 50px; letter-spacing: 4px; }
@@ -100,6 +113,7 @@
     }
   }
 }
+@keyframes m-lift { from { transform: translate(0, 0) rotate(-12deg); } to { transform: translate(70px, -620px) rotate(-4deg); } }
 @keyframes m-fuse-run {
   0% { top: 0; opacity: 0; }
   5% { opacity: 1; }

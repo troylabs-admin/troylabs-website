@@ -233,7 +233,7 @@ html.motion .flag.is-planted { opacity: 1; transform: rotate(var(--tilt, 0deg));
 
 /* ── Home: "13 majors" constellation (see Catalyst.astro + scripts/constellation.ts) ── */
 /* mobile copy: static (no drift/hover script), cropped viewBox — labels need a bigger svg-unit size */
-.constellation-m text { font-size: 10.5px; }
+.constellation.constellation-m text { font-size: 14px; } /* ~10px rendered at 390 wide; doubled class outranks the base 7.5px rule below */
 .constellation-m .node { pointer-events: none; }
 .constellation { overflow: visible; pointer-events: none; } /* the svg spans the whole section — without this it
    steals hover from everything under it (the 50-members swarm sits beneath); only the star nodes are interactive */

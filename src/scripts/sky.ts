@@ -30,7 +30,7 @@ function init() {
     });
   };
   const resize = () => {
-    dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+    dpr = Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1.5 : 2); W = innerWidth; H = innerHeight; // phones: 1.5 keeps them cool; the star glows read identically
     canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (!stars.length) seed();

@@ -10,7 +10,7 @@ import land110 from 'world-atlas/land-110m.json';
 
 function init() {
   const root = document.documentElement;
-  const host = document.querySelector<HTMLElement>('[data-globe]');
+  const host = [...document.querySelectorAll<HTMLElement>('[data-globe]')].find((el) => el.offsetParent !== null) ?? null; // desktop or mobile tree, whichever is visible
   if (!host || !root.classList.contains('motion') || host.dataset.ready) return;
   host.dataset.ready = '1';
 

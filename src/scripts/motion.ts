@@ -17,7 +17,7 @@ function countUp(el: HTMLElement) {
 function init() {
   const root = document.documentElement;
   if (root.classList.contains('motion')) {
-    const sections = document.querySelectorAll<HTMLElement>('main section');
+    const sections = document.querySelectorAll<HTMLElement>('main section, main .m'); // .m = the mobile subtrees (mobile.css)
     for (const section of sections) {
       const seen = new Set<HTMLElement>();
       const units: HTMLElement[] = [];

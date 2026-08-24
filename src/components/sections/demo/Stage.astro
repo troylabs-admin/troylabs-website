@@ -100,6 +100,11 @@ const stars = [
             <line class="slash" x1="4" y1="20" x2="20" y2="4" />
           </svg>
         </button>
+        <button class="sound fs" type="button" aria-label="Watch fullscreen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" />
+          </svg>
+        </button>
         <p class="cap" aria-hidden="true"></p>
       </>
     ) : (
@@ -146,6 +151,12 @@ const stars = [
         cap.classList.toggle('is-on', !!cue);
       });
     }
+    // fullscreen (mobile player): iOS uses the native video player (rotate + system controls)
+    wrap.querySelector<HTMLButtonElement>('.fs')?.addEventListener('click', () => {
+      const v = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+      if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+      else v.requestFullscreen?.();
+    });
     btn?.addEventListener('click', () => {
       video.muted = !video.muted;
       if (!video.muted) video.volume = 1;
@@ -168,6 +179,7 @@ const stars = [
     .m-media { position: relative; width: 100%; aspect-ratio: 16 / 9; }
     .m-media .cap { font-size: 10px; line-height: 14px; max-width: 80%; bottom: 12px; padding: 3px 8px; }
     .m-media .sound { width: 36px; height: 36px; padding: 8px; right: 12px; bottom: 12px; }
+    .m-media .fs { right: 56px; }
     .m-dstats-art { width: 88%; margin-top: 24px; }
     .m-dstats-in { position: absolute; inset: 0; justify-content: center; gap: 14px; }
     .m-dstats-in .t-stat { font-size: 26px; line-height: 30px; letter-spacing: 2px; }

@@ -136,8 +136,21 @@ const stars = [
 <!-- mobile: globe render + the companies as a wrapped wall -->
 <div class="m m-members m-pad m-stack" data-m="Members">
   <h2 class="m-0 t-sub m-center font-normal">Our members are part of</h2>
-  <div class="m-art" data-aw={g.w} data-ah={g.h} style="width:64%;margin-top:18px">
-    <Image src={globe} alt="" width={1202} height={1201} style="position:absolute;inset:0;width:100%;height:100%" />
+  <div class="m-art globe m-globe" data-aw={387} data-ah={387} style="width:62%;margin-top:18px" data-globe aria-hidden="true">
+    <!-- static render = fallback; globe.ts spins the svg version when motion is on (ids namespaced: the
+         desktop copy owns the originals and url() refs into a display:none subtree don't paint) -->
+    <Image src={globe} alt="" width={1202} height={1201} class="globe-static" style={`position:absolute;left:${(-gPad.x / 387) * 100}%;top:${(-gPad.y / 387) * 100}%;width:${(g.w / 387) * 100}%;height:${(g.h / 387) * 100}%;max-width:none`} />
+    <svg class="globe-live" viewBox="0 0 387 387">
+      <defs>
+        <radialGradient id="m-globe-shade" cx="38%" cy="32%" r="75%">
+          <stop offset="0" stop-color="#1c1c1c" /><stop offset="0.6" stop-color="#0b0b0b" /><stop offset="1" stop-color="#050505" />
+        </radialGradient>
+      </defs>
+      <circle cx="193.5" cy="193.5" r="192" fill="url(#m-globe-shade)" stroke="#fff" stroke-opacity="0.7" stroke-width="0.6" />
+      <path data-graticule fill="none" stroke="#fff" stroke-opacity="0.07" stroke-width="0.4" />
+      <path data-land-glow fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="3" stroke-linejoin="round" />
+      <path data-land fill="rgba(255,255,255,0.03)" stroke="#fff" stroke-opacity="0.85" stroke-width="0.9" stroke-linejoin="round" />
+    </svg>
   </div>
   <ul class="m-marks m-0 p-0 list-none" aria-label="Companies our members have worked at">
     {logos.map((l) => <li class="m-mark-logo" style={`width:${l.box[2] * 1.35}px`} aria-label={l.name} set:html={l.svg} />)}

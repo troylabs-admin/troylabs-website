@@ -62,9 +62,12 @@ const stars = [
   <figure class="abs m-0 overflow-hidden media" style={`${pos(0, y(821), 1000, 526)};width:100vw;margin-left:calc((100% - 100vw) / 2)`}>
     {videoSrc ? (
       <>
-        <video class="w-full h-full object-cover" crossorigin="anonymous" poster={posterImg.src} muted loop playsinline preload="metadata" aria-label="Highlights from DEMO">
-          {videoSrcM && <source src={videoSrcM} type="video/mp4" media="(max-width: 767px)" />}
-          <source src={videoSrc} type="video/mp4" />
+        <video
+          class="w-full h-full object-cover" poster={posterImg.src}
+          autoplay muted loop playsinline preload="metadata"
+          data-src={videoSrc} data-src-mobile={videoSrcM}
+          aria-label="Highlights from DEMO"
+        >
           <track kind="captions" src={captionsUrl} srclang="en" label="English" default />
         </video>
         <button class="reel-play" type="button" aria-label="Play video" hidden>
@@ -100,9 +103,12 @@ const stars = [
   <figure class="m-0 overflow-hidden media m-media">
     {videoSrc ? (
       <>
-        <video class="w-full h-full object-cover" crossorigin="anonymous" poster={posterImg.src} muted loop playsinline preload="metadata" aria-label="Highlights from DEMO">
-          {videoSrcM && <source src={videoSrcM} type="video/mp4" media="(max-width: 767px)" />}
-          <source src={videoSrc} type="video/mp4" />
+        <video
+          class="w-full h-full object-cover" poster={posterImg.src}
+          autoplay muted loop playsinline preload="metadata"
+          data-src={videoSrc} data-src-mobile={videoSrcM}
+          aria-label="Highlights from DEMO"
+        >
           <track kind="captions" src={captionsUrl} srclang="en" label="English" default />
         </video>
         <button class="reel-play" type="button" aria-label="Play video" hidden>
@@ -150,6 +156,13 @@ const stars = [
     const video = wrap.querySelector('video');
     if (!wrap || !video || video.dataset.wired) return;
     video.dataset.wired = '1';
+    // Pick the encode in JS rather than with <source media>. iOS Safari does not honour `media` on a
+    // <video> source, and the pair of <source> elements left it selecting a file it never actually
+    // loaded — readyState stuck at 0, which is why nothing played, tapping play did nothing, and
+    // fullscreen was dead (iOS cannot fullscreen a video with no metadata). Bryan, 2026-08-24.
+    // `crossorigin` is gone too: the captions are same-origin and it only added a way to fail.
+    const wanted = (matchMedia('(max-width: 767px)').matches && video.dataset.srcMobile) || video.dataset.src;
+    if (wanted && video.src !== wanted) video.src = wanted;
     // the muted CONTENT attribute only sets a default — after a ClientRouter swap engines can create the
     // element un-muted while still reporting muted (Bryan heard sound on first /demo visit). Force it.
     video.muted = true; video.defaultMuted = true;

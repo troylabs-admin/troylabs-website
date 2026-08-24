@@ -9,9 +9,8 @@
  *  • the wordmark's own rocket and the flyer CROSSFADE over the first 2% of flight — no swap moment
  *  • the timed landing is anchored to the FOOTER: it starts when the footer mark reaches the viewport's
  *    bottom edge (never earlier) and sets the rocket down exactly on the mark (class `landed` at p ≥ 0.9995)
+ *  • clicking the docked rocket flies it home on its own direct line (mode `return`), scroll driven in sync
  */
-import { rideHome } from './scroll';
-
 const root = document.documentElement;
 
 function buildMap(path: SVGPathElement): [number, number][] {
@@ -92,25 +91,60 @@ function init() {
   // the rocket then flies itself the last few percent of the path onto the mark in 1.8s (ease-in-out), so
   // the user never has to drag it in with scroll. Scrolling back up past the hysteresis returns control
   // with a short blend. If the user simply scrolls to the very bottom, scrub alone reaches the dock (t = 1).
-  let mode: 'scrub' | 'landing' = 'scrub';
+  let mode: 'scrub' | 'landing' | 'return' = 'scrub';
   let landT0 = 0, landP0 = 0, blend = false, lastNow = 0;
-  // Guided return: clicking the footer mark rides the rocket back up the path (it flips nose-first — a
-  // blast-off, not a rewind — at the slew limit) while the page smooth-scrolls home; the wordmark
-  // crossfade docks it. Capture-phase so the view-transition router never treats it as a navigation.
-  let guided = false;
+  // Guided return: clicking the footer mark sends the rocket back up on its OWN direct line to the wordmark
+  // (not the winding path in reverse) — 4.5 s, ease-in-out, nose-up the whole way, growing from footer-mark
+  // size back to wordmark size. The scroll is driven in the same eased progress, so the rocket holds a
+  // constant spot in the viewport while the page glides under it; the crossfade docks it into the logo.
+  // Capture-phase click so the view-transition router never treats it as a navigation; wheel/touch aborts.
+  const RET_MS = 4500;
+  let retT0 = 0, retSy0 = 0, retAng = 0;
+  const retPath = document.querySelector<SVGPathElement>('#home-return-path');
+  const HOME = { x: 617, y: 221 };   // the wordmark rocket's spot = the main path's start (box coords)
+  const endReturn = () => flyer.style.removeProperty('offset-path');
   document.querySelector('footer .mark')?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    guided = true;
-    rideHome(3);
+    if (mode === 'return' || !retPath) return;
+    const pt = pathEl.getPointAtLength(p * totalLen()); // lift off from wherever the rocket rests (normally the mark)
+    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} L ${HOME.x} ${HOME.y}`);
+    retAng = (Math.atan2(HOME.y - pt.y, HOME.x - pt.x) * 180) / Math.PI + 90;
+    flyer.style.offsetPath = 'url(#home-return-path)';
+    root.classList.remove('landed');                     // the white mark returns as it lifts off
+    mode = 'return';
+    retT0 = performance.now();
+    retSy0 = scrollY;
   }, true);
-  addEventListener('wheel', () => { guided = false; }, { passive: true });   // user grabs the wheel mid-ride
-  addEventListener('touchmove', () => { guided = false; }, { passive: true });
+  const abortReturn = () => {
+    endReturn();
+    mode = 'scrub';
+    const ms = document.documentElement.scrollHeight - innerHeight;
+    p = target(map, ms > 0 ? scrollY / ms : 0);          // snap back to scroll-lock (a wheel abort is mid-motion anyway)
+  };
+  addEventListener('wheel', () => { if (mode === 'return') abortReturn(); }, { passive: true });
+  addEventListener('touchmove', () => { if (mode === 'return') abortReturn(); }, { passive: true });
   const tick = (now: number) => {
     const dt = Math.min(100, Math.max(0, now - (lastNow || now)));
     lastNow = now;
     const maxScroll = document.documentElement.scrollHeight - innerHeight;
     const t = Math.min(target(map, maxScroll > 0 ? scrollY / maxScroll : 0), 1);
+    if (mode === 'return') {
+      const r = Math.min(1, (now - retT0) / RET_MS);
+      const e = r < 0.5 ? 4 * r * r * r : 1 - Math.pow(-2 * r + 2, 3) / 2;
+      window.scrollTo(0, retSy0 * (1 - e));           // same eased progress as the flight: constant view height
+      flyer.style.offsetDistance = `${(e * 100).toFixed(3)}%`;
+      const dr = ((retAng - ang + 540) % 360) - 180;
+      ang += Math.sign(dr) * Math.min(Math.abs(dr), 5);
+      flyer.style.offsetRotate = `${ang.toFixed(2)}deg`;
+      flyer.style.transform = `scale(${(0.712 + 0.288 * e).toFixed(4)})`;   // footer-mark size → wordmark size
+      const k = Math.min(1, Math.max(0, (e - 0.96) / 0.04));                // dock into the logo over the last 4%
+      flyer.style.opacity = (1 - k).toFixed(3);
+      if (wmRocket) wmRocket.style.opacity = k.toFixed(3);
+      if (r >= 1) { endReturn(); mode = 'scrub'; p = 0; }
+      raf = requestAnimationFrame(tick);
+      return;
+    }
     const takeY = markPageY - innerHeight * 0.98;   // mark center enters at the viewport's bottom edge
     const backY = takeY - innerHeight * 0.3;        // hysteresis so the hand-off can't oscillate
     if (mode === 'scrub' && scrollY >= takeY) { mode = 'landing'; landT0 = now; landP0 = p; }
@@ -136,9 +170,7 @@ function init() {
     // landing flare: the footer mark is vertical, but the backward-looking tangent window still reads the
     // hook's diagonal at the very end (rests at 20.4°) — straighten to nose-up over the last 2% of the path
     const flare = Math.min(1, Math.max(0, (p - 0.98) / 0.02));
-    let want = raw * (1 - flare * flare * (3 - 2 * flare));
-    if (guided) want += 180;                            // ride home nose-first (the tangent points down-page)
-    if (guided && p < 0.002) guided = false;            // docked into the wordmark
+    const want = raw * (1 - flare * flare * (3 - 2 * flare));
     const diff = ((want - ang + 540) % 360) - 180;
     ang += Math.sign(diff) * Math.min(Math.abs(diff), 5);
     flyer.style.offsetRotate = `${ang.toFixed(2)}deg`;

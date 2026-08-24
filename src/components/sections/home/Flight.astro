@@ -37,6 +37,8 @@ const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (
   <div class="flight" style={`width:${BOX.w}px;height:${BOX.h}px;transform-origin:0 0;transform:scale(var(--un, 1))`}>
     <svg width={BOX.w} height={BOX.h} style="position:absolute;inset:0;overflow:visible">
       <path id="home-flight-path" d={toBox(D)} fill="none" stroke="none" />
+      <!-- guided return: its direct line is built at click time (flight.ts) -->
+      <path id="home-return-path" d="M 0 0" fill="none" stroke="none" />
     </svg>
     <!-- the wordmark's own rocket (glow padding is symmetric, body = 66.4×98.5 centred) -->
     <div class="home-flyer" style="width:407px;height:439px">

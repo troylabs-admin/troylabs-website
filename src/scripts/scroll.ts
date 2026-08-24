@@ -10,13 +10,6 @@ import Lenis from 'lenis';
 let lenis: Lenis | null = null;
 const root = document.documentElement;
 
-/** Smooth-ride the document to the top over `duration` seconds (the rocket's guided return on Home).
- *  Lenis yields to user wheel input mid-ride; without Lenis (touch/reduced motion) native smooth scroll. */
-export function rideHome(duration = 3) {
-  if (lenis) lenis.scrollTo(0, { duration, easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2) });
-  else window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 function init() {
   if (lenis || !matchMedia('(hover: hover) and (pointer: fine)').matches || !root.classList.contains('motion')) return;
   lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, syncTouch: false });

@@ -1,13 +1,18 @@
 ---
 /**
- * DEMO › Notable keynote speakers — Section y 1560–2500 du.
- * Figma: title 7019:39 @340,1598 321×23 · grid "Frame 178" (7019:82) @142,1682: cards 358.5×205 at x = 142 / 500.5,
- * rows y = 1682 / 1937 / 2192. Card (Frame 173–177): photo "image 159" @+31.3,+10 139×139 + logo "image 160" @+190.3,+10
- * 137×139 (r 20, 0.33 white inside stroke, #ffcaaa@40% drop shadow 16.7), name @+40.3,+164 278×18, title (italic) @+40.3,+187.
- * Photos are FILL (cover); logos are STRETCH with a crop transform — pre-cropped to the visible window in src/assets/figma.
+ * DEMO › Notable keynote speakers — Section y 1919–2936 du (2026-08-23 Figma update).
+ * Figma: title 7019:39 @355,1919 321×23 · grid "Frame 178" (7019:82) @157,2003: cards 358.5×205 at x = 157 / 515.5,
+ * rows y = 2003 / 2258 / 2513. Card (Frame 173–177 + 7100:3787): photo "image 159" @+31.3,+10 139×139 + logo
+ * "image 160" @+190.3,+10 137×139 (r 20, 0.33 white inside stroke, #ffcaaa@40% drop shadow 16.7),
+ * name @+40.3,+164 278×18, title (italic) @+40.3,+187.
+ * Photos are FILL (cover); the five original logos are STRETCH with a crop transform — pre-cropped in
+ * src/assets/figma — while Tim Ellis' Relativity logo (7100:3790) is a plain FILL → object-cover.
+ * Blue ambient glow "Ellipse 284" (7074:3756) @394,1966 625.9×930.4 (#3a68ff@0.08, blur 156.5).
  */
 import { Image } from 'astro:assets';
-import { pos, u } from '../../../lib/units';
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
 import evan from '../../../assets/figma/demo-speaker-evan-spiegel.png';
 import snapchat from '../../../assets/figma/demo-logo-snapchat.png';
 import sean from '../../../assets/figma/demo-speaker-sean-rad.png';
@@ -18,11 +23,13 @@ import ashley from '../../../assets/figma/demo-speaker-ashley-alexander.png';
 import nami from '../../../assets/figma/demo-logo-nami-matcha.png';
 import goldstons from '../../../assets/figma/demo-speaker-goldstons.png';
 import apl from '../../../assets/figma/demo-logo-apl.png';
+import tim from '../../../assets/figma/demo-speaker-tim-ellis.png';
+import relativity from '../../../assets/figma/demo-logo-relativity.png';
 
-const TOP = 1560;
+const TOP = 1919;
 const y = (v: number) => v - TOP;
-const COLS = [142, 500.5];
-const ROWS = [1682, 1937, 2192];
+const COLS = [157, 515.5];
+const ROWS = [2003, 2258, 2513];
 
 const speakers = [
   { name: 'Evan Spiegel', title: 'CEO & Founder, Snapchat', photo: evan, logo: snapchat, company: 'Snapchat', col: 0, row: 0 },
@@ -30,11 +37,19 @@ const speakers = [
   { name: 'Amy Liu', title: 'CEO & Founder, Tower28', photo: amy, logo: tower28, company: 'Tower 28', col: 0, row: 1 },
   { name: 'Ashley Alexander', title: 'CEO & Founder, Nami Matcha', photo: ashley, logo: nami, company: 'Nami Matcha', col: 1, row: 1 },
   { name: 'Adam & Ryan Goldston', title: 'CEO & Founders, APL Sneakers', photo: goldstons, logo: apl, company: 'APL', col: 0, row: 2 },
+  { name: 'Tim Ellis', title: 'CEO & Founder, Relativity Space', photo: tim, logo: relativity, company: 'Relativity Space', col: 1, row: 2, cover: true },
 ];
+
+const stars = [
+  { x: 732, y: 2194 }, { x: 742, y: 2334 }, { x: 876, y: 2334 }, { x: 57, y: 2863 },
+  { x: 903, y: 2357, s: 5.3, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
 ---
 
-<section class="section" style="--h:940" data-figma="DemoSpeakers" aria-labelledby="speakers-title">
-  <h2 id="speakers-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(340, y(1598), 321, 23)}>NOTABLE KEYNOTE SPEAKERS</h2>
+<section class="section" style="--h:1017" data-figma="DemoSpeakers" aria-labelledby="speakers-title">
+  <Glow x={394} y={y(1966)} w={625.9} h={930.4} color="#3a68ff" alpha={0.08} />
+  <Stars items={stars} />
+  <h2 id="speakers-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(355, y(1919), 321, 23)}>NOTABLE KEYNOTE SPEAKERS</h2>
 
   <ul class="m-0 p-0 list-none">
     {speakers.map((s) => {
@@ -42,7 +57,7 @@ const speakers = [
       return (
         <li class="abs" style={pos(x, y(top), 358.5, 205)} data-hover="lift">
           <Image src={s.photo} alt={s.name} width={416} height={416} class="abs tile object-cover" style={pos(31.3, 10, 139, 139)} />
-          <Image src={s.logo} alt={`${s.company} logo`} width={416} height={416} class="abs tile object-fill" style={pos(190.3, 10, 137, 139)} />
+          <Image src={s.logo} alt={`${s.company} logo`} width={416} height={416} class:list={['abs', 'tile', s.cover ? 'object-cover' : 'object-fill']} style={pos(190.3, 10, 137, 139)} />
           <h3 class="abs m-0 t-name font-normal text-center whitespace-nowrap" style={pos(40.3, 164, 278, 18)}>{s.name}</h3>
           <p class="abs m-0 t-name italic text-center whitespace-nowrap" style={pos(40.3, 187, 278, 18)}>{s.title}</p>
         </li>

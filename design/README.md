@@ -32,7 +32,7 @@ Current iteration of each page is the frame in the top row of the canvas (older 
 | 4050–5583 | Executive board | `Board.astro` + `content/board.json` | Frame 109 `7028:1997` |
 | 5583–5839 | Footer | `nav/Footer.astro` | instance `7028:1965` |
 
-### BUILD — `6977:9` (1001×5463) · DEMO — `6982:854` (1001×3871) · IGNITE — `6982:742` (1001×2543)
+### BUILD — `6977:9` (1001×5463) · DEMO — `6982:854` (1001×5705) · IGNITE — `6982:742` (1001×3332)
 See the header comments in `src/components/sections/<page>/*.astro` and the `SECTIONS` bands in
 `tests/fidelity/visual.spec.ts`.
 
@@ -40,8 +40,9 @@ See the header comments in `src/components/sections/<page>/*.astro` and the `SEC
 - **Scale**: the artboard fills the viewport width (1 du = 100vw/1001; at 1440 px body text is 17 px). Proportional, so nothing in the composition changes.
 - **Decorative layers** (planets, stars, orbs, wordmark glow) use the designer's exported PNG masters rather than re-drawing the Figma vector effects; exact placement is measured against the 1:1 render.
 - **Text wrapping**: +0.6 du width slack on text boxes (Figma ignores trailing letter-spacing when wrapping).
-- **Placeholders kept as designed**: exec-board checkerboard photos, DEMO empty "Notable investors" space, social/portal links without URLs.
-- **Removed on purpose (2026-08-23, Bryan's call)**: BUILD "this section tbd?" panel (section collapsed to 160 du; `HEIGHT_OVERRIDES` in the test), the green review scribbles (they were the designer's rocket-path notes — now used as the actual flight paths in the motion layer), and the stray colored ZhenFund logo.
+- **Placeholders kept as designed**: social/portal links without URLs (board photos and the DEMO investor/sponsor content have since landed).
+- **Removed on purpose (2026-08-23, Bryan's call)**: BUILD "previous startups" — heading AND placeholder panel, section gone entirely (page 4279 du vs the frame's 5463; `HEIGHT_OVERRIDES` in the test); the green review scribbles (the designer's rocket-path notes — now used as the actual flight paths in the motion layer); and the stray colored ZhenFund logo.
+- **2026-08-23 Figma update, small liberties**: DEMO's footer instance sits 15 du right of the canvas and overflows the frame by 16 du (IGNITE's sits 1 du left) — we render the shared footer whole and centered on every page and mask those footer bands in the fidelity diff; DEMO's full-bleed stage photo is drawn at x 1–1001 (1 du left sliver) and clipped 32 du at the bottom by its parent frame — reproduced exactly; IGNITE's photo strip frames (-1 and 500, 501 wide each) are rendered as an exact half-and-half 0–500.5–1001 split.
 - **Canvas**: capped at `--page-max` (1440 px) and centered; glows/planets bleed into the margins over a full-viewport starfield backdrop (no hard artboard edge).
 
 ## Added beyond the Figma (2026-08-23, Bryan)
@@ -53,10 +54,17 @@ See the header comments in `src/components/sections/<page>/*.astro` and the `SEC
 ## Open questions for the designer (everything below is also marked `TODO(designer)` in code)
 1. **Home**: executive-board photos (all checkerboard); social URLs; Alumni portal URL.
 2. **BUILD**: the green `#00ff37` scribbles (arrow + X in the timeline, curve to the planet) look like review annotations — reproduced 1:1, delete once confirmed; the "PREVIOUS STARTUPS" panel is "this section tbd?"; a stray colored ZhenFund logo sits under the white backer logos; footer instance is offset 4 du right with 23 du of empty frame below it; "APPLY TO BUILD" has no link target.
-3. **DEMO**: "Notable investors" has only a heading and ~1000 du of empty space; "DEMO" title has a 0.1 du white stroke (not reproduced — sub-pixel); two stars are exact duplicates at 322,1183.
-4. **IGNITE**: all five feature blurbs are the same placeholder copy; the hand-drawn "ROCK… TOUR" logo — which company?; "APPLY TO IGNITE" has no link target.
+3. **DEMO**: where should the new "SPONSOR US" pill link? (mailto:troylabs@usc.edu for now); the full-width stage photo in Figma is literally a screenshot ("Screenshot 2026-08-22…", 1978×1104) — the original photo would be crisper at full width; "DEMO" title has a 0.1 du white stroke (not reproduced — sub-pixel).
+4. **IGNITE**: all five feature blurbs are STILL the same placeholder copy after the update; the hand-drawn "ROCK… TOUR" logo — which company?; "APPLY TO IGNITE" has no link target.
 5. Mobile layout (not designed) — a proposal will be made in code and logged here.
 6. Is the `fall partnerships` page meant to become a web page (`/partners`)? Currently treated as print.
 
-## Fidelity status (`pnpm test:fidelity`, 2026-08-23)
-home 1.38 % · build 0.74 % · demo 0.77 % · ignite 1.17 % mismatch vs Figma's 1:1 render; all page heights exact.
+## Fidelity status (`pnpm test:fidelity`, 2026-08-23, post-update references)
+home 1.17 % · build 1.03 % · demo 0.89 % · ignite 0.99 % mismatch vs Figma's 1:1 render; heights exact
+(documented overrides: build −1184 previous-startups removal, home −150 board band, demo +16 footer overflow).
+
+## 2026-08-23 Figma update (designer batch 2) — implemented
+- **BUILD**: five timeline orbs recolored to gradients (re-exported); comet + star added mid-timeline; previous-startups removed (above).
+- **DEMO**: full-bleed stage photo; stats planet grown to 689 du and stats moved below it; 6th keynote speaker (Tim Ellis, Relativity Space — images embedded in Figma); NOTABLE INVESTORS content (Draper, EF, M13, Republic, DormRoomFund, University Growth Fund); new PAST SPONSORS & PARTNERS section (14 logos); footer dome + SPONSOR US pill; page 3871 → 5705 du.
+- **IGNITE**: intro rewrapped + dot dividers; two full-bleed photos (embedded in Figma at 4096px); speakers grid grown 8 → 12 logos (LinkedIn, Sony Pictures, Forbes 30u30, NBCUniversal new); hero planet resized; page 2543 → 3332 du.
+- All new imagery came out of the Figma file itself (vector exports + embedded image fills) — nothing needed from the Drive.

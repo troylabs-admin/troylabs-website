@@ -9,7 +9,7 @@
  *     sits loose below the grid (looks like a leftover import) — reproduced 1:1, probably should be deleted.
  *   • big pill "Frame 156" 6997:1301 @329,3590 352.2×57.2 (34.3px text, inner shadow 23.3 white@40%, drop shadow 57 white@30%)
  *   • planet "Ellipse 259" 7042:2645 @675,3590 393×393 (rendered @3x incl. 92 drop shadow)
- *   • "PREVIOUS STARTUPS" 6982:656 @385,3926 240×23
+ *   • the "PREVIOUS STARTUPS" heading (6982:656) and its whole section were removed per Bryan (2026-08-23)
  */
 import { Image } from 'astro:assets';
 import { pos, u } from '../../../lib/units';
@@ -84,7 +84,7 @@ const stars = [
     <span class="t-apply whitespace-nowrap">APPLY TO BUILD</span>
   </a>
 
-  <h2 class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(385, y(3926), 240, 23)}>PREVIOUS STARTUPS</h2>
+  <!-- "PREVIOUS STARTUPS" heading + section removed entirely (Bryan, 2026-08-23) -->
 
 </section>
 

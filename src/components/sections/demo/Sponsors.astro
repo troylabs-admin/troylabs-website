@@ -1,0 +1,95 @@
+---
+/**
+ * DEMO › Past sponsors & partners + "SPONSOR US" — Section y 3695–5465 du (new in the 2026-08-23 Figma update).
+ * Figma: title 7073:2941 @358,3695 315×23 · logo frame "Frame 181" (7074:3693) @189,3787 653.7×1047:
+ * seven rows of two white vector logos (exported by scripts/figma-vectors-update.ts) ·
+ * blue ambient glow "Ellipse 285" (7074:3758) @-14,4188 625.9×930.4 (#3a68ff@0.14, blur 156.5) ·
+ * dark dome "Ellipse 286" (7074:3760) @56,5039 930×930 (blue inner-shadow rim light, rendered @2x — it runs
+ * under the Footer, which follows in the DOM and therefore paints on top, matching Figma layer order) ·
+ * pill "Frame 180" (7074:3752) @367,5152 296.2×57.2 — same style as BUILD's big APPLY pill.
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import Glow from '../../space/Glow.astro';
+import dome from '../../../assets/figma/demo-planet-footer.png';
+import lloydGreif from '../../../assets/figma/demo-sp-lloyd-greif.svg?raw';
+import typeOne from '../../../assets/figma/demo-sp-type-one.svg?raw';
+import msStartups from '../../../assets/figma/demo-sp-ms-startups.svg?raw';
+import superset from '../../../assets/figma/demo-sp-superset.svg?raw';
+import doorlist from '../../../assets/figma/demo-sp-doorlist.svg?raw';
+import rilla from '../../../assets/figma/demo-sp-rilla.svg?raw';
+import violetx from '../../../assets/figma/demo-sp-violetx.svg?raw';
+import ditto from '../../../assets/figma/demo-sp-ditto.svg?raw';
+import framer from '../../../assets/figma/demo-sp-framer.svg?raw';
+import zfellows from '../../../assets/figma/demo-sp-zfellows.svg?raw';
+import cocacola from '../../../assets/figma/demo-sp-cocacola.svg?raw';
+import finalboss from '../../../assets/figma/demo-sp-finalboss.svg?raw';
+import monster from '../../../assets/figma/demo-sp-monster.svg?raw';
+import poppi from '../../../assets/figma/demo-sp-poppi.svg?raw';
+
+const TOP = 3695;
+const y = (v: number) => v - TOP;
+
+// integer export viewBoxes vs fractional Figma boxes: stretch to the exact box instead of letterboxing
+const fit = (svg: string) => svg.replace('<svg ', '<svg preserveAspectRatio="none" ');
+
+const logos = [
+  { id: '7074:3107', name: 'USC Lloyd Greif Center for Entrepreneurial Studies', svg: lloydGreif, box: [189, 3796, 288.6, 65.5] },
+  { id: '7074:3694', name: 'Type One Ventures', svg: typeOne, box: [567.2, 3787, 255, 83.5] },
+  { id: '7074:3190', name: 'Microsoft for Startups', svg: msStartups, box: [207.1, 3939.4, 252.4, 96] },
+  { id: '7074:3205', name: 'super{set}', svg: superset, box: [567.2, 3963.8, 255.1, 47.2] },
+  { id: '7074:3233', name: 'doorlist', svg: doorlist, box: [189, 4104.4, 288.6, 75.9] },
+  { id: '7074:3219', name: 'Rilla', svg: rilla, box: [546.5, 4113.6, 296.4, 57.5] },
+  { id: '7074:3437', name: 'VioletX', svg: violetx, box: [189, 4253, 288.6, 52.1] },
+  { id: '7074:3427', name: 'Ditto', svg: ditto, box: [600.8, 4249.2, 187.8, 59.6] },
+  { id: '7074:3672', name: 'Framer', svg: framer, box: [189, 4377.7, 288.6, 77.9] },
+  { id: '7074:3475', name: 'Z Fellows', svg: zfellows, box: [550.4, 4392.4, 288.6, 48.7] },
+  { id: '7074:3462', name: 'Coca-Cola', svg: cocacola, box: [195.2, 4528.9, 276.1, 90.3] },
+  { id: '7074:3660', name: 'Final Boss Sour', svg: finalboss, box: [600.8, 4524.6, 187.8, 99] },
+  { id: '7074:3571', name: 'Monster Energy', svg: monster, box: [189, 4705.4, 288.6, 72.8] },
+  { id: '7074:3582', name: 'poppi', svg: poppi, box: [556.5, 4692.5, 276.6, 98.5] },
+] as const;
+
+const stars = [
+  { x: 829, y: 3732 }, { x: 902, y: 3888 }, { x: 89, y: 4328 },
+  { x: 197, y: 3715, s: 5.3, kind: 'dot' }, { x: 871, y: 3808, s: 5.3, kind: 'dot' }, { x: 927, y: 3840, s: 5.3, kind: 'dot' },
+  { x: 114, y: 4379.7, s: 5.3, kind: 'dot' }, { x: 58, y: 4411.7, s: 5.3, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
+---
+
+<section class="section" style="--h:1770" data-figma="DemoSponsors" aria-labelledby="sponsors-title">
+  <Glow x={-14} y={y(4188)} w={625.9} h={930.4} color="#3a68ff" alpha={0.14} />
+  <Stars items={stars} />
+  <!-- the dome's lower half is cut by the Figma frame; clip it at the page bottom (footer end, 5721)
+       so the 930 du disc doesn't extend the document's scroll height -->
+  <div class="abs pointer-events-none overflow-hidden" style={pos(56, y(5039), 930, 5721 - 5039)} aria-hidden="true">
+    <Image src={dome} alt="" width={1860} height={1860} class="abs" style={pos(0, 0, 930, 930)} />
+  </div>
+
+  <h2 id="sponsors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(358, y(3695), 315, 23)}>PAST SPONSORS & PARTNERS</h2>
+  <ul class="m-0 p-0 list-none" aria-label="Past sponsors and partners">
+    {logos.map((l) => (
+      <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+    ))}
+  </ul>
+
+  <!-- TODO(designer): where should SPONSOR US link? Falls back to the contact address for now. -->
+  <a href="mailto:troylabs@usc.edu" class="abs pill flex items-center justify-center no-underline text-ink" style={pos(367, y(5152), 296.2, 57.2)}>
+    <span class="t-sponsor whitespace-nowrap">SPONSOR US</span>
+  </a>
+</section>
+
+<style>
+  .logo :global(svg) { width: 100%; height: 100%; display: block; }
+  /* 7074:3754: 34.29px/39.4, ls 2.74 */
+  .t-sponsor { font-size: calc(34.2857 * var(--u)); line-height: calc(39.4 * var(--u)); letter-spacing: calc(2.74 * var(--u)); }
+  /* 7074:3752: 0.514 white inside stroke, inner shadow 23.3 white@40%, drop shadow 57.1 white@30% (same as BUILD's APPLY pill) */
+  .pill {
+    border-radius: 9999px;
+    box-shadow:
+      inset 0 0 0 calc(0.514 * var(--u)) #fff,
+      inset 0 0 calc(23.3 * var(--u)) rgb(255 255 255 / 0.4),
+      0 0 calc(57.1 * var(--u)) rgb(255 255 255 / 0.3);
+  }
+</style>

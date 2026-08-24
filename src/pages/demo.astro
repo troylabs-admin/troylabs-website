@@ -1,10 +1,17 @@
 ---
+/**
+ * DEMO — Figma frame 6982:854 (1001×5705 du, 2026-08-23 update). Nav 0–79 · sections 79–5465 ·
+ * Footer instance @5465. In Figma the footer overflows the frame by 16 du (5465+256 = 5721) and sits
+ * 15 du right of the canvas (designer slack) — we render the shared footer whole and centered, so the
+ * page is 5721 du (tests/fidelity HEIGHT_OVERRIDES.demo) and the footer band is masked in the diff.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/sections/demo/Hero.astro';
 import Intro from '../components/sections/demo/Intro.astro';
 import Stage from '../components/sections/demo/Stage.astro';
 import Speakers from '../components/sections/demo/Speakers.astro';
 import Investors from '../components/sections/demo/Investors.astro';
+import Sponsors from '../components/sections/demo/Sponsors.astro';
 ---
 
 <BaseLayout title="DEMO — SoCal's largest student-run entrepreneurship conference | TroyLabs" current="demo">
@@ -13,4 +20,5 @@ import Investors from '../components/sections/demo/Investors.astro';
   <Stage />
   <Speakers />
   <Investors />
+  <Sponsors />
 </BaseLayout>

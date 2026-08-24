@@ -24,15 +24,16 @@ const SECTIONS: Record<string, Record<string, [number, number]>> = {
     members: [3200, 4050], board: [4050, 5433], footer: [5433, 5689],
   },
   build: { nav: [0, 79], hero: [79, 600], timeline: [600, 1778], gallery: [1778, 2174], stats: [2174, 2900], backers: [2900, 4000] }, // previous/footer bands dropped: placeholder panel removed (HEIGHT_OVERRIDES)
-  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1560], speakers: [1560, 2500], investors: [2500, 3615], footer: [3615, 3871] },
-  ignite: { nav: [0, 79], hero: [79, 560], intro: [560, 740], features: [740, 1520], speakers: [1520, 2287], footer: [2287, 2543] },
+  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1919], speakers: [1919, 2936], investors: [2936, 3695], sponsors: [3695, 5465], footer: [5465, 5705] },
+  ignite: { nav: [0, 79], hero: [79, 560], intro: [560, 740], features: [740, 1520], photos: [1520, 1960], speakers: [1960, 3076], footer: [3076, 3332] },
 };
 const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/demo', ignite: '/ignite' };
 
 /** Deliberate deviations from the Figma frame height (documented in the section components). */
 const HEIGHT_OVERRIDES: Record<string, number> = {
-  build: 5463 - 1184 + 160, // "this section tbd?" placeholder panel not rendered (Previous.astro)
+  build: 5463 - 1184, // "previous startups" section removed entirely (Bryan, 2026-08-23; see build.astro)
   home: 5839 - 150, // board→footer empty band shrunk 150 du (Bryan, 2026-08-23; see Board.astro)
+  demo: 5705 + 16, // the Figma frame clips the footer instance's last 16 du (5465+256 > 5705); we render it whole
 };
 
 /** Reference regions we deliberately don't reproduce (du rects) — see the component comments. */
@@ -44,8 +45,11 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
          [178, 3704, 104, 38], [670, 3718, 106, 38], [182, 3773, 175, 38], [532, 3798, 244, 38], [346, 3812, 112, 38], [449, 3838, 109, 38],
          [127, 4168, 769, 1098], // board: real headshots replace the checkerboard placeholders (Bryan, 2026-08-23)
          [95, 5483, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
-  demo: [[95, 3665, 140, 130]], // footer nav: current page's link omitted, top-nav order
-  ignite: [[95, 2337, 140, 130]], // footer nav: current page's link omitted, top-nav order
+  // DEMO footer: the whole instance sits 15 du right of the canvas in Figma (designer slack) — we render the
+  // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
+  demo: [[0, 5465, 1001, 240]],
+  // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
+  ignite: [[0, 3076, 1001, 256]],
 };
 /** The designer's bright-green (#00ff37) review scribbles are ignored wherever they appear in a reference. */
 const isAnnotationGreen = (r: number, g: number, b: number) => g > 180 && r < 120 && b < 140;

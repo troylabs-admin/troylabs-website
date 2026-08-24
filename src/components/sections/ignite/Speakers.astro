@@ -1,39 +1,48 @@
 ---
 /**
- * Ignite › "NOTABLE SPEAKERS" — title 6990:1033 @386,1572 230×23 · logo grid "Frame 154" (6990:1205) @207,1682 588×449
- * (eight vector unions, exported by scripts/figma-vectors-ignite.ts). Section y 1520–2287 du.
+ * Ignite › "NOTABLE SPEAKERS" — Section y 1960–3076 du (2026-08-23 Figma update: the eight-logo
+ * "Frame 154" grew into the twelve-logo grid "Frame 182" (7102:3836) @181,2140 639×782.5).
+ * Title 6990:1033 @386,2060 230×23. Logos exported by scripts/figma-vectors-update.ts.
  */
 import { pos } from '../../../lib/units';
-import perplexity from '../../../assets/figma/ignite-logo-perplexity.svg?raw';
-import typeOne from '../../../assets/figma/ignite-logo-type-one.svg?raw';
-import summerFridays from '../../../assets/figma/ignite-logo-summer-fridays.svg?raw';
-import partiful from '../../../assets/figma/ignite-logo-partiful.svg?raw';
-import snap from '../../../assets/figma/ignite-logo-snap.svg?raw';
-import rocket from '../../../assets/figma/ignite-logo-rocket.svg?raw';
-import twitch from '../../../assets/figma/ignite-logo-twitch.svg?raw';
-import goodgirlsnacks from '../../../assets/figma/ignite-logo-goodgirlsnacks.svg?raw';
+import linkedin from '../../../assets/figma/ignite-sp-linkedin.svg?raw';
+import sony from '../../../assets/figma/ignite-sp-sony.svg?raw';
+import rocket from '../../../assets/figma/ignite-sp-rocket.svg?raw';
+import perplexity from '../../../assets/figma/ignite-sp-perplexity.svg?raw';
+import summerFridays from '../../../assets/figma/ignite-sp-summer-fridays.svg?raw';
+import twitch from '../../../assets/figma/ignite-sp-twitch.svg?raw';
+import typeOne from '../../../assets/figma/ignite-sp-type-one.svg?raw';
+import partiful from '../../../assets/figma/ignite-sp-partiful.svg?raw';
+import goodgirlsnacks from '../../../assets/figma/ignite-sp-goodgirlsnacks.svg?raw';
+import forbes from '../../../assets/figma/ignite-sp-forbes.svg?raw';
+import snap from '../../../assets/figma/ignite-sp-snap.svg?raw';
+import nbcu from '../../../assets/figma/ignite-sp-nbcu.svg?raw';
 
-const TOP = 1520;
+const TOP = 1960;
 const y = (v: number) => v - TOP;
 
-// Figma exports SVGs with integer viewBoxes (e.g. 186×45) but the nodes are fractional (185.9×44.1):
+// Figma exports SVGs with integer viewBoxes but the nodes are fractional:
 // let the vector stretch to the exact Figma box instead of letterboxing inside it.
 const fit = (svg: string) => svg.replace('<svg ', '<svg preserveAspectRatio="none" ');
 
 const logos = [
-  { id: '6990:1093', name: 'Perplexity', svg: perplexity, box: [247, 1707, 164.7, 39.8] },
-  { id: '6990:1096', name: 'Type One Ventures', svg: typeOne, box: [541, 1696, 192, 62.9] },
-  { id: '6990:1136', name: 'Summer Fridays', svg: summerFridays, box: [244, 1828, 169.4, 51.8] },
-  { id: '6990:1168', name: 'Partiful', svg: partiful, box: [523, 1828, 228.7, 62.5] },
-  { id: '6990:1169', name: 'Snap Inc.', svg: snap, box: [236, 1949, 185.9, 44.1] },
-  { id: '6990:1202', name: 'Rocket', svg: rocket, box: [570, 1922, 134.5, 115] }, // TODO(designer): hand-drawn "ROCK…" mark — confirm company
-  { id: '6990:1187', name: 'Twitch', svg: twitch, box: [247, 2057, 164.8, 54.9] },
-  { id: '6990:1171', name: 'goodgirlsnacks', svg: goodgirlsnacks, box: [497, 2062, 280.2, 43.5] },
+  { id: '7104:4022', name: 'LinkedIn', svg: linkedin, box: [211.7, 2187.6, 249.6, 63.6] },
+  { id: '7104:4023', name: 'Sony Pictures', svg: sony, box: [563.8, 2186.5, 201.4, 65.7] },
+  { id: '7102:3862', name: 'Rocket', svg: rocket, box: [269.2, 2286.6, 134.5, 115] }, // TODO(designer): hand-drawn "ROCK…" mark — confirm company
+  { id: '6990:1093', name: 'Perplexity', svg: perplexity, box: [534.6, 2312.8, 259.8, 62.8] },
+  { id: '7102:3848', name: 'Summer Fridays', svg: summerFridays, box: [230, 2436.3, 213, 65.1] },
+  { id: '7102:3887', name: 'Twitch', svg: twitch, box: [550, 2430.8, 229, 76.2] },
+  { id: '7102:3906', name: 'Type One Ventures', svg: typeOne, box: [210, 2552.2, 253, 82.9] },
+  { id: '7102:3837', name: 'Partiful', svg: partiful, box: [550.1, 2562.4, 228.7, 62.5] },
+  { id: '7102:3875', name: 'goodgirlsnacks', svg: goodgirlsnacks, box: [209, 2698.6, 255, 39.6] },
+  { id: '7104:3994', name: 'Forbes 30 Under 30', svg: forbes, box: [604.7, 2659.8, 119.6, 117.3] },
+  { id: '7102:3897', name: 'Snap Inc.', svg: snap, box: [221, 2815.7, 231, 54.8] },
+  { id: '7104:4009', name: 'NBCUniversal', svg: nbcu, box: [524, 2826.7, 281, 32.8] },
 ] as const;
 ---
 
-<section class="section" style="--h:767" data-figma="IgniteSpeakers" aria-labelledby="speakers-title">
-  <h2 id="speakers-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(386, y(1572), 230, 23)}>NOTABLE SPEAKERS</h2>
+<section class="section" style="--h:1116" data-figma="IgniteSpeakers" aria-labelledby="speakers-title">
+  <h2 id="speakers-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(386, y(2060), 230, 23)}>NOTABLE SPEAKERS</h2>
   <ul class="m-0 p-0 list-none" aria-label="Notable speakers">
     {logos.map((l) => (
       <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />

@@ -1,5 +1,6 @@
-FRAME     6982:854     "DEMO"                                     @0,0 1001×3871  fill:#0a0a0a fx:NOISEundefined
-  ELLIPSE   7045:2727    "Ellipse 8"                                @253,976 496×496  fill:#070707 fx:INNER_SHADOW132.59732055664062,INNER_SHADOW65.80266571044922
+FRAME     6982:854     "DEMO"                                     @0,0 1001×5705  fill:#0a0a0a fx:NOISEundefined
+  ELLIPSE   7045:2727    "Ellipse 8"                                @160,1037 689×689  fill:#070707 fx:INNER_SHADOW132.59732055664062,INNER_SHADOW65.80266571044922
+  ELLIPSE   7074:3760    "Ellipse 286"                              @56,5039 930×930  fill:#070707 fx:INNER_SHADOW248.6199951171875,INNER_SHADOW123.3800048828125
   GROUP     7040:2376    "Group 39628"                              @-478.8,-369 1379×906
     ELLIPSE   7040:2377    "Ellipse 8"                                @-241.7,-369 906×906  fill:#070707 fx:INNER_SHADOW242.20396423339844,INNER_SHADOW120.19599151611328
     BOOLEAN_OPERATION 7040:2378    "Subtract"                                 @-478.8,-242 1379×544.1  fill:#bcd4ff@0.5
@@ -7,8 +8,10 @@ FRAME     6982:854     "DEMO"                                     @0,0 1001×387
       BOOLEAN_OPERATION 7040:2380    "Subtract"                                 @-223.2,-369 871.4×332.8  fill:#070707 fx:INNER_SHADOW120.19599151611328
         ELLIPSE   7040:2381    "Ellipse 11"                               @-241.7,-369 906×906  fill:#070707 fx:INNER_SHADOW120.19599151611328
         RECTANGLE 7040:2382    "Rectangle 2"                              @-311.1,-45.9 1020.8×730.8  fill:#d9d9d9
-  VECTOR    7033:2255    "Ellipse 248"                              @366,385 660.4×929.4  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
-  VECTOR    7033:2257    "Ellipse 249"                              @-16,1007 636.5×930.3  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  VECTOR    7033:2255    "Ellipse 248"                              @366,635 660.4×929.4  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  VECTOR    7074:3756    "Ellipse 284"                              @394,1966 625.9×930.4  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  VECTOR    7074:3758    "Ellipse 285"                              @-14,4188 625.9×930.4  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
+  VECTOR    7033:2257    "Ellipse 249"                              @-16,1107 636.5×930.3  fill:#3a68ff@0.1 fx:LAYER_BLUR156.5
   ELLIPSE   6982:864     "Ellipse 229"                              @790,28 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   6982:865     "Ellipse 228"                              @904,63 4×4  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    6982:867     "*"                                        @868,86 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
@@ -19,87 +22,91 @@ FRAME     6982:854     "DEMO"                                     @0,0 1001×387
   VECTOR    7045:2701    "*"                                        @321,451 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    7045:2731    "*"                                        @55,845 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    7045:2733    "*"                                        @126,890 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2735    "*"                                        @869,1120 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2737    "*"                                        @818,1238 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2749    "*"                                        @322,1183 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2755    "*"                                        @322,1183 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2753    "*"                                        @580,1201 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  VECTOR    7045:2739    "*"                                        @935,1247 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2735    "*"                                        @866,1694 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2737    "*"                                        @833,1520.7 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2749    "*"                                        @525,1375 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2755    "*"                                        @322,1363 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2753    "*"                                        @696,1431 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7045:2739    "*"                                        @939,1850 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   TEXT      6982:868     "DEMO"                                     @412,253 178×63  54.64px/62.84 w700 ls4.37 CENTER  "DEMO"  fill:gradient_linear fx:DROP_SHADOW10.899999618530273
   TEXT      6982:869     "SoCal’s largest student-run entrepreneu   @307,338 387×40  17.7px/20.36 w400 ls1.42 CENTER  "SoCal’s largest student-run entrepreneurship conference"  fill:gradient_linear
   TEXT      6990:997     "Sponsored by the USC Lloyd Greif Center   @284,401 434×14  12px/13.8 w400 ls0.96 CENTER  "Sponsored by the USC Lloyd Greif Center for Entrepreneurial  fill:#ffffff
   TEXT      6990:999     "DEMO is the premier annual gathering fo   @221,602 559×42  12px/13.8 w400 ls0.96 CENTER  "DEMO is the premier annual gathering for student founders,   fill:#ffffff
-  FRAME     7019:2       "Frame 170"                                @188,799 625×349 fx:DROP_SHADOW24.200000762939453
-    RECTANGLE 7019:4       "Screenshot 2026-08-22 at 7.50.33 AM 1"    @188,799 625×349  fill:image
-  FRAME     7019:18      "Frame 171"                                @197,1309 607×98 [HORIZONTAL gap89]
-    GROUP     7019:16      "Group 39622"                              @213,1319 129×78
-      TEXT      7019:9       "INVESTORS"                                @213,1374 129×23  20px/23 w400 ls1.6 CENTER  "INVESTORS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-      TEXT      7019:10      "100+"                                     @218,1319 120×55  48px/55.2 w400 ls3.84 CENTER  "100+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-    GROUP     7019:17      "Group 39623"                              @431,1319 117×78
-      TEXT      7019:6       "STARTUPS"                                 @431,1374 117×23  20px/23 w400 ls1.6 CENTER  "STARTUPS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-      TEXT      7019:7       "50"                                       @461,1319 58×55  48px/55.2 w400 ls3.84 CENTER  "50"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-    GROUP     7019:15      "Group 39621"                              @637,1319 151×78
-      TEXT      7019:12      "ATTENDEES"                                @645,1374 132×23  20px/23 w400 ls1.6 CENTER  "ATTENDEES"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-      TEXT      7019:13      "1000+"                                    @637,1319 151×55  48px/55.2 w400 ls3.84 CENTER  "1000+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
-  TEXT      7019:39      "NOTABLE KEYNOTE SPEAKERS"                 @340,1598 321×23  20px/23 w400 ls0.6 CENTER  "NOTABLE KEYNOTE SPEAKERS"  fill:#ffffff
-  TEXT      7033:2259    "NOTABLE INVESTORS"                        @389,2565 223×23  20px/23 w400 ls0.6 CENTER  "NOTABLE INVESTORS"  fill:#ffffff
-  FRAME     7019:82      "Frame 178"                                @142,1682 717×715 [GRID gapundefined]
-    FRAME     7019:51      "Frame 173"                                @142,1682 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
-      FRAME     7019:50      "Frame 172"                                @142.3,1682 358×159 [HORIZONTAL gap20]
-        RECTANGLE 7019:45      "image 159"                                @173.3,1692 139×139  fill:image fx:DROP_SHADOW16.700000762939453
-        RECTANGLE 7019:48      "image 160"                                @332.3,1692 137×139  fill:image fx:DROP_SHADOW16.700000762939453
-      TEXT      7019:41      "Evan Spiegel"                             @182.3,1846 278×18  16px/18.4 w400 ls0.48 CENTER  "Evan Spiegel"  fill:#ffffff
-      TEXT      7019:42      "CEO & Founder, Snapchat"                  @182.3,1869 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Snapchat"  fill:#ffffff
-    FRAME     7019:52      "Frame 174"                                @500.5,1682 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
-      FRAME     7019:53      "Frame 172"                                @500.8,1682 358×159 [HORIZONTAL gap20]
-        RECTANGLE 7019:54      "image 159"                                @531.8,1692 139×139  fill:image fx:DROP_SHADOW16.700000762939453
-        RECTANGLE 7019:55      "image 160"                                @690.8,1692 137×139  fill:image fx:DROP_SHADOW16.700000762939453
-      TEXT      7019:56      "Sean Rad"                                 @540.8,1846 278×18  16px/18.4 w400 ls0.48 CENTER  "Sean Rad"  fill:#ffffff
-      TEXT      7019:57      "Founder, Tinder"                          @540.8,1869 278×18  16px/18.4 w400 ls0.48 CENTER  "Founder, Tinder"  fill:#ffffff
-    FRAME     7019:60      "Frame 175"                                @142,1937 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
-      FRAME     7019:61      "Frame 172"                                @142.3,1937 358×159 [HORIZONTAL gap20]
-        RECTANGLE 7019:62      "image 159"                                @173.3,1947 139×139  fill:image fx:DROP_SHADOW16.700000762939453
-        RECTANGLE 7019:63      "image 160"                                @332.3,1947 137×139  fill:image fx:DROP_SHADOW16.700000762939453
-      TEXT      7019:64      "Amy Liu"                                  @182.3,2101 278×18  16px/18.4 w400 ls0.48 CENTER  "Amy Liu"  fill:#ffffff
-      TEXT      7019:65      "CEO & Founder, Tower28"                   @182.3,2124 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Tower28"  fill:#ffffff
-    FRAME     7019:67      "Frame 176"                                @500.5,1937 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
-      FRAME     7019:68      "Frame 172"                                @500.8,1937 358×159 [HORIZONTAL gap20]
-        RECTANGLE 7019:69      "image 159"                                @531.8,1947 139×139  fill:image fx:DROP_SHADOW16.700000762939453
-        RECTANGLE 7019:70      "image 160"                                @690.8,1947 137×139  fill:image fx:DROP_SHADOW16.700000762939453
-      TEXT      7019:71      "Ashley Alexander"                         @540.8,2101 278×18  16px/18.4 w400 ls0.48 CENTER  "Ashley Alexander"  fill:#ffffff
-      TEXT      7019:72      "CEO & Founder, Nami Matcha"               @540.8,2124 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Nami Matcha"  fill:#ffffff
-    FRAME     7019:75      "Frame 177"                                @142,2192 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
-      FRAME     7019:76      "Frame 172"                                @142.3,2192 358×159 [HORIZONTAL gap20]
-        RECTANGLE 7019:77      "image 159"                                @173.3,2202 139×139  fill:image fx:DROP_SHADOW16.700000762939453
-        RECTANGLE 7019:78      "image 160"                                @332.3,2202 137×139  fill:image fx:DROP_SHADOW16.700000762939453
-      TEXT      7019:79      "Adam & Ryan Goldston"                     @182.3,2356 278×18  16px/18.4 w400 ls0.48 CENTER  "Adam & Ryan Goldston"  fill:#ffffff
-      TEXT      7019:80      "CEO & Founders, APL Sneakers"             @182.3,2379 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founders, APL Sneakers"  fill:#ffffff
-  INSTANCE  7028:762     "Footer"                                   @0,3615 1001×256
-    FRAME     I7028:762;6969:8164 "Frame 121"                                @95,3670 135.3×113 [VERTICAL gap20]
-      TEXT      I7028:762;6969:8140 "HOME"                                     @95,3670 135.3×14  12px/13.8 w400 ls0.96 LEFT  "HOME"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-      TEXT      I7028:762;6969:8142 "BUILD"                                    @95,3704 135.3×14  12px/13.8 w400 ls0.96 LEFT  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-      TEXT      I7028:762;6969:8144 "DEMO"                                     @95,3738 135.3×14  12px/13.8 w400 ls0.96 LEFT  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-      TEXT      I7028:762;6969:8146 "IGNITE"                                   @95,3772 135.3×14  12px/13.8 w400 ls0.96 LEFT  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-    FRAME     I7028:762;6969:8165 "Frame 122"                                @320.3,3670 135.3×52 [VERTICAL gap10]
-      TEXT      I7028:762;6969:8148 "Contact Us"                               @320.3,3670 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Contact Us"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-      TEXT      I7028:762;6969:8150 "troylabs@usc.edu"                         @320.3,3694 135.3×14  12px/13.8 w400 ls0.96 LEFT  "troylabs@usc.edu"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-    FRAME     I7028:762;6969:8166 "Frame 123"                                @545.5,3670 135.3×52 [VERTICAL gap10]
-      TEXT      I7028:762;6969:8152 "Members Only"                             @545.5,3671 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Members Only"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-      TEXT      I7028:762;6969:8153 "TL Alumni Network Portal"                 @545.5,3695 135.3×28  12px/13.8 w400 ls0.96 LEFT  "TL Alumni Network Portal"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-    FRAME     I7028:762;6969:8167 "Frame 124"                                @320.3,3757 135.3×27 [HORIZONTAL gap13]
-      RECTANGLE I7028:762;6969:8159 "image 9"                                  @322.3,3762 22×22  fill:image
-      RECTANGLE I7028:762;6969:8162 "image 10"                                 @357.3,3762 24×21  fill:image
-      BOOLEAN_OPERATION I7028:762;7019:28 "Union"                                    @394.3,3762 17.9×22  fill:#ffffff
-        VECTOR    I7028:762;7019:26 "Vector"                                   @394.3,3762 17.9×16.3  fill:#000000
-        VECTOR    I7028:762;7019:27 "Vector"                                   @401.6,3776.8 3.2×7.2  fill:#000000
-      BOOLEAN_OPERATION I7028:762;7019:33 "Union"                                    @425.2,3762 19.4×22  fill:#ffffff
-        VECTOR    I7028:762;7019:30 "Vector"                                   @425.2,3771.9 19.4×12.1  fill:#ffffff
-        VECTOR    I7028:762;7019:31 "Vector"                                   @425.2,3762 19.3×2.7  fill:#ffffff
-        VECTOR    I7028:762;7019:32 "Vector"                                   @425.2,3767 19.3×2.7  fill:#ffffff
-    TEXT      I7028:762;6969:8171 "Empowering USC's next generation of ent   @770.8,3757 135.3×18  8px/9.2 w400 ls0.64 LEFT  "Empowering USC's next generation of entrepreneurs"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
-    VECTOR    I7028:762;6969:8169 "Vector"                                   @770.8,3670 47×71  fill:#ffffff
-    TEXT      I7028:762;6969:8173 "© 2026 TroyLabs. All rights reserved."    @423,3829 155×9  8px/9.2 w400 ls0.64 CENTER  "© 2026 TroyLabs. All rights reserved."  fill:#ffffff
-    LINE      I7028:762;6971:8174 "Line 21"                                  @244,3616 514×0
+  FRAME     7019:18      "Frame 171"                                @197,1539 607×98 [HORIZONTAL gap89]
+    GROUP     7019:16      "Group 39622"                              @213,1549 129×78
+      TEXT      7019:9       "INVESTORS"                                @213,1604 129×23  20px/23 w400 ls1.6 CENTER  "INVESTORS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:10      "100+"                                     @218,1549 120×55  48px/55.2 w400 ls3.84 CENTER  "100+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+    GROUP     7019:17      "Group 39623"                              @431,1549 117×78
+      TEXT      7019:6       "STARTUPS"                                 @431,1604 117×23  20px/23 w400 ls1.6 CENTER  "STARTUPS"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:7       "50"                                       @461,1549 58×55  48px/55.2 w400 ls3.84 CENTER  "50"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+    GROUP     7019:15      "Group 39621"                              @637,1549 151×78
+      TEXT      7019:12      "ATTENDEES"                                @645,1604 132×23  20px/23 w400 ls1.6 CENTER  "ATTENDEES"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+      TEXT      7019:13      "1000+"                                    @637,1549 151×55  48px/55.2 w400 ls3.84 CENTER  "1000+"  fill:#ffffff fx:DROP_SHADOW7.300000190734863
+  TEXT      7019:39      "NOTABLE KEYNOTE SPEAKERS"                 @355,1919 321×23  20px/23 w400 ls0.6 CENTER  "NOTABLE KEYNOTE SPEAKERS"  fill:#ffffff
+  TEXT      7033:2259    "NOTABLE INVESTORS"                        @404,2936 223×23  20px/23 w400 ls0.6 CENTER  "NOTABLE INVESTORS"  fill:#ffffff
+  FRAME     7019:82      "Frame 178"                                @157,2003 717×715 [GRID gapundefined]
+    FRAME     7019:51      "Frame 173"                                @157,2003 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:50      "Frame 172"                                @157.3,2003 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:45      "image 159"                                @188.3,2013 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:48      "image 160"                                @347.3,2013 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:41      "Evan Spiegel"                             @197.3,2167 278×18  16px/18.4 w400 ls0.48 CENTER  "Evan Spiegel"  fill:#ffffff
+      TEXT      7019:42      "CEO & Founder, Snapchat"                  @197.3,2190 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Snapchat"  fill:#ffffff
+    FRAME     7019:52      "Frame 174"                                @515.5,2003 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:53      "Frame 172"                                @515.8,2003 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:54      "image 159"                                @546.8,2013 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:55      "image 160"                                @705.8,2013 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:56      "Sean Rad"                                 @555.8,2167 278×18  16px/18.4 w400 ls0.48 CENTER  "Sean Rad"  fill:#ffffff
+      TEXT      7019:57      "Founder, Tinder"                          @555.8,2190 278×18  16px/18.4 w400 ls0.48 CENTER  "Founder, Tinder"  fill:#ffffff
+    FRAME     7019:60      "Frame 175"                                @157,2258 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:61      "Frame 172"                                @157.3,2258 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:62      "image 159"                                @188.3,2268 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:63      "image 160"                                @347.3,2268 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:64      "Amy Liu"                                  @197.3,2422 278×18  16px/18.4 w400 ls0.48 CENTER  "Amy Liu"  fill:#ffffff
+      TEXT      7019:65      "CEO & Founder, Tower28"                   @197.3,2445 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Tower28"  fill:#ffffff
+    FRAME     7019:67      "Frame 176"                                @515.5,2258 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:68      "Frame 172"                                @515.8,2258 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:69      "image 159"                                @546.8,2268 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:70      "image 160"                                @705.8,2268 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:71      "Ashley Alexander"                         @555.8,2422 278×18  16px/18.4 w400 ls0.48 CENTER  "Ashley Alexander"  fill:#ffffff
+      TEXT      7019:72      "CEO & Founder, Nami Matcha"               @555.8,2445 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Nami Matcha"  fill:#ffffff
+    FRAME     7019:75      "Frame 177"                                @157,2513 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7019:76      "Frame 172"                                @157.3,2513 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7019:77      "image 159"                                @188.3,2523 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7019:78      "image 160"                                @347.3,2523 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7019:79      "Adam & Ryan Goldston"                     @197.3,2677 278×18  16px/18.4 w400 ls0.48 CENTER  "Adam & Ryan Goldston"  fill:#ffffff
+      TEXT      7019:80      "CEO & Founders, APL Sneakers"             @197.3,2700 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founders, APL Sneakers"  fill:#ffffff
+    FRAME     7100:3787    "Frame 178"                                @515.5,2513 358.5×205 fx:DROP_SHADOW4 [VERTICAL gap5]
+      FRAME     7100:3788    "Frame 172"                                @515.8,2513 358×159 [HORIZONTAL gap20]
+        RECTANGLE 7100:3789    "image 159"                                @546.8,2523 139×139  fill:image fx:DROP_SHADOW16.700000762939453
+        RECTANGLE 7100:3790    "image 160"                                @705.8,2523 137×139  fill:image fx:DROP_SHADOW16.700000762939453
+      TEXT      7100:3791    "Tim Ellis"                                @555.8,2677 278×18  16px/18.4 w400 ls0.48 CENTER  "Tim Ellis"  fill:#ffffff
+      TEXT      7100:3792    "CEO & Founder, Relativity Space"          @555.8,2700 278×18  16px/18.4 w400 ls0.48 CENTER  "CEO & Founder, Relativity Space"  fill:#ffffff
+  INSTANCE  7028:762     "Footer"                                   @15,5465 1001×256
+    FRAME     I7028:762;6969:8164 "Frame 121"                                @110,5520 135.3×113 [VERTICAL gap20]
+      TEXT      I7028:762;6969:8140 "HOME"                                     @110,5520 135.3×14  12px/13.8 w400 ls0.96 LEFT  "HOME"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8142 "BUILD"                                    @110,5554 135.3×14  12px/13.8 w400 ls0.96 LEFT  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8144 "DEMO"                                     @110,5588 135.3×14  12px/13.8 w400 ls0.96 LEFT  "DEMO"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8146 "IGNITE"                                   @110,5622 135.3×14  12px/13.8 w400 ls0.96 LEFT  "IGNITE"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8165 "Frame 122"                                @335.3,5520 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:762;6969:8148 "Contact Us"                               @335.3,5520 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Contact Us"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8150 "troylabs@usc.edu"                         @335.3,5544 135.3×14  12px/13.8 w400 ls0.96 LEFT  "troylabs@usc.edu"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8166 "Frame 123"                                @560.5,5520 135.3×52 [VERTICAL gap10]
+      TEXT      I7028:762;6969:8152 "Members Only"                             @560.5,5521 135.3×14  12px/13.8 w400 ls0.96 LEFT  "Members Only"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+      TEXT      I7028:762;6969:8153 "TL Alumni Network Portal"                 @560.5,5545 135.3×28  12px/13.8 w400 ls0.96 LEFT  "TL Alumni Network Portal"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    FRAME     I7028:762;6969:8167 "Frame 124"                                @335.3,5607 135.3×27 [HORIZONTAL gap13]
+      RECTANGLE I7028:762;6969:8159 "image 9"                                  @337.3,5612 22×22  fill:image
+      RECTANGLE I7028:762;6969:8162 "image 10"                                 @372.3,5612 24×21  fill:image
+      BOOLEAN_OPERATION I7028:762;7019:28 "Union"                                    @409.3,5612 17.9×22  fill:#ffffff
+        VECTOR    I7028:762;7019:26 "Vector"                                   @409.3,5612 17.9×16.3  fill:#000000
+        VECTOR    I7028:762;7019:27 "Vector"                                   @416.6,5626.8 3.2×7.2  fill:#000000
+      BOOLEAN_OPERATION I7028:762;7019:33 "Union"                                    @440.2,5612 19.4×22  fill:#ffffff
+        VECTOR    I7028:762;7019:30 "Vector"                                   @440.2,5621.9 19.4×12.1  fill:#ffffff
+        VECTOR    I7028:762;7019:31 "Vector"                                   @440.2,5612 19.3×2.7  fill:#ffffff
+        VECTOR    I7028:762;7019:32 "Vector"                                   @440.2,5617 19.3×2.7  fill:#ffffff
+    TEXT      I7028:762;6969:8171 "Empowering USC's next generation of ent   @785.8,5607 135.3×18  8px/9.2 w400 ls0.64 LEFT  "Empowering USC's next generation of entrepreneurs"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
+    VECTOR    I7028:762;6969:8169 "Vector"                                   @785.8,5520 47×71  fill:#ffffff
+    TEXT      I7028:762;6969:8173 "© 2026 TroyLabs. All rights reserved."    @438,5679 155×9  8px/9.2 w400 ls0.64 CENTER  "© 2026 TroyLabs. All rights reserved."  fill:#ffffff
+    LINE      I7028:762;6971:8174 "Line 21"                                  @259,5466 514×0
   INSTANCE  7033:2241    "Nav"                                      @0,0 1001×79
     VECTOR    I7033:2241;7028:1523 "Vector"                                   @30,20 26×39  fill:#ffffff
     TEXT      I7033:2241;7028:1524 "BUILD"                                    @389,32 40×14  12px/13.8 w400 ls0.96 CENTER  "BUILD"  fill:#ffffff fx:DROP_SHADOW6.400000095367432
@@ -120,12 +127,730 @@ FRAME     6982:854     "DEMO"                                     @0,0 1001×387
   ELLIPSE   7045:2713    "Ellipse 272"                              @237,506 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2729    "Ellipse 276"                              @155,870 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2751    "Ellipse 281"                              @167,1080 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2741    "Ellipse 277"                              @981,1304 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2747    "Ellipse 280"                              @939,1180 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2743    "Ellipse 278"                              @349,1205 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2757    "Ellipse 282"                              @666,1173 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2759    "Ellipse 283"                              @635,1266 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
-  ELLIPSE   7045:2745    "Ellipse 279"                              @799,1219 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2741    "Ellipse 277"                              @964,1802 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2747    "Ellipse 280"                              @908,1770 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3951    "*"                                        @57,2863 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3952    "*"                                        @138,3045 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3953    "Ellipse 292"                              @162,3023 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3954    "Ellipse 293"                              @82,2954 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3956    "*"                                        @829,3732 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3957    "*"                                        @902,3888 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3958    "Ellipse 294"                              @927,3840 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3959    "Ellipse 295"                              @871,3808 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3967    "*"                                        @89,4328 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3968    "Ellipse 296"                              @114,4379.7 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3969    "Ellipse 297"                              @58,4411.7 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3947    "Ellipse 290"                              @456,1454 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7104:3949    "Ellipse 291"                              @908,1604 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7074:3762    "*"                                        @742,2334 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7074:3767    "*"                                        @732,2194 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7074:3763    "*"                                        @876,2334 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7074:3764    "Ellipse 287"                              @197,3715 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7074:3765    "Ellipse 288"                              @903,2357 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2743    "Ellipse 278"                              @349,1385 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2757    "Ellipse 282"                              @655,1454 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2759    "Ellipse 283"                              @645,1413 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  ELLIPSE   7045:2745    "Ellipse 279"                              @792.1,1493.9 5.7×5.7  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2715    "Ellipse 273"                              @659,267 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2717    "Ellipse 274"                              @585,248 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2719    "Ellipse 275"                              @831,196 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  FRAME     7073:2940    "Frame 180"                                @156,3028 720.1×427
+    GROUP     7074:2966    "Group 39636"                              @227.9,3173.9 577.2×81.4
+      BOOLEAN_OPERATION 7073:2793    "Union"                                    @227.9,3173.9 167.2×81.4  fill:#ffffff
+        VECTOR    7073:2791    "Vector"                                   @227.9,3173.9 103.6×81.4  fill:#ffffff
+        VECTOR    7073:2792    "Vector"                                   @344.7,3181.3 50.4×68.2  fill:#ffffff
+      BOOLEAN_OPERATION 7073:2816    "Union"                                    @496.8,3173.9 308.3×81.4  fill:#ffffff
+        VECTOR    7073:2798    "Vector"                                   @598.1,3194.8 26.4×37  fill:#ffffff
+        VECTOR    7073:2799    "Vector"                                   @722.2,3193.8 26.9×38.7  fill:#ffffff
+        VECTOR    7073:2800    "Vector"                                   @659.5,3205.6 26.7×36.6  fill:#ffffff
+        VECTOR    7073:2801    "Vector"                                   @628.1,3205.5 25.3×26.9  fill:#ffffff
+        VECTOR    7073:2802    "Vector"                                   @691.2,3206.3 24.5×26.2  fill:#ffffff
+        VECTOR    7073:2803    "Vector"                                   @781.4,3205.5 23.8×26.9  fill:#ffffff
+        VECTOR    7073:2804    "Vector"                                   @754.6,3193.8 7×38  fill:#ffffff
+        VECTOR    7073:2805    "Vector"                                   @768.6,3206.3 7.1×25.5  fill:#ffffff
+        VECTOR    7073:2806    "Vector"                                   @767.7,3193.4 8.9×8.9  fill:#ffffff
+        VECTOR    7073:2807    "Vector"                                   @496.8,3173.9 73.3×81.4  fill:#ffffff
+        VECTOR    7073:2808    "Vector"                                   @496.8,3173.9 36.3×47.1  fill:#ffffff
+        VECTOR    7073:2809    "Vector"                                   @537,3220.9 33.2×34.5  fill:#ffffff
+        VECTOR    7073:2810    "Vector"                                   @496.8,3221 21.9×34  fill:#ffffff
+        VECTOR    7073:2811    "Vector"                                   @519,3198.5 18×22.5  fill:#ffffff
+        VECTOR    7073:2812    "Vector"                                   @517.4,3173.9 44.7×47  fill:#ffffff
+    GROUP     7074:2967    "Group 39637"                              @227.9,3284.6 577.2×125.3
+      BOOLEAN_OPERATION 7073:2939    "Union"                                    @227.9,3325.5 389.2×45  fill:#fefefe
+        VECTOR    7073:2926    "Vector"                                   @227.9,3325.5 45.5×45  fill:#fefefe
+        VECTOR    7073:2927    "Vector"                                   @287.1,3332.5 26.6×31  fill:#fefefe
+        VECTOR    7073:2928    "Vector"                                   @400.1,3332.2 32.6×32.3  fill:#fefefe
+        VECTOR    7073:2929    "Vector"                                   @594.7,3332 22.5×31.9  fill:#fefefe
+        VECTOR    7073:2930    "Vector"                                   @483.5,3341.4 33×22  fill:#fefefe
+        VECTOR    7073:2931    "Vector"                                   @361.2,3341.3 33.1×22.1  fill:#fefefe
+        VECTOR    7073:2932    "Vector"                                   @456.4,3341.3 22.7×22.7  fill:#fefefe
+        VECTOR    7073:2933    "Vector"                                   @430.8,3341.4 22.7×22.7  fill:#fefefe
+        VECTOR    7073:2934    "Vector"                                   @316.9,3341.4 22.7×22.7  fill:#fefefe
+        VECTOR    7073:2935    "Vector"                                   @522.7,3332.6 19.8×30.8  fill:#fefefe
+        VECTOR    7073:2936    "Vector"                                   @544.6,3342.1 20.2×21.9  fill:#fefefe
+        VECTOR    7073:2937    "Vector"                                   @570.8,3341.4 20×22  fill:#fefefe
+        VECTOR    7073:2938    "Vector"                                   @344,3341.9 13.3×21.5  fill:#fefefe
+      BOOLEAN_OPERATION 7073:2904    "Union"                                    @693.2,3284.6 112×125.3  fill:#ffffff
+        VECTOR    7073:2870    "Vector"                                   @714.6,3298.7 0.2×0.7  fill:#000000
+        VECTOR    7073:2878    "Vector"                                   @774.3,3385.7 1.7×1.8  fill:#000000
+        VECTOR    7073:2880    "Vector"                                   @773.4,3387.4 0.9×1  fill:#ffffff
+        BOOLEAN_OPERATION 7073:2896    "Union"                                    @705,3356.7 14.4×26.3  fill:#000000
+          VECTOR    7073:2879    "Vector"                                   @705,3356.7 0.8×2.1  fill:#000000
+          VECTOR    7073:2881    "Vector"                                   @717,3379.9 1.1×1.4  fill:#000000
+          VECTOR    7073:2882    "Vector"                                   @718.3,3381.7 1.1×1.2  fill:#000000
+        VECTOR    7073:2883    "Vector"                                   @723,3386.9 0.8×0.8  fill:#000000
+        BOOLEAN_OPERATION 7073:2903    "Subtract"                                 @693.2,3284.6 112×125.3  fill:#000000
+          BOOLEAN_OPERATION 7073:2902    "Subtract"                                 @693.2,3284.6 112×125.3  fill:#000000
+            BOOLEAN_OPERATION 7073:2895    "Subtract"                                 @693.2,3284.6 112×125.3  fill:#000000
+              BOOLEAN_OPERATION 7073:2893    "Subtract"                                 @693.2,3284.6 112×125.3  fill:#000000
+                VECTOR    7073:2818    "Vector"                                   @693.2,3284.6 112×125.3  fill:#000000
+                BOOLEAN_OPERATION 7073:2892    "Union"                                    @699.6,3291.4 99×10.5  fill:#ffffff
+                  VECTOR    7073:2853    "Vector"                                   @760.5,3291.5 7.4×10.4  fill:#ffffff
+                  BOOLEAN_OPERATION 7073:2891    "Subtract"                                 @794.7,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2854    "Vector"                                   @794.7,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2855    "Vector"                                   @796.1,3292.8 1.1×7.7  fill:#000000
+                  BOOLEAN_OPERATION 7073:2890    "Subtract"                                 @755.9,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2856    "Vector"                                   @755.9,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2857    "Vector"                                   @757.3,3292.8 1.1×7.7  fill:#000000
+                  VECTOR    7073:2858    "Vector"                                   @789.1,3291.5 4.3×10.4  fill:#ffffff
+                  VECTOR    7073:2859    "Vector"                                   @704.7,3291.5 4.3×10.4  fill:#ffffff
+                  BOOLEAN_OPERATION 7073:2888    "Subtract"                                 @722.4,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2860    "Vector"                                   @722.4,3291.5 3.9×10.4  fill:#ffffff
+                    VECTOR    7073:2861    "Vector"                                   @723.7,3292.8 1×3.2  fill:#000000
+                  BOOLEAN_OPERATION 7073:2889    "Subtract"                                 @750.9,3291.4 3.8×10.4  fill:#ffffff
+                    VECTOR    7073:2862    "Vector"                                   @750.9,3291.4 3.8×10.4  fill:#ffffff
+                    VECTOR    7073:2863    "Vector"                                   @752.2,3292.8 1×3.2  fill:#000000
+                  VECTOR    7073:2864    "Vector"                                   @772.9,3291.5 3.9×10.4  fill:#ffffff
+                  VECTOR    7073:2865    "Vector"                                   @784,3291.5 3.8×10.4  fill:#ffffff
+                  VECTOR    7073:2866    "Vector"                                   @699.6,3291.5 3.9×10.4  fill:#ffffff
+                  VECTOR    7073:2867    "Vector"                                   @745.8,3291.4 3.8×10.4  fill:#ffffff
+                  VECTOR    7073:2868    "Vector"                                   @727.5,3291.4 3.8×10.4  fill:#ffffff
+                  VECTOR    7073:2869    "Vector"                                   @712.5,3291.5 4.5×10.4  fill:#ffffff
+                  VECTOR    7073:2871    "Vector"                                   @717.8,3291.5 3.5×10.4  fill:#ffffff
+                  VECTOR    7073:2872    "Vector"                                   @738.9,3291.5 4.4×10.4  fill:#ffffff
+                  VECTOR    7073:2873    "Vector"                                   @779.6,3291.5 3.4×10.4  fill:#ffffff
+                  VECTOR    7073:2874    "Vector"                                   @734.8,3291.5 3.7×10.4  fill:#ffffff
+                  VECTOR    7073:2875    "Vector"                                   @768.3,3291.5 3.7×10.4  fill:#ffffff
+                  VECTOR    7073:2876    "Vector"                                   @732.6,3291.5 1.4×10.4  fill:#ffffff
+                  VECTOR    7073:2877    "Vector"                                   @710.3,3291.5 1.4×10.4  fill:#ffffff
+              BOOLEAN_OPERATION 7073:2886    "Union"                                    @706.4,3336.3 77.8×69.7  fill:#ffffff
+                VECTOR    7073:2849    "Vector"                                   @720.1,3336.3 34.1×39.2  fill:#ffffff
+                VECTOR    7073:2850    "Vector"                                   @706.4,3350 12.6×24.9  fill:#ffffff
+                VECTOR    7073:2851    "Vector"                                   @774,3350 10.2×24.4  fill:#ffffff
+                VECTOR    7073:2852    "Vector"                                   @724.4,3388.2 49.1×17.8  fill:#ffffff
+            BOOLEAN_OPERATION 7073:2901    "Union"                                    @697.8,3308.7 102.6×48.2  fill:#ffffff
+              VECTOR    7073:2821    "Vector"                                   @715.4,3337.4 4.5×0.3  fill:#ffffff
+              VECTOR    7073:2822    "Vector"                                   @780.1,3337.4 3.3×0.3  fill:#ffffff
+              VECTOR    7073:2823    "Vector"                                   @716.2,3329.5 4×0.2  fill:#ffffff
+              VECTOR    7073:2824    "Vector"                                   @715.8,3324 4.5×0.2  fill:#ffffff
+              VECTOR    7073:2825    "Vector"                                   @716.2,3321.5 3.7×0.2  fill:#ffffff
+              VECTOR    7073:2826    "Vector"                                   @717.3,3334.8 2.6×0.2  fill:#ffffff
+              VECTOR    7073:2827    "Vector"                                   @780.2,3321.5 3.4×0.2  fill:#ffffff
+              VECTOR    7073:2828    "Vector"                                   @717.5,3313.4 2.4×0.2  fill:#ffffff
+              VECTOR    7073:2829    "Vector"                                   @717.4,3332.1 2.3×0.2  fill:#ffffff
+              VECTOR    7073:2830    "Vector"                                   @780.6,3334.8 1.9×0.2  fill:#ffffff
+              VECTOR    7073:2831    "Vector"                                   @780.4,3332.1 1.9×0.2  fill:#ffffff
+              VECTOR    7073:2832    "Vector"                                   @718,3316.1 2.3×0.2  fill:#ffffff
+              VECTOR    7073:2833    "Vector"                                   @780.4,3326.8 2×0.2  fill:#ffffff
+              VECTOR    7073:2834    "Vector"                                   @717.5,3326.8 1.8×0.2  fill:#ffffff
+              VECTOR    7073:2835    "Vector"                                   @780.9,3313.4 1.7×0.2  fill:#ffffff
+              VECTOR    7073:2836    "Vector"                                   @717.3,3340.2 1.7×0.2  fill:#ffffff
+              VECTOR    7073:2837    "Vector"                                   @717.4,3318.7 1.8×0.2  fill:#ffffff
+              VECTOR    7073:2838    "Vector"                                   @780.9,3318.8 1.1×0.1  fill:#ffffff
+              BOOLEAN_OPERATION 7073:2900    "Subtract"                                 @697.8,3308.7 102.6×48.2  fill:#ffffff
+                BOOLEAN_OPERATION 7073:2894    "Subtract"                                 @697.8,3308.7 102.6×48.2  fill:#ffffff
+                  VECTOR    7073:2819    "Vector"                                   @697.8,3308.7 102.6×48.2  fill:#ffffff
+                  VECTOR    7073:2820    "Vector"                                   @700.1,3311 98×42.1  fill:#000000
+                BOOLEAN_OPERATION 7073:2899    "Union"                                    @702.8,3337.7 92.4×13.3  fill:#000000
+                  VECTOR    7073:2839    "Vector"                                   @782.7,3337.7 12.5×2.4  fill:#000000
+                  VECTOR    7073:2840    "Vector"                                   @702.8,3337.7 12×2.3  fill:#000000
+                  VECTOR    7073:2841    "Vector"                                   @784.6,3340.4 10.1×2.3  fill:#000000
+                  VECTOR    7073:2842    "Vector"                                   @703.3,3340.5 9.5×2.1  fill:#000000
+                  VECTOR    7073:2843    "Vector"                                   @786.6,3343.1 7.6×2.2  fill:#000000
+                  VECTOR    7073:2844    "Vector"                                   @703.8,3343.2 7.2×2  fill:#000000
+                  VECTOR    7073:2845    "Vector"                                   @788.6,3345.9 5.1×2  fill:#000000
+                  VECTOR    7073:2846    "Vector"                                   @704.5,3345.9 4.6×1.9  fill:#000000
+                  VECTOR    7073:2847    "Vector"                                   @790.6,3348.7 2.3×2.4  fill:#000000
+                  VECTOR    7073:2848    "Vector"                                   @705.1,3348.7 2×1.9  fill:#000000
+          VECTOR    7073:2884    "Vector"                                   @723.7,3387.6 0.8×0.8  fill:#ffffff
+    GROUP     7074:2965    "Group 39635"                              @228.3,3054.4 576.6×91.8
+      BOOLEAN_OPERATION 7073:2789    "Union"                                    @228.3,3054.4 292.3×78.2  fill:#ffffff
+        VECTOR    7073:2766    "Vector"                                   @228.3,3054.4 72.3×25.9  fill:#ffffff
+        VECTOR    7073:2767    "Vector"                                   @230,3075.4 68.8×24.3  fill:#ffffff
+        VECTOR    7073:2768    "Vector"                                   @322.7,3064 29.5×32.9  fill:#ffffff
+        VECTOR    7073:2769    "Vector"                                   @236.9,3096.5 55.1×21  fill:#ffffff
+        VECTOR    7073:2770    "Vector"                                   @359.4,3064 28×32.8  fill:#ffffff
+        VECTOR    7073:2771    "Vector"                                   @492.6,3064 28×32.8  fill:#ffffff
+        VECTOR    7073:2772    "Vector"                                   @430.1,3063.9 25.4×32.9  fill:#ffffff
+        VECTOR    7073:2773    "Vector"                                   @390.3,3063.8 34.1×33  fill:#ffffff
+        VECTOR    7073:2774    "Vector"                                   @461.3,3064 24.5×32.8  fill:#ffffff
+        VECTOR    7073:2775    "Vector"                                   @384.1,3108.9 22×22  fill:#ffffff
+        VECTOR    7073:2776    "Vector"                                   @249.5,3117.4 29.9×15.2  fill:#ffffff
+        VECTOR    7073:2777    "Vector"                                   @320.4,3108.9 21.9×21.8  fill:#ffffff
+        VECTOR    7073:2778    "Vector"                                   @440.9,3108.9 22×21.7  fill:#ffffff
+        VECTOR    7073:2779    "Vector"                                   @484.3,3109.2 16×21.4  fill:#ffffff
+        VECTOR    7073:2780    "Vector"                                   @344.7,3108.9 16.3×21.8  fill:#ffffff
+        VECTOR    7073:2781    "Vector"                                   @363.9,3108.9 16.1×21.8  fill:#ffffff
+        VECTOR    7073:2782    "Vector"                                   @503.6,3109 16.1×21.8  fill:#ffffff
+        VECTOR    7073:2783    "Vector"                                   @410.4,3108.9 19.3×21.9  fill:#ffffff
+        VECTOR    7073:2784    "Vector"                                   @463,3109.2 17×21.6  fill:#ffffff
+        VECTOR    7073:2785    "Vector"                                   @434.2,3109.2 2.5×21.4  fill:#ffffff
+      FRAME     7074:2945    "image 169 [Vectorized]"                   @618.3,3055.4 186.6×90.9
+        VECTOR    7074:2946    "Vector"                                   @648.4,3117.6 22.3×28  fill:#ffffff
+        VECTOR    7074:2947    "Vector"                                   @640.9,3086.5 22.1×28  fill:#ffffff
+        VECTOR    7074:2948    "Vector"                                   @689.1,3055.5 22.3×27.9  fill:#ffffff
+        VECTOR    7074:2949    "Vector"                                   @759.4,3086.6 22.4×27.9  fill:#ffffff
+        VECTOR    7074:2950    "Vector"                                   @687.4,3086.4 23.7×28  fill:#ffffff
+        VECTOR    7074:2951    "Vector"                                   @640.9,3055.5 22.7×27.9  fill:#ffffff
+        VECTOR    7074:2952    "Vector"                                   @664.6,3086.5 21×28  fill:#ffffff
+        VECTOR    7074:2953    "Vector"                                   @712.9,3086.5 20.8×28  fill:#ffffff
+        VECTOR    7074:2954    "Vector"                                   @712.8,3055.5 20.8×27.9  fill:#ffffff
+        VECTOR    7074:2955    "Vector"                                   @735.4,3086.4 22.1×28.5  fill:#ffffff
+        VECTOR    7074:2956    "Vector"                                   @693.6,3117.5 22.5×28  fill:#ffffff
+        VECTOR    7074:2957    "Vector"                                   @664.9,3055.5 22.9×27.9  fill:#ffffff
+        VECTOR    7074:2958    "Vector"                                   @640.9,3117.6 5.8×28.1  fill:#ffffff
+        VECTOR    7074:2959    "Vector"                                   @618.3,3086.6 21.7×27.9  fill:#ffffff
+        VECTOR    7074:2960    "Vector"                                   @782.1,3086.1 22.8×28.9  fill:#ffffff
+        VECTOR    7074:2961    "Vector"                                   @671.1,3117.1 23.1×29.2  fill:#ffffff
+        VECTOR    7074:2962    "Vector"                                   @618.3,3055.6 20.7×27.8  fill:#ffffff
+        VECTOR    7074:2963    "Vector"                                   @618.3,3117.6 20.6×27.9  fill:#ffffff
+    VECTOR    7104:3961    "*"                                        @434,3410 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+    ELLIPSE   7104:3965    "Ellipse 296"                              @393,3428 5.3×5.3  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7104:3963    "*"                                        @374,3542 9×9  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  TEXT      7073:2941    "PAST SPONSORS & PARTNERS"                 @358,3695 315×23  20px/23 w400 ls0.6 CENTER  "PAST SPONSORS & PARTNERS"  fill:#ffffff
+  FRAME     7074:3693    "Frame 181"                                @189,3787 653.7×1047 [GRID gapundefined]
+    BOOLEAN_OPERATION 7074:3107    "Union"                                    @189,3796 288.6×65.5  fill:#ffffff
+      VECTOR    7074:2972    "Vector"                                   @308,3806.5 15.1×23.3  fill:#ffffff
+      VECTOR    7074:2973    "Vector"                                   @315.7,3828.6 1.4×0.8  fill:#ffffff
+      VECTOR    7074:2974    "Vector"                                   @328.8,3806.4 23.5×23.6  fill:#ffffff
+      VECTOR    7074:2975    "Vector"                                   @281.8,3815.7 13.7×14.2  fill:#ffffff
+      VECTOR    7074:2976    "Vector"                                   @282.1,3816.9 3×3.7  fill:#ffffff
+      VECTOR    7074:2977    "Vector"                                   @285,3825.9 1×1.9  fill:#ffffff
+      VECTOR    7074:2978    "Vector"                                   @398.8,3806.3 20.8×23.6  fill:#ffffff
+      VECTOR    7074:2979    "Vector"                                   @398.8,3815.5 0.6×5.2  fill:#ffffff
+      VECTOR    7074:2980    "Vector"                                   @408.7,3827.7 3.5×0.6  fill:#ffffff
+      VECTOR    7074:2981    "Vector"                                   @413.5,3827.7 2.5×0.6  fill:#ffffff
+      VECTOR    7074:2982    "Vector"                                   @255.8,3806.7 19.2×22.7  fill:#ffffff
+      VECTOR    7074:2983    "Vector"                                   @258.9,3809 0.6×13.7  fill:#ffffff
+      VECTOR    7074:2984    "Vector"                                   @258.7,3824 0.7×4  fill:#ffffff
+      VECTOR    7074:2985    "Vector"                                   @258.9,3820.8 0.5×4.5  fill:#ffffff
+      VECTOR    7074:2986    "Vector"                                   @262.2,3806.8 2.8×0.8  fill:#ffffff
+      VECTOR    7074:2987    "Vector"                                   @445.4,3840 15.2×15.8  fill:#ffffff
+      VECTOR    7074:2988    "Vector"                                   @432.1,3815.5 15.1×14.1  fill:#ffffff
+      VECTOR    7074:2989    "Vector"                                   @362.7,3815.6 11.6×14.3  fill:#ffffff
+      VECTOR    7074:2990    "Vector"                                   @364.5,3816.6 9.4×4.4  fill:#ffffff
+      VECTOR    7074:2991    "Vector"                                   @362.9,3824.8 2.9×3.4  fill:#ffffff
+      VECTOR    7074:2992    "Vector"                                   @365.6,3816.6 1×1.5  fill:#ffffff
+      VECTOR    7074:2993    "Vector"                                   @420.2,3815.6 11.4×14.2  fill:#ffffff
+      VECTOR    7074:2994    "Vector"                                   @422.9,3819.8 8.6×1.3  fill:#ffffff
+      VECTOR    7074:2995    "Vector"                                   @426.5,3820.2 4.9×0.8  fill:#ffffff
+      VECTOR    7074:2996    "Vector"                                   @455.6,3815.7 11.3×14.1  fill:#ffffff
+      VECTOR    7074:2997    "Vector"                                   @456,3815.7 7.4×4.3  fill:#ffffff
+      VECTOR    7074:2998    "Vector"                                   @460,3827 1.6×1.3  fill:#ffffff
+      VECTOR    7074:2999    "Vector"                                   @458.5,3828.2 1.5×0.9  fill:#ffffff
+      VECTOR    7074:3000    "Vector"                                   @294.4,3815.8 14.9×22  fill:#ffffff
+      VECTOR    7074:3001    "Vector"                                   @307.2,3815.9 2.2×1.6  fill:#ffffff
+      VECTOR    7074:3002    "Vector"                                   @305.4,3815.9 3.1×0.6  fill:#ffffff
+      VECTOR    7074:3003    "Vector"                                   @299.3,3832.7 1×1.1  fill:#ffffff
+      VECTOR    7074:3004    "Vector"                                   @398.7,3839.9 13.3×15.8  fill:#ffffff
+      VECTOR    7074:3005    "Vector"                                   @262.2,3846.3 9.5×9.5  fill:#ffffff
+      VECTOR    7074:3006    "Vector"                                   @382.2,3806.8 9.2×22.7  fill:#ffffff
+      VECTOR    7074:3007    "Vector"                                   @387.4,3816 4×1.8  fill:#ffffff
+      VECTOR    7074:3008    "Vector"                                   @382.2,3826.2 3.3×3.3  fill:#ffffff
+      VECTOR    7074:3009    "Vector"                                   @386.3,3811.8 1.3×4.2  fill:#ffffff
+      VECTOR    7074:3010    "Vector"                                   @386.2,3818.1 0.4×9.1  fill:#ffffff
+      VECTOR    7074:3011    "Vector"                                   @383.1,3816.1 0.4×1.4  fill:#ffffff
+      VECTOR    7074:3012    "Vector"                                   @284.6,3840.3 13.1×15.1  fill:#ffffff
+      VECTOR    7074:3013    "Vector"                                   @428.6,3843.9 16.2×12  fill:#ffffff
+      VECTOR    7074:3014    "Vector"                                   @274.3,3806.4 8.1×23.2  fill:#ffffff
+      VECTOR    7074:3015    "Vector"                                   @274.3,3828.2 2.7×1.2  fill:#ffffff
+      VECTOR    7074:3016    "Vector"                                   @274.9,3828.2 2.1×1.2  fill:#ffffff
+      VECTOR    7074:3017    "Vector"                                   @375.2,3846 18×9.7  fill:#ffffff
+      VECTOR    7074:3018    "Vector"                                   @418,3840 9.2×15.8  fill:#ffffff
+      VECTOR    7074:3019    "Vector"                                   @446.2,3812.4 9.6×17.3  fill:#ffffff
+      VECTOR    7074:3020    "Vector"                                   @454.8,3816.5 0.4×1.1  fill:#ffffff
+      VECTOR    7074:3021    "Vector"                                   @449.3,3819.5 0.5×7.6  fill:#ffffff
+      VECTOR    7074:3022    "Vector"                                   @352.7,3815.6 10.2×13.9  fill:#ffffff
+      VECTOR    7074:3023    "Vector"                                   @467.4,3815.4 10.2×12.7  fill:#ffffff
+      VECTOR    7074:3024    "Vector"                                   @356.5,3846 10.4×9.6  fill:#ffffff
+      VECTOR    7074:3025    "Vector"                                   @298.6,3846.1 10.3×9.5  fill:#ffffff
+      VECTOR    7074:3026    "Vector"                                   @348,3846 7.8×9.8  fill:#ffffff
+      VECTOR    7074:3027    "Vector"                                   @322.3,3846.1 7.9×9.6  fill:#ffffff
+      VECTOR    7074:3028    "Vector"                                   @375,3815.6 7×13.9  fill:#ffffff
+      VECTOR    7074:3029    "Vector"                                   @367.4,3846.1 7.9×9.5  fill:#ffffff
+      VECTOR    7074:3030    "Vector"                                   @461.3,3846.1 7.8×9.7  fill:#ffffff
+      VECTOR    7074:3031    "Vector"                                   @255.9,3839.9 8.8×15.5  fill:#ffffff
+      VECTOR    7074:3032    "Vector"                                   @215.2,3853.9 6.4×6.4  fill:#ffffff
+      VECTOR    7074:3033    "Vector"                                   @232.8,3825.9 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3034    "Vector"                                   @234.3,3825.9 3.4×5.4  fill:#ffffff
+      VECTOR    7074:3035    "Vector"                                   @234.4,3827 0.9×1  fill:#ffffff
+      VECTOR    7074:3036    "Vector"                                   @236.4,3828.9 1.2×2.6  fill:#ffffff
+      VECTOR    7074:3037    "Vector"                                   @241.3,3827.3 6.3×6.4  fill:#ffffff
+      VECTOR    7074:3038    "Vector"                                   @241.5,3827.7 1.6×1.8  fill:#ffffff
+      VECTOR    7074:3039    "Vector"                                   @190.1,3819.6 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3040    "Vector"                                   @199.8,3849 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3041    "Vector"                                   @229.9,3817.9 6.3×6.4  fill:#ffffff
+      VECTOR    7074:3042    "Vector"                                   @200.4,3817.7 6.2×6.3  fill:#ffffff
+      VECTOR    7074:3043    "Vector"                                   @198.3,3834.2 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3044    "Vector"                                   @223.4,3852.5 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3045    "Vector"                                   @199.7,3806.5 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3046    "Vector"                                   @215.2,3810.1 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3047    "Vector"                                   @215.3,3801.5 6×6.4  fill:#ffffff
+      VECTOR    7074:3048    "Vector"                                   @206.9,3802.8 6.3×6.2  fill:#ffffff
+      VECTOR    7074:3049    "Vector"                                   @207.3,3803.8 1.3×0.8  fill:#ffffff
+      VECTOR    7074:3050    "Vector"                                   @206.8,3812.1 6.2×6.4  fill:#ffffff
+      VECTOR    7074:3051    "Vector"                                   @207.1,3816.4 4.6×2.1  fill:#ffffff
+      VECTOR    7074:3052    "Vector"                                   @208,3817 4.3×0.9  fill:#ffffff
+      VECTOR    7074:3053    "Vector"                                   @236.2,3812 6.1×6.3  fill:#ffffff
+      VECTOR    7074:3054    "Vector"                                   @219.3,3845.4 6.3×6.1  fill:#ffffff
+      VECTOR    7074:3055    "Vector"                                   @239.9,3819.2 6.1×6.4  fill:#ffffff
+      VECTOR    7074:3056    "Vector"                                   @193.9,3812.3 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3057    "Vector"                                   @215.2,3818 6.1×6.4  fill:#ffffff
+      VECTOR    7074:3058    "Vector"                                   @194.1,3843.2 6.1×6.4  fill:#ffffff
+      VECTOR    7074:3059    "Vector"                                   @194.2,3844.6 0.6×2.1  fill:#ffffff
+      VECTOR    7074:3060    "Vector"                                   @198.7,3846.8 1.1×1.6  fill:#ffffff
+      VECTOR    7074:3061    "Vector"                                   @231.9,3834.4 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3062    "Vector"                                   @232.6,3835 0.8×1.6  fill:#ffffff
+      VECTOR    7074:3063    "Vector"                                   @223,3802.8 6.3×6.3  fill:#ffffff
+      VECTOR    7074:3064    "Vector"                                   @203.3,3841.3 6.1×6.3  fill:#ffffff
+      VECTOR    7074:3065    "Vector"                                   @203.5,3841.4 2×1.9  fill:#ffffff
+      VECTOR    7074:3066    "Vector"                                   @206.7,3846.1 2.1×0.7  fill:#ffffff
+      VECTOR    7074:3067    "Vector"                                   @236.5,3843 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3068    "Vector"                                   @236.8,3843.6 1.5×1.1  fill:#ffffff
+      VECTOR    7074:3069    "Vector"                                   @240.2,3835.5 6×6.3  fill:#ffffff
+      VECTOR    7074:3070    "Vector"                                   @210.8,3845.3 6.1×6.3  fill:#ffffff
+      VECTOR    7074:3071    "Vector"                                   @211.6,3850.5 3.6×1  fill:#ffffff
+      VECTOR    7074:3072    "Vector"                                   @215,3827.9 6.4×6  fill:#ffffff
+      VECTOR    7074:3073    "Vector"                                   @189,3827.8 6×6.3  fill:#ffffff
+      VECTOR    7074:3074    "Vector"                                   @197.4,3825.8 6.2×6.3  fill:#ffffff
+      VECTOR    7074:3075    "Vector"                                   @230.7,3848.8 6.2×6.3  fill:#ffffff
+      VECTOR    7074:3076    "Vector"                                   @207.2,3852.7 6.2×6.3  fill:#ffffff
+      VECTOR    7074:3077    "Vector"                                   @223.6,3812.2 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3078    "Vector"                                   @190.2,3835.9 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3079    "Vector"                                   @191.2,3840.8 0.9×1.1  fill:#ffffff
+      VECTOR    7074:3080    "Vector"                                   @215.2,3837.4 6×6.2  fill:#ffffff
+      VECTOR    7074:3081    "Vector"                                   @216.4,3842.5 3.8×1.1  fill:#ffffff
+      VECTOR    7074:3082    "Vector"                                   @221.8,3834.5 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3083    "Vector"                                   @205.6,3827.8 6.1×6.3  fill:#ffffff
+      VECTOR    7074:3084    "Vector"                                   @205.9,3831.8 1.5×1.5  fill:#ffffff
+      VECTOR    7074:3085    "Vector"                                   @208.4,3820.9 6.1×6.2  fill:#ffffff
+      VECTOR    7074:3086    "Vector"                                   @209.3,3821.5 0.6×1.1  fill:#ffffff
+      VECTOR    7074:3087    "Vector"                                   @208.5,3834.6 6.2×6.1  fill:#ffffff
+      VECTOR    7074:3088    "Vector"                                   @221.9,3821 6.2×6.2  fill:#ffffff
+      VECTOR    7074:3089    "Vector"                                   @224.7,3827.8 6×6.2  fill:#ffffff
+      VECTOR    7074:3090    "Vector"                                   @227,3841.4 6.2×6  fill:#ffffff
+      VECTOR    7074:3091    "Vector"                                   @469.8,3846.1 6.2×9.6  fill:#ffffff
+      VECTOR    7074:3092    "Vector"                                   @309.2,3844 6.4×11.8  fill:#ffffff
+      VECTOR    7074:3093    "Vector"                                   @272.2,3846 7×9.4  fill:#ffffff
+      VECTOR    7074:3094    "Vector"                                   @341.3,3845.9 6.8×9.7  fill:#ffffff
+      VECTOR    7074:3095    "Vector"                                   @315.5,3846 6.8×9.6  fill:#ffffff
+      VECTOR    7074:3096    "Vector"                                   @393,3846.1 4.9×9.3  fill:#ffffff
+      VECTOR    7074:3097    "Vector"                                   @375.9,3808.6 3.9×3.7  fill:#ffffff
+      VECTOR    7074:3098    "Vector"                                   @390.2,3806.3 5.2×3.4  fill:#ffffff
+      VECTOR    7074:3099    "Vector"                                   @392.6,3807.5 2.7×1.9  fill:#ffffff
+      VECTOR    7074:3100    "Vector"                                   @467.4,3827.8 7.1×1.6  fill:#ffffff
+      VECTOR    7074:3101    "Vector"                                   @469.7,3828 2.3×0.4  fill:#ffffff
+      VECTOR    7074:3102    "Vector"                                   @456.5,3841.3 2.7×2.7  fill:#ffffff
+      VECTOR    7074:3103    "Vector"                                   @393.8,3841.3 2.7×2.7  fill:#ffffff
+      VECTOR    7074:3104    "Vector"                                   @390,3806.8 1.8×0.5  fill:#ffffff
+      VECTOR    7074:3105    "Vector"                                   @330.4,3846.2 10.1×15.3  fill:#ffffff
+      VECTOR    7074:3106    "Vector"                                   @238.4,3796 6.3×6  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3694    "Union"                                    @567.2,3787 255×83.5  fill:#ffffff
+      VECTOR    7074:3695    "Vector"                                   @567.2,3787 83.7×83.5  fill:#ffffff
+      VECTOR    7074:3696    "Vector"                                   @635.7,3796.7 15.2×52.1  fill:#ffffff
+      VECTOR    7074:3697    "Vector"                                   @587.5,3808.6 0.8×9.7  fill:#ffffff
+      VECTOR    7074:3698    "Vector"                                   @756.8,3805.3 18.9×19.8  fill:#ffffff
+      VECTOR    7074:3699    "Vector"                                   @760.9,3807.6 10.7×3  fill:#ffffff
+      VECTOR    7074:3700    "Vector"                                   @710.4,3804.8 16.4×20.4  fill:#ffffff
+      VECTOR    7074:3701    "Vector"                                   @710.4,3804.8 16.4×20.4  fill:#ffffff
+      VECTOR    7074:3702    "Vector"                                   @713.3,3815.9 11.5×9.1  fill:#ffffff
+      VECTOR    7074:3703    "Vector"                                   @713.3,3807.5 10.7×7.3  fill:#ffffff
+      VECTOR    7074:3704    "Vector"                                   @769.8,3832.6 16.2×19.6  fill:#ffffff
+      VECTOR    7074:3705    "Vector"                                   @769.8,3832.6 16.2×19.6  fill:#ffffff
+      VECTOR    7074:3706    "Vector"                                   @773.6,3835.1 9.1×6.6  fill:#ffffff
+      VECTOR    7074:3707    "Vector"                                   @772.5,3835.2 1.5×6.7  fill:#ffffff
+      VECTOR    7074:3708    "Vector"                                   @780,3805.4 16.3×19.6  fill:#ffffff
+      VECTOR    7074:3709    "Vector"                                   @784.9,3805.4 11.3×19.6  fill:#ffffff
+      VECTOR    7074:3710    "Vector"                                   @730.9,3804.8 14.3×20.4  fill:#ffffff
+      VECTOR    7074:3711    "Vector"                                   @730.9,3804.8 14.1×20.3  fill:#ffffff
+      VECTOR    7074:3712    "Vector"                                   @734,3813 9.9×3.3  fill:#ffffff
+      VECTOR    7074:3713    "Vector"                                   @734.1,3807.6 10.8×0.5  fill:#ffffff
+      VECTOR    7074:3714    "Vector"                                   @734,3817.1 11.2×8  fill:#ffffff
+      VECTOR    7074:3715    "Vector"                                   @733.5,3807.4 10.4×6.1  fill:#ffffff
+      VECTOR    7074:3716    "Vector"                                   @733.5,3815.9 0.7×6.5  fill:#ffffff
+      VECTOR    7074:3717    "Vector"                                   @734.1,3813.5 9.4×0.2  fill:#ffffff
+      VECTOR    7074:3718    "Vector"                                   @709.4,3832.5 16.1×19.6  fill:#ffffff
+      VECTOR    7074:3719    "Vector"                                   @709.4,3832.5 5.8×19.6  fill:#ffffff
+      VECTOR    7074:3720    "Vector"                                   @712.1,3837.1 0.5×15  fill:#ffffff
+      VECTOR    7074:3721    "Vector"                                   @801.4,3805.4 13.8×19.7  fill:#ffffff
+      VECTOR    7074:3722    "Vector"                                   @802.7,3821.8 12.5×3.2  fill:#ffffff
+      VECTOR    7074:3723    "Vector"                                   @804.4,3813.4 9.5×2.9  fill:#ffffff
+      VECTOR    7074:3724    "Vector"                                   @803.9,3808.1 9.9×5.6  fill:#ffffff
+      VECTOR    7074:3725    "Vector"                                   @803.9,3815.7 1.6×6.5  fill:#ffffff
+      VECTOR    7074:3726    "Vector"                                   @809.8,3805.4 5.4×2.9  fill:#ffffff
+      VECTOR    7074:3727    "Vector"                                   @807,3832.2 15.2×20  fill:#ffffff
+      VECTOR    7074:3728    "Vector"                                   @807.6,3832.2 14.3×17.8  fill:#ffffff
+      VECTOR    7074:3729    "Vector"                                   @790,3832.6 13.7×19.6  fill:#ffffff
+      VECTOR    7074:3730    "Vector"                                   @792.7,3832.6 10.9×8.4  fill:#ffffff
+      VECTOR    7074:3731    "Vector"                                   @691.5,3832.6 13.6×19.6  fill:#ffffff
+      VECTOR    7074:3732    "Vector"                                   @694.1,3835.4 10×7.9  fill:#ffffff
+      VECTOR    7074:3733    "Vector"                                   @694.2,3832.6 10.9×3.1  fill:#ffffff
+      VECTOR    7074:3734    "Vector"                                   @749.1,3832.5 16×20  fill:#ffffff
+      VECTOR    7074:3735    "Vector"                                   @749.1,3832.5 16×20  fill:#ffffff
+      VECTOR    7074:3736    "Vector"                                   @761.6,3833.3 0.9×14.3  fill:#ffffff
+      VECTOR    7074:3737    "Vector"                                   @670.7,3832.7 17.1×19.4  fill:#ffffff
+      VECTOR    7074:3738    "Vector"                                   @670.4,3804.8 16.5×20.4  fill:#ffffff
+      VECTOR    7074:3739    "Vector"                                   @670.4,3804.8 16.5×3.3  fill:#ffffff
+      VECTOR    7074:3740    "Vector"                                   @670.4,3805.4 6.8×2.7  fill:#ffffff
+      VECTOR    7074:3741    "Vector"                                   @689,3804.9 17.8×20.3  fill:#ffffff
+      VECTOR    7074:3742    "Vector"                                   @689,3804.9 8.8×20.3  fill:#ffffff
+      VECTOR    7074:3743    "Vector"                                   @729.6,3832.5 16×19.7  fill:#ffffff
+      VECTOR    7074:3744    "Vector"                                   @729.6,3832.5 9.5×19.7  fill:#ffffff
+      VECTOR    7074:3745    "Vector"                                   @739,3832.6 6.6×3  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3190    "Union"                                    @207.1,3939.4 252.4×96  fill:#ffffff
+      VECTOR    7074:3167    "Vector"                                   @207.1,3939.4 53.6×96  fill:#ffffff
+      VECTOR    7074:3168    "Vector"                                   @432.7,3981.9 14.2×24.3  fill:#ffffff
+      VECTOR    7074:3169    "Vector"                                   @314.8,3981.9 15.3×17.2  fill:#ffffff
+      VECTOR    7074:3170    "Vector"                                   @388.6,3949.6 15.3×17.1  fill:#ffffff
+      VECTOR    7074:3171    "Vector"                                   @358.1,3949.6 15.3×17.1  fill:#ffffff
+      VECTOR    7074:3172    "Vector"                                   @301.4,3943.5 21.5×23  fill:#ffffff
+      VECTOR    7074:3173    "Vector"                                   @377.6,3981.9 12.2×17.2  fill:#ffffff
+      VECTOR    7074:3174    "Vector"                                   @352.2,3975.3 12.5×23.7  fill:#ffffff
+      VECTOR    7074:3175    "Vector"                                   @301.4,3975.7 10.8×22.9  fill:#ffffff
+      VECTOR    7074:3176    "Vector"                                   @415.1,3982.2 12.7×16.8  fill:#ffffff
+      VECTOR    7074:3177    "Vector"                                   @405.2,3941.9 9.2×24.6  fill:#ffffff
+      VECTOR    7074:3178    "Vector"                                   @376.1,3949.6 9.9×17.1  fill:#ffffff
+      VECTOR    7074:3179    "Vector"                                   @449.6,3981.9 9.9×17.2  fill:#ffffff
+      VECTOR    7074:3180    "Vector"                                   @366.8,3977.4 8.8×21.6  fill:#ffffff
+      VECTOR    7074:3181    "Vector"                                   @403.6,3977.5 8.9×21.6  fill:#ffffff
+      VECTOR    7074:3182    "Vector"                                   @414.7,3945.3 8.9×21.5  fill:#ffffff
+      VECTOR    7074:3183    "Vector"                                   @333.9,3949.6 11.6×17.2  fill:#ffffff
+      VECTOR    7074:3184    "Vector"                                   @333.8,3982 7.9×16.7  fill:#ffffff
+      VECTOR    7074:3185    "Vector"                                   @349.1,3949.7 7.9×16.7  fill:#ffffff
+      VECTOR    7074:3186    "Vector"                                   @394.3,3982 7.8×16.7  fill:#ffffff
+      VECTOR    7074:3187    "Vector"                                   @281.2,3942 0.8×57.8  fill:#ffffff
+      VECTOR    7074:3188    "Vector"                                   @328.1,3950 2×16.4  fill:#ffffff
+      VECTOR    7074:3189    "Vector"                                   @327.7,3943 2.9×2.9  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3205    "Union"                                    @567.2,3963.8 255.1×47.2  fill:#fefefe
+      VECTOR    7074:3195    "Vector"                                   @626.7,3973.3 28.4×37.4  fill:#fefefe
+      VECTOR    7074:3196    "Vector"                                   @658.4,3973.3 27.8×28.3  fill:#fefefe
+      VECTOR    7074:3197    "Vector"                                   @754.4,3973.6 27.8×28.2  fill:#fefefe
+      VECTOR    7074:3198    "Vector"                                   @595.7,3973.9 25×27.7  fill:#fefefe
+      VECTOR    7074:3199    "Vector"                                   @567.2,3973 24×28.6  fill:#fefefe
+      VECTOR    7074:3200    "Vector"                                   @727.3,3973.3 24×28.5  fill:#fefefe
+      VECTOR    7074:3201    "Vector"                                   @803.9,3963.8 18.4×47.1  fill:#fefefe
+      VECTOR    7074:3202    "Vector"                                   @708.8,3963.8 18.3×47.2  fill:#fefefe
+      VECTOR    7074:3203    "Vector"                                   @783.7,3963.9 17.9×37.9  fill:#fefefe
+      VECTOR    7074:3204    "Vector"                                   @690.4,3973.9 16.7×27  fill:#fefefe
+    BOOLEAN_OPERATION 7074:3233    "Union"                                    @189,4104.4 288.6×75.9  fill:#fefefe
+      VECTOR    7074:3221    "Vector"                                   @255.5,4118.7 34.5×47.3  fill:#fefefe
+      VECTOR    7074:3222    "Vector"                                   @330.1,4129.1 34.8×36.9  fill:#fefefe
+      VECTOR    7074:3223    "Vector"                                   @293.2,4129.1 34.8×36.9  fill:#fefefe
+      VECTOR    7074:3224    "Vector"                                   @422.7,4129.1 31.7×36.9  fill:#fefefe
+      VECTOR    7074:3225    "Vector"                                   @367.9,4129.2 23.4×35.8  fill:#fefefe
+      VECTOR    7074:3226    "Vector"                                   @393.6,4118.7 11×46.4  fill:#fefefe
+      VECTOR    7074:3227    "Vector"                                   @408.6,4130.1 11.1×34.9  fill:#fefefe
+      VECTOR    7074:3228    "Vector"                                   @407.5,4117.4 12.9×10.3  fill:#fefefe
+      VECTOR    7074:3229    "Vector"                                   @377.4,4139.8 0.5×3.9  fill:#fefefe@0
+      VECTOR    7074:3230    "Vector"                                   @189,4104.4 57×75.9  fill:#fefefe
+      VECTOR    7074:3231    "Vector"                                   @455,4121.9 22.6×43.9  fill:#fefefe
+    BOOLEAN_OPERATION 7074:3219    "Union"                                    @546.5,4113.6 296.4×57.5  fill:#ffffff
+      VECTOR    7074:3210    "Vector"                                   @546.5,4113.6 92.7×57.5  fill:#ffffff
+      VECTOR    7074:3211    "Vector"                                   @655.6,4127.1 44.5×31  fill:#ffffff
+      VECTOR    7074:3212    "Vector"                                   @793.1,4127.1 49.8×30.9  fill:#ffffff
+      VECTOR    7074:3213    "Vector"                                   @719.4,4127 35.3×30.9  fill:#ffffff
+      VECTOR    7074:3214    "Vector"                                   @757.1,4127 35.3×31.1  fill:#ffffff
+      VECTOR    7074:3215    "Vector"                                   @702.2,4127 14×31.1  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3437    "Union"                                    @189,4253 288.6×52.1  fill:#ffffff
+      VECTOR    7074:3429    "Vector"                                   @355,4254.2 27.2×47  fill:#ffffff
+      VECTOR    7074:3430    "Vector"                                   @385.1,4254.2 33.1×47  fill:#ffffff
+      VECTOR    7074:3431    "Vector"                                   @321.8,4254.2 27.1×47.1  fill:#ffffff
+      VECTOR    7074:3432    "Vector"                                   @242.6,4254.2 12.4×47.1  fill:#ffffff
+      VECTOR    7074:3433    "Vector"                                   @262.5,4253 51.6×49.6  fill:#ffffff
+      VECTOR    7074:3434    "Vector"                                   @420.3,4253.2 57.4×51.8  fill:#ffffff
+      VECTOR    7074:3435    "Vector"                                   @189,4254.2 49.2×47  fill:#ffffff
+      VECTOR    7074:3436    "Vector"                                   @419.5,4280.6 29.3×24.5  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3427    "Union"                                    @600.8,4249.2 187.8×59.6  fill:#ffffff
+      VECTOR    7074:3337    "Vector"                                   @600.8,4251 51.3×57.1  fill:#ffffff
+      VECTOR    7074:3338    "Vector"                                   @601.1,4251 46.3×12.7  fill:#ffffff
+      VECTOR    7074:3339    "Vector"                                   @601.1,4251.1 8.1×0.5  fill:#ffffff
+      VECTOR    7074:3340    "Vector"                                   @600.8,4251.4 3.8×37.6  fill:#ffffff
+      VECTOR    7074:3341    "Vector"                                   @600.8,4280.3 0.9×27  fill:#ffffff
+      VECTOR    7074:3342    "Vector"                                   @601,4307.2 20×0.8  fill:#ffffff
+      VECTOR    7074:3343    "Vector"                                   @615.8,4305.8 17.2×2.1  fill:#ffffff
+      VECTOR    7074:3344    "Vector"                                   @636,4297.6 9×7.5  fill:#ffffff
+      VECTOR    7074:3345    "Vector"                                   @651,4273.8 1.1×8  fill:#ffffff
+      VECTOR    7074:3346    "Vector"                                   @648.5,4265.4 1.9×4  fill:#ffffff
+      VECTOR    7074:3347    "Vector"                                   @649.8,4268.3 1.2×3.9  fill:#ffffff
+      VECTOR    7074:3348    "Vector"                                   @647.1,4263 1.8×3  fill:#ffffff
+      VECTOR    7074:3349    "Vector"                                   @650.3,4271.1 1.1×3.1  fill:#ffffff
+      VECTOR    7074:3350    "Vector"                                   @632.4,4304.7 3.7×1.3  fill:#ffffff
+      VECTOR    7074:3351    "Vector"                                   @644.7,4297.1 1.8×1.5  fill:#ffffff
+      VECTOR    7074:3352    "Vector"                                   @613.7,4270.1 25.6×26.4  fill:#ffffff
+      VECTOR    7074:3353    "Vector"                                   @614,4262.6 23.3×8  fill:#ffffff
+      VECTOR    7074:3354    "Vector"                                   @613.5,4266.8 0.7×28.4  fill:#ffffff
+      VECTOR    7074:3355    "Vector"                                   @613.6,4263 1.3×4.7  fill:#ffffff
+      VECTOR    7074:3356    "Vector"                                   @742.6,4263.5 46.1×45.3  fill:#ffffff
+      VECTOR    7074:3357    "Vector"                                   @748,4297 38.6×11.8  fill:#ffffff
+      VECTOR    7074:3358    "Vector"                                   @742.6,4278.1 4.1×21.4  fill:#ffffff
+      VECTOR    7074:3359    "Vector"                                   @748,4263.6 15.3×8.7  fill:#ffffff
+      VECTOR    7074:3360    "Vector"                                   @787.1,4277.8 1.6×17.6  fill:#ffffff
+      VECTOR    7074:3361    "Vector"                                   @761.6,4263.5 10.1×1.5  fill:#ffffff
+      VECTOR    7074:3362    "Vector"                                   @771,4264.2 11.4×6  fill:#ffffff
+      VECTOR    7074:3363    "Vector"                                   @781.9,4269.9 4.4×6.4  fill:#ffffff
+      VECTOR    7074:3364    "Vector"                                   @786.2,4274.9 1.3×4.1  fill:#ffffff
+      VECTOR    7074:3365    "Vector"                                   @786.2,4294.7 1.2×3  fill:#ffffff
+      VECTOR    7074:3366    "Vector"                                   @755.4,4274.3 18.9×10.6  fill:#ffffff
+      VECTOR    7074:3367    "Vector"                                   @755.6,4290.8 14.3×7.9  fill:#ffffff
+      VECTOR    7074:3368    "Vector"                                   @755.6,4290.8 3.2×4.7  fill:#ffffff
+      VECTOR    7074:3369    "Vector"                                   @774,4278.4 2.7×10.7  fill:#ffffff
+      VECTOR    7074:3370    "Vector"                                   @772.6,4288.9 3.9×6.9  fill:#ffffff
+      VECTOR    7074:3371    "Vector"                                   @755.1,4283.1 0.9×8.2  fill:#ffffff
+      VECTOR    7074:3372    "Vector"                                   @768.5,4295.6 4.8×2.7  fill:#ffffff
+      VECTOR    7074:3373    "Vector"                                   @676.4,4253.6 30.2×54.7  fill:#ffffff
+      VECTOR    7074:3374    "Vector"                                   @682.5,4253.6 11.4×9.6  fill:#ffffff
+      VECTOR    7074:3375    "Vector"                                   @680.5,4274.4 3.1×22  fill:#ffffff
+      VECTOR    7074:3376    "Vector"                                   @684.4,4299.9 22×8.4  fill:#ffffff
+      VECTOR    7074:3377    "Vector"                                   @693.9,4274.4 4.8×22.6  fill:#ffffff
+      VECTOR    7074:3378    "Vector"                                   @694.4,4265.1 12.2×2.3  fill:#ffffff
+      VECTOR    7074:3379    "Vector"                                   @692.7,4253.6 4.2×11.9  fill:#ffffff
+      VECTOR    7074:3380    "Vector"                                   @698.5,4274.2 8×0.9  fill:#ffffff
+      VECTOR    7074:3381    "Vector"                                   @676.4,4266.6 0.5×8  fill:#ffffff
+      VECTOR    7074:3382    "Vector"                                   @706.1,4298.2 0.5×9.1  fill:#ffffff
+      VECTOR    7074:3383    "Vector"                                   @676.4,4265.2 5.8×2.1  fill:#ffffff
+      VECTOR    7074:3384    "Vector"                                   @677.2,4274.4 3.8×0.6  fill:#ffffff
+      VECTOR    7074:3385    "Vector"                                   @710.6,4253.7 29.7×54.6  fill:#ffffff
+      VECTOR    7074:3386    "Vector"                                   @716.3,4275.5 2.1×25.6  fill:#ffffff
+      VECTOR    7074:3387    "Vector"                                   @716.6,4253.7 11.4×1.1  fill:#ffffff
+      VECTOR    7074:3388    "Vector"                                   @729.9,4266.4 10.4×8.4  fill:#ffffff
+      VECTOR    7074:3389    "Vector"                                   @719.8,4303.1 13.4×5.1  fill:#ffffff
+      VECTOR    7074:3390    "Vector"                                   @730,4307.5 3.2×0.7  fill:#ffffff
+      VECTOR    7074:3391    "Vector"                                   @739.1,4297.6 1.1×9.8  fill:#ffffff
+      VECTOR    7074:3392    "Vector"                                   @729,4296 11.2×1.7  fill:#ffffff
+      VECTOR    7074:3393    "Vector"                                   @729,4296 4.4×1  fill:#ffffff
+      VECTOR    7074:3394    "Vector"                                   @727.2,4276.8 0.7×9.8  fill:#ffffff
+      VECTOR    7074:3395    "Vector"                                   @731.9,4307.1 8×1.2  fill:#ffffff
+      VECTOR    7074:3396    "Vector"                                   @727,4254.7 1×7.2  fill:#ffffff
+      VECTOR    7074:3397    "Vector"                                   @716.3,4253.9 3.9×10.2  fill:#ffffff
+      VECTOR    7074:3398    "Vector"                                   @728,4265 11.8×0.8  fill:#ffffff
+      VECTOR    7074:3399    "Vector"                                   @710.6,4259.1 6.1×6.7  fill:#ffffff
+      VECTOR    7074:3400    "Vector"                                   @727.3,4284.5 0.9×7.7  fill:#ffffff
+      VECTOR    7074:3401    "Vector"                                   @727.7,4290.9 1.9×5.2  fill:#ffffff
+      VECTOR    7074:3402    "Vector"                                   @727.3,4261.1 1×4.2  fill:#ffffff
+      VECTOR    7074:3403    "Vector"                                   @654.7,4265.4 17.8×42.8  fill:#ffffff
+      VECTOR    7074:3404    "Vector"                                   @654.7,4265.4 17.8×30  fill:#ffffff
+      VECTOR    7074:3405    "Vector"                                   @654.9,4274.6 5.6×23  fill:#ffffff
+      VECTOR    7074:3406    "Vector"                                   @654.9,4274.6 5.5×6.2  fill:#ffffff
+      VECTOR    7074:3407    "Vector"                                   @672,4294.7 0.4×12.3  fill:#ffffff
+      VECTOR    7074:3408    "Vector"                                   @658.1,4249.2 13.5×13.7  fill:#ffffff
+      VECTOR    7074:3409    "Vector"                                   @658.1,4249.2 12.4×8.6  fill:#ffffff
+      VECTOR    7074:3410    "Vector"                                   @658.3,4251.6 13.3×11.3  fill:#ffffff
+      VECTOR    7074:3411    "Vector"                                   @710.2,4265.6 6.5×28.2  fill:#ffffff
+      VECTOR    7074:3412    "Vector"                                   @647,4287.3 4.1×9.3  fill:#ffffff
+      VECTOR    7074:3413    "Vector"                                   @697.6,4296.6 7.8×1  fill:#ffffff
+      VECTOR    7074:3414    "Vector"                                   @706.1,4266 0.6×8.3  fill:#ffffff
+      VECTOR    7074:3415    "Vector"                                   @727.4,4274.2 5.5×5.9  fill:#ffffff
+      VECTOR    7074:3416    "Vector"                                   @745.1,4270 4.4×5.9  fill:#ffffff
+      VECTOR    7074:3417    "Vector"                                   @650.5,4281 1.4×6.7  fill:#ffffff
+      VECTOR    7074:3418    "Vector"                                   @682.9,4294.6 1.6×6.3  fill:#ffffff
+      VECTOR    7074:3419    "Vector"                                   @702.7,4296.8 3.7×2.4  fill:#ffffff
+      VECTOR    7074:3420    "Vector"                                   @679.7,4262.2 3.4×3.5  fill:#ffffff
+      VECTOR    7074:3421    "Vector"                                   @744,4275.3 1.6×3.5  fill:#ffffff
+      VECTOR    7074:3422    "Vector"                                   @718.1,4300.3 2.1×3.4  fill:#ffffff
+      VECTOR    7074:3423    "Vector"                                   @739.4,4265.6 0.9×2.9  fill:#ffffff
+      VECTOR    7074:3424    "Vector"                                   @746.3,4299.1 2×2.6  fill:#ffffff
+      VECTOR    7074:3425    "Vector"                                   @676.6,4273.6 2.2×1.7  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3672    "Union"                                    @189,4377.7 288.6×77.9  fill:#ffffff
+      VECTOR    7074:3665    "Vector"                                   @189,4377.7 51.8×77.9  fill:#ffffff
+      VECTOR    7074:3666    "Vector"                                   @334.4,4405.5 31.5×33.3  fill:#ffffff
+      VECTOR    7074:3667    "Vector"                                   @371.9,4405.5 47.6×32.6  fill:#ffffff
+      VECTOR    7074:3668    "Vector"                                   @280.1,4393.1 30.8×45  fill:#ffffff
+      VECTOR    7074:3669    "Vector"                                   @423.9,4405.5 30.8×33.4  fill:#ffffff
+      VECTOR    7074:3670    "Vector"                                   @314.3,4405.9 18.4×32.3  fill:#ffffff
+      VECTOR    7074:3671    "Vector"                                   @459.2,4405.9 18.4×32.3  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3475    "Union"                                    @550.4,4392.4 288.6×48.7  fill:#ffffff
+      VECTOR    7074:3464    "Vector"                                   @550.4,4392.4 39.5×48.2  fill:#ffffff
+      VECTOR    7074:3465    "Vector"                                   @715.1,4404.4 36.6×36.6  fill:#ffffff
+      VECTOR    7074:3466    "Vector"                                   @752.9,4405 52.1×35.5  fill:#ffffff
+      VECTOR    7074:3467    "Vector"                                   @641.4,4404.3 34.8×36.7  fill:#ffffff
+      VECTOR    7074:3468    "Vector"                                   @607.6,4392.7 31×47.8  fill:#ffffff
+      VECTOR    7074:3469    "Vector"                                   @628.1,4394.4 2.9×0.4  fill:#ffffff
+      VECTOR    7074:3470    "Vector"                                   @806.8,4404.8 32.3×36.2  fill:#ffffff
+      VECTOR    7074:3471    "Vector"                                   @699.9,4392.7 9.3×47.8  fill:#ffffff
+      VECTOR    7074:3472    "Vector"                                   @682.3,4392.7 9.2×47.8  fill:#ffffff
+      VECTOR    7074:3473    "Vector"                                   @617.5,4398.6 21×2.5  fill:#ffffff
+      VECTOR    7074:3474    "Vector"                                   @812.9,4423.5 16.3×5  fill:#ffffff
+    BOOLEAN_OPERATION 7074:3462    "Union"                                    @195.2,4528.9 276.1×90.3  fill:#fefefe
+      VECTOR    7074:3455    "Vector"                                   @361.9,4529.9 93.4×87.6  fill:#fefefe
+      VECTOR    7074:3456    "Vector"                                   @224.4,4550.6 100.6×45  fill:#fefefe
+      VECTOR    7074:3457    "Vector"                                   @431.9,4529.7 39.4×23.1  fill:#fefefe
+      VECTOR    7074:3458    "Vector"                                   @326.5,4551.8 12.8×7.8  fill:#fefefe
+      VECTOR    7074:3459    "Vector"                                   @322,4528.9 107.5×88.5  fill:#fefefe
+      VECTOR    7074:3460    "Vector"                                   @195.2,4528.9 119.7×90.3  fill:#fefefe
+    BOOLEAN_OPERATION 7074:3660    "Subtract"                                 @600.8,4524.6 187.8×99  fill:#ffffff
+      BOOLEAN_OPERATION 7074:3659    "Union"                                    @600.8,4524.6 187.8×99  fill:#000000
+        VECTOR    7074:3587    "Vector"                                   @600.8,4524.6 187.8×99  fill:#000000
+        VECTOR    7074:3621    "Vector"                                   @727.9,4540.7 7×5.6  fill:#000000
+      BOOLEAN_OPERATION 7074:3658    "Subtract"                                 @603.8,4527.5 181.8×82.3  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3657    "Subtract"                                 @603.8,4527.5 181.8×85  fill:#ffffff
+          BOOLEAN_OPERATION 7074:3655    "Subtract"                                 @603.8,4527.5 181.8×90.2  fill:#ffffff
+            BOOLEAN_OPERATION 7074:3653    "Union"                                    @603.8,4527.5 181.8×90.2  fill:#ffffff
+              VECTOR    7074:3588    "Vector"                                   @731.6,4562.6 48.3×54.6  fill:#ffffff
+              VECTOR    7074:3591    "Vector"                                   @731.6,4562.6 40.6×4.8  fill:#ffffff
+              VECTOR    7074:3593    "Vector"                                   @771.6,4587.5 2.9×4.1  fill:#ffffff
+              VECTOR    7074:3595    "Vector"                                   @751,4578.6 5.7×4.3  fill:#ffffff
+              VECTOR    7074:3596    "Vector"                                   @646.2,4561.6 40.6×55.8  fill:#ffffff
+              VECTOR    7074:3600    "Vector"                                   @661.6,4592.7 9.9×3.9  fill:#ffffff
+              VECTOR    7074:3601    "Vector"                                   @689.1,4562.6 39.9×55.1  fill:#ffffff
+              VECTOR    7074:3603    "Vector"                                   @713.2,4562.6 15.8×2.1  fill:#ffffff
+              VECTOR    7074:3604    "Vector"                                   @689.1,4562.6 15.9×2  fill:#ffffff
+              VECTOR    7074:3605    "Vector"                                   @705.6,4593.6 6.8×3.5  fill:#ffffff
+              VECTOR    7074:3606    "Vector"                                   @609.6,4561.8 34.4×55.5  fill:#ffffff
+              VECTOR    7074:3610    "Vector"                                   @626.4,4577.7 15.5×7.9  fill:#ffffff
+              VECTOR    7074:3611    "Vector"                                   @614.1,4592.8 14.2×6  fill:#ffffff
+              VECTOR    7074:3612    "Vector"                                   @694.2,4527.5 25.2×31.6  fill:#ffffff
+              VECTOR    7074:3618    "Vector"                                   @720,4527.6 22.8×31.2  fill:#ffffff
+              VECTOR    7074:3622    "Vector"                                   @653.4,4527.6 25×31.3  fill:#ffffff
+              VECTOR    7074:3626    "Vector"                                   @762.3,4527.5 23.4×31.4  fill:#ffffff
+              VECTOR    7074:3630    "Vector"                                   @764.7,4545.2 8.3×3.6  fill:#ffffff
+              VECTOR    7074:3631    "Vector"                                   @771.5,4536.7 7.7×3.2  fill:#ffffff
+              VECTOR    7074:3632    "Vector"                                   @633.5,4527.6 18.8×31.3  fill:#ffffff
+              VECTOR    7074:3635    "Vector"                                   @742.9,4527.7 19.4×31.1  fill:#ffffff
+              VECTOR    7074:3639    "Vector"                                   @745.4,4545.1 8.1×3.7  fill:#ffffff
+              VECTOR    7074:3640    "Vector"                                   @752.2,4536.7 8.1×3.4  fill:#ffffff
+              VECTOR    7074:3641    "Vector"                                   @603.8,4527.6 20.2×31.3  fill:#ffffff
+              VECTOR    7074:3645    "Vector"                                   @616.6,4539.1 5.9×1.1  fill:#ffffff
+              VECTOR    7074:3646    "Vector"                                   @673.6,4527.6 21.4×31.3  fill:#ffffff
+              VECTOR    7074:3649    "Vector"                                   @625.1,4527.7 7.4×31.2  fill:#ffffff
+            BOOLEAN_OPERATION 7074:3654    "Union"                                    @603.8,4527.7 181.8×31.5  fill:#b26804
+              VECTOR    7074:3613    "Vector"                                   @699.9,4539.5 19.5×19.7  fill:#b26804
+              VECTOR    7074:3614    "Vector"                                   @694.2,4527.7 5.8×11.4  fill:#b26804
+              VECTOR    7074:3615    "Vector"                                   @716,4537.7 2.3×4.9  fill:#b26804
+              VECTOR    7074:3616    "Vector"                                   @707.5,4543.7 4.3×4.4  fill:#b26804
+              VECTOR    7074:3617    "Vector"                                   @707.5,4534.2 3.3×3.7  fill:#b26804
+              VECTOR    7074:3619    "Vector"                                   @720.2,4544.9 22.6×13.9  fill:#b26804
+              VECTOR    7074:3620    "Vector"                                   @727.7,4536.2 7.3×10.1  fill:#b26804
+              VECTOR    7074:3623    "Vector"                                   @653.4,4551.2 25×7.7  fill:#b26804
+              VECTOR    7074:3624    "Vector"                                   @653.6,4527.9 5.6×9.8  fill:#b26804
+              VECTOR    7074:3625    "Vector"                                   @664.3,4537 2.4×8.1  fill:#b26804
+              VECTOR    7074:3627    "Vector"                                   @762.3,4548.2 19.2×10.7  fill:#b26804
+              VECTOR    7074:3628    "Vector"                                   @771.5,4527.7 14.2×12  fill:#b26804
+              VECTOR    7074:3629    "Vector"                                   @763.2,4539.4 9.9×8  fill:#b26804
+              VECTOR    7074:3633    "Vector"                                   @641,4545 11.3×13.9  fill:#b26804
+              VECTOR    7074:3634    "Vector"                                   @633.5,4528.1 7.4×30.8  fill:#b26804
+              VECTOR    7074:3636    "Vector"                                   @742.9,4546.4 19.4×12.5  fill:#b26804
+              VECTOR    7074:3637    "Vector"                                   @743.8,4539.8 9.7×7.6  fill:#b26804
+              VECTOR    7074:3638    "Vector"                                   @752.2,4530.6 9.4×9  fill:#b26804
+              VECTOR    7074:3642    "Vector"                                   @603.8,4527.7 13×31.2  fill:#b26804
+              VECTOR    7074:3643    "Vector"                                   @616.6,4527.7 7.5×11.8  fill:#b26804
+              VECTOR    7074:3644    "Vector"                                   @616.6,4546.2 5.8×4.4  fill:#b26804
+              VECTOR    7074:3647    "Vector"                                   @679.3,4538.9 15.8×20  fill:#b26804
+              VECTOR    7074:3648    "Vector"                                   @673.6,4527.9 5.9×10.8  fill:#b26804
+              VECTOR    7074:3650    "Vector"                                   @625.1,4533 7.4×25.9  fill:#b26804
+          BOOLEAN_OPERATION 7074:3656    "Union"                                    @609.6,4562.7 170.3×55  fill:#8d0c32
+            VECTOR    7074:3589    "Vector"                                   @750.9,4591.7 29×25.5  fill:#8d0c32
+            VECTOR    7074:3590    "Vector"                                   @731.6,4562.7 19.5×54.5  fill:#8d0c32
+            VECTOR    7074:3592    "Vector"                                   @771.5,4579.5 4.4×12  fill:#8d0c32
+            VECTOR    7074:3594    "Vector"                                   @751,4572.1 5.8×10.8  fill:#8d0c32
+            VECTOR    7074:3597    "Vector"                                   @646.2,4590 40.6×27.4  fill:#8d0c32
+            VECTOR    7074:3599    "Vector"                                   @659.8,4577 13.4×12.7  fill:#8d0c32
+            VECTOR    7074:3602    "Vector"                                   @689.3,4593.1 39.5×24.6  fill:#8d0c32
+            VECTOR    7074:3607    "Vector"                                   @609.6,4597.5 34.3×19.8  fill:#8d0c32
+            VECTOR    7074:3608    "Vector"                                   @611.1,4581 17.2×16.3  fill:#8d0c32
+            VECTOR    7074:3609    "Vector"                                   @626.3,4566.4 16.2×16.2  fill:#8d0c32
+        VECTOR    7074:3598    "Vector"                                   @659.8,4577 13.4×17.9  fill:#000000
+    BOOLEAN_OPERATION 7074:3571    "Union"                                    @189,4705.4 288.6×72.8  fill:#ffffff
+      VECTOR    7074:3536    "Vector"                                   @383.9,4757.4 3.2×2  fill:#000000
+      BOOLEAN_OPERATION 7074:3570    "Subtract"                                 @290.6,4757.4 152.9×12.1  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3569    "Union"                                    @290.6,4757.3 154.2×13.3  fill:#ffffff
+          VECTOR    7074:3534    "Vector"                                   @373.5,4757.4 15.2×12.1  fill:#ffffff
+          VECTOR    7074:3538    "Vector"                                   @290.6,4757.3 14.1×11.9  fill:#ffffff
+          VECTOR    7074:3540    "Vector"                                   @345.6,4757.9 16.3×12.7  fill:#ffffff
+          VECTOR    7074:3542    "Vector"                                   @400.7,4757.6 15.3×11.7  fill:#ffffff
+          VECTOR    7074:3544    "Vector"                                   @317.3,4757.8 14.8×11.4  fill:#ffffff
+          VECTOR    7074:3546    "Vector"                                   @427.6,4757.6 17.2×11.6  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3568    "Union"                                    @293.7,4757.3 151×13.3  fill:#000000
+          VECTOR    7074:3535    "Vector"                                   @380.7,4759.8 8.1×9.7  fill:#000000
+          VECTOR    7074:3537    "Vector"                                   @376.6,4760.3 7.5×2.8  fill:#000000
+          VECTOR    7074:3539    "Vector"                                   @293.7,4757.3 11×7.8  fill:#000000
+          VECTOR    7074:3541    "Vector"                                   @345.6,4757.9 16.3×12.7  fill:#000000
+          VECTOR    7074:3543    "Vector"                                   @400.7,4757.6 2×10.4  fill:#000000
+          VECTOR    7074:3545    "Vector"                                   @317.3,4757.8 8.8×5.3  fill:#000000
+          VECTOR    7074:3547    "Vector"                                   @427.6,4757.6 11×4.7  fill:#000000
+          VECTOR    7074:3548    "Vector"                                   @439.2,4757.6 5.5×4.7  fill:#000000
+          VECTOR    7074:3554    "Vector"                                   @438.9,4768.9 1.8×1.4  fill:#000000
+      BOOLEAN_OPERATION 7074:3564    "Subtract"                                 @189,4705.4 51.2×72.8  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3562    "Subtract"                                 @189,4705.4 51.2×72.8  fill:#ffffff
+          BOOLEAN_OPERATION 7074:3561    "Union"                                    @189,4704.8 51.5×73.3  fill:#ffffff
+            VECTOR    7074:3482    "Vector"                                   @189,4705.4 38.6×72.8  fill:#ffffff
+            VECTOR    7074:3524    "Vector"                                   @217.9,4704.8 22.7×64.3  fill:#ffffff
+          BOOLEAN_OPERATION 7074:3560    "Union"                                    @189,4704.8 51.5×69.1  fill:#000000
+            VECTOR    7074:3483    "Vector"                                   @204.7,4714.4 4.1×23  fill:#000000
+            VECTOR    7074:3484    "Vector"                                   @204.4,4748.8 3.6×25.2  fill:#000000
+            VECTOR    7074:3486    "Vector"                                   @198.8,4749.6 6.2×21.9  fill:#000000
+            VECTOR    7074:3487    "Vector"                                   @189,4712.3 9.8×5.2  fill:#000000
+            VECTOR    7074:3488    "Vector"                                   @213.1,4749.6 2.7×10.3  fill:#000000
+            VECTOR    7074:3489    "Vector"                                   @214.3,4734.6 2.8×13.7  fill:#000000
+            VECTOR    7074:3490    "Vector"                                   @221.7,4710.9 6×9.8  fill:#000000
+            VECTOR    7074:3491    "Vector"                                   @208.5,4711.2 5.8×3.2  fill:#000000
+            VECTOR    7074:3492    "Vector"                                   @189.4,4709.2 5.4×2.8  fill:#000000
+            VECTOR    7074:3493    "Vector"                                   @211.7,4714.2 2.7×3.6  fill:#000000
+            VECTOR    7074:3494    "Vector"                                   @200.7,4742.8 1.2×6  fill:#000000
+            VECTOR    7074:3495    "Vector"                                   @213.5,4717.5 2.1×6.5  fill:#000000
+            VECTOR    7074:3496    "Vector"                                   @200.7,4741.9 1.1×2.4  fill:#000000
+            VECTOR    7074:3525    "Vector"                                   @217.9,4704.8 22.4×8.8  fill:#000000
+            VECTOR    7074:3528    "Vector"                                   @236.7,4715.6 3.8×8.3  fill:#000000
+            VECTOR    7074:3529    "Vector"                                   @237.9,4715.7 2.3×4.9  fill:#000000
+            VECTOR    7074:3530    "Vector"                                   @232.6,4740.2 1.4×11.9  fill:#000000
+            VECTOR    7074:3531    "Vector"                                   @234.7,4760.5 2.7×7.1  fill:#000000
+            VECTOR    7074:3532    "Vector"                                   @233.1,4763.4 2×5.8  fill:#000000
+            VECTOR    7074:3553    "Vector"                                   @238.4,4760.5 1.8×1.8  fill:#000000
+            VECTOR    7074:3555    "Vector"                                   @238.5,4765.4 1.8×1.4  fill:#000000
+            VECTOR    7074:3556    "Vector"                                   @238.5,4757.8 1.8×0.9  fill:#000000
+            VECTOR    7074:3559    "Vector"                                   @238.4,4764.1 1.9×0.3  fill:#000000
+        VECTOR    7074:3526    "Vector"                                   @235,4707.5 3.8×3  fill:#000000
+      BOOLEAN_OPERATION 7074:3567    "Subtract"                                 @253.7,4710.2 223.9×40.1  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3566    "Union"                                    @253.7,4710.2 223.9×40.1  fill:#ffffff
+          VECTOR    7074:3497    "Vector"                                   @292,4710.6 33.9×39.7  fill:#ffffff
+          VECTOR    7074:3503    "Vector"                                   @253.7,4716.2 36.8×32.9  fill:#ffffff
+          VECTOR    7074:3507    "Vector"                                   @445.9,4716.1 31.7×32.7  fill:#ffffff
+          VECTOR    7074:3512    "Vector"                                   @419.9,4716.3 25.6×28.9  fill:#ffffff
+          VECTOR    7074:3516    "Vector"                                   @360.8,4716.1 26.2×32.4  fill:#ffffff
+          VECTOR    7074:3520    "Vector"                                   @326.8,4710.2 29.9×35  fill:#ffffff
+          VECTOR    7074:3533    "Vector"                                   @386.3,4716.8 31.1×26.6  fill:#ffffff
+        BOOLEAN_OPERATION 7074:3565    "Union"                                    @263,4716.6 213.6×32.2  fill:#000000
+          VECTOR    7074:3498    "Vector"                                   @292,4718.2 5.6×7.2  fill:#000000
+          VECTOR    7074:3499    "Vector"                                   @317.5,4734.3 6.9×5.5  fill:#000000
+          VECTOR    7074:3500    "Vector"                                   @312.4,4722.4 5.6×14.6  fill:#000000
+          VECTOR    7074:3501    "Vector"                                   @302.1,4722.2 5.3×12.8  fill:#000000
+          VECTOR    7074:3504    "Vector"                                   @285.1,4716.6 5.3×3.4  fill:#000000
+          VECTOR    7074:3505    "Vector"                                   @263,4718.4 2.2×2.6  fill:#000000
+          VECTOR    7074:3506    "Vector"                                   @277.7,4726.8 2.1×2.4  fill:#000000
+          VECTOR    7074:3508    "Vector"                                   @455.4,4729.5 10.2×12.1  fill:#000000
+          VECTOR    7074:3509    "Vector"                                   @468.3,4733.5 8.3×8.1  fill:#000000
+          VECTOR    7074:3510    "Vector"                                   @468.1,4745.1 8.5×3.7  fill:#000000
+          VECTOR    7074:3511    "Vector"                                   @454.2,4721.3 9.1×4.6  fill:#000000
+          VECTOR    7074:3513    "Vector"                                   @428.6,4721.9 16.1×10.6  fill:#000000
+          VECTOR    7074:3514    "Vector"                                   @426.4,4737 19.2×8.3  fill:#000000
+          VECTOR    7074:3515    "Vector"                                   @420.8,4740.2 5.5×5  fill:#000000
+          VECTOR    7074:3517    "Vector"                                   @367.1,4729.3 9.6×12.7  fill:#000000
+          VECTOR    7074:3518    "Vector"                                   @361.8,4717.6 8.1×2.7  fill:#000000
+          VECTOR    7074:3519    "Vector"                                   @360.9,4738.1 2.6×1.6  fill:#000000
+          VECTOR    7074:3521    "Vector"                                   @348.6,4736.3 8.2×9  fill:#000000
+          VECTOR    7074:3522    "Vector"                                   @329.8,4739.8 6.3×4  fill:#000000
+          VECTOR    7074:3523    "Vector"                                   @344.2,4723.7 3.4×3  fill:#000000
+          VECTOR    7074:3557    "Vector"                                   @437.9,4731.7 1.1×1.1  fill:#000000
+    BOOLEAN_OPERATION 7074:3582    "Union"                                    @556.5,4692.5 276.6×98.5  fill:#ffffff
+      VECTOR    7074:3576    "Vector"                                   @619.1,4719.2 57×51.6  fill:#ffffff
+      VECTOR    7074:3577    "Vector"                                   @556.5,4719.2 58.8×71.7  fill:#ffffff
+      VECTOR    7074:3578    "Vector"                                   @678.4,4719.2 58.9×71.7  fill:#ffffff
+      VECTOR    7074:3579    "Vector"                                   @739.8,4719.2 59.1×71.7  fill:#ffffff
+      VECTOR    7074:3580    "Vector"                                   @803.2,4719.1 29.8×50.6  fill:#ffffff
+      VECTOR    7074:3581    "Vector"                                   @805.1,4692.5 26×22.8  fill:#ffffff
+  FRAME     7074:3752    "Frame 180"                                @367,5152 296.2×57.2  fill:#1a1a1a@0 fx:INNER_SHADOW23.314287185668945,DROP_SHADOW57.08571243286133 [HORIZONTAL gap17.14285659790039]
+    FRAME     7074:3753    "Frame 156"                                @388.1,5161.1 254×39 [HORIZONTAL gap17.14285659790039]
+      TEXT      7074:3754    "SPONSOR US"                               @388.1,5161.1 254×39  34.29px/39.43 w400 ls2.74 CENTER  "SPONSOR US"  fill:#ffffff
+  VECTOR    7074:3769    "Ellipse 289"                              @73,1758 142.6×113  fill:gradient_linear
+  VECTOR    7074:3770    "*"                                        @199.2,1855 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  FRAME     7099:3772    "Frame 170"                                @1,821 1000×526 fx:DROP_SHADOW75.80000305175781
+    RECTANGLE 7099:3773    "Screenshot 2026-08-22 at 7.50.33 AM 1"    @1,821 1000×558  fill:image

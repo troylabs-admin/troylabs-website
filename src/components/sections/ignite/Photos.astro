@@ -1,0 +1,24 @@
+---
+/**
+ * Ignite › Full-bleed photo strip — Section y 1520–1960 du (new in the 2026-08-23 Figma update).
+ * Figma: "Frame 183" (7102:3944) @-1,1541 501×327 and "Frame 184" (7102:3945) @500,1541 501×327 —
+ * two image-fill frames spanning the full canvas width (the −1/overlap du are designer slack;
+ * rendered as an exact half-and-half 0–500.5–1001 split). Exported @3x with their fill crops applied.
+ */
+import { Image } from 'astro:assets';
+import { pos } from '../../../lib/units';
+import photo1 from '../../../assets/figma/ignite-photo-1.png';
+import photo2 from '../../../assets/figma/ignite-photo-2.png';
+
+const TOP = 1520;
+const y = (v: number) => v - TOP;
+---
+
+<section class="section" style="--h:440" data-figma="IgnitePhotos" aria-label="Photos from IGNITE">
+  <figure class="abs m-0" style={pos(0, y(1541), 500.5, 327)}>
+    <Image src={photo1} alt="Students at an IGNITE session" width={1503} height={981} class="w-full h-full object-cover" />
+  </figure>
+  <figure class="abs m-0" style={pos(500.5, y(1541), 500.5, 327)}>
+    <Image src={photo2} alt="A fireside chat at IGNITE" width={1503} height={981} class="w-full h-full object-cover" />
+  </figure>
+</section>

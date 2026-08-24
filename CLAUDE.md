@@ -105,10 +105,14 @@ The static design is the REST state of every animation; the fidelity suite runs 
   winner into `sections/home/Catalyst.astro`, then delete the lab page.
 - **Not done**: mobile (<768 px) — deliberately last, after desktop sign-off; currently a scaled desktop.
 - Perf is profiled light (idle ~4 %, scrolling ~12 % of one core; sky/globe pause off-screen and when hidden).
-- **Designer (Ellie) owes**: board photos (checkerboard placeholders), DEMO "Notable investors" content,
-  IGNITE feature copy (5× the same placeholder), Threads/Substack/Alumni-portal URLs, BUILD "previous
-  startups" section (placeholder panel removed deliberately), confirmation that Home frame `7028:1508`
-  (the newest — the site follows it) is canonical vs the older people-grid draft.
+- **2026-08-23 Figma update (batch 2) implemented** across BUILD/DEMO/IGNITE: colorful timeline orbs +
+  comet, previous-startups removed entirely, DEMO full-bleed photo / bigger stats planet / Tim Ellis /
+  investors + sponsors + SPONSOR US dome, IGNITE dot dividers / photo strip / 12-logo speakers grid.
+  New exports: scripts/figma-vectors-update.ts. DEMO is 5705 du, IGNITE 3332, BUILD page 4279 (override).
+- **Designer (Ellie) owes**: IGNITE feature copy (still 5× the same placeholder), Threads/Substack/
+  Alumni-portal URLs, SPONSOR US link target (mailto for now), the original DEMO stage photo (Figma embeds
+  a 1978px screenshot), which company the hand-drawn "ROCK… TOUR" mark is, confirmation that Home frame
+  `7028:1508` (the newest — the site follows it) is canonical vs the older people-grid draft.
 - Full deviation log + designer questions: `design/README.md`.
 
 ## Working style that works with Bryan

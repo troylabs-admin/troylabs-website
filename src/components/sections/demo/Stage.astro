@@ -1,43 +1,48 @@
 ---
 /**
- * DEMO › Group photo + stats row — Section y 760–1560 du.
- * Figma: photo "Frame 170" (7019:2) @188,799 625×349 (0.33 white inside stroke, white@40% drop shadow 24.2) ·
- * dark planet "Ellipse 8" (7045:2727) @253,976 496×496 with blue inner shadows (exported: demo-stats-planet.png) ·
- * stats "Frame 171" (7019:18): 100+ INVESTORS (7019:16) · 50 STARTUPS (7019:17) · 1000+ ATTENDEES (7019:15), white@70% glow 7.3 ·
- * blue ambient glow "Ellipse 249" (7033:2257) · star field.
+ * DEMO › Group photo + stats row — Section y 760–1919 du (2026-08-23 Figma update).
+ * Figma: full-bleed photo — "Frame 170" (7099:3772) @1,821 1000×526 clipping the 558-tall
+ * "Screenshot…" rectangle (7099:3773); no stroke/shadow on either ·
+ * dark planet "Ellipse 8" (7045:2727) @160,1037 689×689 with blue inner shadows (demo-stats-planet.png @3x) ·
+ * stats "Frame 171" (7019:18) @197,1539: 100+ INVESTORS · 50 STARTUPS · 1000+ ATTENDEES, white@70% glow 7.3 ·
+ * comet "Ellipse 289" (7074:3769) @73,1758 142.6×113 + its star (7074:3770) @199.2,1855 · star field.
  */
 import { Image } from 'astro:assets';
 import { pos } from '../../../lib/units';
 import Stars from '../../space/Stars.astro';
-import Glow from '../../space/Glow.astro';
-import photo from '../../../assets/figma/demo-group-photo.png';
+import photo from '../../../assets/figma/demo-stage-photo.png';
 import planet from '../../../assets/figma/demo-stats-planet.png';
+import comet from '../../../assets/figma/comet-streak-demo.png'; // DEMO's comet (7074:3769) is the mirror of BUILD's — own export
 
 const TOP = 760;
 const y = (v: number) => v - TOP;
 
 /* each stat: number text box + label text box (Figma TEXT nodes, centered) */
 const stats = [
-  { value: '100+', label: 'INVESTORS', num: [218, 1319, 120], lab: [213, 1374, 129] },
-  { value: '50', label: 'STARTUPS', num: [461, 1319, 58], lab: [431, 1374, 117] },
-  { value: '1000+', label: 'ATTENDEES', num: [637, 1319, 151], lab: [645, 1374, 132] },
+  { value: '100+', label: 'INVESTORS', num: [218, 1549, 120], lab: [213, 1604, 129] },
+  { value: '50', label: 'STARTUPS', num: [461, 1549, 58], lab: [431, 1604, 117] },
+  { value: '1000+', label: 'ATTENDEES', num: [637, 1549, 151], lab: [645, 1604, 132] },
 ] as const;
 
 const stars = [
-  { x: 55, y: 845 }, { x: 126, y: 890 }, { x: 869, y: 1120 }, { x: 818, y: 1238 }, { x: 322, y: 1183 }, { x: 580, y: 1201 }, { x: 935, y: 1247 },
-  { x: 155, y: 870, s: 5.3, kind: 'dot' }, { x: 167, y: 1080, s: 5.3, kind: 'dot' }, { x: 981, y: 1304, s: 5.3, kind: 'dot' },
-  { x: 939, y: 1180, s: 5.3, kind: 'dot' }, { x: 349, y: 1205, s: 5.3, kind: 'dot' }, { x: 666, y: 1173, s: 5.3, kind: 'dot' },
-  { x: 635, y: 1266, s: 5.3, kind: 'dot' }, { x: 799, y: 1219, s: 5.3, kind: 'dot' },
+  { x: 55, y: 845 }, { x: 126, y: 890 }, { x: 322, y: 1363 }, { x: 525, y: 1375 }, { x: 696, y: 1431 },
+  { x: 866, y: 1694 }, { x: 939, y: 1850 }, { x: 833, y: 1520.7, s: 11.5 },
+  { x: 199.2, y: 1855, s: 11.5 }, // the comet's star
+  { x: 155, y: 870, s: 5.3, kind: 'dot' }, { x: 167, y: 1080, s: 5.3, kind: 'dot' }, { x: 349, y: 1385, s: 5.3, kind: 'dot' },
+  { x: 645, y: 1413, s: 5.3, kind: 'dot' }, { x: 456, y: 1454, s: 5.3, kind: 'dot' }, { x: 655, y: 1454, s: 5.3, kind: 'dot' },
+  { x: 792.1, y: 1493.9, s: 5.3, kind: 'dot' }, { x: 908, y: 1604, s: 5.3, kind: 'dot' }, { x: 908, y: 1770, s: 5.3, kind: 'dot' },
+  { x: 964, y: 1802, s: 5.3, kind: 'dot' },
 ].map((s) => ({ ...s, y: y(s.y) })) as any;
 ---
 
-<section class="section" style="--h:800" data-figma="DemoStage" aria-label="DEMO by the numbers">
-  <Glow x={-16} y={y(1007)} w={636.5} h={930.3} color="#3a68ff" alpha={0.1} />
-  <Image src={planet} alt="" aria-hidden="true" width={1488} height={1488} class="abs pointer-events-none" style={pos(253, y(976), 496, 496)} />
+<section class="section" style="--h:1159" data-figma="DemoStage" aria-label="DEMO by the numbers">
+  <Image src={planet} alt="" aria-hidden="true" width={2067} height={2067} class="abs pointer-events-none" style={pos(160, y(1037), 689, 689)} />
   <Stars items={stars} />
+  <Image src={comet} alt="" aria-hidden="true" width={428} height={339} class="abs pointer-events-none" style={pos(73, y(1758), 142.6, 113)} />
 
-  <figure class="abs m-0 photo" style={pos(188, y(799), 625, 349)}>
-    <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full h-full object-cover" />
+  <!-- "Frame 170" (7099:3772) @1,821 1000×526 clips the 558-tall photo rectangle: 32 du cut off the bottom -->
+  <figure class="abs m-0 overflow-hidden" style={pos(1, y(821), 1000, 526)}>
+    <Image src={photo} alt="TroyLabs members on stage at DEMO" width={1978} height={1104} class="w-full object-cover" style="height:calc(558 * var(--u))" />
   </figure>
 
   <ul class="m-0 p-0 list-none" aria-label="DEMO by the numbers">
@@ -51,7 +56,5 @@ const stars = [
 </section>
 
 <style>
-  .photo { box-shadow: 0 0 calc(24.2 * var(--u)) rgb(255 255 255 / 0.4); }
-  .photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 calc(0.33 * var(--u)) #fff; }
   .stat { text-shadow: 0 0 calc(7.3 * var(--u)) rgb(255 255 255 / 0.7); }
 </style>

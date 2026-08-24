@@ -1,4 +1,5 @@
 FRAME     6977:9       "BUILD"                                    @0,0 1001×5463  fill:#0a0a0a fx:NOISEundefined
+  VECTOR    7073:2763    "Ellipse 284"                              @199,1213 142.6×113  fill:gradient_linear
   VECTOR    7042:2633    "Ellipse 258"                              @-74,2826 721.2×920.8  fill:#ff7d2c@0.1 fx:LAYER_BLUR156.5
   VECTOR    6982:655     "Vector 5"                                 @246,528 353×1247.5
   GROUP     7040:2370    "Group 39627"                              @-222,-323 872×872
@@ -21,11 +22,11 @@ FRAME     6977:9       "BUILD"                                    @0,0 1001×546
   TEXT      6982:663     "ALUMNI PORTFOLIO"                         @392,2551 221×23  20px/23 w400 ls1.6 CENTER  "ALUMNI PORTFOLIO"  fill:#ffffff fx:DROP_SHADOW8
   TEXT      7042:2681    "season 17 episode 2"                      @447,2860 107×11  10px/11.5 w400 ls0.8 CENTER  "season 17 episode 2"  fill:#ffffff fx:DROP_SHADOW8
   TEXT      6982:664     "$28M+"                                    @421,2496 164×55  48px/55.2 w400 ls3.84 CENTER  "$28M+"  fill:#ffffff fx:DROP_SHADOW8
-  ELLIPSE   6980:612     "Ellipse 236"                              @269.5,702.5 89×89  fill:#0a0a0a fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
-  ELLIPSE   6980:622     "Ellipse 237"                              @530.5,889.5 114.8×114.8  fill:#0a0a0a fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
+  ELLIPSE   6980:612     "Ellipse 236"                              @269.5,702.5 89×89  fill:#070707 fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
+  ELLIPSE   6980:622     "Ellipse 237"                              @530.5,889.5 114.8×114.8  fill:#070707 fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
   ELLIPSE   6982:648     "Ellipse 238"                              @303.5,1046.5 69×69  fill:#0a0a0a fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
-  ELLIPSE   6982:650     "Ellipse 239"                              @488.5,1246.5 92×92  fill:#0a0a0a fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
-  ELLIPSE   6982:652     "Ellipse 240"                              @260.5,1476.5 125×125  fill:#0a0a0a fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
+  ELLIPSE   6982:650     "Ellipse 239"                              @488.5,1246.5 92×92  fill:#070707 fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
+  ELLIPSE   6982:652     "Ellipse 240"                              @260.5,1476.5 125×125  fill:#070707 fx:INNER_SHADOW31.63362693786621,INNER_SHADOW18.536903381347656
   FRAME     6980:617     "Frame 99"                                 @388.5,702.5 184×100 [VERTICAL gap8]
     TEXT      6980:618     "1."                                       @388.5,702.5 184×14  12px/13.8 w400 ls1.8 LEFT  "1."  fill:#ffffff
     TEXT      6980:624     "MVP Submission"                           @388.5,724.5 184×14  12px/13.8 w400 ls0.96 LEFT  "MVP Submission"  fill:#ffffff
@@ -86,7 +87,7 @@ FRAME     6977:9       "BUILD"                                    @0,0 1001×546
       VECTOR    6982:712     "Vector"                                   @732.1,2797.1 12.4×14.6  fill:#ffffff
       VECTOR    6982:713     "Vector"                                   @825,2797.2 12.2×14.5  fill:#ffffff
       VECTOR    6982:714     "Vector"                                   @781.4,2797.2 9.8×14.3  fill:#ffffff
-  RECTANGLE 6982:721     "Rectangle 11"                             @4,4016 1001×960  fill:#1a1a1a
+  RECTANGLE 6982:721     "Rectangle 11"                             @-104.4,4016 1217.9×1168  fill:#1a1a1a
   FRAME     6989:970     "Frame 127"                                @0,1778 299×198  fill:image
   FRAME     7033:2205    "Frame 170"                                @500,1778 299×198  fill:image
   FRAME     6989:976     "Frame 131"                                @301,1778 200×198  fill:image
@@ -107,6 +108,7 @@ FRAME     6977:9       "BUILD"                                    @0,0 1001×546
   VECTOR    7041:2388    "*"                                        @170.1,991.7 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    7041:2394    "*"                                        @699,1213 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    7041:2398    "*"                                        @681,1415 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
+  VECTOR    7073:2761    "*"                                        @204,1310 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   VECTOR    7041:2404    "*"                                        @243,1655 11.5×11.5  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   6997:1310    "Ellipse 242"                              @462.6,496 5.2×5.2  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568
   ELLIPSE   7045:2707    "Ellipse 269"                              @300,501 5.2×5.2  fill:#ffffff fx:DROP_SHADOW7.099999904632568,DROP_SHADOW7.099999904632568

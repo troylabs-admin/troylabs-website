@@ -4,12 +4,11 @@
  * Figma: blue planet "Group 39628" (7040:2376) @-478.8,-369 1379×906 (the Home initiatives planet ×3.02, partly
  * off-canvas) · title "DEMO" 6982:868 @412,253 178×63 (blue→white vertical gradient, black drop shadow 10.9) ·
  * subtitle 6982:869 @307,338 387×40 (white→#548aff gradient, right end) · sponsor line 6990:997 @284,401 434×14 italic ·
- * blue ambient glow "Ellipse 248" (7033:2255) · star field.
+ * star field. (The blue ambient glow "Ellipse 248" was deleted in the 2026-08-23 Figma update.)
  */
 import { pos } from '../../../lib/units';
 import Planet from '../../space/Planet.astro';
 import Stars from '../../space/Stars.astro';
-import Glow from '../../space/Glow.astro';
 
 const TOP = 79;
 const y = (v: number) => v - TOP;
@@ -27,7 +26,6 @@ const stars = [
 <section class="section" style="--h:481" data-figma="DemoHero" aria-labelledby="demo-title">
   <!-- the planet reaches up behind the nav (y −369) and past the right edge of the canvas -->
   <Planet kind="blue" x={-478.8} y={y(-369)} w={1379} h={906} />
-  <Glow x={366} y={y(385)} w={660.4} h={929.4} color="#3a68ff" alpha={0.1} rotate={0.4} />
   <Stars items={stars} />
 
   <h1 id="demo-title" class="abs m-0 t-hero text-center whitespace-nowrap title" style={pos(412, y(253), 178, 63)}>DEMO</h1>

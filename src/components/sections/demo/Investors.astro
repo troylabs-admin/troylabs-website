@@ -1,16 +1,49 @@
 ---
 /**
- * DEMO › Notable investors — Section y 2500–3615 du.
- * Figma: title 7033:2259 @389,2565 223×23 and nothing else — the design leaves ~1000 du of empty space below the
- * heading for the investor logos. TODO(designer): investor content not yet in Figma; mirrored as-is.
+ * DEMO › Notable investors — Section y 2936–3695 du (2026-08-23 Figma update: content landed).
+ * Figma: title 7033:2259 @404,2936 223×23 · logo frame "Frame 180" (7073:2940) @156,3028 720.1×427:
+ * three rows of two white vector logos (exported by scripts/figma-vectors-update.ts).
  */
 import { pos } from '../../../lib/units';
+import Stars from '../../space/Stars.astro';
+import draper from '../../../assets/figma/demo-inv-draper.svg?raw';
+import ef from '../../../assets/figma/demo-inv-ef.svg?raw';
+import m13 from '../../../assets/figma/demo-inv-m13.svg?raw';
+import republic from '../../../assets/figma/demo-inv-republic.svg?raw';
+import drf from '../../../assets/figma/demo-inv-drf.svg?raw';
+import ugf from '../../../assets/figma/demo-inv-ugf.svg?raw';
 
-const TOP = 2500;
+const TOP = 2936;
 const y = (v: number) => v - TOP;
+
+// integer export viewBoxes vs fractional Figma boxes: stretch to the exact box instead of letterboxing
+const fit = (svg: string) => svg.replace('<svg ', '<svg preserveAspectRatio="none" ');
+
+const logos = [
+  { id: '7073:2789', name: 'Draper Associates', svg: draper, box: [228.3, 3054.4, 292.3, 78.2] },
+  { id: '7074:2945', name: 'Entrepreneurs First', svg: ef, box: [618.3, 3055.4, 186.6, 90.9] },
+  { id: '7073:2793', name: 'M13', svg: m13, box: [227.9, 3173.9, 167.2, 81.4] },
+  { id: '7073:2816', name: 'Republic', svg: republic, box: [496.8, 3173.9, 308.3, 81.4] },
+  { id: '7073:2939', name: 'DormRoomFund', svg: drf, box: [227.9, 3325.5, 389.2, 45] },
+  { id: '7073:2904', name: 'University Growth Fund', svg: ugf, box: [693.2, 3284.6, 112, 125.3] },
+] as const;
+
+const stars = [
+  { x: 138, y: 3045 }, { x: 434, y: 3410 }, { x: 374, y: 3542 },
+  { x: 82, y: 2954, s: 5.3, kind: 'dot' }, { x: 162, y: 3023, s: 5.3, kind: 'dot' }, { x: 393, y: 3428, s: 5.3, kind: 'dot' },
+].map((s) => ({ ...s, y: y(s.y) })) as any;
 ---
 
-<section class="section" style="--h:1115" data-figma="DemoInvestors" aria-labelledby="investors-title">
-  <h2 id="investors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(389, y(2565), 223, 23)}>NOTABLE INVESTORS</h2>
-  <!-- TODO(designer): investor grid placeholder — empty in the Figma frame -->
+<section class="section" style="--h:759" data-figma="DemoInvestors" aria-labelledby="investors-title">
+  <Stars items={stars} />
+  <h2 id="investors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(404, y(2936), 223, 23)}>NOTABLE INVESTORS</h2>
+  <ul class="m-0 p-0 list-none" aria-label="Notable investors">
+    {logos.map((l) => (
+      <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+    ))}
+  </ul>
 </section>
+
+<style>
+  .logo :global(svg) { width: 100%; height: 100%; display: block; }
+</style>

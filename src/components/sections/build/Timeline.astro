@@ -6,7 +6,10 @@
  *   • five orbs (Ellipse 236–240: #0a0a0a + white inner shadows 31.6@30% / 18.5@80%) rendered from Figma @3x
  *   • five step frames (Frame 99–103, VERTICAL gap 8): number (ls 1.8) / title (ls 1) / body (ls 0.4)
  *   • rocket "Group 2" 7040:2360 @575,595 (orange-glow rocket, rotated) rendered from Figma @3x
+ *   • comet "Ellipse 284" 7073:2761 @199,1213 142.6×113 (linear-gradient streak, rendered @3x) + its star @204,1310
  *   • "Vector 7/8/9" (green #00ff37 arrow + X) were the designer's review annotations for the rocket path — not rendered.
+ * 2026-08-23 Figma update: the five orbs went from near-black to colorful gradients — picked up by
+ * re-running scripts/figma-vectors-build.ts (same nodes, new fills), no code change.
  */
 import { Image } from 'astro:assets';
 import { pos, u } from '../../../lib/units';
@@ -14,6 +17,7 @@ import Stars from '../../space/Stars.astro';
 import Glow from '../../space/Glow.astro';
 import path from '../../../assets/space/dotted-path.png';
 import rocket from '../../../assets/figma/build-rocket-a.png';
+import comet from '../../../assets/figma/comet-streak.png';
 import flyer from '../../../assets/space/orange-rocket.png';
 
 /* Centerline of "Vector 5" (Figma SVG export, 354×1248 user units = du) — the flight path for the motion layer */
@@ -42,6 +46,7 @@ const steps = [
 
 const stars = [
   { x: 170.1, y: 991.7, s: 11.5 }, { x: 699, y: 1213, s: 11.5 }, { x: 681, y: 1415, s: 11.5 }, { x: 243, y: 1655, s: 11.5 },
+  { x: 204, y: 1310, s: 11.5 }, // the comet's star (7073:2761)
   { x: 202.6, y: 636, s: 5.2, kind: 'dot' }, { x: 182.6, y: 1027, s: 5.2, kind: 'dot' }, { x: 41.6, y: 1036, s: 5.2, kind: 'dot' },
   { x: 245, y: 1083, s: 5.2, kind: 'dot' }, { x: 676, y: 1198, s: 5.2, kind: 'dot' }, { x: 961, y: 1340, s: 5.2, kind: 'dot' },
   { x: 926, y: 1359, s: 5.2, kind: 'dot' }, { x: 561, y: 1472, s: 5.2, kind: 'dot' }, { x: 270, y: 1615, s: 5.2, kind: 'dot' },
@@ -51,6 +56,7 @@ const stars = [
 <section class="section" style="--h:1178" data-figma="BuildTimeline" aria-labelledby="timeline-title">
   <Glow x={323} y={y(789)} w={660.4} h={929.4} />
   <Image src={path} alt="" aria-hidden="true" width={581} height={2048} class="abs pointer-events-none" style={pos(PATH.x, y(PATH.y), PATH.w, PATH.h)} />
+  <Image src={comet} alt="" aria-hidden="true" width={428} height={339} class="abs pointer-events-none" style={pos(199, y(1213), 142.6, 113)} />
   <Stars items={stars} />
 
   <!-- motion layer: the rocket flies the dotted path while this section scrolls (see motion.css). Static design above stays the rest state. -->

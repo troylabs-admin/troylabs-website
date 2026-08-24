@@ -345,3 +345,11 @@ html.motion [data-figma="IgniteFeatures"] li:has(article:hover) h3 { color: var(
   from { opacity: 0.35; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.2); }
   to { opacity: 1; box-shadow: 0 0 calc(7.1 * var(--u)) rgb(255 255 255 / 0.6), 0 0 calc(18 * var(--u)) rgb(255 125 44 / 0.55); }
 }
+
+/* ── zero-g logo walls (.zg: DEMO investors + sponsors, IGNITE speakers) ─────────────────────────────
+   Each logo drifts vertically at its own phase — weightless cargo. The float animates the li's
+   transform, which would swallow the data-hover scale, so hover scale moves to the inner svg. */
+html.motion .zg { animation: zerog var(--zg-dur, 6s) ease-in-out var(--zg-delay, 0s) infinite alternate; }
+html.motion .zg svg { transition: transform 250ms var(--ease-out-expo); transform-origin: 50% 50%; }
+html.motion .zg:hover svg { transform: scale(1.05); }
+@keyframes zerog { from { transform: translateY(calc(-2.5 * var(--u))); } to { transform: translateY(calc(2.5 * var(--u))); } }

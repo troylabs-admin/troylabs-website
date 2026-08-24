@@ -24,7 +24,7 @@ const SECTIONS: Record<string, Record<string, [number, number]>> = {
     members: [3200, 4050], board: [4050, 5433], footer: [5433, 5689],
   },
   build: { nav: [0, 79], hero: [79, 600], timeline: [600, 1778], gallery: [1778, 2174], stats: [2174, 2900], backers: [2900, 4000] }, // previous/footer bands dropped: placeholder panel removed (HEIGHT_OVERRIDES)
-  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1919], speakers: [1919, 2936], investors: [2936, 3695], sponsors: [3695, 5465], footer: [5465, 5705] },
+  demo: { nav: [0, 79], hero: [79, 560], intro: [560, 760], stage: [760, 1919], speakers: [1919, 2936], investors: [2936, 3695], sponsors: [3695, 5315], footer: [5315, 5555] },
   ignite: { nav: [0, 79], hero: [79, 560], intro: [560, 740], features: [740, 1520], photos: [1520, 1960], speakers: [1960, 3076], footer: [3076, 3332] },
 };
 const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/demo', ignite: '/ignite' };
@@ -33,7 +33,7 @@ const ROUTES: Record<string, string> = { home: '/', build: '/build', demo: '/dem
 const HEIGHT_OVERRIDES: Record<string, number> = {
   build: 5463 - 1184, // "previous startups" section removed entirely (Bryan, 2026-08-23; see build.astro)
   home: 5839 - 150, // board→footer empty band shrunk 150 du (Bryan, 2026-08-23; see Board.astro)
-  demo: 5705 + 16, // the Figma frame clips the footer instance's last 16 du (5465+256 > 5705); we render it whole
+  demo: 5705 + 16 - 150, // footer overflow rendered whole (+16) · sponsors→dome gap tightened 150 du (Bryan, 2026-08-24)
 };
 
 /** Reference regions we deliberately don't reproduce (du rects) — see the component comments. */
@@ -49,7 +49,7 @@ const IGNORE_RECTS: Record<string, [number, number, number, number][]> = {
          [95, 5483, 140, 130]], // footer nav: current page's link omitted, top-nav order (Bryan, 2026-08-23)
   // DEMO footer: the whole instance sits 15 du right of the canvas in Figma (designer slack) — we render the
   // shared footer centered like every other page, so the whole band is masked (plus the usual nav-column deviation)
-  demo: [[0, 5465, 1001, 240],
+  demo: [[0, 4791, 1001, 780], // sponsors→dome gap tightened 150 du: everything below the last sponsor row is shifted (incl. the off-canvas footer)
          [0, 821, 1001, 526]], // stage media: viewport-width breakout + sky-blend vignette, video-ready (Bryan, 2026-08-24)
   // IGNITE footer: same story, 1 du left in Figma — masked whole (plus the nav-column deviation)
   ignite: [[0, 3076, 1001, 256],

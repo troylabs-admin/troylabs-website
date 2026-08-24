@@ -44,8 +44,8 @@ const logos = [
 <section class="section" style="--h:1116" data-figma="IgniteSpeakers" aria-labelledby="speakers-title">
   <h2 id="speakers-title" class="abs m-0 t-title font-normal text-center whitespace-nowrap" style={pos(386, y(2060), 230, 23)}>NOTABLE SPEAKERS</h2>
   <ul class="m-0 p-0 list-none" aria-label="Notable speakers">
-    {logos.map((l) => (
-      <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+    {logos.map((l, i) => (
+      <li class="abs logo zg" data-hover="scale" style={`${pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])};--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
     ))}
   </ul>
 </section>

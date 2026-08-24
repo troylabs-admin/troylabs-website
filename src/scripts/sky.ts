@@ -3,8 +3,8 @@
  * twinkle, slow drift, and mouse + scroll parallax (deeper bins move less). Replaces the static tiled
  * starfield (body::before) when motion is on. Canvas 2D, DPR ≤ 2, ~450 stars, pauses when hidden.
  * Also publishes the lerped pointer as --mx / --my (−1…1) for CSS parallax elsewhere (planets).
- * Visitors (Bryan wants them APPARENT, 2026-08-24): shooting stars every ~7-15 s, the saucer every
- * ~35-65 s, and a tumbling satellite every ~30-55 s — all line-art (same
+ * Visitors (Bryan wants them APPARENT and BIG, 2026-08-24): shooting stars every ~7-15 s, the saucer
+ * every ~10-22 s and a tumbling satellite every ~10-22 s, each 1.5-2.2× base size per flyby — line-art (same
  * 1px-white drawing language as the globe). Append ?skyfast to a URL to preview both without the wait.
  */
 const root = document.documentElement;
@@ -46,10 +46,10 @@ function init() {
   const FAST = location.search.includes('skyfast');
   let meteor: { x: number; y: number; vx: number; vy: number; s0: number; dur: number } | null = null;
   let nextMeteor = FAST ? 1 : 3 + rand() * 6;
-  let ufo: { s0: number; dur: number; y: number; dir: 1 | -1 } | null = null;
-  let nextUfo = FAST ? 2 : 6 + rand() * 6;
-  let sat: { s0: number; dur: number; y0: number; drift: number; dir: 1 | -1; spin: number } | null = null;
-  let nextSat = FAST ? 4 : 14 + rand() * 10;
+  let ufo: { s0: number; dur: number; y: number; dir: 1 | -1; k: number } | null = null;
+  let nextUfo = FAST ? 2 : 4 + rand() * 4;
+  let sat: { s0: number; dur: number; y0: number; drift: number; dir: 1 | -1; spin: number; k: number } | null = null;
+  let nextSat = FAST ? 4 : 9 + rand() * 6;
 
   let visible = !document.hidden, raf = 0, t0 = performance.now();
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible && !raf) raf = requestAnimationFrame(draw); });
@@ -100,23 +100,23 @@ function init() {
       }
     }
     // the saucer: slow shallow drift with a gentle bob, running lights blinking out of phase
-    if (!ufo && t > nextUfo) ufo = { s0: t, dur: 15 + rand() * 5, y: H * (0.08 + rand() * 0.25), dir: rand() < 0.5 ? 1 : -1 };
+    if (!ufo && t > nextUfo) ufo = { s0: t, dur: 13 + rand() * 5, y: H * (0.08 + rand() * 0.3), dir: rand() < 0.5 ? 1 : -1, k: 1.5 + rand() * 0.7 };
     if (ufo) {
       const p = (t - ufo.s0) / ufo.dur;
-      if (p >= 1) { ufo = null; nextUfo = t + (FAST ? 6 : 35 + rand() * 30); }
+      if (p >= 1) { ufo = null; nextUfo = t + (FAST ? 6 : 10 + rand() * 12); }
       else {
         const x = ufo.dir === 1 ? -60 + (W + 120) * p : W + 60 - (W + 120) * p;
-        drawSaucer(ctx, x, ufo.y + 12 * Math.sin(t * 0.9), Math.sin(t * 1.3) * 0.06, t);
+        drawSaucer(ctx, x, ufo.y + 12 * Math.sin(t * 0.9), Math.sin(t * 1.3) * 0.06, t, ufo.k);
       }
     }
     // the satellite: a slow tumbling line-art bird crossing on a shallow diagonal
-    if (!sat && t > nextSat) sat = { s0: t, dur: 20 + rand() * 8, y0: H * (0.06 + rand() * 0.4), drift: (rand() - 0.5) * H * 0.25, dir: rand() < 0.5 ? 1 : -1, spin: 0.5 + rand() * 0.6 };
+    if (!sat && t > nextSat) sat = { s0: t, dur: 17 + rand() * 7, y0: H * (0.06 + rand() * 0.45), drift: (rand() - 0.5) * H * 0.25, dir: rand() < 0.5 ? 1 : -1, spin: 0.5 + rand() * 0.6, k: 1.5 + rand() * 0.7 };
     if (sat) {
       const p = (t - sat.s0) / sat.dur;
-      if (p >= 1) { sat = null; nextSat = t + (FAST ? 8 : 30 + rand() * 25); }
+      if (p >= 1) { sat = null; nextSat = t + (FAST ? 8 : 10 + rand() * 12); }
       else {
         const x = sat.dir === 1 ? -40 + (W + 80) * p : W + 40 - (W + 80) * p;
-        drawSatellite(ctx, x, sat.y0 + sat.drift * p, t * 0.12 * sat.spin);
+        drawSatellite(ctx, x, sat.y0 + sat.drift * p, t * 0.12 * sat.spin, sat.k);
       }
     }
     raf = visible ? requestAnimationFrame(draw) : 0;
@@ -125,9 +125,9 @@ function init() {
 }
 
 /* line-art flying saucer, ~42px wide: hull ellipse + dome arc + three blinking running lights */
-function drawSaucer(ctx: CanvasRenderingContext2D, x: number, y: number, tilt: number, t: number) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
-  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
+function drawSaucer(ctx: CanvasRenderingContext2D, x: number, y: number, tilt: number, t: number, k = 1) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt); ctx.scale(k, k); ctx.lineWidth = 1 / k;
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.ellipse(0, 0, 21, 6.5, 0, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.ellipse(0, -4.5, 9, 7, 0, Math.PI, 0); ctx.stroke();
   ctx.fillStyle = '#fff';
@@ -139,9 +139,9 @@ function drawSaucer(ctx: CanvasRenderingContext2D, x: number, y: number, tilt: n
 }
 
 /* line-art satellite, ~46px tip to tip: bus + truss + two 3-cell solar panels + antenna, tumbling slowly */
-function drawSatellite(ctx: CanvasRenderingContext2D, x: number, y: number, rot: number) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
+function drawSatellite(ctx: CanvasRenderingContext2D, x: number, y: number, rot: number, k = 1) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(k, k);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1 / k; ctx.lineCap = 'round';
   ctx.strokeRect(-4.5, -3, 9, 6);                                     // bus
   for (const d of [-1, 1]) {
     ctx.beginPath(); ctx.moveTo(d * 4.5, 0); ctx.lineTo(d * 8, 0); ctx.stroke();   // truss

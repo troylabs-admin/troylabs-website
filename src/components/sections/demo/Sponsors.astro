@@ -7,6 +7,9 @@
  * dark dome "Ellipse 286" (7074:3760) @56,5039 930×930 (blue inner-shadow rim light, rendered @2x — it runs
  * under the Footer, which follows in the DOM and therefore paints on top, matching Figma layer order) ·
  * pill "Frame 180" (7074:3752) @367,5152 296.2×57.2 — same style as BUILD's big APPLY pill.
+ * DEVIATION (Bryan, 2026-08-24): the ~360 du of empty space between the last sponsor row (~4791) and the
+ * dome/pill read as a hole — dome, pill and everything after are pulled up 150 du (masked in the suite).
+ * The logo walls drift in zero-g (.zg, motion.css) — a startup's cargo floating in orbit.
  */
 import { Image } from 'astro:assets';
 import { pos } from '../../../lib/units';
@@ -58,24 +61,24 @@ const stars = [
 ].map((s) => ({ ...s, y: y(s.y) })) as any;
 ---
 
-<section class="section" style="--h:1770" data-figma="DemoSponsors" aria-labelledby="sponsors-title">
+<section class="section" style="--h:1620" data-figma="DemoSponsors" aria-labelledby="sponsors-title">
   <Glow x={-14} y={y(4188)} w={625.9} h={930.4} color="#3a68ff" alpha={0.14} />
   <Stars items={stars} />
   <!-- the dome's lower half is cut by the Figma frame; clip it at the page bottom (footer end, 5721)
        so the 930 du disc doesn't extend the document's scroll height -->
-  <div class="abs pointer-events-none overflow-hidden" style={pos(56, y(5039), 930, 5721 - 5039)} aria-hidden="true">
+  <div class="abs pointer-events-none overflow-hidden" style={pos(56, y(5039 - 150), 930, 5571 - 4889)} aria-hidden="true">
     <Image src={dome} alt="" width={1860} height={1860} class="abs" style={pos(0, 0, 930, 930)} />
   </div>
 
   <h2 id="sponsors-title" class="abs m-0 t-title-tight font-normal text-center whitespace-nowrap" style={pos(358, y(3695), 315, 23)}>PAST SPONSORS & PARTNERS</h2>
   <ul class="m-0 p-0 list-none" aria-label="Past sponsors and partners">
-    {logos.map((l) => (
-      <li class="abs logo" data-hover="scale" style={pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
+    {logos.map((l, i) => (
+      <li class="abs logo zg" data-hover="scale" style={`${pos(l.box[0], y(l.box[1]), l.box[2], l.box[3])};--zg-dur:${(5.5 + ((i * 7) % 5) * 0.7).toFixed(1)}s;--zg-delay:${(-i * 1.3).toFixed(1)}s`} aria-label={l.name} data-figma={l.id} set:html={fit(l.svg)} />
     ))}
   </ul>
 
   <!-- TODO(designer): where should SPONSOR US link? Falls back to the contact address for now. -->
-  <a href="mailto:troylabs@usc.edu" class="abs pill flex items-center justify-center no-underline text-ink" style={pos(367, y(5152), 296.2, 57.2)}>
+  <a href="mailto:troylabs@usc.edu" class="abs pill flex items-center justify-center no-underline text-ink" style={pos(367, y(5152 - 150), 296.2, 57.2)}>
     <span class="t-sponsor whitespace-nowrap">SPONSOR US</span>
   </a>
 </section>

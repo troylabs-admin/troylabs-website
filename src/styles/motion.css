@@ -221,13 +221,13 @@ footer nav a:hover, footer .t-nav[href]:hover { background-size: 100% 1px; }
 /* ── BUILD: flag planted when the rocket lands on the planet ───────────────── */
 .flag { display: none; transform-origin: 6% 100%; }   /* pivot at the pole's base */
 html.motion .flag { display: block; }
-.flag .pole { position: absolute; left: calc(3 * var(--u)); bottom: 0; width: calc(2 * var(--u)); height: 100%; background: #fff; border-radius: 1px; box-shadow: 0 0 calc(6 * var(--u)) rgb(255 255 255 / 0.6); }
-.flag .cloth { position: absolute; left: calc(5 * var(--u)); top: 0; width: calc(44 * var(--u)); height: calc(29 * var(--u)); background: var(--color-orange); border-radius: 0 calc(2 * var(--u)) calc(2 * var(--u)) 0; display: grid; place-items: center; transform-origin: 0 50%; }
-.flag .cloth svg { width: calc(15 * var(--u)); height: auto; }
+.flag .pole { position: absolute; left: calc(4 * var(--u)); bottom: 0; width: calc(2.8 * var(--u)); height: 100%; background: #fff; border-radius: 1px; box-shadow: 0 0 calc(8 * var(--u)) rgb(255 255 255 / 0.6); }
+.flag .cloth { position: absolute; left: calc(7 * var(--u)); top: 0; width: calc(64 * var(--u)); height: calc(42 * var(--u)); background: var(--color-orange); border-radius: 0 calc(3 * var(--u)) calc(3 * var(--u)) 0; display: grid; place-items: center; transform-origin: 0 50%; box-shadow: 0 0 calc(14 * var(--u)) rgb(255 125 44 / 0.45); }
+.flag .cloth svg { width: calc(22 * var(--u)); height: auto; }
 html.motion .flag { opacity: 0; transform: rotate(var(--tilt, 0deg)) translateY(calc(10 * var(--u))) scaleY(0); transition: opacity 350ms var(--ease-out-expo), transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1); }
 html.motion .flag.is-planted { opacity: 1; transform: rotate(var(--tilt, 0deg)); }   /* toggled by scroll.ts when the rocket reaches the end of its path (viewport-size independent) */
-html.motion .flag .cloth { animation: wave 2.6s ease-in-out infinite; }
-@keyframes wave { 0%, 100% { transform: skewY(-3deg) rotate(0.5deg); } 50% { transform: skewY(3deg) rotate(-1deg) scaleX(0.98); } }
+html.motion .flag .cloth { animation: wave 2.1s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: skewY(-5.5deg) rotate(1.2deg) scaleX(1); } 50% { transform: skewY(5.5deg) rotate(-2.2deg) scaleX(0.93); } }
 
 /* ── Home: "13 majors" constellation (see Catalyst.astro + scripts/constellation.ts) ── */
 .constellation { overflow: visible; }

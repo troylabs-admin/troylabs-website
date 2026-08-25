@@ -62,7 +62,9 @@ const stars = [
   }
   .sponsor { letter-spacing: calc(1 * var(--u)); }
   @media (max-width: 767px) {
-    .m-dhero { gap: 12px; padding-bottom: 36px; overflow: hidden; }
+    .m-dhero { gap: 12px; padding-bottom: 36px; }  /* no overflow clip: the hero planet must bleed UP behind the floating nav, like desktop — the
+       hard seam at the nav's bottom edge was this clip. Horizontal bleed is contained by the global
+       html,body overflow-x: clip (Bryan, 2026-08-24). */
     .m-dplanet { width: 100%; margin-bottom: -30px; }
     .m-dplanet :global([data-planet="blue"]) { max-width: none; }
     .sponsor-m { letter-spacing: 1px; opacity: .85; }

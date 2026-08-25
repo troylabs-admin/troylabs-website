@@ -63,7 +63,9 @@ const stars = [
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   @media (max-width: 767px) {
-    .m-bhero { gap: 14px; padding-bottom: 40px; overflow: hidden; }
+    .m-bhero { gap: 14px; padding-bottom: 40px; }  /* no overflow clip: the hero planet must bleed UP behind the floating nav, like desktop — the
+       hard seam at the nav's bottom edge was this clip. Horizontal bleed is contained by the global
+       html,body overflow-x: clip (Bryan, 2026-08-24). */
     .m-bplanet { width: 100%; margin-bottom: -40px; }
   }
 </style>

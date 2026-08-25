@@ -128,17 +128,6 @@
   .m-feat { position: relative; padding-block: 6px 30px; }
   .m-fuse-rail { position: absolute; left: 63px; top: 16px; bottom: 30px; width: 2px; } /* through the node centres (x=64) */
   .m-fuse-dash { position: absolute; inset: 0; background-image: linear-gradient(180deg, rgb(255 255 255 / 0.4) 0 3px, transparent 3px 9px); background-size: 2px 9px; }
-  /* The burnt trail: the same dashes in ember orange, revealed top-down in step with the spark, so the
-     fuse visibly LIGHTS as you scroll instead of a lone dot sliding down an unchanged line (Bryan,
-     2026-08-24). Rest state is fully lit, which is also the reduced-motion and no-scroll-timeline
-     fallback — matching the desktop fallback of "fuse drawn, all nodes lit". */
-  .m-fuse-lit { position: absolute; inset: 0; transform-origin: top; transform: scaleY(1);
-    background-image: linear-gradient(180deg, rgb(255 176 102 / 0.95) 0 3px, transparent 3px 9px); background-size: 2px 9px; }
-  /* No filter/drop-shadow on this element: it is the one thing here that would actually cost heat. A
-     filter on a transforming element re-rasterises every frame — the same trap as the will-change on the
-     nebula blur that once capped the whole site at 29fps. The scaleY itself is compositor-only and the
-     scroll timeline advances only while a finger is moving, so the burn is free. The ember colour alone
-     carries the read; the node glows supply the light. */
   .m-feat .fuse-spark { left: -2px; top: 0; width: 6px; height: 6px; }
   .m-feat-list { display: flex; flex-direction: column; gap: 40px; margin-left: 74px; }
   .m-feat-item { position: relative; }
@@ -151,13 +140,6 @@
 @supports (animation-timeline: view()) {
   @media (max-width: 767px) {
     html.motion .m-feat { view-timeline-name: --m-fuse; }
-    html.motion .m-fuse-lit {
-      animation-name: m-fuse-burn;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --m-fuse;
-      animation-range: cover 12% cover 80%;   /* start re-pinned per viewport by scripts/build-flight.ts */
-    }
     html.motion .m-feat .fuse-spark {
       display: block; position: absolute;
       animation-name: m-fuse-run;
@@ -186,7 +168,6 @@
 }
 @keyframes m-tl-fly { from { top: 0; } to { top: calc(100% - 68px); } }
 @keyframes m-lift { from { transform: translate(0, 0) rotate(-12deg); } to { transform: translate(70px, -620px) rotate(-4deg); } }
-@keyframes m-fuse-burn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes m-fuse-run {
   0% { top: 0; opacity: 0; }
   5% { opacity: 1; }

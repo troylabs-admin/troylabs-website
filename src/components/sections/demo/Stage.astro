@@ -179,6 +179,9 @@ const stars = [
     // `crossorigin` is gone too: the captions are same-origin and it only added a way to fail.
     const wanted = (matchMedia('(max-width: 767px)').matches && video.dataset.srcMobile) || video.dataset.src;
     if (wanted && video.src !== wanted) video.src = wanted;
+    // Only the reel you can see is ever wired now, so it can afford a real buffer. preload="metadata"
+    // left iOS with no frames to start from, which is what made autoplay refuse and the poster sit there.
+    video.preload = 'auto';
     // the muted CONTENT attribute only sets a default — after a ClientRouter swap engines can create the
     // element un-muted while still reporting muted (Bryan heard sound on first /demo visit). Force it.
     video.muted = true; video.defaultMuted = true;
@@ -192,24 +195,26 @@ const stars = [
     // autoplay is refused in iOS Low Power Mode (and by some data savers) — surface a play button rather
     // than leaving a dead poster, and hide it again as soon as the reel is running.
     const playBtn = wrap.querySelector<HTMLButtonElement>('.reel-play');
-    const tryPlay = () => video.play().then(() => { if (playBtn) playBtn.hidden = true; })
-                                      .catch(() => {
-                                        // Low Power Mode can defer the video's fetch entirely until a
-                                        // gesture — a tap on an empty buffer then no-ops. We are inside
-                                        // that gesture here: force the load and ask again, once.
-                                        if (video.readyState < 2) {
-                                          video.load();
-                                          video.play().then(() => { if (playBtn) playBtn.hidden = true; })
-                                                      .catch(() => { if (playBtn) playBtn.hidden = false; });
-                                          return;
-                                        }
-                                        if (playBtn) playBtn.hidden = false;
-                                      });
-    playBtn?.addEventListener('click', tryPlay);
-    // Low Power Mode blocks autoplay, so the play affordance matters: make the whole frame the target,
-    // not just the small round button. Only acts while paused — a playing reel ignores taps (the sound
-    // and fullscreen buttons sit above and keep their own handlers).
-    video.addEventListener('click', () => { if (video.paused) tryPlay(); });
+    const shown = (on: boolean) => { if (playBtn) playBtn.hidden = !on; };
+    // Autoplay attempt (IntersectionObserver). Refusal is normal and expected — iOS declines whenever it
+    // feels like conserving power — so a refusal just reveals the play button.
+    const tryPlay = () => video.play().then(() => shown(false)).catch(() => shown(true));
+
+    // A TAP is different, and the difference is the whole bug: iOS only honours play() called
+    // SYNCHRONOUSLY inside the gesture's own task. The previous version retried from inside a promise
+    // .catch(), which is a tick too late — iOS refused it as "not a user gesture", so on iPhone the play
+    // button could never work at any battery level, at any readyState. Everything here runs inline:
+    // load() first when nothing is buffered (iOS often defers the fetch until a gesture), then play(),
+    // both still inside the tap. Bryan, 2026-08-24 — verified dead on a 67% phone, ruling out Low Power Mode.
+    const userPlay = () => {
+      if (video.readyState < 2) video.load();
+      const p = video.play() as unknown as Promise<void> | undefined;
+      p?.then(() => shown(false)).catch(() => shown(true));
+    };
+    playBtn?.addEventListener('click', userPlay);
+    // the whole frame is the tap target, not just the small round button; a playing reel ignores taps
+    // (the sound and fullscreen buttons sit above this and keep their own handlers)
+    video.addEventListener('click', () => { if (video.paused) userPlay(); });
     new IntersectionObserver(([e]) => { if (e.isIntersecting) tryPlay(); else video.pause(); }, { threshold: 0.25 }).observe(wrap);
     // captions: native track kept hidden, rendered into our own tiny pill (native cue chrome is huge)
     const cap = wrap.querySelector<HTMLElement>('.cap');

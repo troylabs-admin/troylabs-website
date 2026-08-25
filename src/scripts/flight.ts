@@ -195,6 +195,7 @@ function init() {
   addEventListener('wheel', () => { if (mode === 'return') abortReturn(); }, { passive: true });
   addEventListener('touchmove', () => { if (mode === 'return') abortReturn(); }, { passive: true });
   const tick = (now: number) => {
+    if (dead) { raf = 0; return; }   // this page is gone: never write again
     const dt = Math.min(100, Math.max(0, now - (lastNow || now)));
     lastNow = now;
     const maxScroll = document.documentElement.scrollHeight - innerHeight;
@@ -261,6 +262,7 @@ function init() {
     // still has ~35 du to run, so hiding the mark there left a visible hole
     root.classList.toggle('landed', p >= 0.9995);
 
+
     // Rest when there is nothing to fly. In scrub mode with the scroll settled the rocket is parked, yet
     // this loop still ran at 60 fps writing five inline styles a frame — measured as the home page's
     // largest idle cost (2026-08-24). Park after a few still frames; any input or mode change wakes it.
@@ -270,12 +272,24 @@ function init() {
     if (!still) restFrames = 0;
     raf = requestAnimationFrame(tick);
   };
-  let lastP = -1, lastY = -1, restFrames = 0;
+  let lastP = -1, lastY = -1, restFrames = 0, dead = false;
   const fly = () => { restFrames = 0; if (!raf && !document.hidden) raf = requestAnimationFrame(tick); };
   raf = requestAnimationFrame(tick);
   for (const ev of ['scroll', 'wheel', 'touchmove', 'resize', 'keydown']) addEventListener(ev, fly, { passive: true });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) fly(); });
-  document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
+  // Kill this page's flight loop on EVERY navigation, and make it unable to write anything afterwards.
+  // This was `{ once: true }`, so only the first navigation ever stopped it: after that, home's loop kept
+  // running as a zombie on BUILD/DEMO/IGNITE, and since it had parked at the landing (p = 1) it re-added
+  // `landed` every frame — which is the one class that hides the footer logo. That is the intermittent
+  // missing TroyLabs mark: it only survived if you navigated while the loop was still awake, since it
+  // parks itself after 12 still frames (Bryan, 2026-08-24 — "missing from all three non-Home pages").
+  const stop = () => {
+    dead = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    root.classList.remove('landed');   // hand the footer mark back on the way out
+  };
+  document.addEventListener('astro:before-swap', stop);
 }
 init();
 document.addEventListener('astro:page-load', init);

@@ -80,6 +80,12 @@ function init() {
   const flyer = document.querySelector<HTMLElement>(mobile ? '.m-flight .home-flyer' : '.home-flyer');
   const pathEl = document.querySelector<SVGPathElement>(mobile ? '#m-flight-path' : '#home-flight-path');
   const wmRocket = document.querySelector<SVGPathElement>(mobile ? '.m-wordmark path[fill^="url("]' : '.wordmark path[fill^="url("]');
+  // The crossfade must animate the FILTERED GROUP's opacity, never the path inside it. The rocket sits
+  // alone in <g filter=…> (its glow); opacity on a child changes the filter's INPUT, so Safari
+  // re-rasterises the whole 406x438 filter region every frame — and intermittently rasterised it as a
+  // solid black rectangle over the wordmark (WebKit compositing bug, seen at launch; Chrome unaffected).
+  // Opacity on the filter's owner is applied post-filter at composite time: no re-raster, no black box.
+  const wmFade: HTMLElement | SVGElement | null = (wmRocket?.closest('g[filter]') as SVGElement | null) ?? wmRocket;
   const mark = document.querySelector<HTMLElement>(mobile ? 'footer .m-rocket' : 'footer .mark');
   if (!flyer || !pathEl || !mark || flyer.dataset.ready || !root.classList.contains('motion')) return;
   flyer.dataset.ready = '1';
@@ -211,7 +217,7 @@ function init() {
       // on top of it by then, so there is never a premature double (a progress-based fade showed it ~300 px early)
       const k = Math.min(1, Math.max(0, 1 - ((1 - e) * retLen * unPx()) / 10));
       flyer.style.opacity = (1 - k).toFixed(3);
-      if (wmRocket) wmRocket.style.opacity = k.toFixed(3);
+      if (wmFade) wmFade.style.opacity = k.toFixed(3);
       if (r >= 1) { endReturn(); mode = 'scrub'; p = 0; }
       raf = requestAnimationFrame(tick);
       return;
@@ -250,7 +256,7 @@ function init() {
     // crossfade with the wordmark's rocket over the first sliver of flight — there is no "swap moment"
     const k = Math.min(1, p / 0.0025);
     flyer.style.opacity = k.toFixed(3);
-    if (wmRocket) wmRocket.style.opacity = (1 - k).toFixed(3);
+    if (wmFade) wmFade.style.opacity = (1 - k).toFixed(3);
     // the white footer mark yields only once the orange rocket is truly on top of it — at 0.995 the hook
     // still has ~35 du to run, so hiding the mark there left a visible hole
     root.classList.toggle('landed', p >= 0.9995);

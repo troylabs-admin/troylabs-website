@@ -5,6 +5,7 @@ import { ClientRouter } from 'astro:transitions';
 import Nav from '../components/nav/Nav.astro';
 import Footer from '../components/nav/Footer.astro';
 import { Image } from 'astro:assets';
+import Analytics from '@vercel/analytics/astro';
 import rocketPng from '../assets/space/orange-rocket.png';
 
 interface Props {
@@ -95,6 +96,9 @@ const ogImage = new URL('/og.jpg', Astro.site ?? 'https://usctroylabs.com').href
       </main>
       <Footer current={current} />
     </div>
+    {/* Vercel Web Analytics: cookieless visitor + page-view counts, no consent banner needed.
+        Loads after the page and is skipped entirely in dev. */}
+    <Analytics />
 
     <!-- back to top: appears once you're a screen down, flies you home (designer, 2026-08-24) -->
     <button id="to-top" type="button" aria-label="Back to top" hidden>

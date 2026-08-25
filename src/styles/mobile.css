@@ -87,7 +87,12 @@
      Lives here, not in the component: Astro scoped blocks have silently dropped rules before. */
   .m-card { position: relative; margin-top: 44px; padding-top: 58px; }
   .m-ring {
-    position: absolute; z-index: 1; top: 0; left: 50%; transform: translateX(-50%);
+    /* Concentric with the planet. Desktop sits the ring high on the disc, and porting that offset
+       verbatim read as a mistake rather than a choice once the art was stacked (Bryan, 2026-08-24 —
+       readers assumed the translation had slipped). The card is padding-top + art, so the art's centre
+       is at `50% + padding/2`: 29px = 58px/2. Holds for every card whatever the planet's aspect —
+       DEMO's blue planet is wide and short, and lands centred by the same rule. */
+    position: absolute; z-index: 1; top: calc(50% + 29px); left: 50%; transform: translate(-50%, -50%);
     width: 250px; height: 250px; border-radius: 9999px; justify-content: center; gap: 10px;
     box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.4); padding: 0 24px; box-sizing: border-box;
   }

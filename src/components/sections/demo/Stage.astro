@@ -152,9 +152,25 @@ const stars = [
   function initReel() {
     for (const wrap of document.querySelectorAll<HTMLElement>('.media')) wireReel(wrap);
   }
+  /* The page ships TWO reels — one in the desktop artboard, one in the .m mobile subtree — and only one
+     of them is ever displayed. Wiring both made a phone fetch the video TWICE (measured: 11.1 MB against
+     5.5 MB) and left two media elements competing for iOS's very small pool of decoders, so the VISIBLE
+     one could sit at readyState 0: autoplay refused, the play button appeared, and tapping it did nothing
+     because there were no frames to play. Only the displayed reel is wired; the hidden one is released.
+     (Bryan, 2026-08-24 — "why is there even a play button? it should already be playing".) */
   function wireReel(wrap: HTMLElement) {
     const video = wrap.querySelector('video');
-    if (!wrap || !video || video.dataset.wired) return;
+    if (!wrap || !video) return;
+    if (!wrap.offsetParent) {                 // hidden by the layout (display:none on the other breakpoint)
+      if (video.dataset.wired) {              // was visible before a resize/rotate: hand the decoder back
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        delete video.dataset.wired;
+      }
+      return;
+    }
+    if (video.dataset.wired) return;
     video.dataset.wired = '1';
     // Pick the encode in JS rather than with <source media>. iOS Safari does not honour `media` on a
     // <video> source, and the pair of <source> elements left it selecting a file it never actually
@@ -207,6 +223,8 @@ const stars = [
   }
   initReel();
   document.addEventListener('astro:page-load', initReel);
+  // crossing the 768px breakpoint (rotation, or a resized desktop window) swaps which reel is displayed
+  addEventListener('resize', () => initReel(), { passive: true });
 </script>
 
 <style>

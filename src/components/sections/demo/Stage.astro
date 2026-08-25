@@ -193,7 +193,18 @@ const stars = [
     // than leaving a dead poster, and hide it again as soon as the reel is running.
     const playBtn = wrap.querySelector<HTMLButtonElement>('.reel-play');
     const tryPlay = () => video.play().then(() => { if (playBtn) playBtn.hidden = true; })
-                                      .catch(() => { if (playBtn) playBtn.hidden = false; });
+                                      .catch(() => {
+                                        // Low Power Mode can defer the video's fetch entirely until a
+                                        // gesture — a tap on an empty buffer then no-ops. We are inside
+                                        // that gesture here: force the load and ask again, once.
+                                        if (video.readyState < 2) {
+                                          video.load();
+                                          video.play().then(() => { if (playBtn) playBtn.hidden = true; })
+                                                      .catch(() => { if (playBtn) playBtn.hidden = false; });
+                                          return;
+                                        }
+                                        if (playBtn) playBtn.hidden = false;
+                                      });
     playBtn?.addEventListener('click', tryPlay);
     // Low Power Mode blocks autoplay, so the play affordance matters: make the whole frame the target,
     // not just the small round button. Only acts while paused — a playing reel ignores taps (the sound

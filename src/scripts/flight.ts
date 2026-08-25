@@ -66,6 +66,12 @@ function target(map: [number, number][], s: number): number {
 }
 
 function init() {
+  // `landed` means "home's rocket is docked on the footer mark", and it is the ONLY thing that hides that
+  // mark. It was cleared just once, inside the flight loop — which never runs on the other pages or on
+  // phones — so any route where the class outlived a page change left BUILD/DEMO/IGNITE with an invisible
+  // footer logo (Bryan saw exactly that on /build). Clearing it up front makes the state impossible to
+  // inherit: every init that is not going to fly the rocket hands the mark back first.
+  root.classList.remove('landed');
   const mobile = matchMedia('(max-width: 767px)').matches;
   // Mobile flight disabled (2026-08-24): the rAF scrub loop ran hot on phones. Bail before any work —
   // no rAF, no per-frame getPointAtLength — so mobile renders the static wordmark/footer rockets only.

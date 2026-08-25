@@ -95,6 +95,31 @@ function apply() {
       drive();
     }
   }
+
+  // BUILD's mobile rail rocket: same missing-feature story as the fuse — the stylesheet's scroll
+  // timeline (cover 18%–85%) never ran on iOS, so the rocket sat frozen at the top of the rail.
+  const mtl = document.querySelector<HTMLElement>('.m-tl');
+  const mRocket = mtl?.querySelector<HTMLElement>('.m-tl-rocket');
+  if (mtl && mRocket && mtl.offsetParent !== null && !CSS.supports('animation-timeline: view()')) {
+    let queued = false;
+    const drive = () => {
+      queued = false;
+      const { top, h } = box(mtl);
+      const vTop = top - scrollY;
+      if (vTop > vh * 2 || vTop + h < -vh) return;
+      const coverNow = (vh - vTop) / (h + vh);
+      const q = Math.min(1, Math.max(0, (coverNow - 0.18) / (0.85 - 0.18)));
+      const railH = (mRocket.parentElement as HTMLElement).getBoundingClientRect().height;
+      mRocket.style.top = `${(q * (railH - 68)).toFixed(1)}px`;
+    };
+    const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(drive); } };
+    const prev = (mtl as unknown as { _jsRide?: () => void })._jsRide;
+    if (prev) removeEventListener('scroll', prev);
+    (mtl as unknown as { _jsRide?: () => void })._jsRide = onScroll;
+    addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('astro:before-swap', () => removeEventListener('scroll', onScroll), { once: true });
+    drive();
+  }
 }
 apply();
 addEventListener('resize', apply);

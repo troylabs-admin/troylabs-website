@@ -9,6 +9,13 @@
  */
 const root = document.documentElement;
 
+/* the elements whose CSS reads --mx/--my (motion.css: planet parallax, star-layer drift, the swarm) */
+let _para: HTMLElement[] | null = null;
+const paraEls = () => (_para ??= [...document.querySelectorAll<HTMLElement>(
+  '.planet .parallax, .swarm, [data-figma] > div[aria-hidden="true"]:has(> .star)',
+)]);
+document.addEventListener('astro:page-load', () => { _para = null; });
+
 function init() {
   if (!root.classList.contains('motion') || document.querySelector('canvas.sky')) return;
   const canvas = document.createElement('canvas');
@@ -92,8 +99,15 @@ function init() {
     const t = (now - t0) / 1000;
     const lerp = 0.12;                       // both desktop and phone now draw at 30 fps — one step size keeps the same parallax settling time
     mx += (tx - mx) * lerp; my += (ty - my) * lerp;
-    // only touch the root vars when the pointer actually moved: every write recalcs styles for the whole page
-    if (Math.abs(mx - pmx) > 0.002 || Math.abs(my - pmy) > 0.002) { pmx = mx; pmy = my; root.style.setProperty('--mx', mx.toFixed(3)); root.style.setProperty('--my', my.toFixed(3)); }
+    // Write the parallax vars on their CONSUMERS, never the root: a root custom-property write
+    // invalidates style for the whole document, and Safari re-resolves every animated element each
+    // time (the same recalc storm as --scroll-v — see scroll.ts). Each consumer sets the var on
+    // itself, so a pointer move now invalidates ~20 subtrees instead of the entire page.
+    if (Math.abs(mx - pmx) > 0.002 || Math.abs(my - pmy) > 0.002) {
+      pmx = mx; pmy = my;
+      const x = mx.toFixed(3), y = my.toFixed(3);
+      for (const el of paraEls()) { el.style.setProperty('--mx', x); el.style.setProperty('--my', y); }
+    }
     const sy = scrollY;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#fff';

@@ -23,17 +23,29 @@ function init() {
   // session, so a cache taken on one page is null (or a detached element) on the next, and the flag
   // never plants after navigating home → BUILD (found on the deployed site, 2026-08-24).
   let flyer: HTMLElement | null = null, flag: Element | null = null, looked = false;
-  document.addEventListener('astro:page-load', () => { flyer = null; flag = null; looked = false; });
+  let svImgs: HTMLElement[] = [];   // the CSS consumers of --scroll-v (BUILD's two rockets' glow-stretch)
+  document.addEventListener('astro:page-load', () => { flyer = null; flag = null; svImgs = []; looked = false; });
   const raf = (t: number) => {
     lenis!.raf(t);
     // plant the BUILD flag when the landing rocket reaches the end of its path
     if ((frame++ & 7) === 0) {
       if (!looked) { flyer = document.querySelector('.flyer-backers'); flag = document.querySelector('.flag'); looked = true; }
+      if (!svImgs.length) svImgs = [...document.querySelectorAll<HTMLElement>('.flyer-img')];
       if (flyer && flag) flag.classList.toggle('is-planted', parseFloat(getComputedStyle(flyer).offsetDistance) >= 99.5);
     }
     // decay toward the live velocity so bursts read as momentum, not jitter
     const next = shown + (v - shown) * 0.12;
-    if (Math.abs(next - shown) > 0.01 || (shown !== 0 && Math.abs(next) < 0.01)) { shown = Math.abs(next) < 0.01 ? 0 : next; root.style.setProperty('--scroll-v', shown.toFixed(2)); } // write only while it changes
+    if (Math.abs(next - shown) > 0.01 || (shown !== 0 && Math.abs(next) < 0.01)) {
+      shown = Math.abs(next) < 0.01 ? 0 : next;
+      // NEVER write this on the root: a root custom-property write invalidates style for the whole
+      // document, and on home (hundreds of animated stars + the 200-dot swarm) WebKit re-resolved
+      // every one of them each frame — measured p50 33ms / 96% janky frames while scrolling in Safari's
+      // engine, 17ms / 2% with the write scoped. Chrome absorbs root writes; Safari does not.
+      // The var goes on its one CSS consumer (the home rocket's glow), coarsened to 0.1 — the shadow
+      // moves ~1px per 0.9 units, so finer steps only churned the filter. The globe reads the JS mirror.
+      for (const el of svImgs) el.style.setProperty('--scroll-v', shown.toFixed(1));
+      (window as unknown as { __scrollV?: number }).__scrollV = shown;
+    } // write only while it changes
     v *= 0.9;
     // render on demand: once the page is settled and the tab is idle there is nothing to interpolate,
     // so the loop stops entirely instead of running at 60 fps forever. Any scroll or resize wakes it.

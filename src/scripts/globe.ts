@@ -29,7 +29,7 @@ function init() {
   // Figma's render faces Europe/Africa: longitude −20 in view, tilted slightly north
   const START: [number, number] = [-20, -12];
   const DEG_PER_MS = 360 / 110_000;       // one revolution every ~110 s — barely perceptible, alive
-  const velocity = () => Math.abs(parseFloat(root.style.getPropertyValue('--scroll-v')) || 0); // from scroll.ts (inline var: no style recalc)
+  const velocity = () => Math.abs((window as unknown as { __scrollV?: number }).__scrollV || 0); // scroll.ts's JS mirror (the CSS var no longer lives on the root — see scroll.ts)
 
   let visible = false, raf = 0, last = 0, lon = START[0];
   let acc = 0;

@@ -54,6 +54,9 @@ function apply() {
     const start = Math.max(0.10, atLoad + 0.02);          // the stylesheet's cover 10-12%, pushed past load
     const END = 0.80;
     spark.style.animationRangeStart = `cover ${(start * 100).toFixed(2)}%`;
+    // the burnt trail rides the same span, or the flame would outrun (or trail) the spark
+    const lit = sec3.querySelector<HTMLElement>('.m-fuse-lit');
+    if (lit) lit.style.animationRangeStart = `cover ${(start * 100).toFixed(2)}%`;
     for (const node of sec3.querySelectorAll<HTMLElement>('.fuse-node')) {
       const frac = Number(node.dataset.frac);              // path fraction, baked per layout in the template
       const t = start + (END - start) * frac;

@@ -54,12 +54,45 @@ function apply() {
     const start = Math.max(0.10, atLoad + 0.02);          // the stylesheet's cover 10-12%, pushed past load
     const END = 0.80;
     spark.style.animationRangeStart = `cover ${(start * 100).toFixed(2)}%`;
-    for (const node of sec3.querySelectorAll<HTMLElement>('.fuse-node')) {
+    const ramp = 0.06 * (END - start) / 0.70;
+    const nodes = [...sec3.querySelectorAll<HTMLElement>('.fuse-node')].map((node) => {
       const frac = Number(node.dataset.frac);              // path fraction, baked per layout in the template
       const t = start + (END - start) * frac;
-      const ramp = 0.06 * (END - start) / 0.70;
       node.style.setProperty('--ig0', `cover ${((t - ramp) * 100).toFixed(2)}%`);
       node.style.setProperty('--ig1', `cover ${(t * 100).toFixed(2)}%`);
+      return { node, t };
+    });
+
+    // iOS Safari (and any engine without scroll-driven animations) never runs the CSS scrub above — the
+    // phone always fell back to "nodes lit, no spark". Drive the MOBILE fuse by hand there: one element's
+    // top + five opacities, written inside a scroll-coalesced rAF, only while the section is near the
+    // viewport. The desktop tree keeps its documented static fallback (its spark rides an SVG path).
+    if (sec3.matches('[data-m]') && !CSS.supports('animation-timeline: view()')) {
+      sec3.classList.add('js-fuse');
+      const railH = () => (spark.parentElement as HTMLElement).getBoundingClientRect().height - 6;
+      let queued = false;
+      const drive = () => {
+        queued = false;
+        const { top, h } = box(sec3);                      // box() is document-absolute — make it viewport-relative
+        const vTop = top - scrollY;
+        if (vTop > vh * 2 || vTop + h < -vh) return;       // far off screen: write nothing
+        const coverNow = (vh - vTop) / (h + vh);
+        const q = Math.min(1, Math.max(0, (coverNow - start) / (END - start)));
+        spark.style.top = `${(q * railH()).toFixed(1)}px`;
+        spark.style.opacity = q <= 0 ? '0' : String(Math.min(1, q / 0.05));
+        for (const { node, t } of nodes) {
+          const np = Math.min(1, Math.max(0, (coverNow - (t - ramp)) / ramp));
+          node.style.opacity = (0.35 + 0.65 * np).toFixed(3);
+        }
+      };
+      const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(drive); } };
+      // apply() re-runs on resize and page-load: replace the previous driver instead of stacking them
+      const prev = (sec3 as unknown as { _jsFuse?: () => void })._jsFuse;
+      if (prev) removeEventListener('scroll', prev);
+      (sec3 as unknown as { _jsFuse?: () => void })._jsFuse = onScroll;
+      addEventListener('scroll', onScroll, { passive: true });
+      document.addEventListener('astro:before-swap', () => removeEventListener('scroll', onScroll), { once: true });
+      drive();
     }
   }
 }

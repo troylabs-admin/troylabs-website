@@ -195,6 +195,10 @@ const stars = [
     const tryPlay = () => video.play().then(() => { if (playBtn) playBtn.hidden = true; })
                                       .catch(() => { if (playBtn) playBtn.hidden = false; });
     playBtn?.addEventListener('click', tryPlay);
+    // Low Power Mode blocks autoplay, so the play affordance matters: make the whole frame the target,
+    // not just the small round button. Only acts while paused — a playing reel ignores taps (the sound
+    // and fullscreen buttons sit above and keep their own handlers).
+    video.addEventListener('click', () => { if (video.paused) tryPlay(); });
     new IntersectionObserver(([e]) => { if (e.isIntersecting) tryPlay(); else video.pause(); }, { threshold: 0.25 }).observe(wrap);
     // captions: native track kept hidden, rendered into our own tiny pill (native cue chrome is huge)
     const cap = wrap.querySelector<HTMLElement>('.cap');

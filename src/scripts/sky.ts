@@ -46,7 +46,12 @@ function init() {
 
   // pointer, lerped
   let tx = 0, ty = 0, mx = 0, my = 0, pmx = 0, pmy = 0;
-  addEventListener('pointermove', (e) => { tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true });
+  // MICE ONLY. On touch screens a scroll gesture is a pointermove: the parallax followed the thumb and
+  // then froze wherever the finger lifted, so the planets sat displaced (±depth px, up to 14) until the
+  // next gesture — on BUILD that read as the flag hovering off its planet, since the flag is a sibling
+  // of the parallax layer, not inside it (Bryan's screenshots, 2026-08-24). It also wrote ~20 element
+  // styles per frame during every thumb-drag. Phones keep tx/ty at 0: planets pinned, flag planted.
+  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true });
 
   // ── visitors: shooting stars + (rarely) a little saucer. First saucer flyby comes while the page still
   //    has your attention; after that it's an easter egg. ?skyfast previews both immediately.

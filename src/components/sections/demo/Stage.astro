@@ -161,8 +161,16 @@ const stars = [
   function wireReel(wrap: HTMLElement) {
     const video = wrap.querySelector('video');
     if (!wrap || !video) return;
-    if (!wrap.offsetParent) {                 // hidden by the layout (display:none on the other breakpoint)
-      if (video.dataset.wired) {              // was visible before a resize/rotate: hand the decoder back
+    // Which of the two reels is this, and which one does the layout show? Decided by the media query,
+    // NOT by offsetParent. offsetParent needs resolved layout, and on iOS during a view transition it
+    // reads null for a perfectly visible element — the wiring was then skipped, the video never got a
+    // src at all, and the poster sat there with a play button that could not possibly work because
+    // there was nothing to play. That gate is what regressed the reel on iPhone after it was working
+    // (Bryan, 2026-08-25 — "we had it working once"). The media query needs no layout and cannot lie.
+    const isPhoneReel = wrap.classList.contains('m-media');
+    const onPhone = matchMedia('(max-width: 767px)').matches;
+    if (isPhoneReel !== onPhone) {            // the other breakpoint's reel: keep it empty
+      if (video.dataset.wired) {              // was the visible one before a resize/rotate: release it
         video.pause();
         video.removeAttribute('src');
         video.load();
@@ -207,6 +215,11 @@ const stars = [
     // load() first when nothing is buffered (iOS often defers the fetch until a gesture), then play(),
     // both still inside the tap. Bryan, 2026-08-24 — verified dead on a 67% phone, ruling out Low Power Mode.
     const userPlay = () => {
+      // last-resort: if anything ever skipped the wiring, a tap still gets a playable element
+      if (!video.src) {
+        const w = (matchMedia('(max-width: 767px)').matches && video.dataset.srcMobile) || video.dataset.src;
+        if (w) video.src = w;
+      }
       if (video.readyState < 2) video.load();
       const p = video.play() as unknown as Promise<void> | undefined;
       p?.then(() => shown(false)).catch(() => shown(true));

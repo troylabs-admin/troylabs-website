@@ -288,6 +288,12 @@ function init() {
     cancelAnimationFrame(raf);
     raf = 0;
     root.classList.remove('landed');   // hand the footer mark back on the way out
+    // Put the hero back to its REST state. A loop that stops mid-flight otherwise freezes the crossfade
+    // half-done: the flyer stranded in the sky at full opacity while the wordmark's own rocket is still
+    // solid in the A — two rockets on screen, which is exactly what was reported on desktop. Rest is
+    // unambiguous: the mark lives in the wordmark, the flyer is invisible until scrolling starts.
+    if (wmFade) (wmFade as HTMLElement).style.opacity = '1';
+    if (flyer) flyer.style.opacity = '0';
   };
   document.addEventListener('astro:before-swap', stop);
 }

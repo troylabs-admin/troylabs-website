@@ -92,7 +92,12 @@ function init() {
 
   // ── geometry source: desktop (du, +79 header offset, --un scale) vs mobile (mdu, main-relative, --mun) ──
   const MOBILE_W = 390;
-  const un = mobile ? innerWidth / MOBILE_W : Math.min(innerWidth, 1440) / 1001;
+  // Desktop scale MUST be the layout's own --un (BaseLayout derives it from outerWidth so browser zoom
+  // behaves like a normal site). Recomputing it here from innerWidth put the flight's dock point and path
+  // box on a different scale than the rendered wordmark whenever zoom was not 100% (measured: at 125%
+  // the A sits 146px right of where an innerWidth-based flight expects it).
+  const cssUn = parseFloat(getComputedStyle(root).getPropertyValue('--un'));
+  const un = mobile ? innerWidth / MOBILE_W : (Number.isFinite(cssUn) && cssUn > 0 ? cssUn : Math.min(innerWidth, 1440) / 1001);
   const main = document.querySelector('main');
   // mainTop must be re-measured, never frozen: at init the mobile layout is still settling (the nav pushes
   // main down ~71px after DCL), and a stale mainTop stranded every anchor +yToPage by exactly that drift.

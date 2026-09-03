@@ -18,9 +18,17 @@ let _para: HTMLElement[] | null = null;
    fields drawing at once. Every init now retires the previous loop first, and so does every swap. */
 let teardown: (() => void) | null = null;
 document.addEventListener('astro:before-swap', () => { teardown?.(); teardown = null; });
-const paraEls = () => (_para ??= [...document.querySelectorAll<HTMLElement>(
-  '.planet .parallax, .swarm, [data-figma] > div[aria-hidden="true"]:has(> .star)',
-)]);
+const paraEls = () => {
+  if (_para) return _para;
+  try {
+    _para = [...document.querySelectorAll<HTMLElement>('.planet .parallax, .swarm, [data-figma] > div[aria-hidden="true"]:has(> .star)')];
+  } catch {
+    // no :has() in querySelectorAll (older engines): keep the planets and the swarm, skip the star layers.
+    // Throwing here would have happened INSIDE the draw loop on the first mouse move and killed the sky.
+    _para = [...document.querySelectorAll<HTMLElement>('.planet .parallax, .swarm')];
+  }
+  return _para;
+};
 document.addEventListener('astro:page-load', () => { _para = null; });
 
 function init() {

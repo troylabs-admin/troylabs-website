@@ -11,13 +11,23 @@ const root = document.documentElement;
 
 /* the elements whose CSS reads --mx/--my (motion.css: planet parallax, star-layer drift, the swarm) */
 let _para: HTMLElement[] | null = null;
+/* the live sky's teardown. The canvas lives in <body>, and the ClientRouter swaps <body> on every
+   navigation — so the old canvas vanished but its draw loop (a self-arming timer→rAF chain) and its
+   resize/pointer/visibility listeners kept running against a detached canvas, and init() happily
+   started another. Measured: 41 rAF/s on a fresh home, 387 rAF/s after eight navigations — nine star
+   fields drawing at once. Every init now retires the previous loop first, and so does every swap. */
+let teardown: (() => void) | null = null;
+document.addEventListener('astro:before-swap', () => { teardown?.(); teardown = null; });
 const paraEls = () => (_para ??= [...document.querySelectorAll<HTMLElement>(
   '.planet .parallax, .swarm, [data-figma] > div[aria-hidden="true"]:has(> .star)',
 )]);
 document.addEventListener('astro:page-load', () => { _para = null; });
 
 function init() {
-  if (!root.classList.contains('motion') || document.querySelector('canvas.sky')) return;
+  if (!root.classList.contains('motion')) return;
+  if (document.querySelector('canvas.sky')) return;   // this page's sky is alive — keep it
+  teardown?.(); teardown = null;                        // the body was swapped: retire the orphaned loop
+  const ac = new AbortController(); const { signal } = ac; let dead = false;
   const canvas = document.createElement('canvas');
   canvas.className = 'sky';
   canvas.setAttribute('aria-hidden', 'true');
@@ -42,7 +52,7 @@ function init() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (!stars.length) seed();
   };
-  resize(); addEventListener('resize', resize);
+  resize(); addEventListener('resize', resize, { signal });
 
   // pointer, lerped
   let tx = 0, ty = 0, mx = 0, my = 0, pmx = 0, pmy = 0;
@@ -51,7 +61,7 @@ function init() {
   // next gesture — on BUILD that read as the flag hovering off its planet, since the flag is a sibling
   // of the parallax layer, not inside it (Bryan's screenshots, 2026-08-24). It also wrote ~20 element
   // styles per frame during every thumb-drag. Phones keep tx/ty at 0: planets pinned, flag planted.
-  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true });
+  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; tx = (e.clientX / W) * 2 - 1; ty = (e.clientY / H) * 2 - 1; }, { passive: true, signal });
 
   // ── visitors: shooting stars + (rarely) a little saucer. First saucer flyby comes while the page still
   //    has your attention; after that it's an easter egg. ?skyfast previews both immediately.
@@ -91,15 +101,17 @@ function init() {
     visible = !document.hidden;
     if (timer) { clearTimeout(timer); timer = 0; }
     if (visible) { lastDraw = -Infinity; cancelAnimationFrame(raf); raf = 0; arm(); }   // draw immediately on return
-  });
+  }, { signal });
 
   function arm() {
+    if (dead) { raf = 0; return; }
     if (!visible) { raf = 0; return; }
     const wait = Math.max(0, FRAME_MS - (performance.now() - lastDraw));
     timer = setTimeout(() => { timer = 0; raf = requestAnimationFrame(draw); }, wait) as unknown as number;
   }
 
   function draw(now: number) {
+    if (dead) { raf = 0; return; }
     lastDraw = now;
     const t = (now - t0) / 1000;
     const lerp = 0.12;                       // both desktop and phone now draw at 30 fps — one step size keeps the same parallax settling time
@@ -176,6 +188,7 @@ function init() {
     arm();
   }
   raf = requestAnimationFrame(draw);
+  teardown = () => { dead = true; if (timer) { clearTimeout(timer); timer = 0; } cancelAnimationFrame(raf); raf = 0; ac.abort(); };
 }
 
 /* line-art flying saucer, ~42px wide: hull ellipse + dome arc + three blinking running lights */

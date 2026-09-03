@@ -68,7 +68,7 @@ const stars = [
   </div>
   <div class="abs rocket-flyer pointer-events-none" style={pos(FLIGHT.x, y(FLIGHT.y), FLIGHT.w, FLIGHT.h)} aria-hidden="true">
     <div class="flight" style={`width:${FLIGHT.w}px;height:${FLIGHT.h}px;transform-origin:0 0;transform:scale(var(--un, 1));-webkit-mask-image:radial-gradient(circle at ${MASK.x}px ${MASK.y}px, transparent ${MASK.r}px, #000 ${MASK.r + 1}px);mask-image:radial-gradient(circle at ${MASK.x}px ${MASK.y}px, transparent ${MASK.r}px, #000 ${MASK.r + 1}px)`}>
-      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img flyer-backers" style="width:42px;height:95px" />
+      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img flyer-backers" style={`width:42px;height:95px;offset-path:path('${FLIGHT_D}')`} />
     </div>
   </div>
 

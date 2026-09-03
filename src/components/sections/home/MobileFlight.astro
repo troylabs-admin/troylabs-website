@@ -57,7 +57,7 @@ const BOX_H = 10535; // mobile doc height in mdu at 390w (main top → doc botto
       <path id="m-return-path" d="M 0 0" fill="none" stroke="none" />
     </svg>
     <!-- the wordmark's own rocket (glow padding is symmetric, body = 66.4×98.5 centred) -->
-    <div class="home-flyer" style="width:407px;height:439px">
+    <div class="home-flyer" style={`width:407px;height:439px;offset-path:path('${D}')`}>
       <span class="halo" aria-hidden="true"></span>
       <Fragment set:html={rocket} />
     </div>

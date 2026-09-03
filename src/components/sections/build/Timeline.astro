@@ -66,7 +66,7 @@ const stars = [
   <!-- .flight is 354×1248 CSS px (= du) scaled by --un, so the px-based offset-path tracks the design-unit path -->
   <div class="abs rocket-flyer pointer-events-none" style={pos(PATH.x, y(PATH.y), PATH.w, PATH.h)} aria-hidden="true">
     <div class="flight" style="width:354px;height:1248px;transform-origin:0 0;transform:scale(var(--un, 1))">
-      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img" style="width:42px;height:95px" />
+      <Image src={flyer} alt="" width={906} height={2048} class="flyer-img" style={`width:42px;height:95px;offset-path:path('${PATH_D}')`} />
     </div>
   </div>
 

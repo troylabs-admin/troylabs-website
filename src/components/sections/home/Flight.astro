@@ -41,7 +41,11 @@ const toBox = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (
       <path id="home-return-path" d="M 0 0" fill="none" stroke="none" />
     </svg>
     <!-- the wordmark's own rocket (glow padding is symmetric, body = 66.4×98.5 centred) -->
-    <div class="home-flyer" style="width:407px;height:439px">
+    <!-- offset-path is an inline path(), NOT url(#home-flight-path): Chrome 152 in a real window resolves
+         SVG-referenced motion paths at half scale (measured: the docked rocket sat at exactly ½ the path's
+         start), which floated it up-left of the wordmark and lost it above the viewport on scroll. path()
+         resolves identically in Chrome, Safari and headless — same coordinates, same box (2026-08-25). -->
+    <div class="home-flyer" style={`width:407px;height:439px;offset-path:path('${toBox(D)}')`}>
       <span class="halo" aria-hidden="true"></span>
       <Fragment set:html={rocket} />
     </div>

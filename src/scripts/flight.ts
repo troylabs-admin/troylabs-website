@@ -148,6 +148,7 @@ function init() {
     pathEl.setAttribute('d', pathEl.getAttribute('d')!.replace(/^M\s*-?[\d.]+[ ,]-?[\d.]+/, `M ${sx.toFixed(1)} ${sy.toFixed(1)}`));
     pathEl.setAttribute('d', pathEl.getAttribute('d')!.replace(/-?[\d.]+[ ,]-?[\d.]+\s*$/, `${ex.toFixed(1)} ${ey.toFixed(1)}`));
     pathStart = { x: sx, y: sy }; pathEnd = { x: ex, y: ey };
+    if (mode !== 'return') flyer.style.offsetPath = basePath();   // keep the inline path in step with the re-anchored d
   };
 
   let map = buildMap(pathEl, yToPage);
@@ -188,7 +189,9 @@ function init() {
   const retPath = document.querySelector<SVGPathElement>(mobile ? '#m-return-path' : '#home-return-path');
   const HOME = () => ({ x: pathStart.x, y: pathStart.y });   // the wordmark rocket's spot = the main path's (anchored) start
   const unPx = () => un;
-  const endReturn = () => flyer.style.removeProperty('offset-path');
+  // the flyer's resting path lives inline (Flight.astro) — remember it, the return flight overrides it
+  const basePath = () => `path('${pathEl.getAttribute('d')}')`;
+  const endReturn = () => { flyer.style.offsetPath = basePath(); };
   mark.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -197,10 +200,11 @@ function init() {
     const H = pt.y - HOME().y;
     // bow out over the right margin, then swing back and rise DEAD-VERTICAL into the wordmark (the final
     // control point sits straight below the logo, so the arrival tangent is exactly nose-up)
-    retPath.setAttribute('d', `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} C ${(pt.x + 250).toFixed(1)} ${(pt.y - H * 0.32).toFixed(1)}, ${HOME().x} ${(HOME().y + H * 0.25).toFixed(1)}, ${HOME().x} ${HOME().y}`);
+    const retD = `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} C ${(pt.x + 250).toFixed(1)} ${(pt.y - H * 0.32).toFixed(1)}, ${HOME().x} ${(HOME().y + H * 0.25).toFixed(1)}, ${HOME().x} ${HOME().y}`;
+    retPath.setAttribute('d', retD);               // the SVG copy is for measurement (getPointAtLength)
     retLen = retPath.getTotalLength();
     retViewY0 = yToPage(pt.y) - scrollY;          // the rocket's viewport height at liftoff — held all ride
-    flyer.style.offsetPath = `url(#${mobile ? 'm-return-path' : 'home-return-path'})`;
+    flyer.style.offsetPath = `path('${retD}')`;    // inline path(), never url(): see Flight.astro
     root.classList.remove('landed');                     // the white mark returns as it lifts off
     mode = 'return';
     retT0 = performance.now();

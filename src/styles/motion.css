@@ -167,7 +167,8 @@ html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s l
   html.motion .rocket-static { opacity: 0; }
   html.motion .rocket-flyer { display: block; }
   html.motion .flyer-img {
-    offset-path: url(#build-timeline-path); /* path coords are raw px inside .flight, which is scaled to du */
+    /* offset-path is inline path() on the element (Timeline.astro): url(#svg) is resolved at half scale by
+       Chrome 152 in a real window. Path coords are raw px inside .flight, which is scaled to du. */
     offset-rotate: auto 90deg;              /* nose points back along the path (tail-first descent) — chosen by eye, the nose-first version read as a crash */
     animation-name: fly;                    /* longhands only — see the planet rule above */
     animation-timing-function: linear;
@@ -177,7 +178,7 @@ html.motion .orbit-dot { animation: orbit 18s linear infinite, orbit-depth 18s l
   }
   /* exhaust: a soft glow trailing the flyer whose size follows scroll velocity (--scroll-v from scroll.ts) */
 html.motion .flyer-img { filter: drop-shadow(0 calc(4px + min(26px, abs(var(--scroll-v, 0)) * 1.1px)) calc(3px + min(12px, abs(var(--scroll-v, 0)) * 0.5px)) rgb(255 125 44 / 0.6)); transition: filter 120ms linear; }
-html.motion .flyer-backers { offset-path: url(#build-backers-path); offset-rotate: auto 90deg; animation-name: fly; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --build-backers; animation-range-start: entry 40%; animation-range-end: 67%; } /* lands while the planet is mid-screen (timeline % measured), not at the page's last pixel */ /* nose-first: it lands on the planet */
+html.motion .flyer-backers { offset-rotate: auto 90deg; animation-name: fly; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --build-backers; animation-range-start: entry 40%; animation-range-end: 67%; } /* lands while the planet is mid-screen (timeline % measured), not at the page's last pixel */ /* nose-first: it lands on the planet */
 }
 .rocket-flyer { display: none; }
 @keyframes fly { from { offset-distance: 0%; } to { offset-distance: 100%; } }
@@ -279,7 +280,7 @@ html.motion .constellation.cx-arm:not(.is-in) .core { opacity: 0; transform: sca
 .home-flight { display: none; z-index: 5; }
 @supports (offset-path: path("M0 0")) {
   html.motion .home-flight { display: block; }
-  html.motion .home-flyer { offset-path: url(#home-flight-path); offset-rotate: 90deg; opacity: 0; }  /* heading is slew-limited in flight.ts */
+  html.motion .home-flyer { offset-rotate: 90deg; opacity: 0; }  /* offset-path: inline path() (Flight.astro); heading is slew-limited in flight.ts */
 }
 /* on touchdown the white footer mark yields to the arrived orange one */
 html.motion footer .mark svg { transition: opacity 400ms ease; }
@@ -330,7 +331,7 @@ html.motion .swarm:hover .swarm-dot i { transform: translate(calc(var(--sx) * va
   html.motion .fuse-spark {
     display: block; position: absolute; width: 6px; height: 6px; border-radius: 9999px; background: #fff;
     box-shadow: 0 0 6px 2px rgb(255 255 255 / 0.9), 0 0 18px 7px rgb(255 125 44 / 0.75), 0 0 42px 18px rgb(255 125 44 / 0.3);
-    offset-path: url(#ignite-fuse-path);
+    /* offset-path: inline path() on the spark (Features.astro) — see the .flyer-img note */
     /* longhands only — see the .planet note: the minifier must not merge animation-timeline into the shorthand */
     animation-name: fuse-run;
     animation-timing-function: linear;

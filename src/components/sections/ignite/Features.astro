@@ -68,7 +68,7 @@ const sparkAt = (f: (typeof FEATURES)[number]) => 10 + 70 * ((f.ny - TOP - 10) /
         <path id="ignite-fuse-path" d={FUSE_D} class="fuse-line" />
         {FEATURES.map((f) => <path d={branch(f)} class="fuse-line" />)}
       </svg>
-      <span class="fuse-spark"></span>
+      <span class="fuse-spark" style={`offset-path:path('${FUSE_D}')`}></span>
     </div>
   </div>
 

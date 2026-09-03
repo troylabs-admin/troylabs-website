@@ -86,6 +86,20 @@ function init() {
   // solid black rectangle over the wordmark (WebKit compositing bug, seen at launch; Chrome unaffected).
   // Opacity on the filter's owner is applied post-filter at composite time: no re-raster, no black box.
   const wmFade: HTMLElement | SVGElement | null = (wmRocket?.closest('g[filter]') as SVGElement | null) ?? wmRocket;
+  // NEVER animate opacity on that filtered group either. Chrome (152, Apple GPU) composites a filtered
+  // SVG group with animated opacity as its own layer and draws the FILTER OUTPUT displaced from its
+  // source — a glowing rocket floating up-left of the wordmark while the flat original stays in the A
+  // (Bryan's Chrome, 2026-08-25: "two rockets"). So the wordmark rocket is now shown/hidden with
+  // visibility, flipped at the crossfade's midpoint. The flyer keeps its smooth opacity ramp, and by
+  // the midpoint it sits exactly on top of the A, so the hard flip underneath it cannot be seen.
+  // No per-frame writes touch the filter's input (Safari's black square) or its layer (Chrome's ghost).
+  let wmShown: boolean | null = null;
+  const showWm = (on: boolean) => {
+    if (!wmFade || wmShown === on) return;
+    wmShown = on;
+    (wmFade as HTMLElement).style.removeProperty('opacity');          // never leave an animated opacity behind
+    (wmFade as HTMLElement).style.visibility = on ? '' : 'hidden';
+  };
   const mark = document.querySelector<HTMLElement>(mobile ? 'footer .m-rocket' : 'footer .mark');
   if (!flyer || !pathEl || !mark || flyer.dataset.ready || !root.classList.contains('motion')) return;
   flyer.dataset.ready = '1';
@@ -223,7 +237,7 @@ function init() {
       // on top of it by then, so there is never a premature double (a progress-based fade showed it ~300 px early)
       const k = Math.min(1, Math.max(0, 1 - ((1 - e) * retLen * unPx()) / 10));
       flyer.style.opacity = (1 - k).toFixed(3);
-      if (wmFade) wmFade.style.opacity = k.toFixed(3);
+      showWm(k >= 0.1);                       // return flight: the A reappears while the flyer is still ~opaque on it
       if (r >= 1) { endReturn(); mode = 'scrub'; p = 0; }
       raf = requestAnimationFrame(tick);
       return;
@@ -262,7 +276,7 @@ function init() {
     // crossfade with the wordmark's rocket over the first sliver of flight — there is no "swap moment"
     const k = Math.min(1, p / 0.0025);
     flyer.style.opacity = k.toFixed(3);
-    if (wmFade) wmFade.style.opacity = (1 - k).toFixed(3);
+    showWm(k < 0.9);                          // launch: the A yields only once the flyer is ~opaque on top of it (no brightness dip at the flip)
     // the white footer mark yields only once the orange rocket is truly on top of it — at 0.995 the hook
     // still has ~35 du to run, so hiding the mark there left a visible hole
     root.classList.toggle('landed', p >= 0.9995);
@@ -297,7 +311,7 @@ function init() {
     // half-done: the flyer stranded in the sky at full opacity while the wordmark's own rocket is still
     // solid in the A — two rockets on screen, which is exactly what was reported on desktop. Rest is
     // unambiguous: the mark lives in the wordmark, the flyer is invisible until scrolling starts.
-    if (wmFade) (wmFade as HTMLElement).style.opacity = '1';
+    showWm(true);
     if (flyer) flyer.style.opacity = '0';
   };
   document.addEventListener('astro:before-swap', stop);

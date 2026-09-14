@@ -34,7 +34,7 @@ const stars = [
 <section class="section portal-section" style={`--h:${h}`} data-figma="AlumniPortal" aria-label={label}>
   {planet && <Planet kind="orange" x={-222} y={-323} w={872} />}
   <Stars items={stars} />
-  <div class="abs flex flex-col items-center justify-center portal-col" style={pos(200.5, 0, 600, h)}>
+  <div class="abs flex flex-col items-center justify-start portal-col" style={`${pos(200.5, 0, 600, h)};padding-top:calc(56 * var(--u))`}>
     <slot />
   </div>
 </section>

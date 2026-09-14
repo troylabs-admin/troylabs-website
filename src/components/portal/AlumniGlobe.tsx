@@ -33,7 +33,7 @@ function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin) => void) {
   return el;
 }
 
-export default function AlumniGlobe({ pins, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePin[]; profileHref?: (p: GlobePin) => string }) {
+export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePin[]; onRefresh?: () => void; profileHref?: (p: GlobePin) => string }) {
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
   const globeRef = useRef<{ pointOfView: (pov: { lat?: number; lng?: number; altitude?: number }, ms?: number) => void; controls: () => { enableZoom: boolean; zoomSpeed: number } } | null>(null);
   const [selected, setSelected] = useState<GlobePin | null>(null);
@@ -42,6 +42,17 @@ export default function AlumniGlobe({ pins, profileHref = (p) => `/alumni-portal
   const clickHandlerRef = useRef<(pin: GlobePin) => void>(() => undefined);
 
   useEffect(() => { import('react-globe.gl').then((m) => setGlobe(() => m.default)); }, []);   // WebGL: client only
+
+  // Charlotte's "refresh": re-query the pins when the tab regains focus, so a globe left open for an
+  // hour is not stale. Invisible by design — the Refresh button it also drove was dropped as redundant.
+  useEffect(() => {
+    if (!onRefresh) return;
+    const refresh = () => onRefresh();
+    const onVisibility = () => { if (document.visibilityState === 'visible') refresh(); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', onVisibility); };
+  }, [onRefresh]);
 
   useEffect(() => {
     const updateSize = () => { if (containerRef.current) setDimensions({ width: containerRef.current.clientWidth, height: containerRef.current.clientHeight }); };

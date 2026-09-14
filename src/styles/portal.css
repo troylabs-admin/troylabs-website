@@ -5,6 +5,13 @@
    were dropped in favour of this file after the search page rendered without the pill styles that
    only the sign-in page had loaded. */
 
+/* ── readability ──────────────────────────────────────────────────────────────────────────────
+   The site's muted (#828182) measures 4.28:1 against the brightest nebula patch — under the 4.5:1
+   body-text line, and it reads as "hard to read" on the portal, which is text-heavy where the
+   marketing pages are art-heavy (Bryan, 2026-09-14). Portal pages use a lighter secondary gray
+   (7.0:1). Scoped to the portal: the marketing pages keep the designer's exact value. */
+.portal-section, .portal-footer, .m-nav-portal, header:has(+ main .portal-section) { --color-muted: #a9a8a9; }
+
 /* ── in-portal nav (components/portal/PortalNav.astro) ── */
   .portal-nav { display: flex; align-items: center; justify-content: space-between; width: calc(800 * var(--u)); margin: 0 auto; padding-top: calc(10 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.12); }
   .portal-nav-list { gap: calc(40 * var(--u)); }
@@ -94,7 +101,16 @@
     box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.3); transition: color 150ms ease, box-shadow 150ms ease;
   }
   .portal-chip:hover { color: var(--color-ink); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.7); }
-  .portal-chip[aria-pressed="true"] { color: var(--color-ink); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.35); }
+  /* selected: unmistakable — solid orange stroke, orange text, a glow. The earlier "slightly brighter
+     white" pressed state read as nothing happening (Bryan, 2026-09-14). */
+  .portal-chip[aria-pressed="true"] { color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--color-orange), inset 0 0 calc(13.6 * var(--u)) rgb(255 125 44 / 0.25), 0 0 calc(12 * var(--u)) rgb(255 125 44 / 0.35); }
+  .portal-chip[aria-pressed="true"]::before { content: "✓ "; }
+  /* live feedback line under a chip group / form (filled by scripts in the page) */
+  .portal-feedback { color: var(--color-orange); min-height: calc(14 * var(--u)); margin-top: calc(10 * var(--u)); letter-spacing: calc(1.2 * var(--u)); transition: opacity 200ms ease; }
+  .portal-feedback:empty { opacity: 0; }
+  .portal-tagx button { background: none; border: 0; padding: 0; color: var(--color-muted); cursor: pointer; font: inherit; line-height: 1; }
+  .portal-tagx button:hover { color: var(--color-orange); }
+  .portal-btn.is-done { color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--color-orange), inset 0 0 calc(13.6 * var(--u)) rgb(255 125 44 / 0.25); }
 
   .portal-h2 { margin-top: calc(72 * var(--u)); }
   .portal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(18 * var(--u)); margin-top: calc(20 * var(--u)); }
@@ -132,6 +148,7 @@
     .portal-card-body { gap: 4px; }
     .portal-card-tags { gap: 6px; margin-top: 6px; }
     .portal-tag { padding: 3px 8px; font-size: 9px; letter-spacing: 1px; }
+    .portal-feedback { min-height: 14px; margin-top: 10px; letter-spacing: 1.2px; }
     .portal-match { letter-spacing: 1.2px; margin-top: 8px; }
   }
 
@@ -166,6 +183,13 @@
   box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.5), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.12); transition: box-shadow 150ms ease;
 }
 .portal-textarea::placeholder { color: var(--color-muted); }
+/* native date/time inputs: the browser draws a black calendar glyph and monospace text — restyled to
+   match the pill inputs: dark colour scheme so the picker itself is dark, the glyph inverted to white and
+   dimmed like a placeholder until a value is set (Bryan, 2026-09-14). */
+.portal-input[type="datetime-local"], .portal-input[type="date"] { font: inherit; color: var(--color-muted); color-scheme: dark; }
+.portal-input[type="datetime-local"]:valid, .portal-input[type="date"]:valid { color: var(--color-ink); }
+.portal-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.55; cursor: pointer; margin-right: calc(4 * var(--u)); }
+.portal-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .portal-textarea:focus { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.3); }
 .portal-inline { display: flex; gap: calc(10 * var(--u)); align-items: center; }
 .portal-inline .portal-input { flex: 1; margin-top: 0; }

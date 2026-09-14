@@ -12,8 +12,9 @@ const TILES = [['TOTAL USERS', '13', 'Target: —'], ['ACTIVE USERS (30D)', '1',
     <AdminNav current="analytics" />
     <div class="portal-page-head">
       <div><h1 class="t-title portal-page-title">ANALYTICS</h1><p class="t-caption text-muted portal-page-sub">Last updated 8:14 AM</p></div>
-      <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label">REFRESH</button></div>
+      <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="refresh" data-done="REFRESHED" data-feedback="Live numbers arrive once the database is connected." data-feedback-target="#an-fb">REFRESH</button></div>
     </div>
+    <p id="an-fb" class="t-fine portal-feedback" style="text-align:right"></p>
     <div class="portal-tiles portal-tiles-3">{TILES.map(([l, v, t]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span><span class="t-fine text-muted">{t}</span></div>)}</div>
   </PortalShell>
 </BaseLayout>

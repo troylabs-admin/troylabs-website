@@ -27,13 +27,12 @@ const PINS = [
         <h1 class="t-title portal-page-title">ALUMNI GLOBE</h1>
         <p class="t-caption text-muted portal-page-sub">Pins update when alumni change their location.</p>
       </div>
-      <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+      <div data-audience="Showing" data-empty="Showing every program.">
+        <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+        <p class="t-fine portal-feedback" style="text-align:right"></p>
+      </div>
     </div>
     <AlumniGlobe client:only="react" pins={PINS} />
-    <div class="portal-globe-foot">
-      <p class="m-0 t-fine text-muted">Search from Home for a list view of alumni.</p>
-      <button type="button" class="portal-btn is-small is-quiet t-label">REFRESH</button>
-    </div>
+    <p class="m-0 t-fine text-muted" style="margin-top:calc(16 * var(--u))">Search from Home for a list view of alumni.</p>
   </PortalShell>
 </BaseLayout>
-<script is:inline>document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));</script>

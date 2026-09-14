@@ -33,16 +33,18 @@ const PEOPLE = [
       <form class="portal-search" role="search" action="/alumni-portal/home" method="get">
         <svg class="portal-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
         <input type="search" name="q" class="t-caption portal-search-input" placeholder='e.g. "PM in fintech who did BUILD"' aria-label="Search alumni" />
-        <button type="submit" class="portal-btn t-title whitespace-nowrap portal-search-btn">SEARCH</button>
+        <button type="submit" class="portal-btn t-title whitespace-nowrap portal-search-btn" data-action="search" data-done="SEARCHING…" data-feedback="Results appear here once the alumni database is connected." data-feedback-target="#search-fb">SEARCH</button>
       </form>
+      <p id="search-fb" class="t-fine text-center portal-feedback" style="width:calc(600 * var(--u));margin-inline:auto"></p>
 
-      <div class="portal-filters">
+      <div class="portal-filters" data-audience="Filtering by" data-empty="No filters — showing everyone.">
         {[['PROGRAM', PROGRAMS], ['DIVISION', DIVISIONS], ['INDUSTRY', INDUSTRIES]].map(([label, items]) => (
           <div class="portal-filter-row">
             <span class="t-fine text-muted portal-filter-label">{label}</span>
             <div class="flex flex-wrap portal-chips">{(items as string[]).map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
           </div>
         ))}
+        <p class="t-fine portal-feedback" style="margin-left:calc(78 * var(--u))"></p>
       </div>
 
       <h2 class="m-0 t-label text-muted text-center portal-h2">SUGGESTED FOR YOU</h2>
@@ -66,7 +68,3 @@ const PEOPLE = [
 </BaseLayout>
 
 
-<script is:inline>
-  // chips toggle their pressed state (design preview; filtering is wired with the search backend)
-  document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));
-</script>

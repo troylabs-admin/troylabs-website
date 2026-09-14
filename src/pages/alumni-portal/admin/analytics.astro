@@ -3,11 +3,13 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
+import AdminNav from '../../../components/portal/AdminNav.astro';
 const TILES = [['TOTAL USERS', '13', 'Target: —'], ['ACTIVE USERS (30D)', '1', 'Target: 40% of members'], ['PROFILE COMPLETION', '92%', 'Target: ≥70%'], ['SEARCHES TODAY', '2', 'Target: —'], ['MESSAGES SENT (30D)', '0', 'Target: ≥95% delivery']];
 ---
 
-<BaseLayout title="Analytics — TL Alumni Network Portal" description="TroyLabs alumni portal analytics.">
-  <PortalShell current="analytics" variant="admin" label="Analytics">
+<BaseLayout nav="portal" current="admin" title="Analytics — TL Alumni Network Portal" description="TroyLabs alumni portal analytics.">
+  <PortalShell label="Analytics">
+    <AdminNav current="analytics" />
     <div class="portal-page-head">
       <div><h1 class="t-title portal-page-title">ANALYTICS</h1><p class="t-caption text-muted portal-page-sub">Last updated 8:14 AM</p></div>
       <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label">REFRESH</button></div>

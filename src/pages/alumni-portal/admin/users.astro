@@ -3,6 +3,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
+import AdminNav from '../../../components/portal/AdminNav.astro';
 const USERS = [
   ['Sample Admin', 'president@usc.edu', 'ADMIN', 'TL_INTERNAL, BUILD', true],
   ['Sample Admin', 'copresident@usc.edu', 'ADMIN', 'TL_INTERNAL, IGNITE', true],
@@ -13,8 +14,9 @@ const USERS = [
 ];
 ---
 
-<BaseLayout title="Users — TL Alumni Network Portal" description="TroyLabs alumni portal user management.">
-  <PortalShell current="users" variant="admin" label="User management">
+<BaseLayout nav="portal" current="admin" title="Users — TL Alumni Network Portal" description="TroyLabs alumni portal user management.">
+  <PortalShell label="User management">
+    <AdminNav current="users" />
     <div class="portal-page-head">
       <h1 class="t-title portal-page-title">USER MANAGEMENT</h1>
       <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label">EXPORT EMAILS &amp; PHONES (CSV)</button></div>

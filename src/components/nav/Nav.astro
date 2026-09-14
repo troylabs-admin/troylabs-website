@@ -9,15 +9,28 @@ import { pos, u } from '../../lib/units';
 import rocket from '../../assets/figma/nav-rocket.svg?raw';
 import ApplyLink from '../ui/ApplyLink.astro';
 
-interface Props { current?: 'home' | 'build' | 'ignite' | 'demo' }
-const { current } = Astro.props;
+/* The alumni portal reuses this nav with its own links (Bryan, 2026-09-14): signed in, the row is
+   SEARCH · GLOBE · PROFILE · ADMIN with SIGN OUT in the Apply slot — one nav, not two stacked. On the
+   public sign-in page the site links stay and the slot reads ALUMNI NETWORK instead of pitching applications. */
+interface Props { current?: string; variant?: 'site' | 'portal' | 'gate'; admin?: boolean }
+const { current, variant = 'site', admin = true } = Astro.props;
 
-const links = [
+const siteLinks = [
   { href: '/', label: 'HOME', key: 'home' },
   { href: '/build', label: 'BUILD', key: 'build' },
   { href: '/ignite', label: 'IGNITE', key: 'ignite' },
   { href: '/demo', label: 'DEMO', key: 'demo' },
-] as const;
+];
+const portalLinks = [
+  { href: '/alumni-portal/home', label: 'SEARCH', key: 'home' },
+  { href: '/alumni-portal/globe', label: 'GLOBE', key: 'globe' },
+  { href: '/alumni-portal/profile', label: 'PROFILE', key: 'profile' },
+  ...(admin ? [{ href: '/alumni-portal/admin', label: 'ADMIN', key: 'admin' }] : []),
+];
+const links = variant === 'portal' ? portalLinks : siteLinks;
+const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' }
+           : variant === 'gate' ? { href: '/alumni-portal', label: 'ALUMNI NETWORK' }
+           : null;
 ---
 
 <header class="section z-10" style="--h:79" data-figma="Nav">
@@ -29,18 +42,18 @@ const links = [
     ))}
   </nav>
 
-  <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} />
+  {slot ? <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} href={slot.href} label={slot.label} /> : <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} />}
 </header>
 
 <!-- mobile: one tight row -->
-<header class="m m-nav" data-m="Nav">
+<header class:list={["m m-nav", variant === "portal" && "m-nav-portal"]} data-m="Nav">
   <a href="/" class="m-mark" aria-label="TroyLabs home" set:html={rocket} />
   <nav class="m-links" aria-label="Primary">
     {links.map((l) => (
       <a href={l.href} class="t-nav glow-text whitespace-nowrap" aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
     ))}
   </nav>
-  <ApplyLink class="m-apply t-nav" label="APPLY" />
+  {slot ? <ApplyLink class="m-apply t-nav" href={slot.href} label={variant === 'gate' ? 'ALUMNI' : slot.label} /> : <ApplyLink class="m-apply t-nav" label="APPLY" />}
 </header>
 
 <style>
@@ -48,6 +61,11 @@ const links = [
   .m-nav { display: none; }
   @media (max-width: 767px) {
     .m-nav { display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px; }
+    /* portal variant: SEARCH · GLOBE · PROFILE · ADMIN + SIGN OUT — tighter type so the row fits a 390px phone */
+    .m-nav-portal { gap: 8px; padding-inline: 14px; }
+    .m-nav-portal .m-links { gap: 8px; flex: 1; min-width: 0; justify-content: space-between; }
+    .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 10px !important; line-height: 13px; letter-spacing: 0.6px !important; }   /* one size for all five, SIGN OUT included (.m-apply carries the site's larger size) */
+    @media (max-width: 359px) { .m-nav-portal .m-links { gap: 6px; } .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 9px !important; letter-spacing: 0.4px !important; } }
     .m-mark { width: 17px; height: 26px; flex: none; }
     .m-links { display: flex; gap: 13px; flex: 1; justify-content: center; }
     .m-apply { flex: none; }

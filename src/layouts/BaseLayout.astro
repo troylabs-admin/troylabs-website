@@ -4,6 +4,7 @@ import '../styles/mobile.css';
 import { ClientRouter } from 'astro:transitions';
 import Nav from '../components/nav/Nav.astro';
 import Footer from '../components/nav/Footer.astro';
+import PortalFooter from '../components/portal/PortalFooter.astro';
 import { Image } from 'astro:assets';
 import Analytics from '@vercel/analytics/astro';
 import rocketPng from '../assets/space/orange-rocket.png';
@@ -12,9 +13,12 @@ interface Props {
   title: string;
   description?: string;
   /** Which nav item is the current page */
-  current?: 'home' | 'build' | 'ignite' | 'demo';
+  current?: string;
+  /** 'portal' = a signed-in alumni-portal page: portal nav, slim footer. 'gate' = the public sign-in page. */
+  nav?: 'site' | 'portal' | 'gate';
+  admin?: boolean;
 }
-const { title, description = "TroyLabs — where USC student builders launch, scale, and raise capital.", current } = Astro.props;
+const { title, description = "TroyLabs — where USC student builders launch, scale, and raise capital.", current, nav = 'site', admin = true } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://usctroylabs.com').href;
 const ogImage = new URL('/og.jpg', Astro.site ?? 'https://usctroylabs.com').href;
@@ -96,11 +100,11 @@ const ogImage = new URL('/og.jpg', Astro.site ?? 'https://usctroylabs.com').href
     <Image src={rocketPng} alt="" width={120} height={271} data-transition-rocket style="display:none" />
     <div class="nebula" aria-hidden="true"><span class="n1"></span><span class="n2"></span><span class="n3"></span></div>
     <div class="canvas">
-      <Nav current={current} />
+      <Nav current={current} variant={nav} admin={admin} />
       <main class="relative">
         <slot />
       </main>
-      <Footer current={current} />
+      {nav === 'portal' ? <PortalFooter /> : <Footer current={current} />}
     </div>
     {/* Vercel Web Analytics: cookieless visitor + page-view counts, no consent banner needed.
         Loads after the page and is skipped entirely in dev. */}

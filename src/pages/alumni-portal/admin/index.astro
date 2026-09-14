@@ -3,11 +3,13 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
+import AdminNav from '../../../components/portal/AdminNav.astro';
 const TILES = [['TOTAL USERS', '13'], ['ACTIVE (30D)', '1'], ['PROFILE COMPLETION', '92%'], ['MESSAGES SENT (30D)', '0']];
 ---
 
-<BaseLayout title="Admin — TL Alumni Network Portal" description="TroyLabs alumni portal admin.">
-  <PortalShell current="admin" variant="admin" label="Admin dashboard">
+<BaseLayout nav="portal" current="admin" title="Admin — TL Alumni Network Portal" description="TroyLabs alumni portal admin.">
+  <PortalShell label="Admin dashboard">
+    <AdminNav current="admin" />
     <div class="portal-page-head"><h1 class="t-title portal-page-title">ADMIN DASHBOARD</h1></div>
     <div class="portal-tiles">{TILES.map(([l, v]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span></div>)}</div>
     <div class="portal-panels">

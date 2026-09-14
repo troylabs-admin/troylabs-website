@@ -8,8 +8,8 @@ import PortalShell from '../../../components/portal/PortalShell.astro';
 const SECTIONS: [string, string[]][] = [['Programs', ['TL INTERNAL', 'BUILD']], ['E-Board roles', ['DIRECTOR OF VC/FINANCE']], ['Divisions', ['VC/FINANCE']], ['TL BUILD startups', ['SAMPLE STARTUP']], ['Industries', ['VC/FINANCE', 'FINTECH']]];
 ---
 
-<BaseLayout title="Sample Alum — TL Alumni Network Portal" description="A TroyLabs alum.">
-  <PortalShell current="home" label="Member">
+<BaseLayout nav="portal" current="home" title="Sample Alum — TL Alumni Network Portal" description="A TroyLabs alum.">
+  <PortalShell label="Member">
     <a href="/alumni-portal/home" class="t-label portal-back">← BACK TO SEARCH</a>
     <div class="portal-member-head">
       <span class="portal-avatar is-large t-sub" aria-hidden="true">SA</span>

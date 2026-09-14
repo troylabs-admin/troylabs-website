@@ -1,0 +1,17 @@
+---
+/** Alumni portal › admin sub-nav (the MVP's admin layout): ADMIN · MESSAGES · USERS · ANALYTICS, BACK right. */
+interface Props { current: string }
+const { current } = Astro.props;
+const items = [
+  { key: 'admin', label: 'ADMIN', href: '/alumni-portal/admin' },
+  { key: 'messages', label: 'MESSAGES', href: '/alumni-portal/admin/messages' },
+  { key: 'users', label: 'USERS', href: '/alumni-portal/admin/users' },
+  { key: 'analytics', label: 'ANALYTICS', href: '/alumni-portal/admin/analytics' },
+];
+---
+<nav class="portal-nav t-nav" aria-label="Admin">
+  <ul class="m-0 p-0 list-none flex portal-nav-list">
+    {items.map((i) => <li><a href={i.href} class:list={['no-underline glow-text', i.key === current ? 'text-ink' : 'text-muted']} aria-current={i.key === current ? 'page' : undefined}>{i.label}</a></li>)}
+  </ul>
+  <a href="/alumni-portal/home" class="no-underline text-muted">BACK</a>
+</nav>

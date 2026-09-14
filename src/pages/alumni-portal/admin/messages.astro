@@ -3,11 +3,13 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
+import AdminNav from '../../../components/portal/AdminNav.astro';
 const AUD: [string, string[]][] = [['PROGRAMS', ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
 ---
 
-<BaseLayout title="Messages — TL Alumni Network Portal" description="Send a message blast to TroyLabs alumni.">
-  <PortalShell current="messages" variant="admin" label="Send message blast">
+<BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Send a message blast to TroyLabs alumni.">
+  <PortalShell label="Send message blast">
+    <AdminNav current="messages" />
     <div class="portal-page-head"><div>
       <h1 class="t-title portal-page-title">SEND MESSAGE BLAST</h1>
       <p class="t-caption text-muted portal-page-sub">Compose event invitations or announcements. Messages send via iMessage/SMS to opted-in alumni matching your audience filters.</p>

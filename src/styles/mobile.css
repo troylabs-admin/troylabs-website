@@ -48,6 +48,11 @@
   :is(.m, .portal-section) .t-body { font-size: 14.5px; line-height: 24px; letter-spacing: 0.4px; }
   :is(.m, .portal-section) .t-caption { font-size: 13.5px; line-height: 21px; letter-spacing: 0.3px; }
   :is(.m, .portal-section) .t-nav { font-size: 12px; line-height: 15px; letter-spacing: 1.1px; }
+  /* alumni portal nav (Nav.astro variant="portal"): five items on one row — one size for all of them,
+     SIGN OUT included. Sits AFTER the .t-nav type scale above so it wins on cascade order at equal
+     specificity, and is global on purpose: SIGN OUT is rendered by the ApplyLink child, out of Nav's scope. */
+  .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 10px; line-height: 13px; letter-spacing: 0.6px; }
+  @media (max-width: 359px) { .m-nav-portal .m-links { gap: 6px; } .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 9px; letter-spacing: 0.4px; } }
   :is(.m, .portal-section) .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
   :is(.m, .portal-section) .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
   :is(.m, .portal-section) .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }

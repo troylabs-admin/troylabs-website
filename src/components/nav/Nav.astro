@@ -64,8 +64,8 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
     /* portal variant: SEARCH · GLOBE · PROFILE · ADMIN + SIGN OUT — tighter type so the row fits a 390px phone */
     .m-nav-portal { gap: 8px; padding-inline: 14px; }
     .m-nav-portal .m-links { gap: 8px; flex: 1; min-width: 0; justify-content: space-between; }
-    .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 10px !important; line-height: 13px; letter-spacing: 0.6px !important; }   /* one size for all five, SIGN OUT included (.m-apply carries the site's larger size) */
-    @media (max-width: 359px) { .m-nav-portal .m-links { gap: 6px; } .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 9px !important; letter-spacing: 0.4px !important; } }
+    /* type sizes for this variant live in styles/mobile.css: SIGN OUT is rendered by the ApplyLink child, which
+       this scoped block cannot reach (Astro scoping stops at component boundaries) */
     .m-mark { width: 17px; height: 26px; flex: none; }
     .m-links { display: flex; gap: 13px; flex: 1; justify-content: center; }
     .m-apply { flex: none; }

@@ -21,13 +21,15 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
         <button type="button" role="tab" class="portal-tab" data-tab="signup" aria-selected="false">SIGN UP</button>
       </div>
 
-      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="you@usc.edu" aria-label="Email" class="t-caption portal-input" required />
+      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="you@usc.edu" aria-label="Email" class="t-caption portal-input only-login" required />
       <input id="portal-password" type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" class="t-caption portal-input only-login" minlength="8" />
 
-      <button type="submit" class="portal-btn t-title whitespace-nowrap"><span class="only-login">LOG IN</span><span class="only-signup">EMAIL ME A MAGIC LINK</span></button>
-
+      <button type="submit" class="portal-btn t-title whitespace-nowrap only-login">LOG IN</button>
       <button type="button" id="portal-magic" class="portal-link t-label only-login">FORGOT PASSWORD? EMAIL A MAGIC LINK</button>
-      <p class="m-0 t-fine text-muted text-center only-signup portal-hint">New alumni get a one-time magic link, then create a password for future logins.</p>
+
+      <!-- Sign up is deliberately inert (Bryan, 2026-09-14): no input, no button, nothing wired. Alumni join by invitation. -->
+      <p class="m-0 t-caption text-center only-signup portal-signup-note">Sign up is by invitation. TroyLabs alumni will receive an email with their link.</p>
+      <p class="m-0 t-fine text-muted text-center only-signup portal-hint">Think you should have access? Email troylabs@usc.edu.</p>
 
       <p id="portal-msg" class="m-0 t-fine text-center portal-msg" role="status"></p>
       <p class="m-0 t-fine text-muted text-center portal-hint">Access is limited to TroyLabs alumni.</p>
@@ -61,6 +63,7 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
   .portal-link { background: none; border: 0; color: var(--color-muted); cursor: pointer; margin-top: calc(18 * var(--u)); font: inherit; letter-spacing: inherit; transition: color 150ms ease; }
   .portal-link:hover { color: var(--color-ink); }
   .portal-hint { margin-top: calc(14 * var(--u)); max-width: calc(320 * var(--u)); }
+  .portal-signup-note { margin-top: calc(34 * var(--u)); max-width: calc(320 * var(--u)); line-height: calc(18 * var(--u)); }
   .portal-msg { color: var(--color-orange); margin-top: calc(18 * var(--u)); min-height: calc(10 * var(--u)); max-width: calc(320 * var(--u)); }
   /* the two tabs share one form; the inactive tab's controls are simply not there */
   .portal-form[data-tab="login"] .only-signup, .portal-form[data-tab="signup"] .only-login { display: none; }
@@ -94,6 +97,7 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
         form.dataset.tab = t;
         for (const b of form.querySelectorAll('.portal-tab')) b.setAttribute('aria-selected', String(b === tab));
         pw.required = t === 'login';
+        document.getElementById('portal-email').required = t === 'login';
         msg.textContent = '';
       });
     }

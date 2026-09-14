@@ -91,24 +91,32 @@ function init() {
   });
 
   // ── profile completion ──
+  // Scores only what every alum can answer. Optional fields (data-optional) — e-board roles, BUILD
+  // startups, phone, the free-text industries list — never count against you: an empty answer there is
+  // the correct answer for most people (Bryan, 2026-09-14: "if they weren't e-board they can't put that").
+  // The photo counts, and the note names what is still missing so the number means something.
   function recount() {
     const bar = root!.querySelector<HTMLElement>('.portal-progress i');
     const label = root!.querySelector<HTMLElement>('[data-completion]');
+    const note = root!.querySelector<HTMLElement>('[data-completion-note]');
     if (!bar || !label) return;
-    const inputs = [...root!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.portal-profile .portal-input, .portal-profile .portal-textarea')].filter((i) => !i.closest('[data-adds]'));
-    const groups = [...root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]')];
-    const tags = [...root!.querySelectorAll<HTMLElement>('.portal-profile [data-tags]')];
+    const missing: string[] = [];
+    let done = 0, total = 0;
+    const count = (filled: boolean, name: string) => { total++; if (filled) done++; else missing.push(name); };
     const photo = root!.querySelector<HTMLElement>('.portal-photo .portal-avatar');
-    const fields = [
-      ...(photo ? [photo.dataset.hasPhoto === '1'] : []),   // the photo is a field too
-      ...inputs.map((i) => i.value.trim() !== ''),
-      ...groups.map((g) => !!g.querySelector('.portal-chip[aria-pressed="true"]')),
-      ...tags.map((t) => !!t.querySelector('.portal-tagx')),
-    ];
-    const done = fields.filter(Boolean).length, total = fields.length;
-    const pct = Math.round((100 * done) / total);
+    if (photo) count(photo.dataset.hasPhoto === '1', 'photo');
+    for (const i of root!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.portal-profile .portal-input, .portal-profile .portal-textarea')) {
+      if (i.closest('[data-adds]') || i.hasAttribute('data-optional')) continue;
+      count(i.value.trim() !== '', i.dataset.label ?? i.getAttribute('aria-label')?.toLowerCase() ?? 'field');
+    }
+    for (const g of root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]:not([data-optional])'))
+      count(!!g.querySelector('.portal-chip[aria-pressed="true"]'), g.dataset.label ?? g.dataset.field ?? 'field');
+    for (const t of root!.querySelectorAll<HTMLElement>('.portal-profile [data-tags]:not([data-optional])'))
+      count(!!t.querySelector('.portal-tagx'), t.dataset.label ?? 'tags');
+    const pct = total ? Math.round((100 * done) / total) : 0;
     bar.style.width = `${pct}%`; label.textContent = `${pct}% · ${done}/${total} FIELDS`;
     bar.parentElement?.setAttribute('aria-valuenow', String(pct));
+    if (note) note.textContent = missing.length ? `Still missing: ${missing.join(', ')}. E-board roles, startups and phone are optional and don't count.` : 'Complete — everything alumni can see about you is filled in.';
   }
   root.querySelectorAll('.portal-profile input, .portal-profile textarea').forEach((i) => i.addEventListener('input', recount));
   recount();

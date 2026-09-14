@@ -216,10 +216,24 @@
 .portal-linklike:hover { color: var(--color-orange); }
 
 /* globe page — Charlotte's 3D globe (components/portal/AlumniGlobe.tsx) */
-.portal-globe-wrap { position: relative; width: 100%; height: min(70vh, calc(100vh - 12rem)); min-height: 360px; overflow: hidden; margin-top: calc(28 * var(--u)); }
-.portal-globe-pop { position: absolute; left: calc(16 * var(--u)); top: calc(16 * var(--u)); z-index: 10; max-width: calc(280 * var(--u)); background: rgb(10 10 10 / 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.portal-globe-wrap { position: relative; width: 100%; height: min(78vh, calc(100vh - 9rem)); min-height: 420px; overflow: hidden; margin-top: calc(20 * var(--u)); }
+/* pin hover: the name appears above the star, so it's obvious pins are people you can click */
+.portal-globe-wrap .tl-pin-name { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); white-space: nowrap; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #fff; background: rgb(10 10 10 / 0.75); padding: 3px 8px; border-radius: 9999px; box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.35); opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
+.portal-globe-wrap button:hover .tl-pin-name, .portal-globe-wrap button:focus-visible .tl-pin-name { opacity: 1; }
+.portal-globe-pop { position: absolute; z-index: 10; width: calc(260 * var(--u)); max-width: calc(100% - 32px); background: rgb(10 10 10 / 0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transform: translate(-50%, calc(-100% - 28px)); }
+.portal-globe-pop::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: rgb(255 255 255 / 0.25); }
 .portal-globe-count { position: absolute; right: calc(16 * var(--u)); bottom: calc(16 * var(--u)); }
 .portal-globe-foot { display: flex; justify-content: space-between; align-items: center; margin-top: calc(20 * var(--u)); }
+
+/* role tag (ADMIN / MEMBER / STAKEHOLDER) next to a name */
+.portal-role { display: inline-block; vertical-align: middle; margin-left: calc(8 * var(--u)); padding: calc(2 * var(--u)) calc(8 * var(--u)); border-radius: 9999px; color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); box-shadow: inset 0 0 0 calc(0.4 * var(--u)) rgb(255 125 44 / 0.7); }
+
+/* profile photo: the avatar becomes a photo when one is set; the whole thing is the upload target */
+.portal-photo { position: relative; display: inline-block; cursor: pointer; flex: none; }
+.portal-photo img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 9999px; object-fit: cover; box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 125 44 / 0.6); }
+.portal-photo-edit { position: absolute; left: 50%; bottom: calc(-6 * var(--u)); transform: translateX(-50%); padding: calc(2 * var(--u)) calc(8 * var(--u)); border-radius: 9999px; background: var(--color-bg); color: var(--color-muted); letter-spacing: calc(1.2 * var(--u)); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.4); transition: color 150ms ease; white-space: nowrap; }
+.portal-photo:hover .portal-photo-edit { color: var(--color-orange); }
+.portal-avatar img { width: 100%; height: 100%; border-radius: 9999px; object-fit: cover; }
 
 /* member page */
 .portal-member-head { display: flex; gap: calc(22 * var(--u)); align-items: flex-start; margin-top: calc(28 * var(--u)); }
@@ -254,11 +268,13 @@
   .portal-table th, .portal-table td { padding: 10px 8px; white-space: nowrap; }
   .portal-row-list li { padding: 10px 14px; border-radius: 10px; }
   .portal-linklike { letter-spacing: 1.2px; }
-  .portal-globe-wrap { height: 60vh; min-height: 320px; margin-top: 20px; }
-  .portal-globe-pop { left: 12px; top: 12px; max-width: 240px; }
+  .portal-globe-wrap { height: 64vh; min-height: 360px; margin-top: 16px; }
+  .portal-globe-pop { width: 240px; }
   .portal-globe-count { right: 12px; bottom: 12px; }
   .portal-globe-foot { flex-direction: column; gap: 8px; margin-top: 20px; }
   .portal-member-head { gap: 16px; margin-top: 20px; }
+  .portal-role { margin-left: 8px; padding: 2px 8px; letter-spacing: 1.2px; }
+  .portal-photo-edit { bottom: -6px; padding: 2px 8px; letter-spacing: 1.2px; }
   .portal-avatar.is-large { width: 64px; height: 64px; font-size: 20px; }
   .portal-member-name { font-size: 26px; line-height: 30px; letter-spacing: 1px; }
   .portal-back { margin-top: 18px; letter-spacing: 1.2px; }

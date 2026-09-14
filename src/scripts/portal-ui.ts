@@ -79,6 +79,17 @@ function init() {
   }
   for (const form of root.querySelectorAll('form')) form.addEventListener('submit', (e) => e.preventDefault());
 
+  // ── profile photo: preview the chosen file in place (the upload itself is backend work) ──
+  const photoInput = root.querySelector<HTMLInputElement>('#pf-photo');
+  photoInput?.addEventListener('change', () => {
+    const f = photoInput.files?.[0]; if (!f) return;
+    const url = URL.createObjectURL(f);
+    const img = root!.querySelector<HTMLImageElement>('#pf-photo-preview');
+    if (img) { img.src = url; img.hidden = false; }
+    root!.querySelector<HTMLElement>('.portal-photo .portal-avatar')?.setAttribute('data-has-photo', '1');
+    recount();
+  });
+
   // ── profile completion ──
   function recount() {
     const bar = root!.querySelector<HTMLElement>('.portal-progress i');
@@ -87,7 +98,9 @@ function init() {
     const inputs = [...root!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.portal-profile .portal-input, .portal-profile .portal-textarea')].filter((i) => !i.closest('[data-adds]'));
     const groups = [...root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]')];
     const tags = [...root!.querySelectorAll<HTMLElement>('.portal-profile [data-tags]')];
+    const photo = root!.querySelector<HTMLElement>('.portal-photo .portal-avatar');
     const fields = [
+      ...(photo ? [photo.dataset.hasPhoto === '1'] : []),   // the photo is a field too
       ...inputs.map((i) => i.value.trim() !== ''),
       ...groups.map((g) => !!g.querySelector('.portal-chip[aria-pressed="true"]')),
       ...tags.map((t) => !!t.querySelector('.portal-tagx')),

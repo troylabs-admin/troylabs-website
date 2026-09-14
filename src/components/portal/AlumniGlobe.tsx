@@ -10,7 +10,7 @@ import { useEffect, useRef, useState, useCallback, type ComponentType } from 're
 
 export interface GlobePin { id: string; full_name: string; lat: number; lng: number; current_title?: string | null; current_company?: string | null; city?: string | null; region?: string | null }
 
-function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin) => void) {
+function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin, el: HTMLElement) => void) {
   const el = document.createElement('button');
   el.type = 'button';
   el.title = pin.full_name;
@@ -18,6 +18,7 @@ function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin) => void) {
   el.innerHTML = `
     <span style="position:relative;display:block;width:34px;height:34px;">
       <span style="position:absolute;inset:4px;border-radius:999px;background:radial-gradient(circle, rgba(226,58,31,0.55) 0%, rgba(226,58,31,0) 70%);animation:tl-star-pulse 1.8s ease-in-out infinite;"></span>
+      <span class="tl-pin-name">${pin.full_name}</span>
       <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style="position:relative;z-index:1;">
         <path fill="#ff4a2a" stroke="#ffd56a" stroke-width="1.4" d="M12 2.2l2.85 6.55 7.1.65-5.35 4.7 1.7 6.9L12 17.5l-6.3 3.5 1.7-6.9L2.05 9.4l7.1-.65L12 2.2z" />
       </svg>
@@ -28,8 +29,11 @@ function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin) => void) {
     style.textContent = `@keyframes tl-star-pulse { 0%, 100% { transform: scale(0.85); opacity: 0.55; } 50% { transform: scale(1.25); opacity: 1; } }`;
     document.head.appendChild(style);
   }
-  el.style.cssText = 'background:transparent;border:0;padding:0;cursor:pointer;transform:translate(-50%,-50%);filter:drop-shadow(0 0 10px rgba(255,74,42,0.95)) drop-shadow(0 0 18px rgba(255,213,106,0.55));line-height:0;z-index:2';
-  el.addEventListener('click', (event) => { event.stopPropagation(); onClick(pin); });
+  // pointer-events:auto is required: the library's marker container is pointer-events:none, and children
+  // inherit it — without this, hover and click never reach the pin (measured: elementFromPoint at the pin
+  // centre returned the canvas). This also means pin clicks did not work in the MVP as deployed.
+  el.style.cssText = 'background:transparent;border:0;padding:0;cursor:pointer;transform:translate(-50%,-50%);filter:drop-shadow(0 0 10px rgba(255,74,42,0.95)) drop-shadow(0 0 18px rgba(255,213,106,0.55));line-height:0;z-index:2;overflow:visible;pointer-events:auto';
+  el.addEventListener('click', (event) => { event.stopPropagation(); onClick(pin, el); });
   return el;
 }
 
@@ -37,9 +41,10 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
   const globeRef = useRef<{ pointOfView: (pov: { lat?: number; lng?: number; altitude?: number }, ms?: number) => void; controls: () => { enableZoom: boolean; zoomSpeed: number } } | null>(null);
   const [selected, setSelected] = useState<GlobePin | null>(null);
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const clickHandlerRef = useRef<(pin: GlobePin) => void>(() => undefined);
+  const clickHandlerRef = useRef<(pin: GlobePin, el: HTMLElement) => void>(() => undefined);
 
   useEffect(() => { import('react-globe.gl').then((m) => setGlobe(() => m.default)); }, []);   // WebGL: client only
 
@@ -61,9 +66,14 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  const handlePinClick = useCallback((pin: GlobePin) => {
+  const handlePinClick = useCallback((pin: GlobePin, el: HTMLElement) => {
     setSelected(pin);
-    globeRef.current?.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 1.5 }, 1000);
+    // the card sits above the pin you clicked, not in a corner. After the fly-in the pin lands at the
+    // globe's centre, so anchor there once the camera settles.
+    const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect();
+    setAnchor({ x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top });
+    globeRef.current?.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 1.4 }, 900);
+    setTimeout(() => setAnchor({ x: wrap.width / 2, y: wrap.height / 2 - 17 }), 950);
   }, []);
   clickHandlerRef.current = handlePinClick;
 
@@ -73,7 +83,7 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
         <Globe
           ref={globeRef}
           onGlobeReady={() => {
-            globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, 0);
+            globeRef.current?.pointOfView({ lat: 30, lng: -60, altitude: 1.9 }, 0);   // closer, and opened on the Americas where most alumni are
             // The wheel scrolls the PAGE. OrbitControls binds it to zoom by default, so scrolling past the
             // globe blew it up to fill the viewport on the way up and shrank it to a dot on the way down
             // (Bryan, 2026-09-14). Drag still rotates; a pin click still flies in via pointOfView.
@@ -88,19 +98,19 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
           htmlLat="lat"
           htmlLng="lng"
           htmlAltitude={0.02}
-          htmlElement={(d: object) => createStarMarker(d as GlobePin, (pin) => clickHandlerRef.current(pin))}
+          htmlElement={(d: object) => createStarMarker(d as GlobePin, (pin, el) => clickHandlerRef.current(pin, el))}
           atmosphereColor="#c9a84c"
           atmosphereAltitude={0.15}
         />
       )}
-      {selected && (
-        <div className="portal-panel portal-globe-pop">
+      {selected && anchor && (
+        <div className="portal-panel portal-globe-pop" style={{ left: anchor.x, top: anchor.y }}>
           <h3 className="t-name m-0">{selected.full_name}</h3>
           <p className="t-caption text-muted m-0">{selected.current_title}{selected.current_company ? ` · ${selected.current_company}` : ''}</p>
           {selected.city && <p className="t-fine text-muted m-0">{selected.city}{selected.region ? `, ${selected.region}` : ''}</p>}
           <div className="portal-inline" style={{ marginTop: 'calc(10 * var(--u))' }}>
             <a href={profileHref(selected)} className="t-label portal-linklike" style={{ color: 'var(--color-orange)' }}>VIEW PROFILE →</a>
-            <button type="button" className="t-label portal-linklike" onClick={() => setSelected(null)}>CLOSE</button>
+            <button type="button" className="t-label portal-linklike" onClick={() => { setSelected(null); setAnchor(null); }}>CLOSE</button>
           </div>
         </div>
       )}

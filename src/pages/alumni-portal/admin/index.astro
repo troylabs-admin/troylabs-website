@@ -10,7 +10,12 @@ const TILES = [['TOTAL USERS', '13'], ['ACTIVE (30D)', '1'], ['PROFILE COMPLETIO
 <BaseLayout nav="portal" current="admin" title="Admin — TL Alumni Network Portal" description="TroyLabs alumni portal admin.">
   <PortalShell label="Admin dashboard">
     <AdminNav current="admin" />
-    <div class="portal-page-head"><h1 class="t-title portal-page-title">DASHBOARD</h1></div>
+    <div class="portal-page-head">
+      <div>
+        <h1 class="t-title portal-page-title">DASHBOARD</h1>
+        <p class="t-caption text-muted portal-page-sub">Signed in as <span class="text-ink">Sample Admin</span> <span class="t-fine portal-role">ADMIN</span> · you can see this because your email is on the admin list.</p>
+      </div>
+    </div>
     <div class="portal-tiles">{TILES.map(([l, v]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span></div>)}</div>
     <div class="portal-panels">
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Quick links</h2>

@@ -28,6 +28,7 @@ const portalLinks = [
   ...(admin ? [{ href: '/alumni-portal/admin', label: 'ADMIN', key: 'admin' }] : []),
 ];
 const links = variant === 'portal' ? portalLinks : siteLinks;
+/* signed in: the slot names the person, so every page knows who you are (design preview: placeholder) */
 const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' }
            : variant === 'gate' ? { href: '/alumni-portal', label: 'ALUMNI NETWORK' }
            : null;
@@ -42,6 +43,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
     ))}
   </nav>
 
+  {variant === 'portal' && <a href="/alumni-portal/profile" class="abs t-nav text-muted whitespace-nowrap no-underline nav-who" style={`${pos(700, 32, 130, 14)};--i:4;text-align:right`} title="Your profile">SAMPLE ALUM</a>}
   {slot ? <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} href={slot.href} label={slot.label} /> : <ApplyLink class="abs" style={`${pos(836, 32, 140, 14)};--i:5`} />}
 </header>
 
@@ -58,6 +60,8 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
 
 <style>
   header :global(svg) { width: 100%; height: 100%; }
+  .nav-who { transition: color 150ms ease; }
+  .nav-who:hover { color: var(--color-ink); }
   .m-nav { display: none; }
   @media (max-width: 767px) {
     .m-nav { display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px; }

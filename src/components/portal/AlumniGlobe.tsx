@@ -35,7 +35,7 @@ function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin) => void) {
 
 export default function AlumniGlobe({ pins, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePin[]; profileHref?: (p: GlobePin) => string }) {
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
-  const globeRef = useRef<{ pointOfView: (pov: { lat?: number; lng?: number; altitude?: number }, ms?: number) => void } | null>(null);
+  const globeRef = useRef<{ pointOfView: (pov: { lat?: number; lng?: number; altitude?: number }, ms?: number) => void; controls: () => { enableZoom: boolean; zoomSpeed: number } } | null>(null);
   const [selected, setSelected] = useState<GlobePin | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +61,13 @@ export default function AlumniGlobe({ pins, profileHref = (p) => `/alumni-portal
       {Globe && (
         <Globe
           ref={globeRef}
-          onGlobeReady={() => { globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, 0); }}
+          onGlobeReady={() => {
+            globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, 0);
+            // The wheel scrolls the PAGE. OrbitControls binds it to zoom by default, so scrolling past the
+            // globe blew it up to fill the viewport on the way up and shrank it to a dot on the way down
+            // (Bryan, 2026-09-14). Drag still rotates; a pin click still flies in via pointOfView.
+            const c = globeRef.current?.controls(); if (c) c.enableZoom = false;
+          }}
           width={dimensions.width}
           height={dimensions.height}
           globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"

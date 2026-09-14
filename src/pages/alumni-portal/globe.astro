@@ -1,0 +1,51 @@
+---
+/**
+ * Alumni portal › Globe. The MVP's page — title, program filters, a globe of alumni pins, the count —
+ * with the site's own line-art globe (scripts/globe.ts, the same one the home page spins) in place of
+ * the 3D texture. DESIGN PREVIEW: pins are placeholders; nothing is wired to data.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/portal.css';
+import PortalShell from '../../components/portal/PortalShell.astro';
+import { Image } from 'astro:assets';
+import globe from '../../assets/figma/globe.png';
+const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
+const PINS = [[31, 42], [37, 47], [42, 38], [58, 30], [64, 52], [48, 66]]; // % of the globe box
+---
+
+<BaseLayout title="Globe — TL Alumni Network Portal" description="Where TroyLabs alumni are in the world.">
+  <PortalShell current="globe" label="Alumni globe">
+    <div class="portal-page-head">
+      <div>
+        <h1 class="t-title portal-page-title">ALUMNI GLOBE</h1>
+        <p class="t-caption text-muted portal-page-sub">Pins update when alumni change their location.</p>
+      </div>
+      <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+    </div>
+
+    <div class="portal-globe" data-globe aria-hidden="true">
+      <Image src={globe} alt="" width={1202} height={1201} class="globe-static" />
+      <svg class="globe-live" viewBox="0 0 387 387">
+        <defs>
+          <radialGradient id="p-globe-shade" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#1c1c1c" /><stop offset="0.6" stop-color="#0b0b0b" /><stop offset="1" stop-color="#050505" /></radialGradient>
+          <filter id="p-globe-rim" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4" /></filter>
+        </defs>
+        <circle cx="193.5" cy="193.5" r="192" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="3" filter="url(#p-globe-rim)" />
+        <circle cx="193.5" cy="193.5" r="192" fill="url(#p-globe-shade)" stroke="#fff" stroke-opacity="0.7" stroke-width="0.6" />
+        <path data-graticule fill="none" stroke="#fff" stroke-opacity="0.07" stroke-width="0.4" />
+        <path data-land-glow fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="3" stroke-linejoin="round" />
+        <path data-land fill="rgba(255,255,255,0.03)" stroke="#fff" stroke-opacity="0.85" stroke-width="0.9" stroke-linejoin="round" />
+      </svg>
+      {PINS.map(([x, y]) => <span class="portal-pin" style={`left:${x}%;top:${y}%`} />)}
+    </div>
+
+    <div class="portal-globe-foot">
+      <p class="m-0 t-fine text-muted">Search from Home for a list view of alumni.</p>
+      <div class="portal-actions">
+        <button type="button" class="portal-btn is-small is-quiet t-label">REFRESH</button>
+        <span class="t-label text-muted" style="align-self:center">13 ALUMNI ON MAP</span>
+      </div>
+    </div>
+  </PortalShell>
+</BaseLayout>
+<script is:inline>document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));</script>

@@ -1,0 +1,43 @@
+---
+/** Alumni portal › Admin › Send message blast (the MVP's /admin/messages, composer + audience). DESIGN PREVIEW. */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+const AUD: [string, string[]][] = [['PROGRAMS', ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
+---
+
+<BaseLayout title="Messages — TL Alumni Network Portal" description="Send a message blast to TroyLabs alumni.">
+  <PortalShell current="messages" variant="admin" label="Send message blast">
+    <div class="portal-page-head"><div>
+      <h1 class="t-title portal-page-title">SEND MESSAGE BLAST</h1>
+      <p class="t-caption text-muted portal-page-sub">Compose event invitations or announcements. Messages send via iMessage/SMS to opted-in alumni matching your audience filters.</p>
+    </div></div>
+
+    <div class="portal-panels portal-panels-2">
+      <form class="portal-panel" novalidate>
+        <h2 class="t-sub portal-panel-title">Compose message</h2>
+        <div class="portal-field"><label class="t-label text-muted" for="mc-title">CAMPAIGN TITLE</label><input id="mc-title" class="t-caption portal-input is-wide" /></div>
+        <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea></div>
+        <h3 class="t-label text-muted" style="margin:calc(22 * var(--u)) 0 calc(10 * var(--u))">EVENT DETAILS (OPTIONAL)</h3>
+        <div class="portal-field" style="gap:calc(10 * var(--u))">
+          <input class="t-caption portal-input is-wide" placeholder="Event name" aria-label="Event name" />
+          <input class="t-caption portal-input is-wide" type="datetime-local" aria-label="Event date and time" />
+          <input class="t-caption portal-input is-wide" placeholder="Location or link" aria-label="Location or link" />
+          <input class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
+        </div>
+      </form>
+      <div class="portal-panel">
+        <h2 class="t-sub portal-panel-title">Audience</h2>
+        {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
+        <div class="portal-actions" style="flex-direction:column;align-items:stretch">
+          <button type="button" class="portal-btn is-small is-quiet t-label">PREVIEW AUDIENCE</button>
+          <button type="button" class="portal-btn t-title" style="margin-top:0">SEND NOW</button>
+        </div>
+      </div>
+    </div>
+  </PortalShell>
+</BaseLayout>
+<script is:inline>
+  document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));
+  document.querySelector('form.portal-panel')?.addEventListener('submit', (e) => e.preventDefault());
+</script>

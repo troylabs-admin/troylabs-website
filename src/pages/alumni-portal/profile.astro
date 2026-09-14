@@ -1,0 +1,77 @@
+---
+/**
+ * Alumni portal › Your profile. Every section and field of the MVP's form, in the site's language.
+ * DESIGN PREVIEW: values are placeholders; nothing saves yet.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/portal.css';
+import PortalShell from '../../components/portal/PortalShell.astro';
+const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
+const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
+const DIVISIONS = ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO'];
+const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
+const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINTECH'] };
+---
+
+<BaseLayout title="Your profile — TL Alumni Network Portal" description="Your TroyLabs alumni profile.">
+  <PortalShell current="profile" label="Your profile">
+    <div class="portal-page-head">
+      <div>
+        <h1 class="t-title portal-page-title">YOUR PROFILE</h1>
+        <p class="t-caption text-muted portal-page-sub">you@usc.edu</p>
+      </div>
+    </div>
+
+    <div class="portal-panel" style="margin-top:calc(22 * var(--u))">
+      <div class="flex justify-between items-baseline">
+        <span class="t-label text-muted">PROFILE COMPLETION</span>
+        <span class="t-label" style="color:var(--color-orange)">92% · 11/12 FIELDS</span>
+      </div>
+      <div class="portal-progress" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"><i style="width:92%"></i></div>
+      <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))">Updates live as you fill fields — save when you're done.</p>
+    </div>
+
+    <form class="portal-profile" novalidate>
+      <h2 class="t-sub portal-section-h">Basic info</h2>
+      <div class="portal-form-grid">
+        <div class="portal-field"><label class="t-label text-muted" for="pf-name">FULL NAME</label><input id="pf-name" class="t-caption portal-input is-wide" value="Sample Alum" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-year">COHORT YEAR</label><input id="pf-year" class="t-caption portal-input is-wide" value="2025" inputmode="numeric" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT TITLE</label><input id="pf-title" class="t-caption portal-input is-wide" value="Co-President" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" class="t-caption portal-input is-wide" value="TL Startup Accelerator" /></div>
+        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
+        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" class="t-caption portal-textarea">Building the TL alumni network and supporting BUILD founders.</textarea></div>
+      </div>
+
+      <h2 class="t-sub portal-section-h">Programs</h2>
+      <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.programs.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
+
+      <h2 class="t-sub portal-section-h">E-Board roles</h2>
+      <div class="flex flex-wrap portal-chips">{EBOARD.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={([] as string[]).includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
+
+      <h2 class="t-sub portal-section-h">Divisions</h2>
+      <div class="flex flex-wrap portal-chips">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.divisions.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
+
+      <h2 class="t-sub portal-section-h">TL BUILD startups</h2>
+      <div class="flex flex-wrap portal-chips" style="margin-bottom:calc(12 * var(--u))"><span class="t-fine portal-tagx">BRIDGIT <b>×</b></span><span class="t-fine portal-tagx">TL LABS <b>×</b></span></div>
+      <div class="portal-inline"><input class="t-caption portal-input" placeholder="Add startup…" aria-label="Add startup" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
+
+      <h2 class="t-sub portal-section-h">Industries of interest</h2>
+      <div class="flex flex-wrap portal-chips" style="margin-bottom:calc(12 * var(--u))">{INDUSTRIES.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.industries.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
+      <div class="portal-inline"><input class="t-caption portal-input" placeholder="Type an industry and press Add" aria-label="Add industry" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
+
+      <h2 class="t-sub portal-section-h">Location</h2>
+      <div class="portal-inline"><input class="t-caption portal-input" value="Los Angeles, CA" placeholder="City, State" aria-label="Location" /><button type="button" class="portal-btn is-small t-label">UPDATE</button></div>
+      <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))">Los Angeles, CA USA · Pin placed on globe</p>
+
+      <h2 class="t-sub portal-section-h">Notifications</h2>
+      <div class="portal-field"><label class="t-label text-muted" for="pf-phone">PHONE (E.164, E.G. +13105551234)</label><input id="pf-phone" class="t-caption portal-input is-wide" value="+13105550101" inputmode="tel" /></div>
+      <label class="portal-check t-caption" style="margin-top:calc(14 * var(--u))"><input type="checkbox" checked /><i></i>Opt in to event invitations via iMessage/SMS</label>
+
+      <div class="portal-save"><button type="submit" class="portal-btn t-title">SAVE</button></div>
+    </form>
+  </PortalShell>
+</BaseLayout>
+<script is:inline>
+  document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));
+  document.querySelector('.portal-profile')?.addEventListener('submit', (e) => e.preventDefault());
+</script>

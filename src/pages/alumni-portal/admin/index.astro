@@ -1,0 +1,21 @@
+---
+/** Alumni portal › Admin dashboard (the MVP's /admin). DESIGN PREVIEW: numbers are placeholders. */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+const TILES = [['TOTAL USERS', '13'], ['ACTIVE (30D)', '1'], ['PROFILE COMPLETION', '92%'], ['MESSAGES SENT (30D)', '0']];
+---
+
+<BaseLayout title="Admin — TL Alumni Network Portal" description="TroyLabs alumni portal admin.">
+  <PortalShell current="admin" variant="admin" label="Admin dashboard">
+    <div class="portal-page-head"><h1 class="t-title portal-page-title">ADMIN DASHBOARD</h1></div>
+    <div class="portal-tiles">{TILES.map(([l, v]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span></div>)}</div>
+    <div class="portal-panels">
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Quick links</h2>
+        <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/messages">Message composer</a></li><li><a href="/alumni-portal/admin/users">User management</a></li><li><a href="/alumni-portal/admin/analytics">Analytics</a></li></ul></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Allowed domains (3)</h2>
+        <ul class="portal-panel-list t-caption text-muted"><li>usc.edu</li><li>student.usc.edu</li><li>gmail.com</li></ul></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent campaigns</h2><p class="m-0 t-caption text-muted">No campaigns yet.</p></div>
+    </div>
+  </PortalShell>
+</BaseLayout>

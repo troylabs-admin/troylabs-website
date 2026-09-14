@@ -1,0 +1,28 @@
+---
+/**
+ * Alumni portal › a member's page (the MVP's /members/[id]). DESIGN PREVIEW with a placeholder person.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+const SECTIONS: [string, string[]][] = [['Programs', ['TL INTERNAL', 'BUILD']], ['E-Board roles', ['DIRECTOR OF VC/FINANCE']], ['Divisions', ['VC/FINANCE']], ['TL BUILD startups', ['SAMPLE STARTUP']], ['Industries', ['VC/FINANCE', 'FINTECH']]];
+---
+
+<BaseLayout title="Sample Alum — TL Alumni Network Portal" description="A TroyLabs alum.">
+  <PortalShell current="home" label="Member">
+    <a href="/alumni-portal/home" class="t-label portal-back">← BACK TO SEARCH</a>
+    <div class="portal-member-head">
+      <span class="portal-avatar is-large t-sub" aria-hidden="true">SA</span>
+      <div>
+        <h1 class="portal-member-name">Sample Alum</h1>
+        <p class="m-0 t-tagline text-muted" style="margin-top:calc(6 * var(--u))">Angel Investor at Sample Capital</p>
+        <p class="m-0 t-caption text-muted" style="margin-top:calc(8 * var(--u))">Miami, FL USA</p>
+        <a href="/alumni-portal/globe" class="portal-btn is-small t-label no-underline text-ink" style="display:inline-flex;align-items:center;margin-top:calc(16 * var(--u))">SHOW ON GLOBE</a>
+      </div>
+    </div>
+
+    <h2 class="t-sub portal-section-h">About</h2>
+    <p class="m-0 t-body" style="max-width:calc(560 * var(--u))">Early-stage fintech and consumer investor. Placeholder bio for the design preview.</p>
+    {SECTIONS.map(([h, items]) => (<><h2 class="t-sub portal-section-h">{h}</h2><div class="flex flex-wrap portal-card-tags" style="margin-top:0">{items.map((t) => <span class="t-fine portal-tag">{t}</span>)}</div></>))}
+  </PortalShell>
+</BaseLayout>

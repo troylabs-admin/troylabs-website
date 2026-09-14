@@ -1,0 +1,38 @@
+---
+/** Alumni portal › Admin › User management (the MVP's /admin/users). DESIGN PREVIEW with placeholder rows. */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+const USERS = [
+  ['Sample Admin', 'president@usc.edu', 'ADMIN', 'TL_INTERNAL, BUILD', true],
+  ['Sample Admin', 'copresident@usc.edu', 'ADMIN', 'TL_INTERNAL, IGNITE', true],
+  ['Sample Alum', 'alum1@usc.edu', 'MEMBER', 'BUILD', true],
+  ['Sample Alum', 'alum2@usc.edu', 'MEMBER', 'BUILD, DEMO', true],
+  ['Sample Alum', 'alum3@usc.edu', 'MEMBER', 'IGNITE', false],
+  ['Sample Investor', 'investor@fund.com', 'STAKEHOLDER', '', false],
+];
+---
+
+<BaseLayout title="Users — TL Alumni Network Portal" description="TroyLabs alumni portal user management.">
+  <PortalShell current="users" variant="admin" label="User management">
+    <div class="portal-page-head">
+      <h1 class="t-title portal-page-title">USER MANAGEMENT</h1>
+      <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label">EXPORT EMAILS &amp; PHONES (CSV)</button></div>
+    </div>
+
+    <div class="portal-panel" style="margin-top:calc(22 * var(--u))">
+      <h2 class="t-sub portal-panel-title">Allowed email domains</h2>
+      <div class="portal-inline" style="margin-bottom:calc(12 * var(--u))"><input class="t-caption portal-input" placeholder="example.com" aria-label="Add domain" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
+      <ul class="portal-row-list t-caption">
+        {['usc.edu', 'student.usc.edu', 'gmail.com'].map((d) => <li><span>{d}</span><button type="button" class="t-label portal-linklike">DELETE</button></li>)}
+      </ul>
+    </div>
+
+    <table class="portal-table t-caption">
+      <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">ROLE</th><th class="t-label">PROGRAMS</th><th class="t-label">COMPLETE</th><th></th></tr></thead>
+      <tbody>
+        {USERS.map(([n, e, r, p, c]) => <tr><td>{n}</td><td class="text-muted">{e}</td><td><span class="t-fine portal-tag">{r}</span></td><td class="text-muted">{p}</td><td>{c ? '✓' : '—'}</td><td style="text-align:right"><button type="button" class="t-label portal-linklike">DELETE</button></td></tr>)}
+      </tbody>
+    </table>
+  </PortalShell>
+</BaseLayout>

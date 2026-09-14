@@ -6,8 +6,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
-import PortalNav from '../../components/portal/PortalNav.astro';
-import Stars from '../../components/space/Stars.astro';
+import PortalShell from '../../components/portal/PortalShell.astro';
 
 const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
 const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC / FINANCE', 'MARKETING'];
@@ -20,18 +19,10 @@ const PEOPLE = [
   { name: 'Sample Alum', role: 'Founder', company: 'Startup', city: 'Los Angeles, CA', tags: ['BUILD', 'DEMO'], initials: 'SA', match: 12 },
   { name: 'Sample Alum', role: 'Analyst', company: 'Company', city: 'San Francisco, CA', tags: ['IGNITE'], initials: 'SA', match: 10 },
 ];
-const stars = [
-  { x: 176.7, y: 68, s: 8.9 }, { x: 838.6, y: 58.2, s: 8.9 }, { x: 65, y: 214, s: 11.5 }, { x: 930, y: 176, s: 12.6 },
-  { x: 129.7, y: 415, s: 12.6 }, { x: 876, y: 402, s: 11.5 }, { x: 700, y: 30, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' },
-  { x: 204, y: 300, s: 5.2, kind: 'dot' }, { x: 300, y: 130, s: 5.2, kind: 'dot' }, { x: 40, y: 560, s: 5.2, kind: 'dot' }, { x: 960, y: 620, s: 5.3, kind: 'dot' },
-] as any;
 ---
 
 <BaseLayout title="Search — TL Alumni Network Portal" description="Find TroyLabs alumni by name, role, industry, program or city.">
-  <section class="section portal-section portal-flow" data-figma="AlumniPortalHome" aria-label="Search alumni">
-    <Stars items={stars} />
-    <div class="portal-col portal-wide">
-      <PortalNav current="home" admin />
+  <PortalShell current="home" label="Search alumni">
 
       <header class="flex flex-col items-center portal-head">
         <span class="t-label text-muted">ALUMNI NETWORK</span>
@@ -71,8 +62,7 @@ const stars = [
           </li>
         ))}
       </ul>
-    </div>
-  </section>
+  </PortalShell>
 </BaseLayout>
 
 

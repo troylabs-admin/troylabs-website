@@ -1,0 +1,23 @@
+---
+/**
+ * Alumni portal › shell for every signed-in page: the flowing .section (see styles/portal.css), the
+ * site's stars, the nav row, then the page. One markup for desktop and phone.
+ */
+import Stars from '../space/Stars.astro';
+import PortalNav from './PortalNav.astro';
+interface Props { current: string; label: string; variant?: 'portal' | 'admin'; admin?: boolean }
+const { current, label, variant = 'portal', admin = true } = Astro.props;
+const stars = [
+  { x: 176.7, y: 68, s: 8.9 }, { x: 838.6, y: 58.2, s: 8.9 }, { x: 65, y: 214, s: 11.5 }, { x: 930, y: 176, s: 12.6 },
+  { x: 129.7, y: 415, s: 12.6 }, { x: 876, y: 402, s: 11.5 }, { x: 700, y: 30, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' },
+  { x: 204, y: 300, s: 5.2, kind: 'dot' }, { x: 300, y: 130, s: 5.2, kind: 'dot' }, { x: 40, y: 560, s: 5.2, kind: 'dot' }, { x: 960, y: 620, s: 5.3, kind: 'dot' },
+] as any;
+---
+
+<section class="section portal-section portal-flow" data-figma="AlumniPortal" aria-label={label}>
+  <Stars items={stars} />
+  <div class="portal-col portal-wide">
+    <PortalNav current={current} variant={variant} admin={admin} />
+    <slot />
+  </div>
+</section>

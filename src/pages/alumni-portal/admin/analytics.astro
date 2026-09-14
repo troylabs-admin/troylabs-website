@@ -1,0 +1,17 @@
+---
+/** Alumni portal › Admin › Analytics (the MVP's /admin/analytics). DESIGN PREVIEW: numbers are placeholders. */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+const TILES = [['TOTAL USERS', '13', 'Target: —'], ['ACTIVE USERS (30D)', '1', 'Target: 40% of members'], ['PROFILE COMPLETION', '92%', 'Target: ≥70%'], ['SEARCHES TODAY', '2', 'Target: —'], ['MESSAGES SENT (30D)', '0', 'Target: ≥95% delivery']];
+---
+
+<BaseLayout title="Analytics — TL Alumni Network Portal" description="TroyLabs alumni portal analytics.">
+  <PortalShell current="analytics" variant="admin" label="Analytics">
+    <div class="portal-page-head">
+      <div><h1 class="t-title portal-page-title">ANALYTICS</h1><p class="t-caption text-muted portal-page-sub">Last updated 8:14 AM</p></div>
+      <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label">REFRESH</button></div>
+    </div>
+    <div class="portal-tiles portal-tiles-3">{TILES.map(([l, v, t]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span><span class="t-fine text-muted">{t}</span></div>)}</div>
+  </PortalShell>
+</BaseLayout>

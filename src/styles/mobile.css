@@ -41,18 +41,18 @@
      held at arm's length wants FEWER, BIGGER things — so headings step UP relative to the artboard's
      ratios while body copy stays comfortable, and everything gets more air. Sizes are clamped against
      viewport width so a 320 px phone and a 430 px phone both read correctly. */
-  .m .t-hero { font-size: clamp(46px, 14.5vw, 62px); line-height: 1.06; letter-spacing: 0.09em; }
-  .m .t-title, .m .t-title-tight { font-size: clamp(19px, 5.4vw, 23px); line-height: 1.28; letter-spacing: 0.1em; }
+  :is(.m, .portal-section) .t-hero { font-size: clamp(46px, 14.5vw, 62px); line-height: 1.06; letter-spacing: 0.09em; }
+  :is(.m, .portal-section) .t-title, :is(.m, .portal-section) .t-title-tight { font-size: clamp(19px, 5.4vw, 23px); line-height: 1.28; letter-spacing: 0.1em; }
   .m .t-sub { font-size: 16px; line-height: 22px; letter-spacing: 1px; }
-  .m .t-tagline { font-size: clamp(14px, 4vw, 17px); line-height: 1.5; letter-spacing: 0.045em; }
+  :is(.m, .portal-section) .t-tagline { font-size: clamp(14px, 4vw, 17px); line-height: 1.5; letter-spacing: 0.045em; }
   .m .t-body { font-size: 14.5px; line-height: 24px; letter-spacing: 0.4px; }
-  .m .t-caption { font-size: 13.5px; line-height: 21px; letter-spacing: 0.3px; }
-  .m .t-nav { font-size: 12px; line-height: 15px; letter-spacing: 1.1px; }
-  .m .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
+  :is(.m, .portal-section) .t-caption { font-size: 13.5px; line-height: 21px; letter-spacing: 0.3px; }
+  :is(.m, .portal-section) .t-nav { font-size: 12px; line-height: 15px; letter-spacing: 1.1px; }
+  :is(.m, .portal-section) .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
   .m .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
   .m .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }
   .m .t-feature { font-size: 17px; line-height: 21px; letter-spacing: 0.4px; }
-  .m .t-fine { font-size: 10px; line-height: 14px; letter-spacing: 0.5px; }
+  :is(.m, .portal-section) .t-fine { font-size: 10px; line-height: 14px; letter-spacing: 0.5px; }
 
   /* ── layout primitives ── */
   .m-pad { padding-inline: 24px; }
@@ -184,4 +184,14 @@
 @keyframes m-node-ignite {
   from { opacity: 0.35; box-shadow: 0 0 7px rgb(255 255 255 / 0.2); }
   to { opacity: 1; box-shadow: 0 0 7px rgb(255 255 255 / 0.6), 0 0 16px rgb(255 125 44 / 0.55); }
+}
+
+/* ── Alumni portal pages: one markup for both breakpoints ─────────────────────────────────────────
+   The portal's PortalFrame is a normal 1001-du .section at desktop. On phones it is not hidden like the
+   marketing sections (which have .m twins) — it flows: auto height, static column, the du-positioned
+   stars and planet dropped in favour of the mobile planet block above it. Type scale above is shared. */
+@media (max-width: 767px) {
+  .canvas .section.portal-section { display: block; height: auto; padding: 36px 24px 56px; }
+  .portal-section > .star, .portal-section > .planet { display: none; }
+  .portal-section .portal-col { position: static !important; width: auto !important; height: auto !important; }
 }

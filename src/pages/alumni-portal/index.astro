@@ -1,0 +1,45 @@
+---
+/**
+ * TL Alumni Network Portal — front door. Rebuilt into the site from Charlotte Chang's MVP
+ * (github.com/CharChang888/troylabs-alumni-network), which is the functional spec; the look is the site's own.
+ * Copy mirrors the marketing pages' voice: label · title · one-line tagline · pill CTA.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PortalFrame from '../../components/portal/PortalFrame.astro';
+---
+
+<BaseLayout title="TL Alumni Network Portal — TroyLabs" description="The private network for TroyLabs alumni: find people by program, industry and city, and stay connected after USC.">
+  <PortalFrame h={521} planet label="TL Alumni Network Portal">
+    <span class="t-label text-muted m-center">MEMBERS ONLY</span>
+    <h1 class="m-0 t-hero text-center whitespace-nowrap title portal-title">TL ALUMNI NETWORK</h1>
+    <p class="m-0 t-tagline text-center tagline portal-tagline">Where TroyLabs alumni find each other, long after USC.</p>
+    <a href="/alumni-portal/login" class="pill t-title flex items-center justify-center whitespace-nowrap no-underline text-ink portal-cta">ENTER THE NETWORK</a>
+  </PortalFrame>
+</BaseLayout>
+
+<style is:global>
+  /* the hero title recipe (BUILD 6977:598): #ff3500 → #ffc200 top-to-bottom, soft dark drop shadow */
+  .portal-title {
+    background: linear-gradient(180deg, #ff3500 0%, #ffc200 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 calc(5.45 * var(--u)) rgb(0 0 0 / 0.7));
+    margin-top: calc(18 * var(--u));
+  }
+  /* tagline recipe (6977:600): orange at the right end, white from 10 % leftwards */
+  .portal-tagline {
+    background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-top: calc(22 * var(--u)); max-width: calc(600 * var(--u));
+  }
+  .portal-cta {
+    margin-top: calc(36 * var(--u)); padding: 0 calc(28 * var(--u)); height: calc(33.6 * var(--u)); border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4);
+    transition: box-shadow 150ms ease;
+  }
+  .portal-cta:hover, .portal-cta:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
+  @media (max-width: 767px) {
+    .portal-title { white-space: normal; margin-top: 6px; }
+    .portal-tagline { max-width: 320px; margin-top: 10px; }
+    .portal-cta { margin-top: 26px; min-height: 44px; padding: 10px 26px; height: auto; }
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+/**
+ * Alumni portal › page frame. The portal is the site's own product, so it speaks the site's language:
+ * a 1001-du .section at desktop with a centred column (children abs + pos(), like every marketing
+ * section). Unlike the marketing sections it has no .m twin — one markup flows on phones instead
+ * (styles/mobile.css › "Alumni portal pages"), so a form exists exactly once in the DOM.
+ * Atmosphere: scattered stars, and optionally a planet bleeding in from the top-left the way BUILD's
+ * hero does — the portal is TL-internal, so it borrows BUILD's orange. Phones get the planet as the
+ * same .m-art block the mobile heroes use.
+ */
+import Stars from '../space/Stars.astro';
+import Planet from '../space/Planet.astro';
+import { pos } from '../../lib/units';
+
+interface Props { h: number; planet?: boolean; label: string }
+const { h, planet = false, label } = Astro.props;
+
+const stars = [
+  { x: 176.7, y: 68, s: 8.9 }, { x: 838.6, y: 58.2, s: 8.9 }, { x: 65, y: 214, s: 11.5 }, { x: 930, y: 176, s: 12.6 },
+  { x: 129.7, y: 415, s: 12.6 }, { x: 876, y: 402, s: 11.5 }, { x: 258, y: 470, s: 5.3, kind: 'dot' },
+  { x: 700, y: 30, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' }, { x: 778.6, y: 293, s: 5.3, kind: 'dot' },
+  { x: 204, y: 300, s: 5.2, kind: 'dot' }, { x: 640, y: 480, s: 5.2, kind: 'dot' }, { x: 300, y: 130, s: 5.2, kind: 'dot' },
+].filter((s) => s.y < h - 20) as any;
+---
+
+{planet && (
+  <div class="m m-portal-planet-wrap" aria-hidden="true">
+    <div class="m-art m-portal-planet" data-aw={872} data-ah={430}>
+      <Planet kind="orange" x={-260} y={-442} w={872} />
+    </div>
+  </div>
+)}
+
+<section class="section portal-section" style={`--h:${h}`} data-figma="AlumniPortal" aria-label={label}>
+  {planet && <Planet kind="orange" x={-222} y={-323} w={872} />}
+  <Stars items={stars} />
+  <div class="abs flex flex-col items-center justify-center portal-col" style={pos(200.5, 0, 600, h)}>
+    <slot />
+  </div>
+</section>
+
+<style>
+  @media (max-width: 767px) {
+    .m-portal-planet-wrap { margin-bottom: -60px; }
+    .m-portal-planet { width: 100%; }
+  }
+</style>

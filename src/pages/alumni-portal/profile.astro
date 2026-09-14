@@ -44,7 +44,12 @@ const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MA
       <h2 class="t-sub portal-section-h">Basic info</h2>
       <div class="portal-form-grid">
         <div class="portal-field"><label class="t-label text-muted" for="pf-name">FULL NAME</label><input id="pf-name" data-label="name" class="t-caption portal-input is-wide" value="Sample Alum" /></div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-year">COHORT YEAR</label><input id="pf-year" data-label="cohort year" class="t-caption portal-input is-wide" value="2025" inputmode="numeric" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-year">SEMESTER YOU JOINED TROYLABS</label>
+          <div class="portal-inline portal-term">
+            <select id="pf-term" class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option selected>Spring</option></select>
+            <input id="pf-year" data-label="semester you joined" class="t-caption portal-input" value="2025" inputmode="numeric" placeholder="Year" aria-label="Year" />
+          </div>
+        </div>
         <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT TITLE</label><input id="pf-title" data-label="title" class="t-caption portal-input is-wide" value="Co-President" /></div>
         <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" value="TL Startup Accelerator" /></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
@@ -54,8 +59,9 @@ const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MA
       <h2 class="t-sub portal-section-h">Programs</h2>
       <div class="flex flex-wrap portal-chips" data-field="programs" data-label="programs">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.programs.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
 
-      <h2 class="t-sub portal-section-h">E-Board roles <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· ONLY IF YOU SERVED</span></h2>
+      <h2 class="t-sub portal-section-h">E-Board roles <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· ONLY IF YOU SERVED — PICK THE ROLE, THEN THE YEAR</span></h2>
       <div class="flex flex-wrap portal-chips" data-field="eboard" data-optional>{EBOARD.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={([] as string[]).includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
+      <div id="pf-eboard-years" class="portal-role-years"></div>
 
       <h2 class="t-sub portal-section-h">Divisions</h2>
       <div class="flex flex-wrap portal-chips" data-field="divisions" data-label="divisions">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.divisions.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>

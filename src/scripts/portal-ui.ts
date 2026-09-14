@@ -14,7 +14,10 @@ function init() {
 
   // ── chips ──
   const summarise = (group: HTMLElement) => {
-    const fb = group.parentElement?.querySelector<HTMLElement>(':scope > .portal-feedback') ?? group.nextElementSibling?.classList.contains('portal-feedback') ? (group.nextElementSibling as HTMLElement) : null;
+    // only a feedback line that is the group's OWN next sibling — never something further down the page
+    // (on the profile this once printed "Selected: CO-PRESIDENT" above the divisions chips)
+    const next = group.nextElementSibling as HTMLElement | null;
+    const fb = next?.classList.contains('portal-feedback') ? next : null;
     if (!fb) return;
     const on = [...group.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.replace(/^✓\s*/, '').trim());
     const label = fb.dataset.label ?? 'Selected';
@@ -22,7 +25,20 @@ function init() {
   };
   for (const chip of root.querySelectorAll<HTMLElement>('.portal-chip')) {
     chip.addEventListener('click', () => {
-      chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
+      const on = chip.getAttribute('aria-pressed') !== 'true';
+      chip.setAttribute('aria-pressed', String(on));
+      // roles need a year: "Co-President" alone is not a fact, "Co-President 2025" is
+      if (chip.closest('[data-field="eboard"]')) {
+        const list = root!.querySelector<HTMLElement>('#pf-eboard-years');
+        const key = chip.textContent!.replace(/^✓\s*/, '').trim();
+        const row = list?.querySelector<HTMLElement>(`[data-role="${CSS.escape(key)}"]`);
+        if (on && list && !row) {
+          const r = document.createElement('div');
+          r.className = 'portal-inline portal-role-year'; r.dataset.role = key;
+          r.innerHTML = `<span class="t-fine portal-tagx" style="flex:none">${key}</span><select class="t-caption portal-input portal-select" aria-label="Semester you were ${key}"><option>Fall</option><option>Spring</option></select><input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year you were ${key}" style="max-width:calc(140 * var(--u))" />`;
+          list.appendChild(r); r.querySelector('input')?.focus();
+        } else if (!on && row) row.remove();
+      }
       const group = chip.closest<HTMLElement>('.portal-chips');
       if (group && !group.closest('[data-audience]')) summarise(group);   // inside an audience block the combined line reports instead
       recount();
@@ -106,7 +122,9 @@ function init() {
     const photo = root!.querySelector<HTMLElement>('.portal-photo .portal-avatar');
     if (photo) count(photo.dataset.hasPhoto === '1', 'photo');
     for (const i of root!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.portal-profile .portal-input, .portal-profile .portal-textarea')) {
-      if (i.closest('[data-adds]') || i.hasAttribute('data-optional')) continue;
+      // skip: add-boxes, anything inside an optional block (role years live under the optional e-board
+      // section), and the semester <select> — a semester+year pair is ONE field, scored by its year input
+      if (i.closest('[data-adds], [data-optional], #pf-eboard-years') || i.hasAttribute('data-optional') || i.classList.contains('portal-select')) continue;
       count(i.value.trim() !== '', i.dataset.label ?? i.getAttribute('aria-label')?.toLowerCase() ?? 'field');
     }
     for (const g of root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]:not([data-optional])'))

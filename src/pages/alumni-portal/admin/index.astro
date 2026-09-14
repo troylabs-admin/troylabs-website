@@ -4,7 +4,14 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
-const TILES = [['TOTAL USERS', '13'], ['ACTIVE (30D)', '1'], ['PROFILE COMPLETION', '92%'], ['MESSAGES SENT (30D)', '0']];
+/* plain words for a non-technical admin (Bryan, 2026-09-14): "campaign" was the MVP's word for one text
+   blast; "profile completion" is the average across all alumni — how filled-in the directory is. */
+const TILES: [string, string, string][] = [
+  ['ALUMNI SIGNED UP', '13', 'accounts in the portal'],
+  ['ACTIVE THIS MONTH', '1', 'signed in within 30 days'],
+  ['DIRECTORY FILLED IN', '92%', 'average profile completeness'],
+  ['TEXTS SENT THIS MONTH', '0', 'via the Messages page'],
+];
 ---
 
 <BaseLayout nav="portal" current="admin" title="Admin — TL Alumni Network Portal" description="TroyLabs alumni portal admin.">
@@ -16,13 +23,13 @@ const TILES = [['TOTAL USERS', '13'], ['ACTIVE (30D)', '1'], ['PROFILE COMPLETIO
         <p class="t-caption text-muted portal-page-sub">Signed in as <span class="text-ink">Sample Admin</span> <span class="t-fine portal-role">ADMIN</span> · you can see this because your email is on the admin list.</p>
       </div>
     </div>
-    <div class="portal-tiles">{TILES.map(([l, v]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span></div>)}</div>
+    <div class="portal-tiles">{TILES.map(([l, v, hint]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span><span class="t-fine text-muted">{hint}</span></div>)}</div>
     <div class="portal-panels">
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Quick links</h2>
-        <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/messages">Message composer</a></li><li><a href="/alumni-portal/admin/users">User management</a></li><li><a href="/alumni-portal/admin/analytics">Analytics</a></li></ul></div>
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Allowed domains (3)</h2>
+        <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/messages">Send a text blast</a></li><li><a href="/alumni-portal/admin/users">Manage members</a></li><li><a href="/alumni-portal/admin/analytics">See the numbers</a></li></ul></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Who can sign up (3 email domains)</h2>
         <ul class="portal-panel-list t-caption text-muted"><li>usc.edu</li><li>student.usc.edu</li><li>gmail.com</li></ul></div>
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent campaigns</h2><p class="m-0 t-caption text-muted">No campaigns yet.</p></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent message blasts</h2><p class="m-0 t-caption text-muted">Nothing sent yet. Blasts you send from the Messages page show up here.</p></div>
     </div>
   </PortalShell>
 </BaseLayout>

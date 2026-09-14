@@ -41,6 +41,17 @@ const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MA
     </div>
 
     <form class="portal-profile" novalidate>
+      <h2 class="t-sub portal-section-h">Status</h2>
+      <div class="flex flex-wrap portal-chips" data-field="status" data-label="status" data-single>
+        <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="student">CURRENT STUDENT</button>
+        <button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="alum">ALUM</button>
+      </div>
+      <div id="pf-grad" class="portal-inline portal-term" style="margin-top:calc(12 * var(--u))" hidden>
+        <span class="t-label text-muted" style="flex:none">EXPECTED GRADUATION</span>
+        <select class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
+        <input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" style="max-width:calc(140 * var(--u))" />
+      </div>
+
       <h2 class="t-sub portal-section-h">Basic info</h2>
       <div class="portal-form-grid">
         <div class="portal-field"><label class="t-label text-muted" for="pf-name">FULL NAME</label><input id="pf-name" data-label="name" class="t-caption portal-input is-wide" value="Sample Alum" /></div>
@@ -50,8 +61,8 @@ const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MA
             <input id="pf-year" data-label="semester you joined" class="t-caption portal-input" value="2025" inputmode="numeric" placeholder="Year" aria-label="Year" />
           </div>
         </div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT TITLE</label><input id="pf-title" data-label="title" class="t-caption portal-input is-wide" value="Co-President" /></div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" value="TL Startup Accelerator" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT JOB TITLE <span style="letter-spacing:0;text-transform:none">· what you do now, not your TL role</span></label><input id="pf-title" data-label="job title" class="t-caption portal-input is-wide" value="Software Engineer" placeholder="e.g. Product Manager" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" value="Stripe" placeholder="e.g. Stripe, or your startup" /></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" data-label="bio" class="t-caption portal-textarea">Building the TL alumni network and supporting BUILD founders.</textarea></div>
       </div>

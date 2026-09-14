@@ -26,6 +26,14 @@ function init() {
   for (const chip of root.querySelectorAll<HTMLElement>('.portal-chip')) {
     chip.addEventListener('click', () => {
       const on = chip.getAttribute('aria-pressed') !== 'true';
+      const single = chip.closest<HTMLElement>('[data-single]');
+      if (single) {                                   // one answer only (status): pick this, clear the rest
+        single.querySelectorAll('.portal-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+        chip.setAttribute('aria-pressed', 'true');
+        const grad = root!.querySelector<HTMLElement>('#pf-grad');
+        if (grad) grad.hidden = chip.dataset.value !== 'student';
+        recount(); return;
+      }
       chip.setAttribute('aria-pressed', String(on));
       // roles need a year: "Co-President" alone is not a fact, "Co-President 2025" is
       if (chip.closest('[data-field="eboard"]')) {
@@ -35,7 +43,10 @@ function init() {
         if (on && list && !row) {
           const r = document.createElement('div');
           r.className = 'portal-inline portal-role-year'; r.dataset.role = key;
-          r.innerHTML = `<span class="t-fine portal-tagx" style="flex:none">${key}</span><select class="t-caption portal-input portal-select" aria-label="Semester you were ${key}"><option>Fall</option><option>Spring</option></select><input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year you were ${key}" style="max-width:calc(140 * var(--u))" />`;
+          const term = () => `<span class="portal-term-pair"><select class="t-caption portal-input portal-select" aria-label="Semester you were ${key}"><option>Fall</option><option>Spring</option></select><input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year you were ${key}" style="max-width:calc(120 * var(--u))" /></span>`;
+          r.innerHTML = `<span class="t-fine portal-tagx" style="flex:none">${key}</span><span class="portal-terms">${term()}</span><button type="button" class="t-label portal-linklike" data-more>+ ANOTHER SEMESTER</button>`;
+          // a role can span several semesters (Bryan, 2026-09-14): each click adds a Fall/Spring + year pair
+          r.querySelector('[data-more]')!.addEventListener('click', () => { const t = document.createElement('span'); t.className = 'portal-term-pair'; t.innerHTML = term().replace(/^<span class="portal-term-pair">|<\/span>$/g, ''); r.querySelector('.portal-terms')!.appendChild(t); t.querySelector('input')?.focus(); });
           list.appendChild(r); r.querySelector('input')?.focus();
         } else if (!on && row) row.remove();
       }
@@ -124,7 +135,7 @@ function init() {
     for (const i of root!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.portal-profile .portal-input, .portal-profile .portal-textarea')) {
       // skip: add-boxes, anything inside an optional block (role years live under the optional e-board
       // section), and the semester <select> — a semester+year pair is ONE field, scored by its year input
-      if (i.closest('[data-adds], [data-optional], #pf-eboard-years') || i.hasAttribute('data-optional') || i.classList.contains('portal-select')) continue;
+      if (i.closest('[data-adds], [data-optional], #pf-eboard-years, #pf-grad') || i.hasAttribute('data-optional') || i.classList.contains('portal-select')) continue;
       count(i.value.trim() !== '', i.dataset.label ?? i.getAttribute('aria-label')?.toLowerCase() ?? 'field');
     }
     for (const g of root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]:not([data-optional])'))

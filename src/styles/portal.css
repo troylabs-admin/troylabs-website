@@ -244,6 +244,12 @@
 .portal-term .portal-input:not(.portal-select) { flex: 1; }
 .portal-inline .portal-select { flex: none; }   /* the generic .portal-inline .portal-input { flex:1 } outranks .portal-select alone */
 
+/* role rows: a role tag, then one or more Fall/Spring + year pairs, then "+ another semester" */
+.portal-terms { display: flex; flex-wrap: wrap; gap: calc(8 * var(--u)); }
+.portal-term-pair { display: inline-flex; gap: calc(8 * var(--u)); }
+.portal-term-pair .portal-input { margin-top: 0; }
+.portal-role-year { flex-wrap: wrap; }
+
 /* e-board role years: one row per selected role */
 .portal-role-years { display: flex; flex-direction: column; gap: calc(8 * var(--u)); margin-top: calc(12 * var(--u)); }
 .portal-role-years:empty { display: none; }

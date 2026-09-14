@@ -1,0 +1,24 @@
+---
+/**
+ * Alumni portal › in-portal navigation. Sits under the site nav on every signed-in page: the portal's own
+ * sections in the site's nav type, the current one solid, the rest muted. Sign out on the right.
+ */
+interface Props { current: 'home' | 'globe' | 'profile' | 'admin'; admin?: boolean }
+const { current, admin = false } = Astro.props;
+const items = [
+  { key: 'home', label: 'SEARCH', href: '/alumni-portal/home' },
+  { key: 'globe', label: 'GLOBE', href: '/alumni-portal/globe' },
+  { key: 'profile', label: 'PROFILE', href: '/alumni-portal/profile' },
+  ...(admin ? [{ key: 'admin', label: 'ADMIN', href: '/alumni-portal/admin' }] : []),
+];
+---
+
+<nav class="portal-nav t-nav" aria-label="Alumni portal">
+  <ul class="m-0 p-0 list-none flex portal-nav-list">
+    {items.map((i) => (
+      <li><a href={i.href} class:list={['no-underline glow-text', i.key === current ? 'text-ink' : 'text-muted']} aria-current={i.key === current ? 'page' : undefined}>{i.label}</a></li>
+    ))}
+  </ul>
+  <a href="/alumni-portal" class="no-underline text-muted portal-signout">SIGN OUT</a>
+</nav>
+

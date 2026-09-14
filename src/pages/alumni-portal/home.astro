@@ -1,0 +1,82 @@
+---
+/**
+ * Alumni portal › Search (the page behind the login). Structure follows the MVP's home — a question,
+ * a search bar, filter chips, suggested people — rebuilt in the site's language. DESIGN PREVIEW: the
+ * people below are placeholders so the layout can be judged; the page is not wired to any data yet.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/portal.css';
+import PortalNav from '../../components/portal/PortalNav.astro';
+import Stars from '../../components/space/Stars.astro';
+
+const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
+const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC / FINANCE', 'MARKETING'];
+const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'ROBOTICS'];
+const PEOPLE = [
+  { name: 'Sample Alum', role: 'Product Designer', company: 'Company', city: 'New York, NY', tags: ['BUILD', 'DEMO'], initials: 'SA', match: 33 },
+  { name: 'Sample Alum', role: 'Senior PM', company: 'Company', city: 'Chicago, IL', tags: ['BUILD'], initials: 'SA', match: 21 },
+  { name: 'Sample Alum', role: 'Software Engineer', company: 'Company', city: 'Seattle, WA', tags: ['IGNITE'], initials: 'SA', match: 19 },
+  { name: 'Sample Alum', role: 'Angel Investor', company: 'Fund', city: 'Miami, FL', tags: ['TL INTERNAL'], initials: 'SA', match: 17 },
+  { name: 'Sample Alum', role: 'Founder', company: 'Startup', city: 'Los Angeles, CA', tags: ['BUILD', 'DEMO'], initials: 'SA', match: 12 },
+  { name: 'Sample Alum', role: 'Analyst', company: 'Company', city: 'San Francisco, CA', tags: ['IGNITE'], initials: 'SA', match: 10 },
+];
+const stars = [
+  { x: 176.7, y: 68, s: 8.9 }, { x: 838.6, y: 58.2, s: 8.9 }, { x: 65, y: 214, s: 11.5 }, { x: 930, y: 176, s: 12.6 },
+  { x: 129.7, y: 415, s: 12.6 }, { x: 876, y: 402, s: 11.5 }, { x: 700, y: 30, kind: 'dot' }, { x: 904, y: 63, kind: 'dot' },
+  { x: 204, y: 300, s: 5.2, kind: 'dot' }, { x: 300, y: 130, s: 5.2, kind: 'dot' }, { x: 40, y: 560, s: 5.2, kind: 'dot' }, { x: 960, y: 620, s: 5.3, kind: 'dot' },
+] as any;
+---
+
+<BaseLayout title="Search — TL Alumni Network Portal" description="Find TroyLabs alumni by name, role, industry, program or city.">
+  <section class="section portal-section portal-flow" data-figma="AlumniPortalHome" aria-label="Search alumni">
+    <Stars items={stars} />
+    <div class="portal-col portal-wide">
+      <PortalNav current="home" admin />
+
+      <header class="flex flex-col items-center portal-head">
+        <span class="t-label text-muted">ALUMNI NETWORK</span>
+        <h1 class="m-0 t-hero text-center glow-text portal-q">WHO ARE YOU LOOKING FOR?</h1>
+        <p class="m-0 t-caption text-muted text-center portal-sub">Search by name, role, industry, program or city — or just describe who you need.</p>
+      </header>
+
+      <form class="portal-search" role="search" action="/alumni-portal/home" method="get">
+        <svg class="portal-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+        <input type="search" name="q" class="t-caption portal-search-input" placeholder='e.g. "PM in fintech who did BUILD"' aria-label="Search alumni" />
+        <button type="submit" class="portal-btn t-title whitespace-nowrap portal-search-btn">SEARCH</button>
+      </form>
+
+      <div class="portal-filters">
+        {[['PROGRAM', PROGRAMS], ['DIVISION', DIVISIONS], ['INDUSTRY', INDUSTRIES]].map(([label, items]) => (
+          <div class="portal-filter-row">
+            <span class="t-fine text-muted portal-filter-label">{label}</span>
+            <div class="flex flex-wrap portal-chips">{(items as string[]).map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 class="m-0 t-label text-muted text-center portal-h2">SUGGESTED FOR YOU</h2>
+      <ul class="m-0 p-0 list-none portal-grid">
+        {PEOPLE.map((p) => (
+          <li>
+            <a href="#" class="portal-card no-underline text-ink">
+              <span class="portal-avatar t-sub" aria-hidden="true">{p.initials}</span>
+              <span class="portal-card-body">
+                <span class="t-name portal-card-name">{p.name}</span>
+                <span class="t-caption text-muted">{p.role} · {p.company}</span>
+                <span class="t-fine text-muted">{p.city}</span>
+                <span class="flex flex-wrap portal-card-tags">{p.tags.map((t) => <span class="t-fine portal-tag">{t}</span>)}</span>
+                <span class="t-fine portal-match">{p.match}% MATCH</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+
+<script is:inline>
+  // chips toggle their pressed state (design preview; filtering is wired with the search backend)
+  document.querySelectorAll('.portal-chip').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'))));
+</script>

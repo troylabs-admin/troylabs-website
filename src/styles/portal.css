@@ -1,0 +1,136 @@
+/* ── Alumni portal ───────────────────────────────────────────────────────────────────────────────
+   Every portal page imports this. Sign-in, in-portal nav, and the flowing pages (search, globe,
+   profile, admin) share one vocabulary: the pill CTA recipe for buttons, the pill-stroke input from
+   the old gate, the site's type classes, du everywhere so it scales with the site. Per-page blocks
+   were dropped in favour of this file after the search page rendered without the pill styles that
+   only the sign-in page had loaded. */
+
+/* ── in-portal nav (components/portal/PortalNav.astro) ── */
+  .portal-nav { display: flex; align-items: center; justify-content: space-between; width: calc(800 * var(--u)); margin: 0 auto; padding-top: calc(10 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.12); }
+  .portal-nav-list { gap: calc(40 * var(--u)); }
+  .portal-nav a { transition: color 150ms ease; }
+  .portal-nav a:hover, .portal-nav a:focus-visible { color: var(--color-orange); }
+  @media (max-width: 767px) {
+    .portal-nav { width: 100%; padding-top: 12px; gap: 12px; }
+    .portal-nav-list { gap: 14px; }
+    .portal-nav a { font-size: 11px; letter-spacing: 1px; white-space: nowrap; }
+  }
+
+/* ── sign-in (pages/alumni-portal/index.astro) ── */
+  .portal-form { width: calc(400 * var(--u)); }
+  .portal-h { margin-top: calc(18 * var(--u)); }
+  .portal-tabs { display: flex; width: calc(320 * var(--u)); margin-top: calc(34 * var(--u)); border-bottom: 1px solid rgb(255 255 255 / 0.15); }
+  .portal-tab { flex: 1; background: none; border: 0; color: var(--color-muted); padding: 0 0 calc(10 * var(--u)); cursor: pointer; font: inherit; letter-spacing: inherit; transition: color 150ms ease; margin-bottom: -1px; border-bottom: 1px solid transparent; }
+  .portal-tab:hover { color: var(--color-ink); }
+  .portal-tab[aria-selected="true"] { color: var(--color-ink); border-bottom-color: var(--color-orange); }
+  .portal-input {
+    appearance: none; border: 0; outline: none; background: transparent; color: var(--color-ink);
+    width: calc(320 * var(--u)); height: calc(40 * var(--u)); margin-top: calc(18 * var(--u)); padding-left: calc(18 * var(--u));
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.5), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.12);
+    transition: box-shadow 150ms ease;
+  }
+  .portal-input::placeholder { color: var(--color-muted); }
+  .portal-input:focus { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.3); }
+  .portal-btn {
+    border: 0; cursor: pointer; background: transparent; color: var(--color-ink); border-radius: 9999px;
+    min-width: calc(120 * var(--u)); height: calc(33.6 * var(--u)); padding: 0 calc(24 * var(--u)); margin-top: calc(22 * var(--u));
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4);
+    transition: box-shadow 150ms ease;
+  }
+  .portal-btn:hover, .portal-btn:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
+  .portal-link { background: none; border: 0; color: var(--color-muted); cursor: pointer; margin-top: calc(18 * var(--u)); font: inherit; letter-spacing: inherit; transition: color 150ms ease; }
+  .portal-link:hover { color: var(--color-ink); }
+  .portal-hint { margin-top: calc(14 * var(--u)); max-width: calc(320 * var(--u)); }
+  .portal-signup-note { margin-top: calc(34 * var(--u)); max-width: calc(320 * var(--u)); line-height: calc(18 * var(--u)); }
+  .portal-msg { color: var(--color-orange); margin-top: calc(18 * var(--u)); min-height: calc(10 * var(--u)); max-width: calc(320 * var(--u)); }
+  /* the two tabs share one form; the inactive tab's controls are simply not there */
+  .portal-form[data-tab="login"] .only-signup, .portal-form[data-tab="signup"] .only-login { display: none; }
+  #portal-auth.denied .portal-input { animation: gate-shake 400ms ease; }
+  @keyframes gate-shake {
+    0%, 100% { transform: translateX(0); } 20% { transform: translateX(calc(-7 * var(--u))); }
+    45% { transform: translateX(calc(6 * var(--u))); } 70% { transform: translateX(calc(-3.5 * var(--u))); } 90% { transform: translateX(calc(1.5 * var(--u))); }
+  }
+  @media (max-width: 767px) {
+    .portal-form { width: 100%; max-width: 340px; }
+    .portal-h { margin-top: 10px; }
+    .portal-tabs { width: 100%; margin-top: 26px; }
+    .portal-tab { padding-bottom: 10px; }
+    .portal-input { width: 100%; height: 44px; margin-top: 14px; padding-left: 18px; font-size: 14px; }
+    .portal-btn { height: 44px; padding: 0 26px; margin-top: 18px; }
+    .portal-link { margin-top: 16px; }
+    .portal-hint, .portal-msg { max-width: 100%; margin-top: 12px; }
+  }
+
+/* ── search home and the other flowing pages (pages/alumni-portal/home.astro …) ── */
+  /* ── portal › flowing pages (search, globe, profile, admin) ─────────────────────────────────────
+     Unlike the sign-in, these pages are as tall as their content: the section flows, the column is a
+     normal block. Everything is still measured in du so it scales with the site. */
+  .portal-section.portal-flow { height: auto; padding-bottom: calc(80 * var(--u)); }
+  .portal-flow .portal-col { position: relative; width: calc(800 * var(--u)); margin: 0 auto; }
+  .portal-head { margin-top: calc(48 * var(--u)); }
+  .portal-q { margin-top: calc(14 * var(--u)); font-size: calc(40 * var(--u)); line-height: calc(46 * var(--u)); letter-spacing: calc(3.2 * var(--u)); }
+  .portal-sub { margin-top: calc(14 * var(--u)); max-width: calc(460 * var(--u)); }
+
+  .portal-search { display: flex; align-items: center; gap: calc(12 * var(--u)); width: calc(600 * var(--u)); margin: calc(36 * var(--u)) auto 0; position: relative; }
+  .portal-search-glyph { position: absolute; left: calc(16 * var(--u)); width: calc(16 * var(--u)); height: calc(16 * var(--u)); color: var(--color-muted); pointer-events: none; }
+  .portal-search-input {
+    appearance: none; border: 0; outline: none; background: transparent; color: var(--color-ink);
+    flex: 1; height: calc(40 * var(--u)); padding-left: calc(40 * var(--u)); border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.5), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.12);
+    transition: box-shadow 150ms ease;
+  }
+  .portal-search-input::placeholder { color: var(--color-muted); }
+  .portal-search-input:focus { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.3); }
+  .portal-search-btn { margin-top: 0; height: calc(40 * var(--u)); }
+
+  .portal-filters { width: calc(680 * var(--u)); margin: calc(26 * var(--u)) auto 0; display: flex; flex-direction: column; gap: calc(10 * var(--u)); }
+  .portal-filter-row { display: flex; align-items: baseline; gap: calc(14 * var(--u)); }
+  .portal-filter-label { width: calc(64 * var(--u)); flex: none; letter-spacing: calc(1.4 * var(--u)); }
+  .portal-chips { gap: calc(8 * var(--u)); }
+  .portal-chip {
+    background: none; border: 0; cursor: pointer; color: var(--color-muted); font: inherit; letter-spacing: calc(1.2 * var(--u));
+    padding: calc(5 * var(--u)) calc(11 * var(--u)); border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.3); transition: color 150ms ease, box-shadow 150ms ease;
+  }
+  .portal-chip:hover { color: var(--color-ink); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.7); }
+  .portal-chip[aria-pressed="true"] { color: var(--color-ink); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.35); }
+
+  .portal-h2 { margin-top: calc(56 * var(--u)); }
+  .portal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(18 * var(--u)); margin-top: calc(20 * var(--u)); }
+  .portal-card {
+    display: flex; gap: calc(14 * var(--u)); padding: calc(18 * var(--u)); border-radius: calc(14 * var(--u));
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.22); transition: box-shadow 150ms ease, transform 150ms ease;
+  }
+  .portal-card:hover { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.6), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.12); transform: translateY(calc(-2 * var(--u))); }
+  .portal-avatar { flex: none; width: calc(44 * var(--u)); height: calc(44 * var(--u)); border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 125 44 / 0.6), inset 0 0 calc(10 * var(--u)) rgb(255 125 44 / 0.25); }
+  .portal-card-body { display: flex; flex-direction: column; gap: calc(4 * var(--u)); min-width: 0; }
+  .portal-card-name { text-shadow: 0 0 calc(6 * var(--u)) rgb(255 255 255 / 0.5); }
+  .portal-card-tags { gap: calc(6 * var(--u)); margin-top: calc(6 * var(--u)); }
+  .portal-match { color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); margin-top: calc(8 * var(--u)); }
+  .portal-tag { color: var(--color-muted); padding: calc(3 * var(--u)) calc(8 * var(--u)); border-radius: 9999px; box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.25); letter-spacing: calc(1 * var(--u)); }
+
+  @media (max-width: 767px) {
+    .portal-section.portal-flow { padding: 0 24px 56px; }
+    .portal-flow .portal-col { width: 100%; }
+    .portal-head { margin-top: 28px; }
+    .portal-q { font-size: clamp(28px, 8.4vw, 36px); line-height: 1.1; letter-spacing: 0.06em; margin-top: 10px; }
+    .portal-sub { margin-top: 10px; max-width: 320px; }
+    .portal-search { width: 100%; margin-top: 24px; flex-wrap: wrap; gap: 10px; }
+    .portal-search-glyph { left: 16px; width: 16px; height: 16px; top: 14px; }
+    .portal-search-input { width: 100%; flex: none; height: 44px; padding-left: 40px; font-size: 14px; }
+    .portal-search-btn { width: 100%; height: 44px; }
+    .portal-filters { width: 100%; margin-top: 20px; gap: 12px; }
+    .portal-filter-row { flex-direction: column; gap: 6px; }
+    .portal-filter-label { width: auto; letter-spacing: 1.4px; }
+    .portal-chips { gap: 8px; }
+    .portal-chip { padding: 7px 12px; letter-spacing: 1px; font-size: 10px; }
+    .portal-h2 { margin-top: 40px; }
+    .portal-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+    .portal-card { gap: 14px; padding: 16px; border-radius: 14px; }
+    .portal-avatar { width: 44px; height: 44px; }
+    .portal-card-body { gap: 4px; }
+    .portal-card-tags { gap: 6px; margin-top: 6px; }
+    .portal-tag { padding: 3px 8px; font-size: 9px; letter-spacing: 1px; }
+    .portal-match { letter-spacing: 1.2px; margin-top: 8px; }
+  }

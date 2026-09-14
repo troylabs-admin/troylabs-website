@@ -43,15 +43,15 @@
      viewport width so a 320 px phone and a 430 px phone both read correctly. */
   :is(.m, .portal-section) .t-hero { font-size: clamp(46px, 14.5vw, 62px); line-height: 1.06; letter-spacing: 0.09em; }
   :is(.m, .portal-section) .t-title, :is(.m, .portal-section) .t-title-tight { font-size: clamp(19px, 5.4vw, 23px); line-height: 1.28; letter-spacing: 0.1em; }
-  .m .t-sub { font-size: 16px; line-height: 22px; letter-spacing: 1px; }
+  :is(.m, .portal-section) .t-sub { font-size: 16px; line-height: 22px; letter-spacing: 1px; }
   :is(.m, .portal-section) .t-tagline { font-size: clamp(14px, 4vw, 17px); line-height: 1.5; letter-spacing: 0.045em; }
-  .m .t-body { font-size: 14.5px; line-height: 24px; letter-spacing: 0.4px; }
+  :is(.m, .portal-section) .t-body { font-size: 14.5px; line-height: 24px; letter-spacing: 0.4px; }
   :is(.m, .portal-section) .t-caption { font-size: 13.5px; line-height: 21px; letter-spacing: 0.3px; }
   :is(.m, .portal-section) .t-nav { font-size: 12px; line-height: 15px; letter-spacing: 1.1px; }
   :is(.m, .portal-section) .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
-  .m .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
-  .m .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }
-  .m .t-feature { font-size: 17px; line-height: 21px; letter-spacing: 0.4px; }
+  :is(.m, .portal-section) .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
+  :is(.m, .portal-section) .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }
+  :is(.m, .portal-section) .t-feature { font-size: 17px; line-height: 21px; letter-spacing: 0.4px; }
   :is(.m, .portal-section) .t-fine { font-size: 10px; line-height: 14px; letter-spacing: 0.5px; }
 
   /* ── layout primitives ── */

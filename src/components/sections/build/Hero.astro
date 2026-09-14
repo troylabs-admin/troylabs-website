@@ -8,6 +8,7 @@
  *   • pill button "Frame 155" 6997:1298 @399,412 205.6×33.6 (0.3 white stroke, inner shadow 13.6 white@40%)
  */
 import { pos } from '../../../lib/units';
+import { APPLY_HREF } from '../../../lib/links';
 import PillButton from '../../ui/PillButton.astro';
 import Planet from '../../space/Planet.astro';
 import Stars from '../../space/Stars.astro';
@@ -44,7 +45,7 @@ const stars = [
   <p class="m-0 t-tagline m-center tagline" style="max-width:320px">
     Our 8-week flagship accelerator that provides hands-on consulting to USC's premier startups.
   </p>
-  <a href="https://linktr.ee/TroyLabs" target="_blank" rel="noopener noreferrer" class="pill t-title m-pill no-underline text-ink">APPLY TO BUILD</a>
+  <a href={APPLY_HREF} class="pill t-title m-pill no-underline text-ink">APPLY TO BUILD</a>
 </div>
 
 <style>

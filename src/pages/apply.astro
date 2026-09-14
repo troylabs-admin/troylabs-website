@@ -1,0 +1,48 @@
+---
+/**
+ * /apply — where every "Apply to TroyLabs" link lands while applications are closed (Bryan, 2026-09-14).
+ * Same construction as the site's heroes: label · title (BUILD's orange→gold recipe) · tagline · pill.
+ * To reopen applications, point APPLY_HREF in src/lib/links.ts back at the form; this page can stay.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PortalFrame from '../components/portal/PortalFrame.astro';
+const INSTAGRAM = 'https://www.instagram.com/troy.labs/';   // the footer's confirmed handle
+---
+
+<BaseLayout title="Applications — TroyLabs" description="Applications have closed for TroyLabs' Fall 2026 cohort.">
+  <PortalFrame h={521} planet label="Applications">
+    <span class="t-label text-muted m-center">APPLY TO TROYLABS</span>
+    <h1 class="m-0 t-hero text-center closed-title">APPLICATIONS HAVE CLOSED</h1>
+    <p class="m-0 t-tagline text-center closed-tagline">Applications have closed for our Fall 2026 cohort. Follow along to hear the moment the next round opens.</p>
+    <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" class="pill t-title flex items-center justify-center whitespace-nowrap no-underline text-ink closed-cta">FOLLOW @TROY.LABS</a>
+  </PortalFrame>
+</BaseLayout>
+
+<style is:global>
+  /* the hero title recipe (BUILD 6977:598): #ff3500 → #ffc200 top-to-bottom, soft dark drop shadow */
+  .closed-title {
+    background: linear-gradient(180deg, #ff3500 0%, #ffc200 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 calc(5.45 * var(--u)) rgb(0 0 0 / 0.7));
+    margin-top: calc(18 * var(--u)); max-width: calc(600 * var(--u));
+  }
+  /* tagline recipe (6977:600): orange at the right end, white from 10 % leftwards */
+  .closed-tagline {
+    background: linear-gradient(270deg, var(--color-orange) 0%, #fff 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-top: calc(22 * var(--u)); max-width: calc(560 * var(--u));
+  }
+  .closed-cta {
+    margin-top: calc(36 * var(--u)); padding: 0 calc(28 * var(--u)); height: calc(33.6 * var(--u)); border-radius: 9999px;
+    box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4);
+    transition: box-shadow 150ms ease;
+  }
+  .closed-cta:hover, .closed-cta:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
+  @media (max-width: 767px) {
+    /* APPLICATIONS is 12 caps: at the mobile hero size it overran a 390px phone and got clipped. Sized to fit;
+       .portal-section prefix outranks the shared mobile .t-hero rule. */
+    .portal-section .closed-title { font-size: clamp(30px, 9vw, 46px); line-height: 1.1; letter-spacing: 0.06em; margin-top: 6px; }
+    .closed-tagline { max-width: 320px; margin-top: 10px; }
+    .closed-cta { margin-top: 26px; min-height: 44px; padding: 10px 26px; height: auto; }
+  }
+</style>

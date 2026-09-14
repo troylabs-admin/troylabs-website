@@ -7,7 +7,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
 const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
-const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
 const DIVISIONS = ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO'];
 const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
 const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINTECH'] };
@@ -70,9 +69,13 @@ const ON = { programs: ['TL INTERNAL', 'BUILD STARTUP'], divisions: ['PRODUCT MA
       <h2 class="t-sub portal-section-h">Programs</h2>
       <div class="flex flex-wrap portal-chips" data-field="programs" data-label="programs">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.programs.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
 
-      <h2 class="t-sub portal-section-h">E-Board roles <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· ONLY IF YOU SERVED — PICK THE ROLE, THEN THE YEAR</span></h2>
-      <div class="flex flex-wrap portal-chips" data-field="eboard" data-optional>{EBOARD.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={([] as string[]).includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
-      <div id="pf-eboard-years" class="portal-role-years"></div>
+      <h2 class="t-sub portal-section-h">E-Board history <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· SET BY TROYLABS LEADERSHIP</span></h2>
+      <!-- read-only: a role is a credential, so only admins set it (Bryan, 2026-09-14: "not everyone who signs up was e-board").
+           Admins edit roles from Admin › Users. Design preview: one placeholder role. -->
+      <div class="flex flex-wrap portal-card-tags" style="margin-top:0">
+        <span class="t-fine portal-tagx">DIRECTOR OF TECH · FALL 2024, SPRING 2025</span>
+      </div>
+      <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))">Served on e-board and don't see it here? Email troylabs@usc.edu and leadership will add it.</p>
 
       <h2 class="t-sub portal-section-h">Divisions</h2>
       <div class="flex flex-wrap portal-chips" data-field="divisions" data-label="divisions">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.divisions.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>

@@ -37,7 +37,7 @@ function init() {
       chip.setAttribute('aria-pressed', String(on));
       // roles need a year: "Co-President" alone is not a fact, "Co-President 2025" is
       if (chip.closest('[data-field="eboard"]')) {
-        const list = root!.querySelector<HTMLElement>('#pf-eboard-years');
+        const list = chip.closest<HTMLElement>('[data-roles]')?.querySelector<HTMLElement>('.portal-role-years') ?? null;
         const key = chip.textContent!.replace(/^✓\s*/, '').trim();
         const row = list?.querySelector<HTMLElement>(`[data-role="${CSS.escape(key)}"]`);
         if (on && list && !row) {
@@ -86,6 +86,33 @@ function init() {
     };
     btn.addEventListener('click', add);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  }
+
+  // ── admin › users: ROLES opens the member's role picker in a row beneath ──
+  for (const btn of root.querySelectorAll<HTMLElement>('[data-roles-for]')) {
+    btn.addEventListener('click', () => {
+      const tr = btn.closest('tr')!; const next = tr.nextElementSibling as HTMLElement | null;
+      if (next?.classList.contains('portal-row-detail')) { next.remove(); btn.textContent = 'ROLES'; return; }
+      const tpl = document.querySelector<HTMLTemplateElement>('#roles-picker')!;
+      const row = document.createElement('tr'); row.className = 'portal-row-detail';
+      const td = document.createElement('td'); td.colSpan = 6; td.appendChild(tpl.content.cloneNode(true)); row.appendChild(td);
+      td.querySelector<HTMLElement>('[data-roles-name]')!.textContent = btn.dataset.rolesFor!;
+      tr.after(row); btn.textContent = 'CLOSE';
+      // wire the cloned chips (they were not in the DOM when init ran)
+      for (const chip of td.querySelectorAll<HTMLElement>('.portal-chip')) chip.addEventListener('click', () => {
+        const on = chip.getAttribute('aria-pressed') !== 'true'; chip.setAttribute('aria-pressed', String(on));
+        const list = td.querySelector<HTMLElement>('.portal-role-years')!; const key = chip.textContent!.replace(/^✓\s*/, '').trim();
+        const existing = list.querySelector<HTMLElement>(`[data-role="${CSS.escape(key)}"]`);
+        if (on && !existing) {
+          const term = () => `<span class="portal-term-pair"><select class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option>Spring</option></select><input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year" style="max-width:calc(120 * var(--u))" /></span>`;
+          const r = document.createElement('div'); r.className = 'portal-inline portal-role-year'; r.dataset.role = key;
+          r.innerHTML = `<span class="t-fine portal-tagx" style="flex:none">${key}</span><span class="portal-terms">${term()}</span><button type="button" class="t-label portal-linklike" data-more>+ ANOTHER SEMESTER</button>`;
+          r.querySelector('[data-more]')!.addEventListener('click', () => { const t = document.createElement('span'); t.className = 'portal-term-pair'; t.innerHTML = term().replace(/^<span class="portal-term-pair">|<\/span>$/g, ''); r.querySelector('.portal-terms')!.appendChild(t); });
+          list.appendChild(r);
+        } else if (!on && existing) existing.remove();
+      });
+      td.querySelector<HTMLElement>('[data-action="save-roles"]')?.addEventListener('click', (e) => { e.preventDefault(); const fb = td.querySelector<HTMLElement>('.portal-feedback'); if (fb) fb.textContent = `Roles for ${btn.dataset.rolesFor} will save once the database is connected.`; });
+    });
   }
 
   // ── action buttons ──
@@ -145,7 +172,7 @@ function init() {
     const pct = total ? Math.round((100 * done) / total) : 0;
     bar.style.width = `${pct}%`; label.textContent = `${pct}% · ${done}/${total} FIELDS`;
     bar.parentElement?.setAttribute('aria-valuenow', String(pct));
-    if (note) note.textContent = missing.length ? `Still missing: ${missing.join(', ')}. E-board roles, startups and phone are optional and don't count.` : 'Complete — everything alumni can see about you is filled in.';
+    if (note) note.textContent = missing.length ? `Still missing: ${missing.join(', ')}. Startups and phone are optional and don't count; e-board history is set by leadership.` : 'Complete — everything alumni can see about you is filled in.';
   }
   root.querySelectorAll('.portal-profile input, .portal-profile textarea').forEach((i) => i.addEventListener('input', recount));
   recount();

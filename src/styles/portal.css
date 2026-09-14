@@ -244,6 +244,7 @@
 .portal-term .portal-input:not(.portal-select) { flex: 1; }
 .portal-inline .portal-select { flex: none; }   /* the generic .portal-inline .portal-input { flex:1 } outranks .portal-select alone */
 
+.portal-row-detail td { padding: 0 !important; border-bottom: 1px solid rgb(255 255 255 / 0.08); }
 /* role rows: a role tag, then one or more Fall/Spring + year pairs, then "+ another semester" */
 .portal-terms { display: flex; flex-wrap: wrap; gap: calc(8 * var(--u)); }
 .portal-term-pair { display: inline-flex; gap: calc(8 * var(--u)); }

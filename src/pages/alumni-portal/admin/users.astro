@@ -4,6 +4,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
+const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
 const USERS = [
   ['Sample Admin', 'president@usc.edu', 'ADMIN', 'TL_INTERNAL, BUILD', true],
   ['Sample Admin', 'copresident@usc.edu', 'ADMIN', 'TL_INTERNAL, IGNITE', true],
@@ -34,8 +35,18 @@ const USERS = [
     <table class="portal-table t-caption">
       <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">ROLE</th><th class="t-label">PROGRAMS</th><th class="t-label">COMPLETE</th><th></th></tr></thead>
       <tbody>
-        {USERS.map(([n, e, r, p, c]) => <tr><td>{n}</td><td class="text-muted">{e}</td><td><span class="t-fine portal-tag">{r}</span></td><td class="text-muted">{p}</td><td>{c ? '✓' : '—'}</td><td style="text-align:right"><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Remove ${n} (${e}) from the portal?`}>DELETE</button></td></tr>)}
+        {USERS.map(([n, e, r, p, c]) => <tr><td>{n}</td><td class="text-muted">{e}</td><td><span class="t-fine portal-tag">{r}</span></td><td class="text-muted">{p}</td><td>{c ? '✓' : '—'}</td><td style="text-align:right;white-space:nowrap"><button type="button" class="t-label portal-linklike" data-roles-for={n} style="margin-right:calc(16 * var(--u))">ROLES</button><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Remove ${n} (${e}) from the portal?`}>DELETE</button></td></tr>)}
       </tbody>
     </table>
+    <!-- e-board roles are a credential: only admins set them, here, per member (Bryan, 2026-09-14) -->
+    <template id="roles-picker">
+      <div class="portal-panel" data-roles style="margin:calc(8 * var(--u)) 0 calc(12 * var(--u))">
+        <h3 class="t-sub portal-panel-title">E-board history for <span data-roles-name></span></h3>
+        <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">Pick each role they held, then the semester(s). This shows on their profile as set by leadership.</p>
+        <div class="flex flex-wrap portal-chips" data-field="eboard">{EBOARD.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+        <div class="portal-role-years"></div>
+        <div class="portal-inline" style="margin-top:calc(14 * var(--u))"><button type="button" class="portal-btn is-small t-label" data-action="save-roles">SAVE ROLES</button><p class="t-fine portal-feedback" style="margin:0"></p></div>
+      </div>
+    </template>
   </PortalShell>
 </BaseLayout>

@@ -26,6 +26,7 @@
    time asked; this time measured). Reduced-motion users see the resting page. */
 html.motion .portal-col > * { animation: portal-rise 800ms var(--ease-out-expo) both; animation-delay: calc(120ms + var(--pi, 0) * 70ms); }
 html.motion .portal-col > .portal-globe-wrap { animation-duration: 1000ms; }
+html.motion .portal-network .portal-results, html.motion .portal-network .portal-grid > li { animation: none; }
 @keyframes portal-rise { from { opacity: 0; transform: translateY(calc(16 * var(--u))); } to { opacity: 1; transform: none; } }
 /* the signed-in nav item labels are part of the site nav and already animate in (hero-nav) */
 
@@ -146,6 +147,28 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-results-empty { max-width: calc(520 * var(--u)); margin: calc(12 * var(--u)) auto 0; text-align: center; }
   .portal-search-clear { margin-top: 0; height: calc(40 * var(--u)); }
   .portal-head, .portal-q, .portal-sub { transition: font-size 300ms var(--ease-out-expo), margin 300ms var(--ease-out-expo), opacity 300ms ease; }
+  /* ── the merged page (Network.tsx): results left, globe right and sticky; on phones globe first ── */
+  .portal-network { width: 100%; }
+  .portal-search-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }   /* one ×, ours */
+  .portal-search-x { position: absolute; right: calc(14 * var(--u)); top: 50%; transform: translateY(-50%); width: calc(24 * var(--u)); height: calc(24 * var(--u)); border: 0; border-radius: 9999px; background: none; color: var(--color-muted); font: inherit; font-size: calc(18 * var(--u)); line-height: 1; cursor: pointer; }
+  .portal-search-x:hover { color: var(--color-ink); }
+  .portal-filters-toggle { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-muted); font: inherit; letter-spacing: calc(1.4 * var(--u)); cursor: pointer; }
+  .portal-filters-toggle:hover { color: var(--color-ink); }
+  .portal-explore { display: grid; grid-template-columns: minmax(0, 1fr) calc(360 * var(--u)); gap: calc(28 * var(--u)); align-items: start; margin-top: calc(28 * var(--u)); width: 100%; }
+  .portal-explore .portal-results { margin-top: 0; min-height: calc(360 * var(--u)); }
+  .portal-explore .portal-grid { grid-template-columns: 1fr; gap: calc(12 * var(--u)); margin-top: calc(14 * var(--u)); }   /* one wide card per row beside the globe; two per row squeezed names onto two lines */
+  .portal-explore-globe { position: sticky; top: calc(24 * var(--u)); }
+  .portal-explore .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 0; }
+  .portal-explore .portal-globe-count { display: none; }   /* the count reads under the globe instead */
+  .portal-explore-count { margin-top: calc(10 * var(--u)); letter-spacing: calc(1.2 * var(--u)); }
+  .portal-results-head { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); }
+  .portal-results-head .portal-results-count { text-align: left; flex: 1; }
+  .portal-results-head .portal-linklike { white-space: nowrap; flex: none; }
+  .portal-place { white-space: nowrap; }
+  .portal-place-x { border: 0; background: none; color: var(--color-muted); font: inherit; font-size: calc(14 * var(--u)); line-height: 1; cursor: pointer; padding: 0 calc(4 * var(--u)); }
+  .portal-place-x:hover { color: var(--color-orange); }
+  .portal-results-hint { margin: calc(8 * var(--u)) 0 0; }
+  .portal-explore .portal-results-empty { margin-left: 0; }
   [data-searching] .portal-head { margin-top: calc(36 * var(--u)); }
     [data-searching] .portal-sub { opacity: 0; height: 0; margin: 0; overflow: hidden; }
   .portal-match:empty { display: none; }
@@ -179,6 +202,16 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
     .portal-chip { padding: 7px 12px; letter-spacing: 1px; font-size: 10px; }
     .portal-h2 { margin-top: 40px; }
     .portal-results { margin-top: 28px; }
+    .portal-network .portal-search { flex-wrap: nowrap; }
+    .portal-search-x { right: 12px; width: 24px; height: 24px; font-size: 18px; }
+    .portal-filters-toggle { letter-spacing: 1.4px; }
+    .portal-explore { grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+    .portal-explore-globe { position: static; order: -1; }   /* phone: globe first, results under it */
+    .portal-explore .portal-results { min-height: 0; }
+    .portal-explore .portal-grid { grid-template-columns: 1fr; }
+    .portal-explore-count { margin-top: 8px; letter-spacing: 1.2px; }
+    .portal-results-head { gap: 12px; }
+    .portal-place-x { font-size: 14px; padding: 0 4px; }
     .portal-search-clear { width: auto; height: 40px; }
     [data-searching] .portal-head { margin-top: 18px; }
     .portal-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }

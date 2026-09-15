@@ -13,6 +13,7 @@ import React, { useEffect, useMemo, useRef, useState, useCallback, type Componen
 import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
 
 export type GlobePin = GlobePerson;
+export type { Cluster } from '../../lib/portal/cluster';
 
 const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5, ladder: [3, 2.4, 1.9, 1.4, 1.0, 0.7, 0.5, 0.35, 0.25] };
 const PAGE = 40;   // list rows shown before SHOW MORE
@@ -49,7 +50,9 @@ function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => 
 
 type Open = { kind: 'person'; person: GlobePerson; key: string; anchor: { x: number; y: number } } | { kind: 'list'; cluster: Cluster } | null;
 
-export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePerson[]; onRefresh?: () => void; profileHref?: (p: GlobePerson) => string }) {
+/** onPick: when given (the merged search page), a tap zooms in and hands the star to the page — the page's
+ *  results list is the list — instead of opening the globe's own list or card. */
+export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePerson[]; onRefresh?: () => void; onPick?: (c: Cluster) => void; profileHref?: (p: GlobePerson) => string }) {
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,6 +147,11 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
 
   const handleClick = useCallback((c: Cluster, el: HTMLElement) => {
     setListQ(''); setPage(1);
+    if (onPick) {   // the page owns the list: zoom in, hand over
+      let target = Math.max(ALT.min, Math.min(altitude, 1.0) * 0.7);
+      if (c.cities.length > 1) { const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude)); const k = expansionKmPerPx(c, ladder); if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1; }
+      flyTo(c.lat, c.lng, target); onPick(c); return;
+    }
     if (c.count === 1) {
       // Charlotte's card sits above the pin you clicked, and follows it: the fly-in moves the pin, and so
       // does any later drag (the anchor is re-read from the pin's element whenever the camera settles).
@@ -164,7 +172,7 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
     flyTo(c.lat, c.lng, target);
     // phone: the list is under the globe — once the zoom has been seen, bring it up
     if (innerWidth < 768) setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650);
-  }, [altitude, view, flyTo]);
+  }, [altitude, view, flyTo, onPick]);
   clickRef.current = handleClick;
 
   // one stable function for the life of the component: three-globe drops and rebuilds EVERY marker when

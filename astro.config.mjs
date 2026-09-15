@@ -11,7 +11,8 @@ export default defineConfig({
   site: 'https://usctroylabs.com',
   // /portal was the placeholder gate; the portal now lives at /alumni-portal. Keeps any shared or
   // indexed /portal link landing on the real thing.
-  redirects: { '/portal': '/alumni-portal' },
+  // /alumni-portal/globe merged into the search page on 2026-09-15 (the globe is the location filter).
+  redirects: { '/portal': '/alumni-portal', '/alumni-portal/globe': '/alumni-portal/home' },
   devToolbar: { enabled: false },
   vite: {
     plugins: [tailwindcss()]

@@ -1,84 +1,18 @@
 ---
 /**
- * Alumni portal › Search. One page, no navigation (Bryan, 2026-09-15): the question, the bar and the
- * filters; results appear live below as you type or pick a chip, each card says WHY it matched, and an
- * empty result says so in words. Search, not a chatbot — the answer is a list of people to scroll and
- * pick from. Keyword + filters is the whole engine (what LinkedIn search is); semantic ranking on top
- * is an optional later add with an OpenAI key.
- * DESIGN PREVIEW: twelve placeholder people so the behaviour can be felt; nothing is wired to data.
+ * Alumni portal › THE NETWORK — search and the globe on one page (Bryan, 2026-09-15). Everything lives
+ * in components/portal/Network.tsx: the question, the bar, the chips, the results and the globe share one
+ * state, so a query or a chip narrows the list and the stars together, and a tap on a star is the
+ * location filter. DESIGN PREVIEW: generated roster (lib/portal/sample-people.ts); nothing is wired to data.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
-
-const STATUS = ['STUDENT', 'ALUM'];
-const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25'];
-const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING'];
-const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'ROBOTICS', 'DESIGN', 'MEDIA'];
-type P = { name: string; status: 'STUDENT' | 'ALUM'; cohort: string; classOf: string; division: string; title: string; company: string; industries: string[]; city: string; initials: string; bio: string };
-const PEOPLE: P[] = [
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'SP25', division: 'TECH', title: 'Software Engineer', company: 'Stripe', industries: ['FINTECH', 'AI'], city: 'Seattle, WA', initials: 'SA', bio: 'payments infrastructure' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'SP25', division: 'DESIGN', title: 'Product Designer', company: 'Figma', industries: ['DESIGN', 'ENTERPRISE'], city: 'New York, NY', initials: 'SA', bio: 'design systems' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'FA25', division: 'PRODUCT', title: 'Senior PM', company: 'Oscar Health', industries: ['HEALTHTECH'], city: 'Chicago, IL', initials: 'SA', bio: 'insurance products' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'FA25', division: 'VC/FINANCE', title: 'Associate', company: 'a16z', industries: ['FINTECH', 'ENTERPRISE'], city: 'San Francisco, CA', initials: 'SA', bio: 'early-stage investing' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'SP25', division: 'TECH', title: 'Founding Engineer', company: 'ClimateAI', industries: ['CLIMATE', 'AI'], city: 'Austin, TX', initials: 'SA', bio: 'climate models' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'SP25', division: 'MARKETING', title: 'Head of Growth', company: 'Notion', industries: ['ENTERPRISE', 'CONSUMER'], city: 'San Francisco, CA', initials: 'SA', bio: 'growth and lifecycle' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'FA25', division: 'DESIGN', title: 'Video Producer', company: 'YouTube', industries: ['MEDIA', 'CONSUMER'], city: 'Los Angeles, CA', initials: 'SA', bio: 'video and creator tools' },
-  { name: 'Sample Alum', status: 'ALUM', classOf: '2025', cohort: 'SP25', division: 'TECH', title: 'Robotics Engineer', company: 'Boston Dynamics', industries: ['ROBOTICS', 'AI'], city: 'Boston, MA', initials: 'SA', bio: 'perception' },
-  { name: 'Sample Student', status: 'STUDENT', classOf: '2027', cohort: 'FA26', division: 'PRODUCT', title: 'PM Intern', company: 'Khan Academy', industries: ['EDTECH'], city: 'Los Angeles, CA', initials: 'SS', bio: 'learning products' },
-  { name: 'Sample Student', status: 'STUDENT', classOf: '2027', cohort: 'SP26', division: 'TECH', title: 'SWE Intern', company: 'Cloudflare', industries: ['ENTERPRISE', 'AI'], city: 'Los Angeles, CA', initials: 'SS', bio: 'security' },
-  { name: 'Sample Student', status: 'STUDENT', classOf: '2027', cohort: 'FA26', division: 'VC/FINANCE', title: 'Analyst Intern', company: 'Fund', industries: ['FINTECH'], city: 'Los Angeles, CA', initials: 'SS', bio: 'fintech investing' },
-  { name: 'Sample Student', status: 'STUDENT', classOf: '2027', cohort: 'SP26', division: 'MARKETING', title: 'Founder', company: 'Startup', industries: ['CONSUMER', 'MEDIA'], city: 'Los Angeles, CA', initials: 'SS', bio: 'short-form video app' },
-];
+import Network from '../../components/portal/Network.tsx';
 ---
 
-<BaseLayout nav="portal" current="home" title="Search — TL Alumni Network Portal" description="Find TroyLabs alumni and students by name, role, industry, program or city.">
+<BaseLayout nav="portal" current="home" title="Search — TL Alumni Network Portal" description="Find TroyLabs alumni and students by name, role, industry, program or city, and see where they are in the world.">
   <PortalShell label="Search the network">
-
-      <header class="flex flex-col items-center portal-head" data-search-head>
-        <span class="t-label text-muted">THE NETWORK</span>
-        <h1 class="m-0 t-hero text-center glow-text portal-q">WHO ARE YOU LOOKING FOR?</h1>
-        <p class="m-0 t-caption text-muted text-center portal-sub">Type a name, a company, a city, an industry — or a few words about who you need. Results appear as you type.</p>
-      </header>
-
-      <form class="portal-search" role="search" onsubmit="return false">
-        <svg class="portal-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
-        <input id="search-q" type="search" class="t-caption portal-search-input" placeholder='e.g. "fintech in san francisco" or "video"' aria-label="Search the network" autocomplete="off" />
-        <button type="button" class="portal-btn is-small is-quiet t-label portal-search-clear" data-search-clear hidden>CLEAR</button>
-      </form>
-
-      <div class="portal-filters" data-search-filters>
-        {[['STATUS', STATUS, 'status'], ['COHORT', COHORTS, 'cohort'], ['DIVISION', DIVISIONS, 'division'], ['INDUSTRY', INDUSTRIES, 'industry']].map(([label, items, key]) => (
-          <div class="portal-filter-row">
-            <span class="t-fine text-muted portal-filter-label">{label}</span>
-            <div class="flex flex-wrap portal-chips" data-filter={key}>{(items as string[]).map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div>
-          </div>
-        ))}
-      </div>
-
-      <!-- results: hidden until there is a query or a filter; each card carries the data the filter/search reads -->
-      <section class="portal-results" data-search-results hidden aria-live="polite">
-        <p class="t-label text-muted text-center portal-results-count" data-search-count></p>
-        <ul class="m-0 p-0 list-none portal-grid" data-search-list>
-          {PEOPLE.map((p) => (
-            <li data-status={p.status} data-cohort={p.cohort} data-division={p.division} data-industry={p.industries.join('|')} data-text={`${p.name} ${p.title} ${p.company} ${p.city} ${p.industries.join(' ')} ${p.division} ${p.bio}`.toLowerCase()}>
-              <a href="/alumni-portal/members/sample" class="portal-card no-underline text-ink">
-                <span class="portal-avatar t-sub" aria-hidden="true">{p.initials}</span>
-                <span class="portal-card-body">
-                  <span class="t-name portal-card-name">{p.name} <span class="t-fine portal-role">{p.status}</span></span>
-                  <span class="t-caption text-muted">{p.title} · {p.company}</span>
-                  <span class="t-fine text-muted">{p.city} · TL {p.cohort} · {p.status === 'ALUM' ? `Class of ${p.classOf}` : `Expected ${p.classOf}`}</span>
-                  <span class="flex flex-wrap portal-card-tags">{p.industries.map((t) => <span class="t-fine portal-tag">{t}</span>)}</span>
-                  <span class="t-fine portal-match" data-why></span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div class="portal-panel portal-results-empty" data-search-empty hidden>
-          <p class="m-0 t-caption text-ink">Nobody matches <q data-search-echo></q> yet.</p>
-          <p class="m-0 t-fine text-muted" style="margin-top:calc(8 * var(--u))">Try an industry, a company or a city — or clear a filter. As more alumni fill in their profiles, more searches will land.</p>
-        </div>
-      </section>
+    <Network client:load />
   </PortalShell>
 </BaseLayout>

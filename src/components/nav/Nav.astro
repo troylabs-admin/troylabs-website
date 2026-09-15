@@ -10,7 +10,7 @@ import rocket from '../../assets/figma/nav-rocket.svg?raw';
 import ApplyLink from '../ui/ApplyLink.astro';
 
 /* The alumni portal reuses this nav with its own links (Bryan, 2026-09-14): signed in, the row is
-   SEARCH · GLOBE · PROFILE · ADMIN with SIGN OUT in the Apply slot — one nav, not two stacked. On the
+   SEARCH · PROFILE · ADMIN with SIGN OUT in the Apply slot — one nav, not two stacked. On the
    public sign-in page the site links stay and the slot reads ALUMNI NETWORK instead of pitching applications. */
 interface Props { current?: string; variant?: 'site' | 'portal' | 'gate'; admin?: boolean }
 const { current, variant = 'site', admin = true } = Astro.props;
@@ -23,7 +23,6 @@ const siteLinks = [
 ];
 const portalLinks = [
   { href: '/alumni-portal/home', label: 'SEARCH', key: 'home' },
-  { href: '/alumni-portal/globe', label: 'GLOBE', key: 'globe' },
   { href: '/alumni-portal/profile', label: 'PROFILE', key: 'profile' },
   ...(admin ? [{ href: '/alumni-portal/admin', label: 'ADMIN', key: 'admin' }] : []),
 ];
@@ -65,7 +64,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
   .m-nav { display: none; }
   @media (max-width: 767px) {
     .m-nav { display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px; }
-    /* portal variant: SEARCH · GLOBE · PROFILE · ADMIN + SIGN OUT — tighter type so the row fits a 390px phone */
+    /* portal variant: SEARCH · PROFILE · ADMIN + SIGN OUT — tighter type so the row fits a 390px phone */
     .m-nav-portal { gap: 8px; padding-inline: 14px; }
     .m-nav-portal .m-links { gap: 8px; flex: 1; min-width: 0; justify-content: space-between; }
     /* type sizes for this variant live in styles/mobile.css: SIGN OUT is rendered by the ApplyLink child, which

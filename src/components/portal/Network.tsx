@@ -3,8 +3,9 @@
  * and globe page… as you put down filters it should filter the globe as well, so you can see exactly
  * where the person is"). One state drives everything: the words you type and the chips you press narrow
  * the list AND the stars; a tap on a star is the location filter — it zooms in and narrows the list to
- * the people at that star. Search, not a chatbot: the answer is a list of people. Keyword + filters is
- * the whole engine; semantic ranking on top is a later add with a key.
+ * the people at that star. One column, in this order (Bryan): the question, the globe, the bar, every
+ * filter row open, the results. Search, not a chatbot: the answer is a list of people. Keyword + filters
+ * is the whole engine; semantic ranking on top is a later add with a key.
  * DESIGN PREVIEW: the generated roster in lib/portal/sample-people.ts; nothing is wired to data.
  */
 import { useMemo, useRef, useState } from 'react';
@@ -23,7 +24,6 @@ export default function Network() {
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [place, setPlace] = useState<Cluster | null>(null);
   const [page, setPage] = useState(1);
-  const [filtersOpen, setFiltersOpen] = useState(false);   // folded until asked: the bar is the way in, the globe the view; chips one click away
   const resultsRef = useRef<HTMLElement>(null);
   const globeRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +63,7 @@ export default function Network() {
 
   const toggle = (key: string, v: string) => { setPage(1); setPlace(null); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
   const clearAll = () => { setQ(''); setActive({}); setPlace(null); setPage(1); };
-  const pick = (c: Cluster) => { setPlace(c); setPage(1); if (innerWidth < 768) setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650); };
+  const pick = (c: Cluster) => { setPlace(c); setPage(1); setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650); };   // the list is under the globe: once the zoom has been seen, bring it up
 
   const small = typeof innerWidth !== 'undefined' && innerWidth < 768;
   const qStyle = searching ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;
@@ -78,6 +78,11 @@ export default function Network() {
         <p className="m-0 t-caption text-muted text-center portal-sub">Type a name, a company, a city, an industry — or a few words about who you need. Filters and the globe narrow it together.</p>
       </header>
 
+      <div ref={globeRef} className="portal-explore-globe">
+          <AlumniGlobe pins={pins} onPick={pick} />
+          <p className="t-fine text-muted m-0 portal-explore-count">{searching && pins.length !== PEOPLE.length ? `${pins.length} OF ${PEOPLE.length}` : PEOPLE.length} ON THE GLOBE · {cities} {cities === 1 ? 'CITY' : 'CITIES'}. One star per city; bigger stars are more people. Tap a star for who's there.</p>
+      </div>
+
       <form className="portal-search" role="search" onSubmit={(e) => e.preventDefault()}>
         <svg className="portal-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
         <input id="search-q" type="search" className="t-caption portal-search-input" placeholder='e.g. "fintech in san francisco" or "video"' aria-label="Search the network" autoComplete="off" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
@@ -85,19 +90,14 @@ export default function Network() {
       </form>
 
       <div className="portal-filters" data-search-filters>
-        <button type="button" className="t-fine portal-filters-toggle" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>
-          FILTERS{activeCount ? ` · ${activeCount} ON` : ''} <span aria-hidden="true">{filtersOpen ? '▴' : '▾'}</span>
-        </button>
-        {filtersOpen && FILTERS.map(([key, label, items]) => (
+        {FILTERS.map(([key, label, items]) => (
           <div className="portal-filter-row" key={key}>
             <span className="t-fine text-muted portal-filter-label">{label}</span>
             <div className="flex flex-wrap portal-chips" data-filter={key}>{items.map((c) => <button type="button" key={c} className="t-fine portal-chip" aria-pressed={(active[key] ?? []).includes(c)} data-value={c} onClick={() => toggle(key, c)}>{c}</button>)}</div>
           </div>
         ))}
-        {!filtersOpen && activeCount > 0 && <div className="flex flex-wrap portal-chips">{Object.entries(active).flatMap(([k, vs]) => vs.map((v) => <button type="button" key={k + v} className="t-fine portal-chip" aria-pressed="true" onClick={() => toggle(k, v)}>{v}</button>))}</div>}
       </div>
 
-      <div className="portal-explore">
         <section ref={resultsRef} className="portal-results" aria-live="polite">
           {searching ? (
             <>
@@ -134,12 +134,6 @@ export default function Network() {
             <p className="t-fine text-muted portal-results-hint">Everyone is on the globe. Type, press a filter, or tap a star to see who's where.</p>
           )}
         </section>
-
-        <div ref={globeRef} className="portal-explore-globe">
-          <AlumniGlobe pins={pins} onPick={pick} />
-          <p className="t-fine text-muted m-0 portal-explore-count">{searching && pins.length !== PEOPLE.length ? `${pins.length} OF ${PEOPLE.length}` : PEOPLE.length} ON THE GLOBE · {cities} {cities === 1 ? 'CITY' : 'CITIES'}. One star per city; bigger stars are more people. Tap a star for who's there.</p>
-        </div>
-      </div>
     </div>
   );
 }

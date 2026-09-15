@@ -152,15 +152,12 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-search-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }   /* one ×, ours */
   .portal-search-x { position: absolute; right: calc(14 * var(--u)); top: 50%; transform: translateY(-50%); width: calc(24 * var(--u)); height: calc(24 * var(--u)); border: 0; border-radius: 9999px; background: none; color: var(--color-muted); font: inherit; font-size: calc(18 * var(--u)); line-height: 1; cursor: pointer; }
   .portal-search-x:hover { color: var(--color-ink); }
-  .portal-filters-toggle { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-muted); font: inherit; letter-spacing: calc(1.4 * var(--u)); cursor: pointer; }
-  .portal-filters-toggle:hover { color: var(--color-ink); }
-  .portal-explore { display: grid; grid-template-columns: minmax(0, 1fr) calc(360 * var(--u)); gap: calc(28 * var(--u)); align-items: start; margin-top: calc(28 * var(--u)); width: 100%; }
-  .portal-explore .portal-results { margin-top: 0; min-height: calc(360 * var(--u)); }
-  .portal-explore .portal-grid { grid-template-columns: 1fr; gap: calc(12 * var(--u)); margin-top: calc(14 * var(--u)); }   /* one wide card per row beside the globe; two per row squeezed names onto two lines */
-  .portal-explore-globe { position: sticky; top: calc(24 * var(--u)); }
-  .portal-explore .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 0; }
-  .portal-explore .portal-globe-count { display: none; }   /* the count reads under the globe instead */
-  .portal-explore-count { margin-top: calc(10 * var(--u)); letter-spacing: calc(1.2 * var(--u)); }
+  /* one column, in order: question · globe · bar · every filter row · results (Bryan, 2026-09-15) */
+  .portal-explore-globe { width: calc(560 * var(--u)); margin: calc(36 * var(--u)) auto 0; }
+  .portal-explore-globe .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 0; }
+  .portal-explore-globe .portal-globe-count { display: none; }   /* the count reads under the globe instead */
+  .portal-explore-count { margin-top: calc(10 * var(--u)); letter-spacing: calc(1.2 * var(--u)); text-align: center; }
+  .portal-network .portal-results { margin-top: calc(34 * var(--u)); width: calc(900 * var(--u)); max-width: 100%; margin-left: auto; margin-right: auto; }
   .portal-results-head { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); }
   .portal-results-head .portal-results-count { text-align: left; flex: 1; }
   .portal-results-head .portal-linklike { white-space: nowrap; flex: none; }
@@ -204,11 +201,8 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
     .portal-results { margin-top: 28px; }
     .portal-network .portal-search { flex-wrap: nowrap; }
     .portal-search-x { right: 12px; width: 24px; height: 24px; font-size: 18px; }
-    .portal-filters-toggle { letter-spacing: 1.4px; }
-    .portal-explore { grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
-    .portal-explore-globe { position: static; order: -1; }   /* phone: globe first, results under it */
-    .portal-explore .portal-results { min-height: 0; }
-    .portal-explore .portal-grid { grid-template-columns: 1fr; }
+    .portal-explore-globe { width: 100%; margin-top: 20px; }
+    .portal-network .portal-results { margin-top: 24px; width: 100%; }
     .portal-explore-count { margin-top: 8px; letter-spacing: 1.2px; }
     .portal-results-head { gap: 12px; }
     .portal-place-x { font-size: 14px; padding: 0 4px; }

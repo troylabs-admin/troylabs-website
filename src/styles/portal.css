@@ -156,7 +156,9 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-explore-globe { width: calc(560 * var(--u)); margin: calc(36 * var(--u)) auto 0; }
   .portal-explore-globe .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 0; }
   .portal-explore-globe .portal-globe-count { display: none; }   /* the count reads under the globe instead */
-  .portal-explore-count { margin-top: calc(10 * var(--u)); letter-spacing: calc(1.2 * var(--u)); text-align: center; }
+  .portal-explore-stats { margin: calc(12 * var(--u)) 0 0; text-align: center; letter-spacing: calc(1.6 * var(--u)); line-height: calc(22 * var(--u)); }
+  .portal-explore-on { color: var(--color-orange); }
+  .portal-explore-count { margin-top: calc(6 * var(--u)); letter-spacing: calc(1.2 * var(--u)); text-align: center; }
   .portal-network .portal-results { margin-top: calc(34 * var(--u)); width: calc(900 * var(--u)); max-width: 100%; margin-left: auto; margin-right: auto; }
   .portal-results-head { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); }
   .portal-results-head .portal-results-count { text-align: left; flex: 1; }
@@ -203,7 +205,8 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
     .portal-search-x { right: 12px; width: 24px; height: 24px; font-size: 18px; }
     .portal-explore-globe { width: 100%; margin-top: 20px; }
     .portal-network .portal-results { margin-top: 24px; width: 100%; }
-    .portal-explore-count { margin-top: 8px; letter-spacing: 1.2px; }
+    .portal-explore-stats { margin-top: 10px; letter-spacing: 1.4px; line-height: 20px; font-size: 11px; }
+    .portal-explore-count { margin-top: 6px; letter-spacing: 1.2px; }
     .portal-results-head { gap: 12px; }
     .portal-place-x { font-size: 14px; padding: 0 4px; }
     .portal-search-clear { width: auto; height: 40px; }
@@ -401,11 +404,12 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
    the star. Sizes are raw px on purpose: markers live in the globe's own screen space, not the artboard. */
 .portal-globe-wrap .tl-star { position: relative; background: transparent; border: 0; padding: 0; cursor: pointer; transform: translate(-50%, -50%); line-height: 0; z-index: 2; overflow: visible; filter: drop-shadow(0 0 10px rgb(255 74 42 / 0.95)) drop-shadow(0 0 18px rgb(255 213 106 / 0.55)); --s: 34px; }
 .portal-globe-wrap .tl-star-2 { --s: 40px; } .portal-globe-wrap .tl-star-3 { --s: 48px; } .portal-globe-wrap .tl-star-4 { --s: 58px; }
-.portal-globe-wrap .tl-star-box { position: relative; display: block; width: var(--s); height: var(--s); }
+.portal-globe-wrap .tl-star-box { position: relative; display: block; width: var(--s); height: var(--s); transition: width 600ms var(--ease-out-expo), height 600ms var(--ease-out-expo); }   /* a star that changes tier grows or shrinks, it doesn't pop */
 .portal-globe-wrap .tl-star-box > svg { position: relative; z-index: 1; width: 100%; height: 100%; }
 .portal-globe-wrap .tl-star-glow { position: absolute; inset: 12%; border-radius: 999px; background: radial-gradient(circle, rgb(226 58 31 / 0.55) 0%, rgb(226 58 31 / 0) 70%); animation: tl-star-pulse 1.8s ease-in-out infinite; }
 .portal-globe-wrap .tl-star-n { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); z-index: 2; font: 700 calc(var(--s) * 0.3) / 1 Helvetica, Arial, sans-serif; letter-spacing: 0; color: #fff; text-shadow: 0 0 4px rgb(0 0 0 / 0.8); pointer-events: none; }
 .portal-globe-wrap .tl-star-4 .tl-star-n { font-size: calc(var(--s) * 0.26); }
+.portal-globe-wrap .tl-star[data-count="1"] .tl-star-n { display: none; }   /* a lone person's star carries no number */
 @keyframes tl-star-pulse { 0%, 100% { transform: scale(0.85); opacity: 0.55; } 50% { transform: scale(1.25); opacity: 1; } }
 .portal-globe-pop .portal-globe-cohort { color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); margin-top: calc(6 * var(--u)); }
 .portal-globe-pop .portal-globe-view { color: var(--color-orange); display: inline-block; margin-top: calc(10 * var(--u)); }

@@ -11,6 +11,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
 import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
+import { tickNumber } from '../../lib/portal/tick';
 
 export type GlobePin = GlobePerson;
 export type { Cluster } from '../../lib/portal/cluster';
@@ -25,20 +26,24 @@ const fitAltitude = (w: number, h: number) => { const k = (0.9 * Math.min(w, h) 
 const tier = (n: number) => (n <= 1 ? 1 : n < 10 ? 2 : n < 50 ? 3 : 4);
 const upper = (s: string) => s.toUpperCase();
 
+const starLabel = (c: Cluster) => (c.count === 1 ? c.cities[0].people[0].full_name : `${clusterLabel(c)} · ${c.count}`);
+function decorateStar(el: HTMLElement, c: Cluster) {
+  const label = starLabel(c);
+  el.title = label; el.setAttribute('aria-label', label); el.dataset.count = String(c.count); el.dataset.cities = String(c.cities.length); el.dataset.key = c.key; el.dataset.seed = c.seed.key;   // seed: the stable handle (membership can change under a chip)
+  el.className = `tl-star tl-star-${tier(c.count)}`;
+}
 function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => void) {
   const el = document.createElement('button');
   el.type = 'button';
-  const label = c.count === 1 ? c.cities[0].people[0].full_name : `${clusterLabel(c)} · ${c.count}`;
-  el.title = label; el.setAttribute('aria-label', label); el.dataset.count = String(c.count); el.dataset.cities = String(c.cities.length); el.dataset.key = c.key;
-  el.className = `tl-star tl-star-${tier(c.count)}`;
+  decorateStar(el, c);
   el.innerHTML = `
     <span class="tl-star-box">
       <span class="tl-star-glow"></span>
-      <span class="tl-pin-name">${label}</span>
+      <span class="tl-pin-name">${starLabel(c)}</span>
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path fill="#ff4a2a" stroke="#ffd56a" stroke-width="1.4" d="M12 2.2l2.85 6.55 7.1.65-5.35 4.7 1.7 6.9L12 17.5l-6.3 3.5 1.7-6.9L2.05 9.4l7.1-.65L12 2.2z" />
       </svg>
-      ${c.count > 1 ? `<span class="tl-star-n" aria-hidden="true">${c.count}</span>` : ''}
+      <span class="tl-star-n" aria-hidden="true">${c.count}</span>
     </span>`;
   // pointer-events:auto is required: the library's marker container is pointer-events:none, and children
   // inherit it — without this, hover and click never reach the pin (measured: elementFromPoint at the pin
@@ -129,7 +134,14 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
     const distPx = (a: City, b: City) => { const p = at(a), q = at(b); return p && q ? Math.hypot(p.x - q.x, p.y - q.y) : Infinity; };
     // reuse cluster objects whose membership didn't change, so the library keeps their DOM nodes
     const fresh = clusterCities(cities, distPx); const cache = clusterCache.current; const next = new Map<string, Cluster>();
-    const out = fresh.map((c) => { const prev = cache.get(c.key); const keep = prev && prev.count === c.count ? prev : c; next.set(c.key, keep); return keep; });
+    // same cities → same object, so the library keeps the star's element; if only the head-count changed
+    // (a chip narrowed the people) remember where it came from and let the number tick down, not jump
+    // cached by the SEED city (the star's anchor), not the full membership: a chip that empties Oakland out
+    // of the San Francisco star must keep San Francisco's element so 382 can tick to 95 (measured: keyed
+    // on membership, the element was rebuilt and the number jumped)
+    const out = fresh.map((c) => { const prev = cache.get(c.seed.key); if (!prev) { next.set(c.seed.key, c); return c; }
+      if (prev.count !== c.count || prev.key !== c.key) { (prev as any).__from = prev.count; prev.count = c.count; prev.cities = c.cities; prev.key = c.key; }
+      next.set(c.seed.key, prev); return prev; });
     clusterCache.current = next; return out;
   }, [cities, view]);
 
@@ -138,10 +150,18 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
   // is looked up by key, since a re-cluster can rebuild it)
   useEffect(() => {
     if (open?.kind !== 'person') return;
-    const el = containerRef.current?.querySelector(`.tl-star[data-key="${CSS.escape(open.key)}"]`);
+    const el = containerRef.current?.querySelector(`.tl-star[data-seed="${CSS.escape(open.key)}"]`);
     if (el) { const a = anchorOf(el); if (Math.abs(a.x - open.anchor.x) > 0.5 || Math.abs(a.y - open.anchor.y) > 0.5) setOpen({ ...open, anchor: a }); }
     else setOpen(null);   // its city merged into a bigger star — the card no longer has a pin to sit on
   }, [view, clusters, open]);
+  useEffect(() => {
+    for (const c of clusters) {
+      const from = (c as any).__from as number | undefined; if (from === undefined) continue; delete (c as any).__from;
+      const el = containerRef.current?.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(c.seed.key)}"]`); if (!el) continue;
+      decorateStar(el, c); const name = el.querySelector('.tl-pin-name'); if (name) name.textContent = starLabel(c);
+      const n = el.querySelector<HTMLElement>('.tl-star-n'); if (n) tickNumber(n, from, c.count);
+    }
+  }, [clusters]);
   const flyTo = useCallback((lat: number, lng: number, alt: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: Math.min(ALT.max, Math.max(ALT.min, alt)) }, ms); }, []);
   const zoomBy = (f: number) => { const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, pov.altitude * f, 500); };
 

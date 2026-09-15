@@ -9,6 +9,7 @@
  * DESIGN PREVIEW: the generated roster in lib/portal/sample-people.ts; nothing is wired to data.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { tickNumber } from '../../lib/portal/tick';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE, STATUS, type Person } from '../../lib/portal/sample-people';
@@ -18,6 +19,13 @@ const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 
 const PAGE = 24;
 const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${p.division} ${p.bio}`.toLowerCase();
 const upper = (s: string) => s.toUpperCase();
+
+/** a number that ticks to its new value instead of jumping (same ease as the home page stats) */
+function Tick({ n }: { n: number }) {
+  const ref = useRef<HTMLSpanElement>(null); const last = useRef(n);
+  useEffect(() => { if (ref.current && last.current !== n) tickNumber(ref.current, last.current, n); last.current = n; }, [n]);
+  return <span ref={ref}>{n}</span>;
+}
 
 export default function Network() {
   const [q, setQ] = useState('');
@@ -68,6 +76,7 @@ export default function Network() {
   const results = useMemo(() => (placeKeys ? matched.filter(({ p }) => placeKeys.has(cityKey(p))) : matched), [matched, placeKeys]);
   const pins = useMemo(() => matched.map(({ p }) => p), [matched]);
   const cities = useMemo(() => new Set(pins.map(cityKey)).size, [pins]);
+  const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
 
   const toggle = (key: string, v: string) => { setPage(1); setPlace(null); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
   const clearAll = () => { setQ(''); setActive({}); setPlace(null); setPage(1); };
@@ -88,7 +97,20 @@ export default function Network() {
 
       <div ref={globeRef} className="portal-explore-globe">
           <AlumniGlobe pins={pins} onPick={pick} />
-          <p className="t-fine text-muted m-0 portal-explore-count">{searching && pins.length !== PEOPLE.length ? `${pins.length} OF ${PEOPLE.length}` : PEOPLE.length} ON THE GLOBE · {cities} {cities === 1 ? 'CITY' : 'CITIES'}. One star per city; bigger stars are more people. Tap a star for who's there.</p>
+          {/* under the globe (Bryan, 2026-09-15): plain stats at rest; once anything is pressed or typed,
+              what's on and how many are left. The numbers tick, and they keep their identity (keys) across
+              the two states so the tick runs from the old value. */}
+          <p className="t-label portal-explore-stats">
+            {searching && <span className="text-muted">FILTERS · </span>}
+            {searching && <span className="portal-explore-on">{[...Object.values(active).flat(), ...(q.trim() ? [`“${q.trim()}”`] : []), ...(place ? [`IN ${upper(clusterLabel(place))}`] : [])].join(' · ')}</span>}
+            {searching && <br />}
+            {[
+              <span key="n"><Tick n={pins.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
+              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> STUDENTS</span>, <span key="a"> · <Tick n={pins.length - students} /> ALUMNI</span>]),
+              <span key="c"> · <Tick n={cities} /> {cities === 1 ? 'CITY' : 'CITIES'}</span>,
+            ]}
+          </p>
+          <p className="t-fine text-muted m-0 portal-explore-count">One star per city; bigger stars are more people. Tap a star for who's there.</p>
       </div>
 
       <form className="portal-search" role="search" onSubmit={(e) => { e.preventDefault(); if (typed) toResults(); (document.activeElement as HTMLElement | null)?.blur(); }}>
@@ -110,7 +132,7 @@ export default function Network() {
           {searching ? (
             <>
               <div className="portal-results-head">
-                <p className="t-label text-muted m-0 portal-results-count">{results.length ? `${results.length} ${results.length === 1 ? 'person' : 'people'}` : ''}{place ? <> · <span className="portal-place">IN {upper(clusterLabel(place))} <button type="button" className="portal-place-x" aria-label="Remove the location filter" onClick={() => setPlace(null)}>×</button></span></> : ''}</p>
+                <p className="t-label text-muted m-0 portal-results-count">{results.length ? <><Tick n={results.length} /> {results.length === 1 ? 'person' : 'people'}</> : ''}{place ? <> · <span className="portal-place">IN {upper(clusterLabel(place))} <button type="button" className="portal-place-x" aria-label="Remove the location filter" onClick={() => setPlace(null)}>×</button></span></> : ''}</p>
                 <button type="button" className="t-fine portal-linklike" onClick={clearAll}>CLEAR ALL</button>
               </div>
               {results.length > 0 ? (

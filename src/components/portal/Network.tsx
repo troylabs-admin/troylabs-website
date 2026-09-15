@@ -8,7 +8,7 @@
  * is the whole engine; semantic ranking on top is a later add with a key.
  * DESIGN PREVIEW: the generated roster in lib/portal/sample-people.ts; nothing is wired to data.
  */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE, STATUS, type Person } from '../../lib/portal/sample-people';
@@ -31,6 +31,14 @@ export default function Network() {
   const words = q.trim().toLowerCase().split(/\s+/).filter((w) => w.length > 1 && !FILLER.has(w));
   const activeCount = Object.values(active).reduce((n, v) => n + v.length, 0);
   const searching = words.length > 0 || activeCount > 0 || !!place;
+  const typed = words.length > 0;
+
+  /* Typing is a search: once you pause (or hit return) the page scrolls down to the results. Chips and
+     the globe are browsing: nothing moves, so you can watch the count under the globe change (Bryan,
+     2026-09-15 — the question shrinking on a chip press read as the page jumping). */
+  const toResults = () => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const typedKey = words.join(' ');
+  useEffect(() => { if (!typedKey) return; const t = setTimeout(toResults, 1000); return () => clearTimeout(t); }, [typedKey]);
 
   /* words + chips narrow the people; the globe shows THEM, so you see where a search lands. Every chip
      group is a hard requirement (any chip within a group), every word must appear somewhere. */
@@ -66,12 +74,12 @@ export default function Network() {
   const pick = (c: Cluster) => { setPlace(c); setPage(1); setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650); };   // the list is under the globe: once the zoom has been seen, bring it up
 
   const small = typeof innerWidth !== 'undefined' && innerWidth < 768;
-  const qStyle = searching ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;
+  const qStyle = typed ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;
   const shown = results.slice(0, page * PAGE);
   const echo = q.trim() || Object.values(active).flat().join(', ') || (place ? clusterLabel(place) : '');
 
   return (
-    <div className="portal-network" data-searching={searching || undefined}>
+    <div className="portal-network" data-searching={typed || undefined}>
       <header className="flex flex-col items-center portal-head">
         <span className="t-label text-muted">THE NETWORK</span>
         <h1 className="m-0 t-hero text-center glow-text portal-q" style={qStyle}>WHO ARE YOU LOOKING FOR?</h1>
@@ -83,7 +91,7 @@ export default function Network() {
           <p className="t-fine text-muted m-0 portal-explore-count">{searching && pins.length !== PEOPLE.length ? `${pins.length} OF ${PEOPLE.length}` : PEOPLE.length} ON THE GLOBE · {cities} {cities === 1 ? 'CITY' : 'CITIES'}. One star per city; bigger stars are more people. Tap a star for who's there.</p>
       </div>
 
-      <form className="portal-search" role="search" onSubmit={(e) => e.preventDefault()}>
+      <form className="portal-search" role="search" onSubmit={(e) => { e.preventDefault(); if (typed) toResults(); (document.activeElement as HTMLElement | null)?.blur(); }}>
         <svg className="portal-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
         <input id="search-q" type="search" className="t-caption portal-search-input" placeholder='e.g. "fintech in san francisco" or "video"' aria-label="Search the network" autoComplete="off" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
         {q && <button type="button" className="portal-search-x" aria-label="Clear the search" onClick={() => setQ('')}>×</button>}

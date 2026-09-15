@@ -118,17 +118,32 @@ function init() {
     });
   }
 
+  // ── contact rows: SAVE wakes up only when the value differs from what was loaded, sleeps again after saving ──
+  for (const row of root.querySelectorAll<HTMLElement>('.portal-contact-row')) {
+    const input = row.querySelector<HTMLInputElement>('input:not([type="checkbox"])');
+    const save = row.querySelector<HTMLButtonElement>('.portal-save-row');
+    if (!input || !save) continue;
+    let saved = input.value;
+    const sync = () => { save.disabled = input.value.trim() === saved.trim(); };
+    input.addEventListener('input', sync);
+    save.addEventListener('click', () => { saved = input.value; setTimeout(sync, 0); });
+    sync();
+  }
+
   // ── action buttons ──
   const flash = (btn: HTMLElement, text: string, fbSel?: string) => {
     const orig = btn.textContent;
     btn.classList.add('is-done'); btn.textContent = text;
     setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = orig; }, 1800);
-    const fb = fbSel ? document.querySelector<HTMLElement>(fbSel) : btn.parentElement?.querySelector<HTMLElement>('.portal-feedback');
+    // the feedback line may sit beside the button or one level up (input+button live in a .portal-inline row)
+    const fb = fbSel ? document.querySelector<HTMLElement>(fbSel)
+      : (btn.parentElement?.querySelector<HTMLElement>('.portal-feedback') ?? btn.closest<HTMLElement>('.portal-field, .portal-contact-row, .portal-save, .portal-panel')?.querySelector<HTMLElement>('.portal-feedback') ?? null);
     if (fb) { fb.textContent = btn.dataset.feedback ?? ''; }
   };
   for (const btn of root.querySelectorAll<HTMLElement>('[data-action]')) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      if ((btn as HTMLButtonElement).disabled) return;
       const a = btn.dataset.action!;
       if (a === 'delete') { if (confirm(`${btn.dataset.confirm ?? 'Delete this?'}`)) btn.closest('tr, li')?.remove(); return; }
       flash(btn, btn.dataset.done ?? 'DONE', btn.dataset.feedbackTarget);

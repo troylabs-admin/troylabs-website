@@ -239,6 +239,11 @@ html.motion .portal-col > .portal-globe-wrap { animation-duration: 1000ms; }
 .portal-globe-count { position: absolute; right: calc(16 * var(--u)); bottom: calc(16 * var(--u)); }
 .portal-globe-foot { display: flex; justify-content: space-between; align-items: center; margin-top: calc(20 * var(--u)); }
 
+/* contact & sign-in rows: input + its own SAVE; SAVE is asleep until the value changes */
+.portal-contact-row .portal-inline .portal-input { margin-top: 0; }
+.portal-save-row[disabled] { opacity: 0.35; cursor: default; box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.3); }
+.portal-save-row:not([disabled]) { color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--color-orange), inset 0 0 calc(13.6 * var(--u)) rgb(255 125 44 / 0.25); }
+
 /* role tag (ADMIN / MEMBER / STAKEHOLDER) next to a name */
 .portal-role { display: inline-block; vertical-align: middle; margin-left: calc(8 * var(--u)); padding: calc(2 * var(--u)) calc(8 * var(--u)); border-radius: 9999px; color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); box-shadow: inset 0 0 0 calc(0.4 * var(--u)) rgb(255 125 44 / 0.7); }
 

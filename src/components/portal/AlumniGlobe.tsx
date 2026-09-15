@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState, useCallback, type ComponentType } from 'react';
 
-export interface GlobePin { id: string; full_name: string; lat: number; lng: number; current_title?: string | null; current_company?: string | null; city?: string | null; region?: string | null }
+export interface GlobePin { id: string; full_name: string; lat: number; lng: number; current_title?: string | null; current_company?: string | null; city?: string | null; region?: string | null; cohort?: string | null }
 
 function createStarMarker(pin: GlobePin, onClick: (pin: GlobePin, el: HTMLElement) => void) {
   const el = document.createElement('button');
@@ -104,14 +104,14 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
         />
       )}
       {selected && anchor && (
-        <div className="portal-panel portal-globe-pop" style={{ left: anchor.x, top: anchor.y }}>
+        /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × in the corner */
+        <div className="portal-panel portal-globe-pop" style={{ left: anchor.x, top: anchor.y }} role="dialog" aria-label={selected.full_name}>
+          <button type="button" className="portal-globe-x" aria-label="Close" onClick={() => { setSelected(null); setAnchor(null); }}>×</button>
           <h3 className="t-name m-0">{selected.full_name}</h3>
           <p className="t-caption text-muted m-0">{selected.current_title}{selected.current_company ? ` · ${selected.current_company}` : ''}</p>
           {selected.city && <p className="t-fine text-muted m-0">{selected.city}{selected.region ? `, ${selected.region}` : ''}</p>}
-          <div className="portal-inline" style={{ marginTop: 'calc(10 * var(--u))' }}>
-            <a href={profileHref(selected)} className="t-label portal-linklike" style={{ color: 'var(--color-orange)' }}>VIEW PROFILE →</a>
-            <button type="button" className="t-label portal-linklike" onClick={() => { setSelected(null); setAnchor(null); }}>CLOSE</button>
-          </div>
+          {selected.cohort && <p className="t-fine m-0" style={{ color: 'var(--color-orange)', letterSpacing: 'calc(1.2 * var(--u))', marginTop: 'calc(6 * var(--u))' }}>TL {selected.cohort}</p>}
+          <a href={profileHref(selected)} className="t-label portal-linklike" style={{ color: 'var(--color-orange)', display: 'inline-block', marginTop: 'calc(10 * var(--u))' }}>VIEW PROFILE →</a>
         </div>
       )}
       <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI ON MAP</div>

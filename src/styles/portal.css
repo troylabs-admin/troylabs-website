@@ -37,7 +37,8 @@ html.motion .portal-col > .portal-globe-wrap { animation-duration: 1000ms; }
 /* admin bar */
 .portal-adminbar { gap: calc(24 * var(--u)); padding-top: calc(12 * var(--u)); padding-bottom: calc(12 * var(--u)); border-top: 1px solid rgb(255 125 44 / 0.35); border-bottom: 1px solid rgb(255 125 44 / 0.12); }
 .portal-adminbar-badge { margin-left: 0; flex: none; }
-.portal-adminbar .portal-nav-list { flex: 1; }
+.portal-adminbar .portal-nav-list { flex: 1; gap: calc(28 * var(--u)); }
+.portal-adminbar .portal-nav-list a { white-space: nowrap; }
 .portal-adminbar-who { flex: none; letter-spacing: calc(0.6 * var(--u)); }
 /* the site nav's ADMIN item lights while on an admin page */
 html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orange); }

@@ -26,7 +26,9 @@ function init() {
         // the img itself only carries .breathe — so every planet was silently armed to fade in, against the
         // intent that art is present and only opts into motion via data-reveal-unit. Visible on mobile BUILD,
         // where the flag arrived ahead of the planet it is planted on (Bryan, 2026-08-24).
-        if (el.closest('[data-figma="Hero"], .no-reveal, .planet')) continue;
+        // .portal-section: the alumni portal has its own load-time entrance (styles/portal.css › portal-rise);
+        // arming its paragraphs and list items here left panels blank until a scroll (Bryan, 2026-09-15)
+        if (el.closest('[data-figma="Hero"], .no-reveal, .planet, .portal-section')) continue;
         // group into the nearest article/li only if that wrapper has a real box (art-directed wrappers are 0-height
         // because their children are absolutely positioned — then each element animates on its own)
         let unit: HTMLElement = el;

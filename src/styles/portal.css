@@ -134,6 +134,15 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-btn.is-done { color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--color-orange), inset 0 0 calc(13.6 * var(--u)) rgb(255 125 44 / 0.25); }
 
   .portal-h2 { margin-top: calc(72 * var(--u)); }
+  /* live results: appear under the filters; the question shrinks once you're searching */
+  .portal-results { margin-top: calc(40 * var(--u)); }
+  .portal-results-count { margin: 0 0 calc(6 * var(--u)); }
+  .portal-results-empty { max-width: calc(520 * var(--u)); margin: calc(12 * var(--u)) auto 0; text-align: center; }
+  .portal-search-clear { margin-top: 0; height: calc(40 * var(--u)); }
+  .portal-head, .portal-q, .portal-sub { transition: font-size 300ms var(--ease-out-expo), margin 300ms var(--ease-out-expo), opacity 300ms ease; }
+  [data-searching] .portal-head { margin-top: calc(36 * var(--u)); }
+    [data-searching] .portal-sub { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+  .portal-match:empty { display: none; }
   .portal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(18 * var(--u)); margin-top: calc(20 * var(--u)); }
   .portal-card {
     display: flex; gap: calc(14 * var(--u)); padding: calc(18 * var(--u)); border-radius: calc(14 * var(--u));
@@ -163,6 +172,9 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
     .portal-chips { gap: 8px; }
     .portal-chip { padding: 7px 12px; letter-spacing: 1px; font-size: 10px; }
     .portal-h2 { margin-top: 40px; }
+    .portal-results { margin-top: 28px; }
+    .portal-search-clear { width: auto; height: 40px; }
+    [data-searching] .portal-head { margin-top: 18px; }
     .portal-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
     .portal-card { gap: 14px; padding: 16px; border-radius: 14px; }
     .portal-avatar { width: 44px; height: 44px; }
@@ -253,6 +265,16 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
 .portal-contact-row .portal-inline .portal-input { margin-top: 0; }
 .portal-save-row[disabled] { opacity: 0.35; cursor: default; box-shadow: inset 0 0 0 calc(0.3 * var(--u)) rgb(255 255 255 / 0.3); }
 .portal-save-row:not([disabled]) { color: var(--color-orange); box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--color-orange), inset 0 0 calc(13.6 * var(--u)) rgb(255 125 44 / 0.25); }
+
+/* analytics: a source band above each group so the two sources never blur together */
+.portal-source { display: flex; align-items: baseline; gap: calc(12 * var(--u)); margin: calc(40 * var(--u)) 0 calc(14 * var(--u)); padding-bottom: calc(10 * var(--u)); border-bottom: 1px solid rgb(255 125 44 / 0.35); flex-wrap: wrap; }
+.portal-source-site { border-bottom-color: rgb(84 138 255 / 0.45); }
+.portal-source .portal-role { margin-left: 0; }
+.portal-role-blue { color: var(--color-blue); box-shadow: inset 0 0 0 calc(0.4 * var(--u)) rgb(84 138 255 / 0.7); }
+.portal-source .t-fine.text-muted { margin-left: auto; }
+
+.portal-recipients { margin-top: calc(4 * var(--u)); }
+.portal-recipients li { padding: calc(6 * var(--u)) calc(12 * var(--u)); }
 
 /* role tag (ADMIN / MEMBER / STAKEHOLDER) next to a name */
 .portal-role { display: inline-block; vertical-align: middle; margin-left: calc(8 * var(--u)); padding: calc(2 * var(--u)) calc(8 * var(--u)); border-radius: 9999px; color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); box-shadow: inset 0 0 0 calc(0.4 * var(--u)) rgb(255 125 44 / 0.7); }

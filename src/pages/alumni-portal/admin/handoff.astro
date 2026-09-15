@@ -1,7 +1,6 @@
 ---
 /**
- * Admin › Handoff. Everything the next Head of Tech (or president) needs in one place (Bryan,
- * 2026-09-15): where the site lives, who holds each account, and how the common jobs are done.
+ * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15). Just the places.
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -14,34 +13,18 @@ const PLACES = [
   ['Domains', 'Name.com', 'https://www.name.com', 'usctroylabs.com and troylabs.vc. Auto-renew is on; .vc redirects to .com.'],
   ['Database', 'Supabase', '', 'Not set up yet. Should live on a TroyLabs account, not a person’s.'],
   ['Website analytics', 'Vercel Analytics', 'https://vercel.com/troylabs-projects/troylabs-landing-page/analytics', 'Visitors and page views. Already on.'],
-  ['Product analytics', 'PostHog', '', 'Not set up yet. For click-level detail when we want it.'],
-];
-const HOWTO = [
-  ['Change where "Apply to TroyLabs" goes', 'Edit APPLY_HREF in src/lib/links.ts and push. Right now it points at /apply (applications closed).'],
-  ['Add a new cohort', 'Members → Add a cohort. Paste the semester’s roster; each person gets an invite.'],
-  ['Give someone e-board history', 'Members → ROLES on their row. Alumni can’t set this themselves.'],
-  ['Let an old alum in', 'They use "Request access" on the sign-in page; you approve it on Members.'],
-  ['Email or text a group', 'Reach out → pick the audience → send. Texts need the SendBlue account.'],
-  ['Make someone an admin', 'Their email goes on the admin list (config, then the admin_emails table once the database exists).'],
+  ['Product analytics', 'PostHog', '', 'Not set up yet. Click-level detail: which buttons, which searches, which pins.'],
 ];
 ---
 
-<BaseLayout nav="portal" current="admin" title="Handoff — TL Alumni Network Portal" description="Where everything lives, for the next person running the TroyLabs site.">
+<BaseLayout nav="portal" current="admin" title="Tech stack — TL Alumni Network Portal" description="Where the TroyLabs site and network live.">
   <PortalShell label="Handoff">
     <AdminNav current="handoff" />
-    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">HANDOFF</h1><p class="t-caption text-muted portal-page-sub">For whoever runs this next. Where everything lives, who holds it, and how the common jobs are done.</p></div></div>
+    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab; you may need to sign in.</p></div></div>
 
-    <h2 class="t-sub portal-section-h">Where things live</h2>
-    <ul class="portal-row-list t-caption" style="margin-top:0">
+    <ul class="portal-row-list t-caption" style="margin-top:calc(22 * var(--u))">
       {PLACES.map(([what, where, href, note]) => <li style="align-items:flex-start;gap:calc(16 * var(--u))"><span style="flex:1"><span class="text-ink">{what}</span> <span class="text-muted">· {where}</span><br /><span class="t-fine text-muted">{note}</span></span>{href ? <a href={href} target="_blank" rel="noopener noreferrer" class="t-label portal-linklike no-underline" style="color:var(--color-orange);flex:none">OPEN →</a> : <span class="t-fine portal-tag" style="flex:none">NOT YET</span>}</li>)}
     </ul>
 
-    <h2 class="t-sub portal-section-h">Who holds the accounts</h2>
-    <div class="portal-panel"><p class="m-0 t-caption text-muted">Vercel and GitHub: the TroyLabs org, with the Head of Tech as owner. Name.com: currently on a former member's personal account — move it to a TroyLabs login. Keep this list current when people graduate; it is the thing that gets lost.</p></div>
-
-    <h2 class="t-sub portal-section-h">How to</h2>
-    <ul class="portal-row-list t-caption" style="margin-top:0">
-      {HOWTO.map(([q, a]) => <li style="flex-direction:column;align-items:flex-start;gap:calc(4 * var(--u))"><span class="text-ink">{q}</span><span class="t-fine text-muted">{a}</span></li>)}
-    </ul>
   </PortalShell>
 </BaseLayout>

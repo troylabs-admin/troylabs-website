@@ -33,8 +33,10 @@ function init() {
       if (single) {                                   // one answer only (status): pick this, clear the rest
         single.querySelectorAll('.portal-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
         chip.setAttribute('aria-pressed', 'true');
-        const grad = root!.querySelector<HTMLElement>('#pf-grad');
-        if (grad) grad.hidden = chip.dataset.value !== 'student';
+        const isStudent = chip.dataset.value === 'student';
+        const grad = root!.querySelector<HTMLElement>('#pf-grad'); if (grad) grad.hidden = !isStudent;
+        const gnote = root!.querySelector<HTMLElement>('#pf-grad-note'); if (gnote) gnote.hidden = !isStudent;
+        const classof = root!.querySelector<HTMLElement>('#pf-classof'); if (classof) classof.hidden = isStudent;
         recount(); return;
       }
       chip.setAttribute('aria-pressed', String(on));
@@ -89,6 +91,81 @@ function init() {
     };
     btn.addEventListener('click', add);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  }
+
+  // ── search page: live results as you type or pick a chip; each card says why it matched ──
+  const sq = root.querySelector<HTMLInputElement>('#search-q');
+  const sres = root.querySelector<HTMLElement>('[data-search-results]');
+  if (sq && sres) {
+    const filters = root.querySelector<HTMLElement>('[data-search-filters]')!;
+    const list = sres.querySelector<HTMLElement>('[data-search-list]')!;
+    const countEl = sres.querySelector<HTMLElement>('[data-search-count]')!;
+    const empty = sres.querySelector<HTMLElement>('[data-search-empty]')!;
+    const echo = sres.querySelector<HTMLElement>('[data-search-echo]')!;
+    const clear = root.querySelector<HTMLButtonElement>('[data-search-clear]')!;
+    const run = () => {
+      const active: Record<string, string[]> = {};
+      for (const g of filters.querySelectorAll<HTMLElement>('[data-filter]')) {
+        const on = [...g.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.dataset.value!);
+        if (on.length) active[g.dataset.filter!] = on;
+      }
+      const words = sq.value.trim().toLowerCase().split(/\s+/).filter((w) => w.length > 1 && !['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did'].includes(w));
+      const searching = words.length > 0 || Object.keys(active).length > 0;
+      root!.toggleAttribute('data-searching', searching);
+      // the question shrinks while searching. Inline, because the site's .t-hero rule and this page's rule tie on
+      // specificity and the site's wins on order (measured: stylesheet attempts landed at 35px, not 24px).
+      const q = root!.querySelector<HTMLElement>('.portal-q');
+      if (q) { const small = innerWidth < 768; q.style.fontSize = searching ? (small ? '20px' : 'calc(24 * var(--u))') : ''; q.style.lineHeight = searching ? (small ? '24px' : 'calc(28 * var(--u))') : ''; q.style.letterSpacing = searching ? (small ? '1.6px' : 'calc(2 * var(--u))') : ''; }
+      sres.hidden = !searching; clear.hidden = !sq.value;
+      if (!searching) return;
+      let shown = 0;
+      const rows = [...list.querySelectorAll<HTMLElement>('li')];
+      const scored = rows.map((li) => {
+        const why: string[] = [];
+        // filters are hard requirements
+        for (const [k, vals] of Object.entries(active)) {
+          const have = (li.dataset[k] ?? '').split('|');
+          const hit = vals.filter((v) => have.includes(v));
+          if (!hit.length) return { li, score: -1, why };
+          why.push(...hit);
+        }
+        // words: every word must appear somewhere; each hit adds to the score
+        const text = li.dataset.text ?? '';
+        let score = 0;
+        for (const w of words) { if (!text.includes(w)) return { li, score: -1, why }; score++; why.push(w); }
+        return { li, score, why };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      for (const { li, score, why } of scored) {
+        li.hidden = score < 0; if (score >= 0) shown++;
+        const w = li.querySelector<HTMLElement>('[data-why]'); if (w) w.textContent = score >= 0 && why.length ? 'MATCHED ' + [...new Set(why.map((x) => x.toUpperCase()))].join(' · ') : '';
+        list.appendChild(li);   // re-order by score
+      }
+      countEl.textContent = shown ? `${shown} ${shown === 1 ? 'person' : 'people'}` : '';
+      empty.hidden = shown > 0; echo.textContent = sq.value.trim() || Object.values(active).flat().join(', ');
+    };
+    sq.addEventListener('input', run);
+    filters.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.portal-chip')) setTimeout(run, 0); });
+    clear.addEventListener('click', () => { sq.value = ''; filters.querySelectorAll('.portal-chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); run(); sq.focus(); });
+    run();
+  }
+
+  // ── admin › messages: schedule reveals a time; the SEND button follows it; tabs filter the list; recipients expand ──
+  const when = root.querySelector<HTMLElement>('[data-when]');
+  if (when) {
+    const at = root.querySelector<HTMLElement>('[data-when-at]')!; const send = root.querySelector<HTMLElement>('[data-send-btn]')!;
+    when.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return; setTimeout(() => { const later = c.dataset.value === 'later'; at.hidden = !later; send.textContent = later ? 'SCHEDULE' : 'SEND NOW'; send.dataset.done = later ? 'SCHEDULED' : 'QUEUED'; send.dataset.feedback = later ? 'Scheduled. It appears under Scheduled below, editable until it sends.' : 'Sending is wired with the database (email) and SendBlue (texts). Nothing was sent.'; }, 0); });
+  }
+  const channels = root.querySelector<HTMLElement>('[data-channels]');
+  if (channels) channels.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return;
+    setTimeout(() => { const on = c.getAttribute('aria-pressed') === 'true'; channels.querySelectorAll('.portal-chip').forEach((x) => x.setAttribute('aria-pressed', 'false')); c.setAttribute('aria-pressed', String(on));
+      const fb = channels.closest('[data-audience]')!.querySelector<HTMLElement>('.portal-feedback'); if (fb && on) fb.textContent = `Sending to the ${c.dataset.value} channel (${c.title}).`; }, 0); });
+  const tabs = root.querySelector<HTMLElement>('[data-msg-tabs]'); const mlist = root.querySelector<HTMLElement>('[data-msg-list]');
+  if (tabs && mlist) {
+    tabs.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return;
+      tabs.querySelectorAll('.portal-chip').forEach((x) => x.setAttribute('aria-pressed', 'false')); c.setAttribute('aria-pressed', 'true');
+      const v = c.dataset.value; mlist.querySelectorAll<HTMLElement>(':scope > li').forEach((li) => { li.hidden = v !== 'all' && li.dataset.state !== v; }); });
+    for (const b of mlist.querySelectorAll<HTMLElement>('[data-recipients]')) b.addEventListener('click', () => { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT') : 'HIDE'; });
   }
 
   // ── admin › members: filters + search narrow the table live (chips here filter, they don't summarise) ──
@@ -208,6 +285,7 @@ function init() {
       // skip: add-boxes, anything inside an optional block (role years live under the optional e-board
       // section), and the semester <select> — a semester+year pair is ONE field, scored by its year input
       if (i.closest('[data-adds], [data-optional], #pf-eboard-years, #pf-grad') || i.hasAttribute('data-optional') || i.classList.contains('portal-select')) continue;
+      if (i.closest('#pf-classof')) { const alum = root!.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]')?.getAttribute('data-value') === 'alum'; if (!alum) continue; }   // students have no class year yet
       count(i.value.trim() !== '', i.dataset.label ?? i.getAttribute('aria-label')?.toLowerCase() ?? 'field');
     }
     for (const g of root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]:not([data-optional])'))

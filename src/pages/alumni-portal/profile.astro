@@ -76,6 +76,12 @@ const ON = { programs: ['TL INTERNAL'], divisions: ['PRODUCT MANAGEMENT', 'TECH'
         <select class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
         <input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" style="max-width:calc(140 * var(--u))" />
       </div>
+      <p id="pf-grad-note" class="m-0 t-fine text-muted" style="margin-top:calc(8 * var(--u))" hidden>When that semester ends you become an alum automatically: your profile shows your class year, TroyLabs sends a congratulations, and you're added to the alumni channels for your division.</p>
+      <div id="pf-classof" class="portal-inline portal-term" style="margin-top:calc(12 * var(--u))">
+        <span class="t-label text-muted" style="flex:none">CLASS OF</span>
+        <input class="t-caption portal-input" inputmode="numeric" value="2025" aria-label="Graduation year" data-label="class year" style="max-width:calc(140 * var(--u))" />
+        <span class="t-fine text-muted">the year you graduated USC</span>
+      </div>
 
       <h2 class="t-sub portal-section-h">Basic info</h2>
       <div class="portal-form-grid">

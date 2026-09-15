@@ -11,14 +11,6 @@ import PortalShell from '../../components/portal/PortalShell.astro';
 const PROGRAMS = ['TL INTERNAL', 'IGNITE', 'BUILD STARTUP', 'DEMO STARTUP'];
 const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC / FINANCE', 'MARKETING'];
 const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'ROBOTICS'];
-const PEOPLE = [
-  { name: 'Sample Alum', role: 'Product Designer', company: 'Company', city: 'New York, NY', tags: ['BUILD', 'DEMO'], initials: 'SA', match: 33 },
-  { name: 'Sample Alum', role: 'Senior PM', company: 'Company', city: 'Chicago, IL', tags: ['BUILD'], initials: 'SA', match: 21 },
-  { name: 'Sample Alum', role: 'Software Engineer', company: 'Company', city: 'Seattle, WA', tags: ['IGNITE'], initials: 'SA', match: 19 },
-  { name: 'Sample Alum', role: 'Angel Investor', company: 'Fund', city: 'Miami, FL', tags: ['TL INTERNAL'], initials: 'SA', match: 17 },
-  { name: 'Sample Student', role: 'Founder', company: 'Startup', city: 'Los Angeles, CA', tags: ['STUDENT', 'BUILD', 'DEMO'], initials: 'SS', match: 12 },
-  { name: 'Sample Alum', role: 'Analyst', company: 'Company', city: 'San Francisco, CA', tags: ['IGNITE'], initials: 'SA', match: 10 },
-];
 ---
 
 <BaseLayout nav="portal" current="home" title="Search — TL Alumni Network Portal" description="Find TroyLabs alumni by name, role, industry, program or city.">
@@ -47,23 +39,6 @@ const PEOPLE = [
         <p class="t-fine portal-feedback" style="margin-left:calc(78 * var(--u))"></p>
       </div>
 
-      <h2 class="m-0 t-label text-muted text-center portal-h2">SUGGESTED FOR YOU</h2>
-      <ul class="m-0 p-0 list-none portal-grid">
-        {PEOPLE.map((p) => (
-          <li>
-            <a href="#" class="portal-card no-underline text-ink">
-              <span class="portal-avatar t-sub" aria-hidden="true">{p.initials}</span>
-              <span class="portal-card-body">
-                <span class="t-name portal-card-name">{p.name}</span>
-                <span class="t-caption text-muted">{p.role} · {p.company}</span>
-                <span class="t-fine text-muted">{p.city}</span>
-                <span class="flex flex-wrap portal-card-tags">{p.tags.map((t) => <span class="t-fine portal-tag">{t}</span>)}</span>
-                <span class="t-fine portal-match">{p.match}% MATCH</span>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
   </PortalShell>
 </BaseLayout>
 

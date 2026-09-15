@@ -12,6 +12,9 @@ function init() {
   if (!root || (root as HTMLElement).dataset.uiReady) return;
   (root as HTMLElement).dataset.uiReady = '1';
 
+  // entrance stagger: each top-level block gets its index (styles/portal.css › portal-rise)
+  [...root.querySelectorAll<HTMLElement>('.portal-col > *')].forEach((el, i) => el.style.setProperty('--pi', String(Math.min(i, 8))));
+
   // ── chips ──
   const summarise = (group: HTMLElement) => {
     // only a feedback line that is the group's OWN next sibling — never something further down the page

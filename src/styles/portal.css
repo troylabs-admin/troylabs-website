@@ -12,6 +12,17 @@
    (7.0:1). Scoped to the portal: the marketing pages keep the designer's exact value. */
 .portal-section, .portal-footer, .m-nav-portal, header:has(+ main .portal-section) { --color-muted: #a9a8a9; }
 
+/* ── entrance ──────────────────────────────────────────────────────────────────────────────────
+   The marketing pages get their entrance from the hero choreography; portal pages have no hero, and the
+   site's reveal-on-scroll only arms things BELOW the fold — so on the portal almost nothing animated in
+   (measured: the globe page armed 1 element, admin pages 0). Every top-level block in the portal column
+   now rises in on load, top to bottom, with the site's expo-out easing (Bryan, 2026-09-15 — the third
+   time asked; this time measured). Reduced-motion users see the resting page. */
+html.motion .portal-col > * { animation: portal-rise 800ms var(--ease-out-expo) both; animation-delay: calc(120ms + var(--pi, 0) * 70ms); }
+html.motion .portal-col > .portal-globe-wrap { animation-duration: 1000ms; }
+@keyframes portal-rise { from { opacity: 0; transform: translateY(calc(16 * var(--u))); } to { opacity: 1; transform: none; } }
+/* the signed-in nav item labels are part of the site nav and already animate in (hero-nav) */
+
 /* ── in-portal nav (components/portal/PortalNav.astro) ── */
   .portal-nav { display: flex; align-items: center; justify-content: space-between; width: calc(800 * var(--u)); margin: 0 auto; padding-top: calc(10 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.12); }
   .portal-nav-list { gap: calc(40 * var(--u)); }

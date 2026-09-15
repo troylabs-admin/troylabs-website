@@ -1,23 +1,31 @@
 ---
 /**
- * Alumni portal › Globe. The MVP's page — title, program filters, Charlotte's 3D globe of alumni pins,
- * the count — in the portal shell. DESIGN PREVIEW: pins are placeholder people at real coordinates.
+ * Alumni portal › Globe. The MVP's page — title, program filters, Charlotte's 3D globe, the count — in
+ * the portal shell. People are grouped into one star per city (components/portal/AlumniGlobe.tsx).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
 import AlumniGlobe from '../../components/portal/AlumniGlobe.tsx';
 const PROGRAMS = ['TL INTERNAL', 'IGNITE'];
-const PINS = [
-  { id: 'sample', full_name: 'Sample Alum', lat: 34.0522, lng: -118.2437, current_title: 'Founder', current_company: 'Startup', city: 'Los Angeles', region: 'CA', cohort: 'SP25' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 37.7749, lng: -122.4194, current_title: 'Analyst', current_company: 'Company', city: 'San Francisco', region: 'CA', cohort: 'FA24' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 40.7128, lng: -74.006, current_title: 'Product Designer', current_company: 'Company', city: 'New York', region: 'NY', cohort: 'SP23' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 41.8781, lng: -87.6298, current_title: 'Senior PM', current_company: 'Company', city: 'Chicago', region: 'IL', cohort: 'FA22' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 47.6062, lng: -122.3321, current_title: 'Software Engineer', current_company: 'Company', city: 'Seattle', region: 'WA', cohort: 'SP24' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 25.7617, lng: -80.1918, current_title: 'Angel Investor', current_company: 'Fund', city: 'Miami', region: 'FL', cohort: 'FA21' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 51.5074, lng: -0.1278, current_title: 'Founder', current_company: 'Startup', city: 'London', region: 'UK', cohort: 'SP22' },
-  { id: 'sample', full_name: 'Sample Alum', lat: 1.3521, lng: 103.8198, current_title: 'Analyst', current_company: 'Fund', city: 'Singapore', region: '', cohort: 'FA23' },
+/* DESIGN PREVIEW people: deterministic, none real. Skewed the way a real roster will be — Bryan's
+   "what if there are 300 alumni in San Francisco" — plus Bay Area / SoCal / East Coast neighbours close
+   enough that their stars overlap at the opening zoom, so the merging and click-to-expand get exercised. */
+const CITIES: [string, string, number, number, number][] = [
+  ['San Francisco', 'CA', 37.7749, -122.4194, 300], ['Palo Alto', 'CA', 37.4419, -122.143, 12], ['San Jose', 'CA', 37.3382, -121.8863, 8], ['Oakland', 'CA', 37.8044, -122.2712, 6],
+  ['Los Angeles', 'CA', 34.0522, -118.2437, 40], ['Irvine', 'CA', 33.6846, -117.8265, 7], ['San Diego', 'CA', 32.7157, -117.1611, 9],
+  ['New York', 'NY', 40.7128, -74.006, 25], ['Boston', 'MA', 42.3601, -71.0589, 6], ['Philadelphia', 'PA', 39.9526, -75.1652, 3], ['Washington', 'DC', 38.9072, -77.0369, 5],
+  ['Chicago', 'IL', 41.8781, -87.6298, 8], ['Seattle', 'WA', 47.6062, -122.3321, 10], ['Austin', 'TX', 30.2672, -97.7431, 5], ['Miami', 'FL', 25.7617, -80.1918, 4], ['Toronto', 'ON', 43.6532, -79.3832, 3],
+  ['London', 'UK', 51.5074, -0.1278, 6], ['Singapore', '', 1.3521, 103.8198, 3], ['Tokyo', 'JP', 35.6762, 139.6503, 2], ['Mexico City', 'MX', 19.4326, -99.1332, 1],
 ];
+const TITLES = ['Founder', 'Software Engineer', 'Product Manager', 'Analyst', 'Product Designer', 'Investor', 'Data Scientist', 'Marketing Lead'];
+const COMPANIES = ['Startup', 'Company', 'Fund', 'Studio', 'Lab'];
+const COHORTS = ['FA20', 'SP21', 'FA21', 'SP22', 'FA22', 'SP23', 'FA23', 'SP24', 'FA24', 'SP25', 'FA25', 'SP26'];
+let n = 0;
+const PINS = CITIES.flatMap(([city, region, lat, lng, count]) => Array.from({ length: count }, () => { n += 1; return {
+  id: 'sample', full_name: `Sample Alum ${n}`, lat, lng, current_title: TITLES[n % TITLES.length], current_company: COMPANIES[n % COMPANIES.length],
+  city, region, cohort: COHORTS[n % COHORTS.length], programs: n % 3 === 0 ? ['IGNITE'] : n % 7 === 0 ? ['TL INTERNAL', 'IGNITE'] : ['TL INTERNAL'],
+}; }));
 ---
 
 <BaseLayout nav="portal" current="globe" title="Globe — TL Alumni Network Portal" description="Where TroyLabs alumni are in the world.">
@@ -25,9 +33,9 @@ const PINS = [
     <div class="portal-page-head">
       <div>
         <h1 class="t-title portal-page-title">ALUMNI GLOBE</h1>
-        <p class="t-caption text-muted portal-page-sub">Pins update when alumni change their location.</p>
+        <p class="t-caption text-muted portal-page-sub">One star per city. Bigger stars are more people. Click a star for who's there.</p>
       </div>
-      <div data-audience="Showing" data-empty="Showing every program.">
+      <div data-audience="Showing" data-empty="Showing every program." data-globe-filters>
         <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
         <p class="t-fine portal-feedback" style="text-align:right"></p>
       </div>

@@ -1,44 +1,76 @@
 ---
-/** Alumni portal › Admin › User management (the MVP's /admin/users). DESIGN PREVIEW with placeholder rows. */
+/**
+ * Admin › Members. The club's history and reach in one table (Bryan, 2026-09-15): filter by cohort,
+ * status, division, program, city; free-text search; add a cohort; set e-board roles per member;
+ * approve access requests; export. DESIGN PREVIEW: placeholder people; filters and search work on them.
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
-const USERS = [
-  ['Sample Admin', 'president@usc.edu', 'ADMIN', 'TL_INTERNAL, BUILD', true],
-  ['Sample Admin', 'copresident@usc.edu', 'ADMIN', 'TL_INTERNAL, IGNITE', true],
-  ['Sample Alum', 'alum1@usc.edu', 'MEMBER', 'BUILD', true],
-  ['Sample Alum', 'alum2@usc.edu', 'MEMBER', 'BUILD, DEMO', true],
-  ['Sample Alum', 'alum3@usc.edu', 'MEMBER', 'IGNITE', false],
-  ['Sample Investor', 'investor@fund.com', 'STAKEHOLDER', '', false],
+const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25'];
+const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING'];
+type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM'; cohort: string; program: string; division: string; city: string; complete: boolean };
+const MEMBERS: M[] = [
+  { name: 'Sample Admin', email: 'president@usc.edu', role: 'ADMIN', status: 'STUDENT', cohort: 'SP25', program: 'TL INTERNAL', division: 'PRODUCT', city: 'Los Angeles, CA', complete: true },
+  { name: 'Sample Admin', email: 'copresident@usc.edu', role: 'ADMIN', status: 'STUDENT', cohort: 'SP25', program: 'TL INTERNAL', division: 'VC/FINANCE', city: 'Los Angeles, CA', complete: true },
+  { name: 'Sample Alum', email: 'alum1@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'SP25', program: 'TL INTERNAL', division: 'TECH', city: 'San Francisco, CA', complete: true },
+  { name: 'Sample Alum', email: 'alum2@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'FA25', program: 'TL INTERNAL', division: 'DESIGN', city: 'New York, NY', complete: true },
+  { name: 'Sample Student', email: 'student1@usc.edu', role: 'MEMBER', status: 'STUDENT', cohort: 'FA26', program: 'IGNITE', division: 'MARKETING', city: 'Los Angeles, CA', complete: false },
+  { name: 'Sample Student', email: 'student2@usc.edu', role: 'MEMBER', status: 'STUDENT', cohort: 'SP26', program: 'TL INTERNAL', division: 'TECH', city: 'Los Angeles, CA', complete: false },
+  { name: 'Sample Alum', email: 'alum3@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'SP25', program: 'IGNITE', division: 'PRODUCT', city: 'Seattle, WA', complete: true },
+];
+const REQUESTS = [
+  { name: 'Sample Requester', email: 'requester@gmail.com', cohort: 'FA23', note: 'Was Director of Design F23–S24' },
+  { name: 'Sample Requester', email: 'other@gmail.com', cohort: 'SP22', note: '' },
 ];
 ---
 
-<BaseLayout nav="portal" current="admin" title="Users — TL Alumni Network Portal" description="TroyLabs alumni portal user management.">
-  <PortalShell label="User management">
+<BaseLayout nav="portal" current="admin" title="Members — TL Alumni Network Portal" description="TroyLabs alumni portal member management.">
+  <PortalShell label="Members">
     <AdminNav current="users" />
     <div class="portal-page-head">
-      <h1 class="t-title portal-page-title">USER MANAGEMENT</h1>
-      <div class="portal-actions"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="export" data-done="EXPORTING…" data-feedback="The CSV downloads once the database is connected." data-feedback-target="#users-fb">EXPORT EMAILS &amp; PHONES (CSV)</button></div>
-    </div>
-
-    <p id="users-fb" class="t-fine portal-feedback" style="text-align:right"></p>
-    <div class="portal-panel" style="margin-top:calc(12 * var(--u))">
-      <h2 class="t-sub portal-panel-title">Allowed email domains</h2>
-      <div class="portal-inline" data-adds="#domain-tags" style="margin-bottom:calc(12 * var(--u))"><input class="t-caption portal-input" placeholder="example.com" aria-label="Add domain" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
-      <div id="domain-tags" class="flex flex-wrap portal-chips" data-tags>
-        {['usc.edu', 'student.usc.edu', 'gmail.com'].map((d) => <span class="t-fine portal-tagx">{d} <button type="button" aria-label={`Remove ${d}`}>×</button></span>)}
+      <div>
+        <h1 class="t-title portal-page-title">MEMBERS</h1>
+        <p class="t-caption text-muted portal-page-sub">Everyone in the network, students and alumni. Filter to find a group, then export or message them.</p>
+      </div>
+      <div class="portal-actions">
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="add-cohort" data-done="OPENING…" data-feedback="Cohort import (from the Notion roster) is wired with the database." data-feedback-target="#members-fb">ADD A COHORT</button>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="export" data-done="EXPORTING…" data-feedback="The CSV of the current filter downloads once the database is connected." data-feedback-target="#members-fb">EXPORT CSV</button>
       </div>
     </div>
+    <p id="members-fb" class="t-fine portal-feedback" style="text-align:right"></p>
 
-    <table class="portal-table t-caption">
-      <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">ROLE</th><th class="t-label">PROGRAMS</th><th class="t-label">COMPLETE</th><th></th></tr></thead>
+    <!-- access requests: alumni not on the roster who asked to join (approve = account + invite link) -->
+    <div class="portal-panel" style="margin-top:calc(12 * var(--u))">
+      <h2 class="t-sub portal-panel-title">Access requests <span class="t-fine portal-role">{REQUESTS.length}</span></h2>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">Alumni who aren't on the roster and asked to join. Approving creates their account and sends an invite link to the email they gave.</p>
+      <ul class="portal-row-list t-caption">
+        {REQUESTS.map((r) => <li><span><span class="text-ink">{r.name}</span> <span class="text-muted">· {r.email} · says {r.cohort}{r.note ? ` · "${r.note}"` : ''}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-action="approve" data-done="APPROVED" data-feedback={`Invite goes to ${r.email} once the database is connected.`} data-feedback-target="#members-fb">APPROVE</button><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Decline ${r.name}'s request?`}>DECLINE</button></span></li>)}
+      </ul>
+    </div>
+
+    <!-- filters + search: all client-side on the placeholder rows -->
+    <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-members-filters>
+      <div class="portal-inline"><svg class="portal-search-glyph" style="position:static;flex:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg><input id="members-q" type="search" class="t-caption portal-input" placeholder="Search name, email, company, city…" aria-label="Search members" /></div>
+      <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">COHORT</span><div class="flex flex-wrap portal-chips" data-filter="cohort">{COHORTS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">DIVISION</span><div class="flex flex-wrap portal-chips" data-filter="division">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">PROGRAM</span><div class="flex flex-wrap portal-chips" data-filter="program">{['TL INTERNAL', 'IGNITE'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <p class="t-fine portal-feedback" data-members-count style="margin-top:calc(12 * var(--u))"></p>
+    </div>
+
+    <table class="portal-table t-caption" data-members>
+      <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">STATUS</th><th class="t-label">COHORT</th><th class="t-label">DIVISION</th><th class="t-label">CITY</th><th class="t-label">PROFILE</th><th></th></tr></thead>
       <tbody>
-        {USERS.map(([n, e, r, p, c]) => <tr><td>{n}</td><td class="text-muted">{e}</td><td><span class="t-fine portal-tag">{r}</span></td><td class="text-muted">{p}</td><td>{c ? '✓' : '—'}</td><td style="text-align:right;white-space:nowrap"><button type="button" class="t-label portal-linklike" data-roles-for={n} style="margin-right:calc(16 * var(--u))">ROLES</button><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Remove ${n} (${e}) from the portal?`}>DELETE</button></td></tr>)}
+        {MEMBERS.map((m) => <tr data-status={m.status} data-cohort={m.cohort} data-division={m.division} data-program={m.program} data-text={`${m.name} ${m.email} ${m.city} ${m.division} ${m.program}`.toLowerCase()}>
+          <td>{m.name}{m.role === 'ADMIN' && <span class="t-fine portal-role">ADMIN</span>}</td><td class="text-muted">{m.email}</td><td><span class="t-fine portal-tag">{m.status}</span></td><td class="text-muted">{m.cohort}</td><td class="text-muted">{m.division}</td><td class="text-muted">{m.city}</td><td>{m.complete ? '✓' : '—'}</td>
+          <td style="text-align:right;white-space:nowrap"><button type="button" class="t-label portal-linklike" data-roles-for={m.name} style="margin-right:calc(16 * var(--u))">ROLES</button><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Remove ${m.name} (${m.email}) from the portal?`}>REMOVE</button></td>
+        </tr>)}
       </tbody>
     </table>
-    <!-- e-board roles are a credential: only admins set them, here, per member (Bryan, 2026-09-14) -->
+
     <template id="roles-picker">
       <div class="portal-panel" data-roles style="margin:calc(8 * var(--u)) 0 calc(12 * var(--u))">
         <h3 class="t-sub portal-panel-title">E-board history for <span data-roles-name></span></h3>

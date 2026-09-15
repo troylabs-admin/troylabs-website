@@ -34,6 +34,15 @@ html.motion .portal-col > .portal-globe-wrap { animation-duration: 1000ms; }
     .portal-nav a { font-size: 11px; letter-spacing: 1px; white-space: nowrap; }
   }
 
+/* admin bar */
+.portal-adminbar { gap: calc(24 * var(--u)); padding-top: calc(12 * var(--u)); padding-bottom: calc(12 * var(--u)); border-top: 1px solid rgb(255 125 44 / 0.35); border-bottom: 1px solid rgb(255 125 44 / 0.12); }
+.portal-adminbar-badge { margin-left: 0; flex: none; }
+.portal-adminbar .portal-nav-list { flex: 1; }
+.portal-adminbar-who { flex: none; letter-spacing: calc(0.6 * var(--u)); }
+/* the site nav's ADMIN item lights while on an admin page */
+html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orange); }
+@media (max-width: 767px) { .portal-adminbar { flex-wrap: wrap; gap: 10px 14px; padding: 12px 0; } .portal-adminbar .portal-nav-list { flex: 1 1 100%; order: 3; gap: 14px; } .portal-adminbar-who { margin-left: auto; } }
+
 /* ── sign-in (pages/alumni-portal/index.astro) ── */
   .portal-form { width: calc(400 * var(--u)); }
   .portal-h { margin-top: calc(18 * var(--u)); }

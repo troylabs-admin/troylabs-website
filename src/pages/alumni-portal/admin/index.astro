@@ -7,10 +7,10 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 /* plain words for a non-technical admin (Bryan, 2026-09-14): "campaign" was the MVP's word for one text
    blast; "profile completion" is the average across all alumni — how filled-in the directory is. */
 const TILES: [string, string, string][] = [
-  ['ALUMNI SIGNED UP', '13', 'accounts in the portal'],
-  ['ACTIVE THIS MONTH', '1', 'signed in within 30 days'],
-  ['DIRECTORY FILLED IN', '92%', 'average profile completeness'],
-  ['TEXTS SENT THIS MONTH', '0', 'via the Messages page'],
+  ['MEMBERS', '7', '4 students · 3 alumni'],
+  ['ACTIVE THIS MONTH', '3', 'signed in within 30 days'],
+  ['ACCESS REQUESTS', '2', 'waiting on the Members page'],
+  ['MESSAGES SENT THIS MONTH', '0', 'via Reach out'],
 ];
 ---
 
@@ -19,17 +19,17 @@ const TILES: [string, string, string][] = [
     <AdminNav current="admin" />
     <div class="portal-page-head">
       <div>
-        <h1 class="t-title portal-page-title">DASHBOARD</h1>
-        <p class="t-caption text-muted portal-page-sub">Signed in as <span class="text-ink">Sample Admin</span> <span class="t-fine portal-role">ADMIN</span> · you can see this because your email is on the admin list.</p>
+        <h1 class="t-title portal-page-title">OVERVIEW</h1>
+        <p class="t-caption text-muted portal-page-sub">The club's people, in one place: who's in the network, how to reach them, what the site is doing.</p>
       </div>
     </div>
     <div class="portal-tiles">{TILES.map(([l, v, hint]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span><span class="t-fine text-muted">{hint}</span></div>)}</div>
     <div class="portal-panels">
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Quick links</h2>
-        <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/messages">Send a text blast</a></li><li><a href="/alumni-portal/admin/users">Manage members</a></li><li><a href="/alumni-portal/admin/analytics">See the numbers</a></li></ul></div>
+        <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/users">Find or add members</a></li><li><a href="/alumni-portal/admin/messages">Reach out to a group</a></li><li><a href="/alumni-portal/admin/analytics">See the numbers</a></li><li><a href="/alumni-portal/admin/handoff">Handoff: where everything lives</a></li></ul></div>
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Who can sign up (3 email domains)</h2>
         <ul class="portal-panel-list t-caption text-muted"><li>usc.edu</li><li>student.usc.edu</li><li>gmail.com</li></ul></div>
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent message blasts</h2><p class="m-0 t-caption text-muted">Nothing sent yet. Blasts you send from the Messages page show up here.</p></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent messages</h2><p class="m-0 t-caption text-muted">Nothing sent yet. Emails and texts you send from Reach out show up here.</p></div>
     </div>
   </PortalShell>
 </BaseLayout>

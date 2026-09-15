@@ -4,20 +4,21 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
-const AUD: [string, string[]][] = [['PROGRAMS', ['TL INTERNAL', 'IGNITE']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
+const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', ['FA26', 'SP26', 'FA25', 'SP25']], ['PROGRAMS', ['TL INTERNAL', 'IGNITE']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
 ---
 
 <BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Send a message blast to TroyLabs alumni.">
   <PortalShell label="Send message blast">
     <AdminNav current="messages" />
     <div class="portal-page-head"><div>
-      <h1 class="t-title portal-page-title">SEND A TEXT BLAST</h1>
-      <p class="t-caption text-muted portal-page-sub">Write an event invite or announcement. It goes by iMessage/SMS to every alum who opted in and matches the audience you pick on the right.</p>
+      <h1 class="t-title portal-page-title">REACH OUT</h1>
+      <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement, or a referral ask. Pick who gets it on the right, then send it by email, by text, or both.</p>
     </div></div>
 
     <div class="portal-panels portal-panels-2">
       <form class="portal-panel" novalidate>
         <h2 class="t-sub portal-panel-title">Compose message</h2>
+        <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
         <div class="portal-field"><label class="t-label text-muted" for="mc-title">TITLE (FOR YOUR RECORDS)</label><input id="mc-title" class="t-caption portal-input is-wide" /></div>
         <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea></div>
         <h3 class="t-label text-muted" style="margin:calc(22 * var(--u)) 0 calc(10 * var(--u))">EVENT DETAILS (OPTIONAL)</h3>
@@ -34,7 +35,7 @@ const AUD: [string, string[]][] = [['PROGRAMS', ['TL INTERNAL', 'IGNITE']], ['DI
         <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
         <div class="portal-actions" style="flex-direction:column;align-items:stretch">
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…" data-feedback="The matching alumni list appears here once the database is connected." data-feedback-target="#msg-fb">PREVIEW AUDIENCE</button>
-          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-feedback="Sending requires the messaging backend (SendBlue). Nothing was sent." data-feedback-target="#msg-fb">SEND NOW</button>
+          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-feedback="Sending is wired with the database (email) and SendBlue (texts). Nothing was sent." data-feedback-target="#msg-fb">SEND NOW</button>
           <p id="msg-fb" class="t-fine portal-feedback" style="margin:0"></p>
         </div>
       </div>

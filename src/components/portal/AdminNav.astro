@@ -1,18 +1,23 @@
 ---
-/** Alumni portal › admin sub-nav (the MVP's admin layout): ADMIN · MESSAGES · USERS · ANALYTICS, BACK right. */
+/**
+ * Alumni portal › admin bar. Answers "am I in admin?" on every admin page (Bryan, 2026-09-15): an
+ * ADMIN badge on the left, the sections, and who is signed in on the right. The site nav's ADMIN item
+ * also lights orange while you are here (Nav.astro).
+ */
 interface Props { current: string }
 const { current } = Astro.props;
-/* No BACK: "back to what?" — the portal nav one row up already has SEARCH (Bryan, 2026-09-14).
-   DASHBOARD, not ADMIN: the row sits under an ADMIN nav item and above an ADMIN title; three ADMINs. */
 const items = [
-  { key: 'admin', label: 'DASHBOARD', href: '/alumni-portal/admin' },
-  { key: 'users', label: 'USERS', href: '/alumni-portal/admin/users' },
-  { key: 'messages', label: 'MESSAGES', href: '/alumni-portal/admin/messages' },
-  { key: 'analytics', label: 'ANALYTICS', href: '/alumni-portal/admin/analytics' },
+  { key: 'admin', label: 'OVERVIEW', href: '/alumni-portal/admin' },
+  { key: 'users', label: 'MEMBERS', href: '/alumni-portal/admin/users' },
+  { key: 'messages', label: 'REACH OUT', href: '/alumni-portal/admin/messages' },
+  { key: 'analytics', label: 'NUMBERS', href: '/alumni-portal/admin/analytics' },
+  { key: 'handoff', label: 'HANDOFF', href: '/alumni-portal/admin/handoff' },
 ];
 ---
-<nav class="portal-nav t-nav" aria-label="Admin">
+<nav class="portal-nav portal-adminbar t-nav" aria-label="Admin">
+  <span class="t-fine portal-role portal-adminbar-badge">ADMIN</span>
   <ul class="m-0 p-0 list-none flex portal-nav-list">
     {items.map((i) => <li><a href={i.href} class:list={['no-underline glow-text', i.key === current ? 'text-ink' : 'text-muted']} aria-current={i.key === current ? 'page' : undefined}>{i.label}</a></li>)}
   </ul>
+  <span class="t-fine text-muted portal-adminbar-who">Signed in as <span class="text-ink">Sample Admin</span> · on the admin list</span>
 </nav>

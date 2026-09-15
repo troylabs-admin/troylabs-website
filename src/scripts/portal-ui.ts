@@ -91,6 +91,33 @@ function init() {
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
   }
 
+  // ── admin › members: filters + search narrow the table live (chips here filter, they don't summarise) ──
+  const mf = root.querySelector<HTMLElement>('[data-members-filters]');
+  const mtable = root.querySelector<HTMLElement>('[data-members] tbody');
+  if (mf && mtable) {
+    const q = mf.querySelector<HTMLInputElement>('#members-q');
+    const count = mf.querySelector<HTMLElement>('[data-members-count]');
+    const apply = () => {
+      const active: Record<string, string[]> = {};
+      for (const g of mf.querySelectorAll<HTMLElement>('[data-filter]')) {
+        const on = [...g.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.dataset.value!);
+        if (on.length) active[g.dataset.filter!] = on;
+      }
+      const text = (q?.value ?? '').trim().toLowerCase();
+      let shown = 0, total = 0;
+      for (const tr of mtable.querySelectorAll<HTMLTableRowElement>('tr:not(.portal-row-detail)')) {
+        total++;
+        const ok = Object.entries(active).every(([k, vals]) => vals.includes(tr.dataset[k] ?? '')) && (!text || (tr.dataset.text ?? '').includes(text));
+        tr.hidden = !ok; if (ok) shown++;
+        const detail = tr.nextElementSibling as HTMLElement | null; if (detail?.classList.contains('portal-row-detail')) detail.hidden = !ok;
+      }
+      if (count) count.textContent = shown === total ? `Showing all ${total} members.` : `Showing ${shown} of ${total} members.`;
+    };
+    mf.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.portal-chip')) setTimeout(apply, 0); });
+    q?.addEventListener('input', apply);
+    apply();
+  }
+
   // ── admin › users: ROLES opens the member's role picker in a row beneath ──
   for (const btn of root.querySelectorAll<HTMLElement>('[data-roles-for]')) {
     btn.addEventListener('click', () => {
@@ -98,7 +125,7 @@ function init() {
       if (next?.classList.contains('portal-row-detail')) { next.remove(); btn.textContent = 'ROLES'; return; }
       const tpl = document.querySelector<HTMLTemplateElement>('#roles-picker')!;
       const row = document.createElement('tr'); row.className = 'portal-row-detail';
-      const td = document.createElement('td'); td.colSpan = 6; td.appendChild(tpl.content.cloneNode(true)); row.appendChild(td);
+      const td = document.createElement('td'); td.colSpan = tr.children.length; td.appendChild(tpl.content.cloneNode(true)); row.appendChild(td);
       td.querySelector<HTMLElement>('[data-roles-name]')!.textContent = btn.dataset.rolesFor!;
       tr.after(row); btn.textContent = 'CLOSE';
       // wire the cloned chips (they were not in the DOM when init ran)

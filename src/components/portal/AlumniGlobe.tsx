@@ -3,18 +3,18 @@
  * pins at real coordinates, drag to rotate, click a pin for the person — with one structural change
  * (Bryan, 2026-09-15): people are grouped into ONE STAR PER CITY, and cities whose stars would overlap
  * at the current zoom merge into a bigger star with a count (see lib/portal/cluster.ts for the rules
- * and the prior art). One tap on any star opens the people at it, grouped by city; a city of one still
- * shows Charlotte's card. On desktop the list is a panel beside the globe; on a phone it sits under the
+ * and the prior art). One tap on any star zooms in and opens the people at it, grouped by city; a city
+ * of one still shows Charlotte's card. On desktop the list is a panel beside the globe; on a phone it sits under the
  * globe in the page (the overlay was too small to scroll). Zoom is by the + / − buttons: the wheel
  * scrolls the page (OrbitControls hijacked it in the MVP).
  * DESIGN PREVIEW: fed placeholder people from the page; nothing is wired to data.
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
-import { clusterCities, clusterLabel, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
+import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
 
 export type GlobePin = GlobePerson;
 
-const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5 };
+const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5, ladder: [3, 2.4, 1.9, 1.4, 1.0, 0.7, 0.5, 0.35, 0.25] };
 const PAGE = 40;   // list rows shown before SHOW MORE
 /* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
    the globe's apparent angular radius at distance R(1+alt) is asin(1/(1+alt)). On a phone the frame is
@@ -152,11 +152,19 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
       flyTo(person.lat, person.lng, Math.min(altitude, 1.4));
       return;
     }
-    setOpen({ kind: 'list', cluster: c });
-    flyTo(c.lat, c.lng, altitude);
-    // phone: the list is under the globe — bring it up
-    if (innerWidth < 768) requestAnimationFrame(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  }, [altitude, flyTo]);
+    // zoom in on what you tapped: a bunched star to the coarsest zoom where it splits (supercluster's
+    // expansion zoom; km-per-px scales with camera distance, i.e. with 1 + altitude), a lone city a bit closer.
+    let target = Math.max(ALT.min, Math.min(altitude, 1.0) * 0.7);
+    if (c.cities.length > 1) {
+      const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude));
+      const k = expansionKmPerPx(c, ladder);
+      if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1;
+    }
+    setOpen({ kind: 'list', cluster: c });   // the list is what you tapped, before it splits
+    flyTo(c.lat, c.lng, target);
+    // phone: the list is under the globe — once the zoom has been seen, bring it up
+    if (innerWidth < 768) setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650);
+  }, [altitude, view, flyTo]);
   clickRef.current = handleClick;
 
   // one stable function for the life of the component: three-globe drops and rebuilds EVERY marker when

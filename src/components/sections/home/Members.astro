@@ -23,6 +23,7 @@ import kleiner from '../../../assets/logos/kleiner.svg?raw';
 import disney from '../../../assets/logos/disney.svg?raw';
 import tesla from '../../../assets/logos/tesla.svg?raw';
 import aws from '../../../assets/logos/aws.svg?raw';
+import spacex from '../../../assets/logos/spacex.svg?raw'; // added 2026-09-15 (Bryan): left column, between Apple and IBM — the one clean gap on the ring
 
 const TOP = 3200;
 const y = (v: number) => v - TOP;
@@ -64,8 +65,9 @@ const marks = [
   { name: 'The Walt Disney Company', svg: disney, key: 'disney', h: 16, box: [572, 3810, 164] },
   { name: 'Tesla', svg: tesla, key: 'tesla', h: 11.5, box: [386, 3824, 32] },
   { name: 'AWS', svg: aws, key: 'aws', h: 26, box: [489, 3855, 29] },
+  { name: 'SpaceX', svg: spacex, key: 'spacex', h: 11.5, box: [128, 3665, 94] },   // 34 du below Apple, 39 above IBM; its auto leader lands on the rim 23 du below Apple's dot
 ] as const;
-const ASPECT: Record<string, number> = {"kleiner": 9.526, "meta": 4.963, "tesla": 7.671, "estee": 1.669, "aws": 1.67, "disney": 6.605, "ibm": 2.68, "nvidia": 7.022, "vercel": 4.369, "ramp": 3.692};
+const ASPECT: Record<string, number> = {"spacex": 8.123, "kleiner": 9.526, "meta": 4.963, "tesla": 7.671, "estee": 1.669, "aws": 1.67, "disney": 6.605, "ibm": 2.68, "nvidia": 7.022, "vercel": 4.369, "ramp": 3.692};
 /* auto leader lines for every other company: from the logo's globe-facing edge, an orthogonal elbow to a dot
    on the rim along the direction to the globe's centre (same language as the designer's four hand-drawn ones) */
 const C = [503.5, 3581.5], R = 192;

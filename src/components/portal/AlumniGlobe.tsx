@@ -3,17 +3,24 @@
  * pins at real coordinates, drag to rotate, click a pin for the person — with one structural change
  * (Bryan, 2026-09-15): people are grouped into ONE STAR PER CITY, and cities whose stars would overlap
  * at the current zoom merge into a bigger star with a count (see lib/portal/cluster.ts for the rules
- * and the prior art). Clicking a merged star zooms until it splits; clicking a city opens the list of
- * people there; a city of one still shows Charlotte's card. Zoom is by the + / − buttons: the wheel
+ * and the prior art). One tap on any star opens the people at it, grouped by city; a city of one still
+ * shows Charlotte's card. On desktop the list is a panel beside the globe; on a phone it sits under the
+ * globe in the page (the overlay was too small to scroll). Zoom is by the + / − buttons: the wheel
  * scrolls the page (OrbitControls hijacked it in the MVP).
  * DESIGN PREVIEW: fed placeholder people from the page; nothing is wired to data.
  */
-import { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
-import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
+import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
+import { clusterCities, clusterLabel, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
 
 export type GlobePin = GlobePerson;
 
-const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5, ladder: [3, 2.4, 1.9, 1.4, 1.0, 0.7, 0.5, 0.35, 0.25] };
+const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5 };
+const PAGE = 40;   // list rows shown before SHOW MORE
+/* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
+   the globe's apparent angular radius at distance R(1+alt) is asin(1/(1+alt)). On a phone the frame is
+   narrower than it is tall, so the desktop altitude (1.9) showed a disc wider than the frame — "it looks
+   like a square, it gets cut off" (Bryan, 2026-09-15). Never closer than the desktop opening. */
+const fitAltitude = (w: number, h: number) => { const k = (0.9 * Math.min(w, h) / h) * Math.tan((25 * Math.PI) / 180); return Math.max(ALT.start, 1 / Math.sin(Math.atan(k)) - 1); };
 const tier = (n: number) => (n <= 1 ? 1 : n < 10 ? 2 : n < 50 ? 3 : 4);
 const upper = (s: string) => s.toUpperCase();
 
@@ -49,7 +56,8 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [altitude, setAltitude] = useState(ALT.start);
   const [view, setView] = useState({ kmPerPx: 30, lat: 30, lng: -80, alt: ALT.start, n: 0 });   // the settled camera; n bumps on every settle so clusters re-project
-  const [programs, setPrograms] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const listRef = useRef<HTMLElement>(null);
   const [open, setOpen] = useState<Open>(null);
   const [listQ, setListQ] = useState('');
   const clickRef = useRef<(c: Cluster, el: HTMLElement) => void>(() => undefined);
@@ -71,14 +79,6 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
     const updateSize = () => { if (containerRef.current) setDimensions({ width: containerRef.current.clientWidth, height: containerRef.current.clientHeight }); };
     updateSize(); window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
-  }, []);
-
-  // the page's PROGRAM chips (toggled by portal-ui.ts) filter the people on the globe
-  useEffect(() => {
-    const read = () => setPrograms([...document.querySelectorAll<HTMLElement>('[data-globe-filters] .portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.trim()));
-    const onClick = (e: Event) => { if ((e.target as HTMLElement).closest('[data-globe-filters] .portal-chip')) setTimeout(read, 0); };
-    document.addEventListener('click', onClick); read();
-    return () => document.removeEventListener('click', onClick);
   }, []);
 
   /* Runs when the camera SETTLES (debounced controls 'change' + 'end' — not every frame, so stars don't
@@ -104,8 +104,7 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
     window.clearTimeout(settleTimer.current); settleTimer.current = window.setTimeout(measure, 150);
   }, [measure]);
 
-  const shown = useMemo(() => (programs.length ? pins.filter((p) => p.programs?.some((x) => programs.includes(x))) : pins), [pins, programs]);
-  const cities = useMemo(() => groupByCity(shown), [shown]);
+  const cities = useMemo(() => groupByCity(pins), [pins]);
   const clusters = useMemo(() => {
     // screen-space distances from the globe's real projection; a city on the far side never merges
     // "on the near side" uses the same test the library uses to decide whether to DRAW a star (three-globe's
@@ -144,7 +143,7 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
   const zoomBy = (f: number) => { const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, pov.altitude * f, 500); };
 
   const handleClick = useCallback((c: Cluster, el: HTMLElement) => {
-    setListQ('');
+    setListQ(''); setPage(1);
     if (c.count === 1) {
       // Charlotte's card sits above the pin you clicked, and follows it: the fly-in moves the pin, and so
       // does any later drag (the anchor is re-read from the pin's element whenever the camera settles).
@@ -153,16 +152,11 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
       flyTo(person.lat, person.lng, Math.min(altitude, 1.4));
       return;
     }
-    if (c.cities.length > 1) {
-      // merged star: fly to the coarsest zoom where it falls apart (supercluster's expansion zoom).
-      // km-per-px scales with camera distance, i.e. with (1 + altitude).
-      const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude));
-      const k = expansionKmPerPx(c, ladder);
-      if (k !== null) { setOpen(null); flyTo(c.lat, c.lng, ((k / view.kmPerPx) * (1 + altitude)) - 1); return; }
-    }
     setOpen({ kind: 'list', cluster: c });
     flyTo(c.lat, c.lng, altitude);
-  }, [altitude, view, flyTo]);
+    // phone: the list is under the globe — bring it up
+    if (innerWidth < 768) requestAnimationFrame(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, [altitude, flyTo]);
   clickRef.current = handleClick;
 
   // one stable function for the life of the component: three-globe drops and rebuilds EVERY marker when
@@ -176,12 +170,14 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
   const rows = (people: GlobePerson[]) => people.filter((p) => !q || `${p.full_name} ${p.current_title ?? ''} ${p.current_company ?? ''} ${p.cohort ?? ''}`.toLowerCase().includes(q));
 
   return (
+    <div className="portal-globe">
     <div ref={containerRef} className="portal-globe-wrap" data-open={open?.kind ?? ''} data-view={`${view.kmPerPx.toFixed(2)} km/px · alt ${altitude.toFixed(2)} · ${view.lat.toFixed(0)},${view.lng.toFixed(0)} · #${view.n}`}>   {/* data-view: the settled camera, for probes */}
+      <div className="portal-globe-canvas">
       {Globe && (
         <Globe
           ref={globeRef}
           onGlobeReady={() => {
-            globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: ALT.start }, 0);   // opened on the Americas where most alumni are; both US coasts well inside the disc, London on the edge
+            globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: fitAltitude(dimensions.width, dimensions.height) }, 0);   // opened on the Americas where most alumni are; both US coasts well inside the disc, London on the edge
             const c = globeRef.current?.controls(); if (c) { c.enableZoom = false; c.addEventListener('change', onCameraChange); c.addEventListener('end', measure); }   // wheel scrolls the PAGE; re-cluster when a drag or fly settles
             measure();
           }}
@@ -200,6 +196,7 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
           atmosphereAltitude={0.15}
         />
       )}
+      </div>
 
       {open?.kind === 'person' && (
         /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × in the corner */
@@ -213,40 +210,51 @@ export default function AlumniGlobe({ pins, onRefresh, profileHref = (p) => `/al
         </div>
       )}
 
+      <div className="portal-globe-zoom" role="group" aria-label="Zoom">
+        <button type="button" className="t-label" aria-label="Zoom in" onClick={() => zoomBy(1 / ALT.step)} disabled={altitude <= ALT.min + 0.01}>+</button>
+        <button type="button" className="t-label" aria-label="Zoom out" onClick={() => zoomBy(ALT.step)} disabled={altitude >= ALT.max - 0.01}>−</button>
+      </div>
+      <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
+    </div>
       {list && (
         /* city list: everyone at this star. Grouped by city when a merged star can't be split any further. */
-        <aside className="portal-panel portal-globe-list" role="dialog" aria-label={`${clusterLabel(list)} · ${list.count} alumni`}>
+        <aside ref={listRef} className="portal-panel portal-globe-list" role="dialog" aria-label={`${clusterLabel(list)} · ${list.count} alumni`}>
           <button type="button" className="portal-globe-x" aria-label="Close" onClick={() => setOpen(null)}>×</button>
           <h3 className="t-name m-0">{upper(list.seed.name)}{list.seed.region ? `, ${upper(list.seed.region)}` : ''}</h3>
           <p className="t-fine text-muted m-0 portal-globe-list-sub">{list.count} ALUMNI{list.cities.length > 1 ? ` · WITH ${upper(list.cities.slice(1, 4).map((c) => c.name).join(', '))}${list.cities.length > 4 ? ` +${list.cities.length - 4} MORE` : ''}` : ''}</p>
           {list.count > 8 && <input type="search" className="t-caption portal-input is-wide portal-globe-list-q" placeholder="Filter by name, company or cohort" aria-label="Filter this list" value={listQ} onChange={(e) => setListQ(e.target.value)} />}
           <div className="portal-globe-list-scroll">
-            {list.cities.map((city) => { const r = rows(city.people); if (!r.length) return null; return (
-              <section key={city.key}>
-                {list.cities.length > 1 && <h4 className="t-fine text-muted m-0 portal-globe-list-city">{upper(city.name)}{city.region ? `, ${upper(city.region)}` : ''} · {city.people.length}</h4>}
-                <ul className="m-0 p-0 list-none">
-                  {r.map((p, i) => (
-                    <li key={`${p.id}-${i}`}>
-                      <a href={profileHref(p)} className="portal-globe-row no-underline">
-                        <span className="t-caption text-ink portal-globe-row-name">{p.full_name}</span>
-                        <span className="t-fine text-muted portal-globe-row-role">{p.current_title}{p.current_company ? ` · ${p.current_company}` : ''}</span>
-                        {p.cohort && <span className="t-fine portal-globe-row-cohort">{p.cohort}</span>}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ); })}
-            {q && list.cities.every((c) => rows(c.people).length === 0) && <p className="t-fine text-muted m-0" style={{ padding: '12px 0' }}>Nobody here matches “{listQ.trim()}”.</p>}
+            {(() => {
+              // rows in city order, PAGE at a time (326 rows in the page flow on a phone is a long scroll)
+              let budget = page * PAGE, total = 0; const out: React.ReactNode[] = [];
+              for (const city of list.cities) {
+                const r = rows(city.people); total += r.length; if (!r.length || budget <= 0) continue;
+                const slice = r.slice(0, budget); budget -= slice.length;
+                out.push(
+                  <section key={city.key}>
+                    {list.cities.length > 1 && <h4 className="t-fine text-muted m-0 portal-globe-list-city">{upper(city.name)}{city.region ? `, ${upper(city.region)}` : ''} · {city.people.length}</h4>}
+                    <ul className="m-0 p-0 list-none">
+                      {slice.map((p, i) => (
+                        <li key={`${p.id}-${i}`}>
+                          <a href={profileHref(p)} className="portal-globe-row no-underline">
+                            <span className="t-caption text-ink portal-globe-row-name">{p.full_name}</span>
+                            <span className="t-fine text-muted portal-globe-row-role">{p.current_title}{p.current_company ? ` · ${p.current_company}` : ''}</span>
+                            {p.cohort && <span className="t-fine portal-globe-row-cohort">{p.cohort}</span>}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                );
+              }
+              if (q && total === 0) out.push(<p key="none" className="t-fine text-muted m-0" style={{ padding: '12px 0' }}>Nobody here matches “{listQ.trim()}”.</p>);
+              if (total > page * PAGE) out.push(<button key="more" type="button" className="portal-btn is-small is-quiet t-label portal-globe-more" onClick={() => setPage(page + 1)}>SHOW {Math.min(PAGE, total - page * PAGE)} MORE · {total - page * PAGE} LEFT</button>);
+              return out;
+            })()}
           </div>
         </aside>
       )}
 
-      <div className="portal-globe-zoom" role="group" aria-label="Zoom">
-        <button type="button" className="t-label" aria-label="Zoom in" onClick={() => zoomBy(1 / ALT.step)} disabled={altitude <= ALT.min + 0.01}>+</button>
-        <button type="button" className="t-label" aria-label="Zoom out" onClick={() => zoomBy(ALT.step)} disabled={altitude >= ALT.max - 0.01}>−</button>
-      </div>
-      <div className="t-label text-muted portal-globe-count">{shown.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}{programs.length ? ` · ${programs.join(' + ')}` : ''}</div>
     </div>
   );
 }

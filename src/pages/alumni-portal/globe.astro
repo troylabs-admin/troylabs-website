@@ -1,13 +1,12 @@
 ---
 /**
- * Alumni portal › Globe. The MVP's page — title, program filters, Charlotte's 3D globe, the count — in
- * the portal shell. People are grouped into one star per city (components/portal/AlumniGlobe.tsx).
+ * Alumni portal › Globe. Title, Charlotte's 3D globe, the count — in the portal shell. (The program chips
+ * came off on 2026-09-15 — not needed yet, Bryan.) People are grouped into one star per city (components/portal/AlumniGlobe.tsx).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
 import AlumniGlobe from '../../components/portal/AlumniGlobe.tsx';
-const PROGRAMS = ['TL INTERNAL', 'IGNITE'];
 /* DESIGN PREVIEW people: deterministic, none real. Skewed the way a real roster will be — Bryan's
    "what if there are 300 alumni in San Francisco" — plus Bay Area / SoCal / East Coast neighbours close
    enough that their stars overlap at the opening zoom, so the merging and click-to-expand get exercised. */
@@ -33,11 +32,7 @@ const PINS = CITIES.flatMap(([city, region, lat, lng, count]) => Array.from({ le
     <div class="portal-page-head">
       <div>
         <h1 class="t-title portal-page-title">ALUMNI GLOBE</h1>
-        <p class="t-caption text-muted portal-page-sub">One star per city. Bigger stars are more people. Click a star for who's there.</p>
-      </div>
-      <div data-audience="Showing" data-empty="Showing every program." data-globe-filters>
-        <div class="flex flex-wrap portal-chips">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
-        <p class="t-fine portal-feedback" style="text-align:right"></p>
+        <p class="t-caption text-muted portal-page-sub">One star per city. Bigger stars are more people. Tap a star for who's there.</p>
       </div>
     </div>
     <AlumniGlobe client:only="react" pins={PINS} />

@@ -11,8 +11,9 @@
  *     centre, measured).
  *  Some cities can never split on this globe: San Francisco and Oakland are 13 km apart, and even at
  *  the closest zoom one pixel is several km. Such a star opens a list grouped by city instead.
- * Click on a merged cluster flies to the zoom where it splits (supercluster's "expansion zoom");
- * click on a single city opens the list of people there.
+ * A tap on any star opens the list of people at it, grouped by city (Bryan, 2026-09-15: the earlier
+ * click-to-expand needed three taps to reach San Francisco's people on a phone). The + / − buttons
+ * are how you get a merged star to split.
  */
 export interface GlobePerson { id: string; full_name: string; lat: number; lng: number; current_title?: string | null; current_company?: string | null; city?: string | null; region?: string | null; cohort?: string | null; programs?: string[] }
 export interface City { key: string; name: string; region: string; lat: number; lng: number; people: GlobePerson[] }
@@ -47,8 +48,7 @@ export type DistPx = (a: City, b: City) => number;
 /** level 2: greedy merge, seeds taken biggest-first. Two stars merge when their centres would sit closer
  *  than the two half-diameters plus a 6 px gap (supercluster's fixed 40 px assumes same-size dots; ours
  *  grow with head-count). `distPx` is the caller's projection: the globe's real screen projection for the
- *  live view (perspective foreshortening near the edge included), or plain geodesic ÷ km-per-px when
- *  predicting how a star splits once it's flown to the centre. */
+ *  live view (perspective foreshortening near the edge included), */
 export function clusterCities(cities: City[], distPx: DistPx, gapPx = 6): Cluster[] {
   const taken = new Set<string>(); const out: Cluster[] = [];
   for (const seed of cities) {
@@ -62,15 +62,6 @@ export function clusterCities(cities: City[], distPx: DistPx, gapPx = 6): Cluste
     out.push({ key: members.map((m) => m.key).join('+'), lat: seed.lat, lng: seed.lng, count, cities: members, seed });
   }
   return out;
-}
-
-/** geodesic projection at the view centre: km ÷ km-per-px (no foreshortening — used for a star we're about to centre) */
-export const geodesicPx = (kmPerPx: number): DistPx => (a, b) => haversineKm(a.lat, a.lng, b.lat, b.lng) / kmPerPx;
-
-/** the coarsest km-per-px (furthest zoom-out) at which this cluster falls apart into ≥ 2 — for click-to-expand */
-export function expansionKmPerPx(cluster: Cluster, ladder: number[]): number | null {
-  for (const kmPerPx of [...ladder].sort((a, b) => b - a)) if (clusterCities(cluster.cities, geodesicPx(kmPerPx)).length > 1) return kmPerPx;
-  return null;
 }
 
 export const clusterLabel = (c: Cluster) => c.cities.length > 1 ? `${c.seed.name} +${c.cities.length - 1} ${c.cities.length === 2 ? 'city' : 'cities'}` : c.seed.name;

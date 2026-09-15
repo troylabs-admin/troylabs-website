@@ -39,9 +39,11 @@ const INSTAGRAM = 'https://www.instagram.com/troy.labs/';   // the footer's conf
   }
   .closed-cta:hover, .closed-cta:focus-visible { box-shadow: inset 0 0 0 calc(0.3 * var(--u)) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.6); }
   @media (max-width: 767px) {
-    /* APPLICATIONS is 12 caps: at the mobile hero size it overran a 390px phone and got clipped. Sized to fit;
+    /* APPLICATIONS is 12 caps: at the mobile hero size it overran a 390px phone and got clipped. Sized to fit,
+       and the desktop max-width (600 du = 234 px on a 390 phone — narrower than the word; that was the clip
+       Bryan saw on 2026-09-15) lifted so the title can use the whole column.
        .portal-section prefix outranks the shared mobile .t-hero rule. */
-    .portal-section .closed-title { font-size: clamp(30px, 9vw, 46px); line-height: 1.1; letter-spacing: 0.06em; margin-top: 6px; }
+    .portal-section .closed-title { font-size: clamp(30px, 9vw, 46px); line-height: 1.1; letter-spacing: 0.06em; margin-top: 6px; max-width: none; }
     .closed-tagline { max-width: 320px; margin-top: 10px; }
     .closed-cta { margin-top: 26px; min-height: 44px; padding: 10px 26px; height: auto; }
   }

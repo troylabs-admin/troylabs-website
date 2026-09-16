@@ -52,7 +52,7 @@
      SIGN OUT included. Sits AFTER the .t-nav type scale above so it wins on cascade order at equal
      specificity, and is global on purpose: SIGN OUT is rendered by the ApplyLink child, out of Nav's scope. */
   .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 10px; line-height: 13px; letter-spacing: 0.6px; }
-  @media (max-width: 359px) { .m-nav-portal .m-links { gap: 6px; } .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 9px; letter-spacing: 0.4px; } }
+  @media (max-width: 359px) { .m-nav-portal .m-links { gap: 14px; } .m-nav-portal .t-nav, .m-nav-portal .m-apply { font-size: 9px; letter-spacing: 0.4px; } }
   :is(.m, .portal-section) .t-label { font-size: 12px; line-height: 15px; letter-spacing: 1.8px; }
   :is(.m, .portal-section) .t-name { font-size: 14px; line-height: 18px; letter-spacing: 0.4px; }
   :is(.m, .portal-section) .t-stat { font-size: clamp(38px, 11vw, 48px); line-height: 1.06; letter-spacing: 0.06em; }

@@ -9,7 +9,7 @@
  * DESIGN PREVIEW: the generated roster in lib/portal/sample-people.ts; nothing is wired to data.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { tickNumber } from '../../lib/portal/tick';
+import { glideTo, tickNumber } from '../../lib/portal/tick';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE, STATUS, type Person } from '../../lib/portal/sample-people';
@@ -44,9 +44,10 @@ export default function Network() {
   /* Typing is a search: once you pause (or hit return) the page scrolls down to the results. Chips and
      the globe are browsing: nothing moves, so you can watch the count under the globe change (Bryan,
      2026-09-15 — the question shrinking on a chip press read as the page jumping). */
-  const toResults = () => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const glide = useRef<(() => void) | null>(null);
+  const toResults = (after = 0) => { glide.current?.(); if (resultsRef.current) glide.current = glideTo(resultsRef.current, { after, ms: 1500 }); };
   const typedKey = words.join(' ');
-  useEffect(() => { if (!typedKey) return; const t = setTimeout(toResults, 1000); return () => clearTimeout(t); }, [typedKey]);
+  useEffect(() => { if (!typedKey) return; const t = setTimeout(() => toResults(), 1000); return () => clearTimeout(t); }, [typedKey]);
 
   /* words + chips narrow the people; the globe shows THEM, so you see where a search lands. Every chip
      group is a hard requirement (any chip within a group), every word must appear somewhere. */
@@ -80,7 +81,9 @@ export default function Network() {
 
   const toggle = (key: string, v: string) => { setPage(1); setPlace(null); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
   const clearAll = () => { setQ(''); setActive({}); setPlace(null); setPage(1); };
-  const pick = (c: Cluster) => { setPlace(c); setPage(1); setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650); };   // the list is under the globe: once the zoom has been seen, bring it up
+  // a star tap: the globe flies in (0.9 s), you get a beat to read the star and the line under the globe,
+  // then the page glides down to the people. Not a fling.
+  const pick = (c: Cluster) => { setPlace(c); setPage(1); toResults(1600); };
 
   const small = typeof innerWidth !== 'undefined' && innerWidth < 768;
   const qStyle = typed ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;

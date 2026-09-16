@@ -9,3 +9,26 @@ export function tickNumber(el: HTMLElement, from: number, to: number, ms = 900, 
   };
   (el as any).__tick = requestAnimationFrame(frame);
 }
+
+/** An unhurried scroll to an element: ease-in-out over `ms`, after an optional pause. Native smooth
+ *  scrolling is a fling on iOS — "takes you down as fast as fuck" (Bryan, 2026-09-15) — and this is used
+ *  after a star tap, where you need a beat to read the star and the line under the globe first. If the
+ *  reader starts scrolling themselves during the pause or the glide, we stop and leave them alone. */
+export function glideTo(el: HTMLElement, { after = 0, ms = 1500, offset = 0 } = {}) {
+  let cancelled = false; const cancel = () => { cancelled = true; cleanup(); };
+  const cleanup = () => { window.removeEventListener('wheel', cancel); window.removeEventListener('touchstart', cancel); window.removeEventListener('keydown', cancel); };
+  window.addEventListener('wheel', cancel, { passive: true }); window.addEventListener('touchstart', cancel, { passive: true }); window.addEventListener('keydown', cancel);
+  const start = () => {
+    if (cancelled) return;
+    const from = window.scrollY, to = Math.max(0, Math.min(from + el.getBoundingClientRect().top - offset, document.documentElement.scrollHeight - innerHeight)); const t0 = performance.now();
+    const frame = (t: number) => {
+      if (cancelled) return;
+      const p = Math.min(1, (t - t0) / ms); const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // ease-in-out cubic
+      window.scrollTo(0, from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(frame); else cleanup();
+    };
+    requestAnimationFrame(frame);
+  };
+  window.setTimeout(start, after);
+  return cancel;
+}

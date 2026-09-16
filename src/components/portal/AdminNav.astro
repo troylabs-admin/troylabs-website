@@ -1,8 +1,8 @@
 ---
 /**
- * Alumni portal › admin bar. Answers "am I in admin?" on every admin page (Bryan, 2026-09-15): an
- * ADMIN badge on the left, the sections, and who is signed in on the right. The site nav's ADMIN item
- * also lights orange while you are here (Nav.astro).
+ * Alumni portal › admin sections. Just the five sections as tabs — the site nav's ADMIN item already
+ * lights orange while you are here (Nav.astro), and who you are is on Profile, so the badge and the
+ * "signed in as" line came off (Bryan, 2026-09-16). Wraps on phones so the last tab is never clipped.
  */
 interface Props { current: string }
 const { current } = Astro.props;
@@ -14,10 +14,8 @@ const items = [
   { key: 'handoff', label: 'TECH STACK', href: '/alumni-portal/admin/handoff' },
 ];
 ---
-<nav class="portal-nav portal-adminbar t-nav" aria-label="Admin">
-  <span class="t-fine portal-role portal-adminbar-badge">ADMIN</span>
-  <ul class="m-0 p-0 list-none flex portal-nav-list">
-    {items.map((i) => <li><a href={i.href} class:list={['no-underline glow-text', i.key === current ? 'text-ink' : 'text-muted']} aria-current={i.key === current ? 'page' : undefined}>{i.label}</a></li>)}
+<nav class="portal-adminbar" aria-label="Admin">
+  <ul class="m-0 p-0 list-none portal-admin-tabs t-label">
+    {items.map((i) => <li><a href={i.href} class:list={['no-underline portal-admin-tab', i.key === current && 'is-current']} aria-current={i.key === current ? 'page' : undefined}>{i.label}</a></li>)}
   </ul>
-  <span class="t-fine text-muted portal-adminbar-who">Signed in as <span class="text-ink">Sample Admin</span> · on the admin list</span>
 </nav>

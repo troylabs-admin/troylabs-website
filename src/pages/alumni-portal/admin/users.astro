@@ -57,10 +57,11 @@ const REQUESTS = [
       <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">COHORT</span><div class="flex flex-wrap portal-chips" data-filter="cohort">{COHORTS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">DIVISION</span><div class="flex flex-wrap portal-chips" data-filter="division">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
-      <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">PROGRAM</span><div class="flex flex-wrap portal-chips" data-filter="program">{['TL INTERNAL', 'IGNITE'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <p class="t-fine portal-feedback" data-members-count style="margin-top:calc(12 * var(--u))"></p>
     </div>
 
+    <!-- the table scrolls sideways inside its own box on a phone instead of pushing the page wide -->
+    <div class="portal-table-wrap">
     <table class="portal-table t-caption" data-members>
       <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">STATUS</th><th class="t-label">COHORT</th><th class="t-label">DIVISION</th><th class="t-label">CITY</th><th class="t-label">PROFILE</th><th></th></tr></thead>
       <tbody>
@@ -70,6 +71,7 @@ const REQUESTS = [
         </tr>)}
       </tbody>
     </table>
+    </div>
 
     <template id="roles-picker">
       <div class="portal-panel" data-roles style="margin:calc(8 * var(--u)) 0 calc(12 * var(--u))">

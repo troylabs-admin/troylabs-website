@@ -42,14 +42,13 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
   }
 
 /* admin bar */
-.portal-adminbar { gap: calc(24 * var(--u)); padding-top: calc(12 * var(--u)); padding-bottom: calc(12 * var(--u)); border-top: 1px solid rgb(255 125 44 / 0.35); border-bottom: 1px solid rgb(255 125 44 / 0.12); }
-.portal-adminbar-badge { margin-left: 0; flex: none; }
-.portal-adminbar .portal-nav-list { flex: 1; gap: calc(28 * var(--u)); }
-.portal-adminbar .portal-nav-list a { white-space: nowrap; }
-.portal-adminbar-who { flex: none; letter-spacing: calc(0.6 * var(--u)); }
-/* the site nav's ADMIN item lights while on an admin page */
-html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orange); }
-@media (max-width: 767px) { .portal-adminbar { flex-wrap: wrap; gap: 10px 14px; padding: 12px 0; } .portal-adminbar .portal-nav-list { flex: 1 1 100%; order: 3; gap: 14px; } .portal-adminbar-who { margin-left: auto; } }
+/* admin sections: a row of tabs under the site nav; the current one is ink with an orange underline */
+.portal-adminbar { margin-top: calc(24 * var(--u)); border-bottom: 1px solid rgb(255 255 255 / 0.12); }
+.portal-admin-tabs { display: flex; flex-wrap: wrap; gap: 0 calc(28 * var(--u)); }
+.portal-admin-tab { display: inline-block; padding: calc(10 * var(--u)) 0 calc(12 * var(--u)); margin-bottom: -1px; border-bottom: 1px solid transparent; color: var(--color-muted); letter-spacing: calc(1.6 * var(--u)); white-space: nowrap; transition: color 150ms ease; }
+.portal-admin-tab:hover { color: var(--color-ink); }
+.portal-admin-tab.is-current { color: var(--color-ink); border-bottom-color: var(--color-orange); }
+@media (max-width: 767px) { .portal-adminbar { margin-top: 12px; } .portal-admin-tabs { gap: 0 18px; } .portal-admin-tab { padding: 10px 0 11px; letter-spacing: 1.2px; font-size: 11px; } }
 
 /* ── sign-in (pages/alumni-portal/index.astro) ── */
   .portal-form { width: calc(400 * var(--u)); }
@@ -284,7 +283,9 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
 .portal-progress i { display: block; height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #ff3500 0%, #ffc200 100%); box-shadow: 0 0 calc(10 * var(--u)) rgb(255 125 44 / 0.5); }
 .portal-save { margin-top: calc(34 * var(--u)); padding-top: calc(24 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.12); }
 
+.portal-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .portal-table { width: 100%; border-collapse: collapse; margin-top: calc(18 * var(--u)); }
+.portal-or { display: block; margin: calc(18 * var(--u)) 0 calc(10 * var(--u)); padding-top: calc(14 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.12); }
 .portal-table th { text-align: left; font-weight: 400; color: var(--color-muted); padding: calc(10 * var(--u)) calc(8 * var(--u)); border-bottom: 1px solid rgb(255 255 255 / 0.15); letter-spacing: calc(1.4 * var(--u)); }
 .portal-table td { padding: calc(12 * var(--u)) calc(8 * var(--u)); border-bottom: 1px solid rgb(255 255 255 / 0.08); vertical-align: middle; }
 .portal-table .portal-tag { text-transform: uppercase; }
@@ -375,9 +376,11 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-actions { flex-wrap: wrap; gap: 10px; }
   .portal-panel { border-radius: 14px; padding: 18px; }
   .portal-panel-title { margin-bottom: 12px; }
-  .portal-panels, .portal-panels-2, .portal-tiles, .portal-tiles-3 { grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
-  .portal-tile { gap: 4px; }
-  .portal-tile .t-stat { font-size: 32px; line-height: 36px; letter-spacing: 2px; }
+  .portal-panels, .portal-panels-2 { grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+  .portal-tiles, .portal-tiles-3 { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }   /* stat tiles two-up: one-up made a 250 px box per number */
+  .portal-tile { gap: 4px; padding: 14px 14px 12px; }
+  .portal-tile .t-stat { font-size: 30px; line-height: 34px; letter-spacing: 1.5px; }
+  .portal-tile .t-label { font-size: 10px; letter-spacing: 1.2px; line-height: 14px; }
   .portal-section-h { margin: 28px 0 12px; letter-spacing: 1.8px; }
   .portal-form-grid { grid-template-columns: 1fr; gap: 12px; }
   .portal-field { gap: 6px; }
@@ -395,6 +398,9 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-table { display: block; overflow-x: auto; margin-top: 14px; font-size: 12px; }
   .portal-table th, .portal-table td { padding: 10px 8px; white-space: nowrap; }
   .portal-row-list li { padding: 10px 14px; border-radius: 10px; }
+  .portal-row-list li > .flex { flex-wrap: wrap; gap: 6px 12px !important; }   /* a row's title line and its action line wrap instead of squeezing */
+  .portal-table { min-width: 720px; }
+  .portal-or { margin: 16px 0 10px; padding-top: 12px; }
   .portal-linklike { letter-spacing: 1.2px; }
   /* phone: a square frame, and the disc fits it (fitAltitude in AlumniGlobe.tsx). Zoomed in, the square is
      softened into a porthole by a radial mask on the canvas — the buttons and count sit outside the mask */

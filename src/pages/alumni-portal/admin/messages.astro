@@ -20,7 +20,7 @@ const CHANNELS = [
   { name: 'STUDENTS · TECH', rule: 'student + Tech', count: 1 },
   { name: 'LA', rule: 'city = Los Angeles', count: 4 },
 ];
-const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', ['FA26', 'SP26', 'FA25', 'SP25']], ['PROGRAMS', ['TL INTERNAL', 'IGNITE']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
+const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', ['FA26', 'SP26', 'FA25', 'SP25']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
 ---
 
 <BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Email or text a group of TroyLabs members.">
@@ -50,7 +50,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
         <span class="t-label text-muted">A CHANNEL</span>
         <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences. Members join and leave automatically as their status changes — a student becomes an alum, and moves channels, the day they graduate.</p>
         <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))">{CHANNELS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c.name} title={c.rule}>{c.name} <b style="font-weight:400;opacity:.7">· {c.count}</b></button>)}</div>
-        <span class="t-label text-muted">OR PICK FILTERS</span>
+        <span class="t-label text-muted portal-or">OR PICK FILTERS</span>
         {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
         <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
         <span class="t-label text-muted">WHEN</span>

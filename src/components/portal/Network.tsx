@@ -10,6 +10,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { glideTo, tickNumber } from '../../lib/portal/tick';
+import { track } from '../../lib/analytics';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE, STATUS, type Person } from '../../lib/portal/sample-people';
@@ -48,7 +49,7 @@ export default function Network() {
   const glide = useRef<(() => void) | null>(null);
   const toResults = (after = 0) => { glide.current?.(); if (resultsRef.current) glide.current = glideTo(resultsRef.current, { after, ms: 1500 }); };
   const typedKey = words.join(' ');
-  useEffect(() => { if (!typedKey) return; const t = setTimeout(() => toResults(), 1000); return () => clearTimeout(t); }, [typedKey]);
+  useEffect(() => { if (!typedKey) return; const t = setTimeout(() => { toResults(); track('search_run', { terms: typedKey, filters: activeCount, results: results.length }); }, 1000); return () => clearTimeout(t); }, [typedKey]);
 
   /* words + chips narrow the people; the globe shows THEM, so you see where a search lands. Every chip
      group is a hard requirement (any chip within a group), every word must appear somewhere. */
@@ -81,12 +82,13 @@ export default function Network() {
   const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
   const leftCities = useMemo(() => new Set(results.map(({ p }) => cityKey(p))).size, [results]);
 
-  const toggle = (key: string, v: string) => { setPage(1); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
+  const toggle = (key: string, v: string) => { track('filter_press', { group: key, value: v, on: !(active[key] ?? []).includes(v) }); setPage(1); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
   const clearAll = () => { setQ(''); setActive({}); setPage(1); if (place) setReset((r) => r + 1); };
   const placeName = (c: Cluster) => upper(c.cities.slice(0, 4).map((x) => x.name).join(' · ')) + (c.cities.length > 4 ? ` +${c.cities.length - 4} MORE` : '');
   // a star tap selects it: the globe names it on a card and the list narrows. Nothing scrolls on its own
   // (Bryan, 2026-09-15); the card's SEE WHO'S HERE link is the way down.
-  const pick = (c: Cluster | null) => { setPlace(c); setPage(1); };
+  // the globe re-reports the same star as it re-clusters after the fly-in; count a tap once, when the star changes
+  const pick = (c: Cluster | null) => { if (c && c.seed.key !== place?.seed.key) track('globe_star_tap', { city: c.seed.name, cities: c.cities.length, people: c.count }); setPlace(c); setPage(1); };
 
   const small = typeof innerWidth !== 'undefined' && innerWidth < 768;
   const qStyle = typed ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;

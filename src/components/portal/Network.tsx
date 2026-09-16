@@ -81,7 +81,7 @@ export default function Network() {
   const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
   const leftCities = useMemo(() => new Set(results.map(({ p }) => cityKey(p))).size, [results]);
 
-  const toggle = (key: string, v: string) => { setPage(1); setPlace(null); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
+  const toggle = (key: string, v: string) => { setPage(1); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
   const clearAll = () => { setQ(''); setActive({}); setPage(1); if (place) setReset((r) => r + 1); };
   const placeName = (c: Cluster) => upper(c.cities.slice(0, 4).map((x) => x.name).join(' · ')) + (c.cities.length > 4 ? ` +${c.cities.length - 4} MORE` : '');
   // a star tap selects it: the globe names it on a card and the list narrows. Nothing scrolls on its own

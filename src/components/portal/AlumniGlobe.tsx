@@ -71,7 +71,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [altitude, setAltitude] = useState(ALT.start);
   const [view, setView] = useState({ kmPerPx: 30, lat: 30, lng: -80, alt: ALT.start, n: 0 });   // the settled camera; n bumps on every settle so clusters re-project
-  const [selected, setSelected] = useState<string | null>(null);      // seed key of the tapped star
+  const [selected, setSelected] = useState<{ seed: string; cities: string[] } | null>(null);   // the tapped star: its anchor city and the cities under it
+  const lastSel = useRef<Cluster | null>(null);
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const clickRef = useRef<(c: Cluster, el: HTMLElement) => void>(() => undefined);
   const clusterCache = useRef(new Map<string, Cluster>());
@@ -154,18 +155,28 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     }
   }, [clusters]);
 
-  /* the selection follows the stars: the tapped seed's own star, or the bigger star it merged into;
-     gone (filtered out) → cleared. The page is told whenever what's selected actually changes. */
+  /* the selection follows the stars: the tapped city's own star, the bigger star it merged into, or any
+     star still holding one of the selected cities. A filter that empties every one of them does NOT clear
+     the selection: it stays as a place with nobody in it (0 LEFT), because adding a filter may only narrow
+     — dropping the place widened 32 to 43 (Bryan, 2026-09-15). Only × / CLEAR ALL / another tap change it. */
   const current = useMemo(() => {
     if (!selected) return null;
-    return clusters.find((c) => c.seed.key === selected) ?? clusters.find((c) => c.cities.some((x) => x.key === selected)) ?? null;
+    return clusters.find((c) => c.seed.key === selected.seed) ?? clusters.find((c) => c.cities.some((x) => x.key === selected.seed)) ?? clusters.find((c) => c.cities.some((x) => selected.cities.includes(x.key))) ?? null;
   }, [clusters, selected]);
   useEffect(() => {
-    if (selected && !current) { setSelected(null); return; }
-    const sig = current ? `${current.key}#${current.count}` : '';
-    // a snapshot, not the live object: the cache updates clusters in place (so stars keep their elements
-    // and tick), which means the object's identity never changes — the page would never re-derive from it
-    if (sig !== reported.current) { reported.current = sig; onPick?.(current ? { ...current, cities: [...current.cities] } : null); }
+    if (!selected) { if (reported.current !== '') { reported.current = ''; onPick?.(null); } return; }
+    if (current) {
+      lastSel.current = current;
+      const keys = current.cities.map((c) => c.key);
+      if (current.seed.key !== selected.seed || keys.join('+') !== selected.cities.join('+')) setSelected({ seed: current.seed.key, cities: keys });
+      const sig = `${current.key}#${current.count}`;
+      // a snapshot, not the live object: the cache updates clusters in place (so stars keep their elements
+      // and tick), which means the object's identity never changes — the page would never re-derive from it
+      if (sig !== reported.current) { reported.current = sig; onPick?.({ ...current, cities: [...current.cities] }); }
+    } else if (lastSel.current) {
+      const sig = `${lastSel.current.key}#0`;
+      if (sig !== reported.current) { reported.current = sig; onPick?.({ ...lastSel.current, count: 0, cities: lastSel.current.cities.map((c) => ({ ...c, people: [] })) }); }
+    }
   }, [current, clusters, selected, onPick]);
   // the card sits on the selected star and follows it (fly-in, drag, re-cluster rebuilding the element)
   const anchorOf = (el: Element) => { const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top }; };
@@ -188,7 +199,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
       const k = expansionKmPerPx(c, ladder);
       if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1;
     }
-    setSelected(c.seed.key);
+    setSelected({ seed: c.seed.key, cities: c.cities.map((x) => x.key) });
     flyTo(c.lat, c.lng, target);
   }, [altitude, view, flyTo]);
   clickRef.current = handleClick;

@@ -35,7 +35,6 @@ function init() {
         chip.setAttribute('aria-pressed', 'true');
         const isStudent = chip.dataset.value === 'student';
         const grad = root!.querySelector<HTMLElement>('#pf-grad'); if (grad) grad.hidden = !isStudent;
-        const gnote = root!.querySelector<HTMLElement>('#pf-grad-note'); if (gnote) gnote.hidden = !isStudent;
         const classof = root!.querySelector<HTMLElement>('#pf-classof'); if (classof) classof.hidden = isStudent;
         recount(); return;
       }

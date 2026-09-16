@@ -6,10 +6,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
-const PROGRAMS = ['TL INTERNAL', 'IGNITE'];   // BUILD/DEMO startup categories dropped (Bryan, 2026-09-15): this is the members' network
 const DIVISIONS = ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO'];
 const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
-const ON = { programs: ['TL INTERNAL'], divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINTECH'] };
+const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINTECH'] };
 ---
 
 <BaseLayout nav="portal" current="profile" title="Your profile — TL Alumni Network Portal" description="Your TroyLabs alumni profile.">
@@ -71,16 +70,18 @@ const ON = { programs: ['TL INTERNAL'], divisions: ['PRODUCT MANAGEMENT', 'TECH'
         <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="student">CURRENT STUDENT</button>
         <button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="alum">ALUM</button>
       </div>
-      <div id="pf-grad" class="portal-inline portal-term" style="margin-top:calc(12 * var(--u))" hidden>
-        <span class="t-label text-muted" style="flex:none">EXPECTED GRADUATION</span>
-        <select class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
-        <input class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" style="max-width:calc(140 * var(--u))" />
+      <!-- the year fields read like every other field: label (with its hint) on one line, the control full width under it -->
+      <div id="pf-grad" class="portal-field portal-year-field" hidden>
+        <label class="t-label text-muted" for="pf-grad-year">EXPECTED GRADUATION <span style="letter-spacing:0;text-transform:none">· the semester you finish at USC</span></label>
+        <div class="portal-inline portal-term">
+          <select class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
+          <input id="pf-grad-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" />
+        </div>
+        <p id="pf-grad-note" class="m-0 t-fine text-muted">When that semester ends you become an alum automatically: your profile shows your class year, TroyLabs sends a congratulations, and you're added to the alumni channels for your division.</p>
       </div>
-      <p id="pf-grad-note" class="m-0 t-fine text-muted" style="margin-top:calc(8 * var(--u))" hidden>When that semester ends you become an alum automatically: your profile shows your class year, TroyLabs sends a congratulations, and you're added to the alumni channels for your division.</p>
-      <div id="pf-classof" class="portal-inline portal-term" style="margin-top:calc(12 * var(--u))">
-        <span class="t-label text-muted" style="flex:none">CLASS OF</span>
-        <input class="t-caption portal-input" inputmode="numeric" value="2025" aria-label="Graduation year" data-label="class year" style="max-width:calc(140 * var(--u))" />
-        <span class="t-fine text-muted">the year you graduated USC</span>
+      <div id="pf-classof" class="portal-field portal-year-field">
+        <label class="t-label text-muted" for="pf-classof-year">CLASS OF <span style="letter-spacing:0;text-transform:none">· the year you graduated USC</span></label>
+        <input id="pf-classof-year" class="t-caption portal-input is-wide" inputmode="numeric" value="2025" aria-label="Graduation year" data-label="class year" />
       </div>
 
       <h2 class="t-sub portal-section-h">Basic info</h2>
@@ -97,9 +98,6 @@ const ON = { programs: ['TL INTERNAL'], divisions: ['PRODUCT MANAGEMENT', 'TECH'
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" data-label="bio" class="t-caption portal-textarea">Building the TL alumni network and supporting BUILD founders.</textarea></div>
       </div>
-
-      <h2 class="t-sub portal-section-h">Programs</h2>
-      <div class="flex flex-wrap portal-chips" data-field="programs" data-label="programs">{PROGRAMS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.programs.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
 
       <h2 class="t-sub portal-section-h">E-Board history <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· SET BY TROYLABS LEADERSHIP</span></h2>
       <!-- read-only: a role is a credential, so only admins set it (Bryan, 2026-09-14: "not everyone who signs up was e-board").

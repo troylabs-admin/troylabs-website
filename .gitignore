@@ -54,3 +54,6 @@ CLAUDE.md
 .claude/
 .vscode/
 .env.example
+
+# Supabase CLI scratch (project link, temp)
+supabase/.temp

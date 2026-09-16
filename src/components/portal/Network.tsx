@@ -29,6 +29,9 @@ function Tick({ n }: { n: number }) {
 }
 
 export default function Network() {
+  // approved yet? the gate (scripts/portal-auth.ts) stamps <html data-member>; until an admin lets you in, the network is a note
+  const [member, setMember] = useState<string>(() => (typeof document !== 'undefined' ? document.documentElement.dataset.member ?? '' : ''));
+  useEffect(() => { const on = (e: Event) => setMember((e as CustomEvent).detail.approved ? 'ok' : 'pending'); document.addEventListener('tl:me', on); setMember(document.documentElement.dataset.member ?? ''); return () => document.removeEventListener('tl:me', on); }, []);
   const [q, setQ] = useState('');
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [place, setPlace] = useState<Cluster | null>(null);
@@ -95,6 +98,15 @@ export default function Network() {
   const shown = results.slice(0, page * PAGE);
   const echo = q.trim() || Object.values(active).flat().join(', ') || (place ? clusterLabel(place) : '');
 
+  if (member === 'pending') return (
+    <div className="portal-network">
+      <header className="flex flex-col items-center portal-head">
+        <span className="t-label text-muted">THE NETWORK</span>
+        <h1 className="m-0 t-hero text-center glow-text portal-q">YOU'RE ALMOST IN</h1>
+        <p className="m-0 t-caption text-muted text-center portal-sub">Your request is with TroyLabs leadership. An admin approves new members, usually within a day, and you'll get an email the moment you're in. You can fill in your <a href="/alumni-portal/profile" className="text-ink">profile</a> while you wait.</p>
+      </header>
+    </div>
+  );
   return (
     <div className="portal-network" data-searching={typed || undefined}>
       <header className="flex flex-col items-center portal-head">

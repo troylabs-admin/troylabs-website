@@ -5,7 +5,7 @@
  * year and would forget one every time, and every reset is a support job for whoever runs the club. You
  * enter the email on your profile, a link arrives, and the session stays alive for months. Once auth
  * exists this route serves the search home to a signed-in member instead; wired to the site's own
- * Supabase project once it exists (until then the form explains that, honestly, instead of pretending).
+ * Supabase project TL_Network (scripts/portal-signin.ts); a build without the keys says so instead of pretending.
  * Inputs echo the pill CTA: 0.3 du inner stroke, inner white glow (PillButton.astro).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -39,25 +39,4 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
   </PortalFrame>
 </BaseLayout>
 <script src="../../scripts/portal-ui.ts"></script>
-
-
-<script is:inline>
-  (() => {
-    const form = document.getElementById('portal-auth');
-    if (!form || form.dataset.ready) return;
-    form.dataset.ready = '1';
-    const msg = document.getElementById('portal-msg');
-    for (const tab of form.querySelectorAll('.portal-tab')) {
-      tab.addEventListener('click', () => {
-        const t = tab.dataset.tab;
-        form.dataset.tab = t;
-        for (const b of form.querySelectorAll('.portal-tab')) b.setAttribute('aria-selected', String(b === tab));
-        document.getElementById('portal-email').required = t === 'login';
-        msg.textContent = '';
-      });
-    }
-    // Auth is wired to the site's own database once it exists. Until then, say so — never fake a login.
-    const notYet = () => { msg.textContent = 'Sign-in opens when the alumni database goes live. Check back soon.'; };
-    form.addEventListener('submit', (e) => { e.preventDefault(); notYet(); });
-  })();
-</script>
+<script src="../../scripts/portal-signin.ts"></script>

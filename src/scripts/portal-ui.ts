@@ -229,7 +229,9 @@ function init() {
     let saved = input.value;
     const sync = () => { save.disabled = input.value.trim() === saved.trim(); };
     input.addEventListener('input', sync);
-    save.addEventListener('click', () => { saved = input.value; setTimeout(sync, 0); });
+    save.addEventListener('click', () => { if (!save.dataset.wired) { saved = input.value; setTimeout(sync, 0); } });
+    row.addEventListener('tl:saved', () => { saved = input.value; sync(); });   // a page script confirms a real save
+    row.addEventListener('tl:loaded', () => { saved = input.value; sync(); });
     sync();
   }
 
@@ -246,7 +248,7 @@ function init() {
   for (const btn of root.querySelectorAll<HTMLElement>('[data-action]')) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      if ((btn as HTMLButtonElement).disabled) return;
+      if ((btn as HTMLButtonElement).disabled || btn.dataset.wired) return;   // wired: a page script does the real thing and its own feedback
       const a = btn.dataset.action!;
       if (a === 'delete') { if (confirm(`${btn.dataset.confirm ?? 'Delete this?'}`)) btn.closest('tr, li')?.remove(); return; }
       flash(btn, btn.dataset.done ?? 'DONE', btn.dataset.feedbackTarget);

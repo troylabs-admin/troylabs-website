@@ -1,14 +1,14 @@
 ---
 /**
  * Alumni portal › Your profile. Every section and field of the MVP's form, in the site's language.
- * DESIGN PREVIEW: values are placeholders; nothing saves yet.
+ * Filled from and saved to your row in the database by scripts/portal-profile.ts.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
 const DIVISIONS = ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO'];
 const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
-const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINTECH'] };
+const ON = { divisions: [] as string[], industries: [] as string[] };
 ---
 
 <BaseLayout nav="portal" current="profile" title="Your profile — TL Alumni Network Portal" description="Your TroyLabs alumni profile.">
@@ -16,14 +16,14 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
     <div class="portal-page-head">
       <div class="portal-member-head" style="margin-top:0">
         <label class="portal-photo" for="pf-photo" title="Change photo">
-          <span class="portal-avatar is-large t-sub" aria-hidden="true">SA</span>
+          <span class="portal-avatar is-large t-sub" aria-hidden="true" id="pf-initials"></span>
           <img id="pf-photo-preview" alt="" hidden />
           <span class="portal-photo-edit t-fine">CHANGE</span>
           <input id="pf-photo" type="file" accept="image/*" hidden />
         </label>
         <div>
           <h1 class="t-title portal-page-title">YOUR PROFILE</h1>
-          <p class="t-caption text-muted portal-page-sub">Sample Alum <span class="t-fine portal-role" data-role="admin">ADMIN</span></p>
+          <p class="t-caption text-muted portal-page-sub"><span id="pf-head-name"></span> <span class="t-fine portal-role" id="pf-head-role" hidden>ADMIN</span></p>
           <p class="t-fine text-muted" style="margin:calc(8 * var(--u)) 0 0">Your photo shows on your card in search, on your member page and on the globe.</p>
         </div>
       </div>
@@ -32,9 +32,9 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
     <div class="portal-panel" style="margin-top:calc(22 * var(--u))">
       <div class="flex justify-between items-baseline">
         <span class="t-label text-muted">PROFILE COMPLETION</span>
-        <span class="t-label" style="color:var(--color-orange)" data-completion>92% · 11/12 FIELDS</span>
+        <span class="t-label" style="color:var(--color-orange)" data-completion>—</span>
       </div>
-      <div class="portal-progress" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"><i style="width:92%"></i></div>
+      <div class="portal-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><i style="width:0%"></i></div>
       <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))" data-completion-note>Updates live as you fill fields — save when you're done.</p>
     </div>
 
@@ -44,18 +44,18 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
       <div class="portal-form-grid portal-contact">
         <div class="portal-field portal-contact-row" data-contact="usc">
           <label class="t-label text-muted" for="pf-usc">USC EMAIL <span style="letter-spacing:0;text-transform:none">· matches you to the TroyLabs roster</span></label>
-          <div class="portal-inline"><input id="pf-usc" type="email" class="t-caption portal-input" value="sample@usc.edu" autocomplete="email" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" data-feedback="USC email will save once the database is connected." disabled>SAVE</button></div>
+          <div class="portal-inline"><input id="pf-usc" type="email" class="t-caption portal-input" placeholder="you@usc.edu" autocomplete="email" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
           <p class="t-fine portal-feedback"></p>
         </div>
         <div class="portal-field portal-contact-row" data-contact="personal">
           <label class="t-label text-muted" for="pf-personal">PERSONAL EMAIL <span style="letter-spacing:0;text-transform:none">· how you sign in after graduation</span></label>
-          <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" data-feedback="We'll send a confirmation link to this address once the database is connected." disabled>SAVE</button></div>
+          <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
           <p class="t-fine portal-feedback"></p>
         </div>
         <div class="portal-field portal-contact-row" data-contact="phone">
           <label class="t-label text-muted" for="pf-phone">PHONE <span style="letter-spacing:0;text-transform:none">· optional, for event texts</span></label>
-          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" value="+1 310 555 0101" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" data-feedback="Phone will save once the database is connected." disabled>SAVE</button></div>
-          <label class="portal-check t-caption" style="margin-top:calc(6 * var(--u))"><input type="checkbox" checked /><i></i>Text me event invitations</label>
+          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="+1 310 555 0101" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
+          <label class="portal-check t-caption" style="margin-top:calc(6 * var(--u))"><input id="pf-phone-opt" type="checkbox" /><i></i>Text me event invitations</label>
           <p class="t-fine portal-feedback"></p>
         </div>
       </div>
@@ -63,42 +63,42 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
       <h2 class="t-sub portal-section-h">Status</h2>
       <div class="flex flex-wrap portal-chips" data-field="status" data-label="status" data-single>
         <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="student">CURRENT STUDENT</button>
-        <button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="alum">ALUM</button>
+        <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="alum">ALUM</button>
       </div>
       <!-- the year fields read like every other field: label (with its hint) on one line, the control full width under it -->
       <div id="pf-grad" class="portal-field portal-year-field" hidden>
         <label class="t-label text-muted" for="pf-grad-year">EXPECTED GRADUATION <span style="letter-spacing:0;text-transform:none">· the semester you finish at USC</span></label>
         <div class="portal-inline portal-term">
-          <select class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
+          <select id="pf-grad-term" class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
           <input id="pf-grad-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" />
         </div>
         <p id="pf-grad-note" class="m-0 t-fine text-muted">When that semester ends you become an alum automatically: your profile shows your class year, TroyLabs sends a congratulations, and you're added to the alumni channels for your division.</p>
       </div>
       <div id="pf-classof" class="portal-field portal-year-field">
         <label class="t-label text-muted" for="pf-classof-year">CLASS OF <span style="letter-spacing:0;text-transform:none">· the year you graduated USC</span></label>
-        <input id="pf-classof-year" class="t-caption portal-input is-wide" inputmode="numeric" value="2025" aria-label="Graduation year" data-label="class year" />
+        <input id="pf-classof-year" class="t-caption portal-input is-wide" inputmode="numeric" placeholder="e.g. 2025" aria-label="Graduation year" data-label="class year" />
       </div>
 
       <h2 class="t-sub portal-section-h">Basic info</h2>
       <div class="portal-form-grid">
-        <div class="portal-field"><label class="t-label text-muted" for="pf-name">FULL NAME</label><input id="pf-name" data-label="name" class="t-caption portal-input is-wide" value="Sample Alum" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-name">FULL NAME</label><input id="pf-name" data-label="name" class="t-caption portal-input is-wide" placeholder="Your name" /></div>
         <div class="portal-field"><label class="t-label text-muted" for="pf-year">SEMESTER YOU JOINED TROYLABS</label>
           <div class="portal-inline portal-term">
-            <select id="pf-term" class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option selected>Spring</option></select>
-            <input id="pf-year" data-label="semester you joined" class="t-caption portal-input" value="2025" inputmode="numeric" placeholder="Year" aria-label="Year" />
+            <select id="pf-term" class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option>Spring</option></select>
+            <input id="pf-year" data-label="semester you joined" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year" />
           </div>
         </div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT JOB TITLE <span style="letter-spacing:0;text-transform:none">· what you do now, not your TL role</span></label><input id="pf-title" data-label="job title" class="t-caption portal-input is-wide" value="Software Engineer" placeholder="e.g. Product Manager" /></div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" value="Stripe" placeholder="e.g. Stripe, or your startup" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT JOB TITLE <span style="letter-spacing:0;text-transform:none">· what you do now, not your TL role</span></label><input id="pf-title" data-label="job title" class="t-caption portal-input is-wide" placeholder="e.g. Product Manager" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" placeholder="e.g. Stripe, or your startup" /></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
-        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" data-label="bio" class="t-caption portal-textarea">Building the TL alumni network and supporting BUILD founders.</textarea></div>
+        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" data-label="bio" class="t-caption portal-textarea" placeholder="A line or two about what you do and what you're into."></textarea></div>
       </div>
 
       <h2 class="t-sub portal-section-h">E-Board history <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· SET BY TROYLABS LEADERSHIP</span></h2>
       <!-- read-only: a role is a credential, so only admins set it (Bryan, 2026-09-14: "not everyone who signs up was e-board").
            Admins edit roles from Admin › Users. Design preview: one placeholder role. -->
-      <div class="flex flex-wrap portal-card-tags" style="margin-top:0">
-        <span class="t-fine portal-tagx">DIRECTOR OF TECH · FALL 2024, SPRING 2025</span>
+      <div class="flex flex-wrap portal-card-tags" style="margin-top:0" id="pf-eboard">
+        <span class="t-fine text-muted" id="pf-eboard-none">None on record.</span>
       </div>
       <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))">Served on e-board and don't see it here? Email troylabs@usc.edu and leadership will add it.</p>
 
@@ -106,7 +106,7 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
       <div class="flex flex-wrap portal-chips" data-field="divisions" data-label="divisions">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.divisions.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
 
       <h2 class="t-sub portal-section-h">TL BUILD startups <span class="t-fine text-muted" style="letter-spacing:calc(1.2 * var(--u))">· IF YOU DID BUILD</span></h2>
-      <div id="pf-startups" class="flex flex-wrap portal-chips" data-tags data-optional style="margin-bottom:calc(12 * var(--u))"><span class="t-fine portal-tagx">BRIDGIT <button type="button" aria-label="Remove Bridgit">×</button></span><span class="t-fine portal-tagx">TL LABS <button type="button" aria-label="Remove TL Labs">×</button></span></div>
+      <div id="pf-startups" class="flex flex-wrap portal-chips" data-tags data-optional style="margin-bottom:calc(12 * var(--u))"></div>
       <div class="portal-inline" data-adds="#pf-startups"><input class="t-caption portal-input" placeholder="Add startup…" aria-label="Add startup" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
 
       <h2 class="t-sub portal-section-h">Industries of interest</h2>
@@ -115,12 +115,13 @@ const ON = { divisions: ['PRODUCT MANAGEMENT', 'TECH'], industries: ['AI', 'FINT
       <div class="portal-inline" data-adds="#pf-industries-extra"><input class="t-caption portal-input" placeholder="Type an industry and press Add" aria-label="Add industry" /><button type="button" class="portal-btn is-small t-label">ADD</button></div>
 
       <h2 class="t-sub portal-section-h">Location</h2>
-      <div class="portal-inline"><input class="t-caption portal-input" value="Los Angeles, CA" placeholder="City, State" aria-label="Location" data-label="location" /><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED" data-feedback="Pin moves on the globe once the database is connected.">UPDATE</button></div>
+      <div class="portal-inline"><input id="pf-loc" class="t-caption portal-input" placeholder="City, State" aria-label="Location" data-label="location" /><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED">UPDATE</button></div>
       <p class="t-fine portal-feedback"></p>
-      <p class="m-0 t-fine text-muted" style="margin-top:calc(4 * var(--u))">Los Angeles, CA USA · Pin placed on globe</p>
+      <p class="m-0 t-fine text-muted" style="margin-top:calc(4 * var(--u))" id="pf-loc-note">No pin on the globe yet.</p>
 
 
-      <div class="portal-save"><button type="submit" class="portal-btn t-title" data-action="save" data-done="SAVED" data-feedback="Your profile will save once the database is connected.">SAVE</button><p class="t-fine portal-feedback"></p></div>
+      <div class="portal-save"><button type="submit" class="portal-btn t-title" data-action="save" data-done="SAVED">SAVE</button><p class="t-fine portal-feedback"></p></div>
     </form>
   </PortalShell>
 </BaseLayout>
+<script src="../../scripts/portal-profile.ts"></script>

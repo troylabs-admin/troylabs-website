@@ -14,6 +14,7 @@ export interface Person {
   status: 'STUDENT' | 'ALUM'; cohort: string; classOf: string; division: string;
   current_title: string; current_company: string; industries: string[]; bio: string;
   city: string; region: string; lat: number; lng: number; programs: string[];
+  avatar?: string | null;
 }
 
 const CITIES: [string, string, number, number, number][] = [

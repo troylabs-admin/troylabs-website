@@ -79,7 +79,6 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
   .portal-signup-note { margin-top: calc(34 * var(--u)); max-width: calc(320 * var(--u)); line-height: calc(18 * var(--u)); }
   .portal-msg { color: var(--color-orange); margin-top: calc(18 * var(--u)); min-height: calc(10 * var(--u)); max-width: calc(320 * var(--u)); }
   /* the two tabs share one form; the inactive tab's controls are simply not there */
-  .portal-form[data-tab="login"] .only-signup, .portal-form[data-tab="signup"] .only-login { display: none; }
   #portal-auth.denied .portal-input { animation: gate-shake 400ms ease; }
   @keyframes gate-shake {
     0%, 100% { transform: translateX(0); } 20% { transform: translateX(calc(-7 * var(--u))); }

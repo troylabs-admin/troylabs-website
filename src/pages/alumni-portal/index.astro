@@ -1,7 +1,7 @@
 ---
 /**
  * TL Alumni Network Portal — the entrance IS the sign-in (Bryan, 2026-09-14: no separate front door).
- * Sign-in is a magic link only — no passwords anywhere (Bryan, 2026-09-16): alumni open this a few times a
+ * Sign-in is a magic link only — no passwords, and no sign-up tab (Bryan, 2026-09-16: removed): alumni open this a few times a
  * year and would forget one every time, and every reset is a support job for whoever runs the club. You
  * enter the email on your profile, a link arrives, and the session stays alive for months. Once auth
  * exists this route serves the search home to a signed-in member instead; wired to the site's own
@@ -15,23 +15,14 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
 
 <BaseLayout nav="gate" title="TL Alumni Network Portal — TroyLabs" description="Sign in to the TroyLabs alumni network.">
   <PortalFrame h={540} label="Sign in to the alumni portal">
-    <form id="portal-auth" class="portal-form flex flex-col items-center" novalidate data-tab="login">
+    <form id="portal-auth" class="portal-form flex flex-col items-center" novalidate>
       <span class="t-label text-muted m-center">MEMBERS ONLY</span>
       <h1 class="m-0 t-title-tight font-normal text-center portal-h">TL ALUMNI NETWORK PORTAL</h1>
 
-      <div class="portal-tabs t-label" role="tablist" aria-label="Sign in or sign up">
-        <button type="button" role="tab" class="portal-tab" data-tab="login" aria-selected="true">LOG IN</button>
-        <button type="button" role="tab" class="portal-tab" data-tab="signup" aria-selected="false">SIGN UP</button>
-      </div>
+      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="the email on your profile" aria-label="Email" class="t-caption portal-input" required />
 
-      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="the email on your profile" aria-label="Email" class="t-caption portal-input only-login" required />
-
-      <button type="submit" class="portal-btn t-title whitespace-nowrap only-login">EMAIL ME A SIGN-IN LINK</button>
-      <p class="m-0 t-fine text-muted text-center only-login portal-hint">No password. We email you a link; tap it and you're in, and you stay signed in on this device.</p>
-
-      <!-- Sign up is deliberately inert (Bryan, 2026-09-14): no input, no button, nothing wired. Alumni join by invitation. -->
-      <p class="m-0 t-caption text-center only-signup portal-signup-note">Sign up is by invitation. TroyLabs alumni will receive an email with their link.</p>
-      <p class="m-0 t-fine text-muted text-center only-signup portal-hint">Think you should have access? Email troylabs@usc.edu.</p>
+      <button type="submit" class="portal-btn t-title whitespace-nowrap">EMAIL ME A SIGN-IN LINK</button>
+      <p class="m-0 t-fine text-muted text-center portal-hint">No password. We email you a link; tap it and you're in, and you stay signed in on this device.</p>
 
       <p id="portal-msg" class="m-0 t-fine text-center portal-msg" role="status"></p>
       <p class="m-0 t-fine text-muted text-center portal-hint">Access is limited to TroyLabs alumni.</p>

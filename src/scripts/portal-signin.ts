@@ -1,4 +1,4 @@
-/** The sign-in page: one field, one button, a magic link. Already signed in → straight to the network. */
+/** The sign-in page: one field, one button, a magic link; no sign-up. Already signed in → straight to the network. */
 import { configured } from '../lib/supabase';
 import { HOME, me, sendMagicLink } from '../lib/auth';
 
@@ -9,13 +9,6 @@ function init() {
   const msg = document.getElementById('portal-msg')!;
   const email = document.getElementById('portal-email') as HTMLInputElement;
   const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
-  for (const tab of form.querySelectorAll<HTMLElement>('.portal-tab')) {
-    tab.addEventListener('click', () => {
-      form.dataset.tab = tab.dataset.tab;
-      for (const b of form.querySelectorAll('.portal-tab')) b.setAttribute('aria-selected', String(b === tab));
-      email.required = tab.dataset.tab === 'login'; msg.textContent = '';
-    });
-  }
   if (!configured()) {   // preview build: say so, never fake a login
     form.addEventListener('submit', (e) => { e.preventDefault(); msg.textContent = 'Sign-in opens when the alumni database goes live. Check back soon.'; });
     return;

@@ -2,7 +2,7 @@
 /**
  * Admin › Members. The club's history and reach in one table (Bryan, 2026-09-15): filter by cohort,
  * status, division, program, city; free-text search; add a cohort; set e-board roles per member;
- * approve access requests; export. DESIGN PREVIEW: placeholder people; filters and search work on them.
+ * approve access requests; export. Everything comes from and goes to the database (scripts/portal-members.ts).
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -12,19 +12,8 @@ const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNIT
 const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25'];
 const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING'];
 type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM'; cohort: string; program: string; division: string; city: string; complete: boolean };
-const MEMBERS: M[] = [
-  { name: 'Sample Admin', email: 'president@usc.edu', role: 'ADMIN', status: 'STUDENT', cohort: 'SP25', program: 'TL INTERNAL', division: 'PRODUCT', city: 'Los Angeles, CA', complete: true },
-  { name: 'Sample Admin', email: 'copresident@usc.edu', role: 'ADMIN', status: 'STUDENT', cohort: 'SP25', program: 'TL INTERNAL', division: 'VC/FINANCE', city: 'Los Angeles, CA', complete: true },
-  { name: 'Sample Alum', email: 'alum1@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'SP25', program: 'TL INTERNAL', division: 'TECH', city: 'San Francisco, CA', complete: true },
-  { name: 'Sample Alum', email: 'alum2@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'FA25', program: 'TL INTERNAL', division: 'DESIGN', city: 'New York, NY', complete: true },
-  { name: 'Sample Student', email: 'student1@usc.edu', role: 'MEMBER', status: 'STUDENT', cohort: 'FA26', program: 'IGNITE', division: 'MARKETING', city: 'Los Angeles, CA', complete: false },
-  { name: 'Sample Student', email: 'student2@usc.edu', role: 'MEMBER', status: 'STUDENT', cohort: 'SP26', program: 'TL INTERNAL', division: 'TECH', city: 'Los Angeles, CA', complete: false },
-  { name: 'Sample Alum', email: 'alum3@gmail.com', role: 'MEMBER', status: 'ALUM', cohort: 'SP25', program: 'IGNITE', division: 'PRODUCT', city: 'Seattle, WA', complete: true },
-];
-const REQUESTS = [
-  { name: 'Sample Requester', email: 'requester@gmail.com', cohort: 'FA23', note: 'Was Director of Design F23–S24' },
-  { name: 'Sample Requester', email: 'other@gmail.com', cohort: 'SP22', note: '' },
-];
+const MEMBERS: M[] = [];
+const REQUESTS: { name: string; email: string; cohort: string; note: string }[] = [];
 ---
 
 <BaseLayout nav="portal" current="admin" title="Members — TL Alumni Network Portal" description="TroyLabs alumni portal member management.">
@@ -36,19 +25,31 @@ const REQUESTS = [
         <p class="t-caption text-muted portal-page-sub">Everyone in the network, students and alumni. Filter to find a group, then export or message them.</p>
       </div>
       <div class="portal-actions">
-        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="add-cohort" data-done="OPENING…" data-feedback="Cohort import (from the Notion roster) is wired with the database." data-feedback-target="#members-fb">ADD A COHORT</button>
-        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="export" data-done="EXPORTING…" data-feedback="The CSV of the current filter downloads once the database is connected." data-feedback-target="#members-fb">EXPORT CSV</button>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="add-cohort" data-done="OPENING…">ADD A COHORT</button>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="export" data-done="EXPORTING…">EXPORT CSV</button>
       </div>
     </div>
     <p id="members-fb" class="t-fine portal-feedback" style="text-align:right"></p>
 
+    <!-- add a cohort: paste the roster (from Notion's CSV export, or typed). Anyone on it is approved the moment they sign in. -->
+    <div class="portal-panel" id="cohort-panel" hidden style="margin-top:calc(12 * var(--u))">
+      <h2 class="t-sub portal-panel-title">Add a cohort</h2>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">Paste one person per line: <span class="text-ink">name, usc email, division</span> (division optional). From Notion: open the semester's table, Export → CSV, and paste the rows. Anyone on the roster is let in automatically the first time they sign in with that address.</p>
+      <div class="portal-inline" style="margin-bottom:calc(10 * var(--u))">
+        <span class="t-label text-muted" style="flex:none">SEMESTER</span>
+        <select id="cohort-term" class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option>Spring</option></select>
+        <input id="cohort-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year" style="max-width:calc(140 * var(--u))" />
+      </div>
+      <textarea id="cohort-csv" class="t-caption portal-textarea" placeholder="Tommy Trojan, ttrojan@usc.edu, TECH&#10;Jane Doe, jdoe@usc.edu"></textarea>
+      <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small t-label" data-action="import-cohort" data-done="IMPORTED">IMPORT</button><button type="button" class="portal-btn is-small is-quiet t-label" data-action="close-cohort">CLOSE</button><p class="t-fine portal-feedback" style="margin:0"></p></div>
+      <p class="m-0 t-fine text-muted" id="roster-summary" style="margin-top:calc(10 * var(--u))"></p>
+    </div>
+
     <!-- access requests: alumni not on the roster who asked to join (approve = account + invite link) -->
     <div class="portal-panel" style="margin-top:calc(12 * var(--u))">
-      <h2 class="t-sub portal-panel-title">Access requests <span class="t-fine portal-role">{REQUESTS.length}</span></h2>
-      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">Alumni who aren't on the roster and asked to join. Approving creates their account and sends an invite link to the email they gave.</p>
-      <ul class="portal-row-list t-caption">
-        {REQUESTS.map((r) => <li><span><span class="text-ink">{r.name}</span> <span class="text-muted">· {r.email} · says {r.cohort}{r.note ? ` · "${r.note}"` : ''}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-action="approve" data-done="APPROVED" data-feedback={`Invite goes to ${r.email} once the database is connected.`} data-feedback-target="#members-fb">APPROVE</button><button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Decline ${r.name}'s request?`}>DECLINE</button></span></li>)}
-      </ul>
+      <h2 class="t-sub portal-panel-title">Access requests <span class="t-fine portal-role" id="requests-n">0</span></h2>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">People who signed in with a usc.edu address that isn't on the roster. Approving lets them into the network right away; declining keeps them out.</p>
+      <ul class="portal-row-list t-caption" id="requests-list"><li class="text-muted">Nobody waiting.</li></ul>
     </div>
 
     <!-- filters + search: all client-side on the placeholder rows -->
@@ -84,3 +85,4 @@ const REQUESTS = [
     </template>
   </PortalShell>
 </BaseLayout>
+<script src="../../../scripts/portal-members.ts"></script>

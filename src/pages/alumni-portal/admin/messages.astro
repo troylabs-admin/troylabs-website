@@ -1,25 +1,12 @@
 ---
-/** Alumni portal › Admin › Send message blast (the MVP's /admin/messages, composer + audience). DESIGN PREVIEW. */
+/** Alumni portal › Admin › Messages: compose, pick who gets it, save/schedule to the database, and the list of every message (scripts/portal-messages.ts). Sending itself waits for an email provider (Resend). */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string; by: string; preview: string; audience: string; count: number; delivered?: number; people: string[] };
-const MESSAGES: Msg[] = [
-  { state: 'scheduled', title: 'Alumni mixer — Oct 3', when: 'Sends Sep 26, 9:00 AM', by: 'email + text', preview: 'Join us at the Founders Lounge on Oct 3 for the fall alumni mixer. RSVP by Sep 30…', audience: 'Alumni · LA', count: 4, people: ['Sample Alum · alum1@gmail.com', 'Sample Alum · alum2@gmail.com', 'Sample Alum · alum3@gmail.com', 'Sample Alum · alum4@gmail.com'] },
-  { state: 'draft', title: 'Referral ask: fintech', when: 'Edited Sep 14', by: 'email', preview: 'A few current members are looking at fintech roles this cycle. If your team is hiring…', audience: 'Alumni · Fintech', count: 3, people: ['Sample Alum · alum1@gmail.com', 'Sample Alum · alum4@gmail.com', 'Sample Alum · alum7@gmail.com'] },
-  { state: 'sent', title: 'Welcome to the network', when: 'Sent Sep 12, 4:12 PM', by: 'email', preview: 'The TL alumni network is live. Sign in, fill in your profile, and find each other…', audience: 'Everyone', count: 7, delivered: 7, people: ['Sample Admin · president@usc.edu', 'Sample Admin · copresident@usc.edu', 'Sample Alum · alum1@gmail.com', 'Sample Alum · alum2@gmail.com', 'Sample Student · student1@usc.edu', 'Sample Student · student2@usc.edu', 'Sample Alum · alum3@gmail.com'] },
-];
-const CHANNELS = [
-  { name: 'EVERYONE', rule: 'every member', count: 7 },
-  { name: 'ALL ALUMNI', rule: 'status = alum', count: 3 },
-  { name: 'ALL STUDENTS', rule: 'status = student', count: 4 },
-  { name: 'ALUMNI · PMS', rule: 'alum + Product', count: 1 },
-  { name: 'ALUMNI · TECH', rule: 'alum + Tech', count: 1 },
-  { name: 'STUDENTS · PMS', rule: 'student + Product', count: 1 },
-  { name: 'STUDENTS · TECH', rule: 'student + Tech', count: 1 },
-  { name: 'LA', rule: 'city = Los Angeles', count: 4 },
-];
+const MESSAGES: Msg[] = [];
+const CHANNELS: { name: string; rule: string; count: number }[] = [];
 const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', ['FA26', 'SP26', 'FA25', 'SP25']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
 ---
 
@@ -39,27 +26,27 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
         <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea></div>
         <h3 class="t-label text-muted" style="margin:calc(22 * var(--u)) 0 calc(10 * var(--u))">EVENT DETAILS (OPTIONAL)</h3>
         <div class="portal-field" style="gap:calc(10 * var(--u))">
-          <input class="t-caption portal-input is-wide" placeholder="Event name" aria-label="Event name" />
-          <input class="t-caption portal-input is-wide" type="datetime-local" aria-label="Event date and time" />
-          <input class="t-caption portal-input is-wide" placeholder="Location or link" aria-label="Location or link" />
-          <input class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
+          <input id="mc-ev-name" class="t-caption portal-input is-wide" placeholder="Event name" aria-label="Event name" />
+          <input id="mc-ev-when" class="t-caption portal-input is-wide" type="datetime-local" aria-label="Event date and time" />
+          <input id="mc-ev-where" class="t-caption portal-input is-wide" placeholder="Location or link" aria-label="Location or link" />
+          <input id="mc-ev-rsvp" class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
         </div>
       </form>
       <div class="portal-panel" data-audience="Sending to members matching" data-empty="No filters — sends to every opted-in member.">
         <h2 class="t-sub portal-panel-title">Who gets it</h2>
         <span class="t-label text-muted">A CHANNEL</span>
         <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences. Members join and leave automatically as their status changes — a student becomes an alum, and moves channels, the day they graduate.</p>
-        <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))">{CHANNELS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c.name} title={c.rule}>{c.name} <b style="font-weight:400;opacity:.7">· {c.count}</b></button>)}</div>
+        <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))"></div>
         <span class="t-label text-muted portal-or">OR PICK FILTERS</span>
         {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
         <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
         <span class="t-label text-muted">WHEN</span>
         <div class="flex flex-wrap portal-chips" data-single data-when style="margin:calc(8 * var(--u)) 0 calc(10 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
-        <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
+        <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input id="mc-when" type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
         <div class="portal-actions" style="flex-direction:column;align-items:stretch">
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…" data-feedback="The matching member list appears here once the database is connected." data-feedback-target="#msg-fb">PREVIEW RECIPIENTS</button>
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED" data-feedback="Saved as a draft below. Drafts save once the database is connected." data-feedback-target="#msg-fb">SAVE DRAFT</button>
-          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-feedback="Sending is wired with the database (email) and SendBlue (texts). Nothing was sent." data-feedback-target="#msg-fb" data-send-btn>SEND NOW</button>
+          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…">PREVIEW RECIPIENTS</button>
+          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
+          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-send-btn>SEND NOW</button>
           <p id="msg-fb" class="t-fine portal-feedback" style="margin:0"></p>
         </div>
       </div>
@@ -67,14 +54,14 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
 
     <h2 class="t-sub portal-section-h">Channels</h2>
     <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Each channel is a rule, not a list, so it stays current by itself. Some messages send automatically when someone enters a channel.</p>
-    <ul class="portal-row-list t-caption">
-      {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`} data-feedback-target="#msg-fb">EDIT RULE</button></span></li>)}
+    <ul class="portal-row-list t-caption" data-channel-list>
+      {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`}>EDIT RULE</button></span></li>)}
       <li style="flex-direction:column;align-items:stretch;gap:calc(6 * var(--u))">
-        <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" data-action="edit-msg" data-done="OPENING…" data-feedback="The graduation message opens in the composer once the database is connected." data-feedback-target="#msg-fb">EDIT MESSAGE</button></div>
+        <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" data-action="edit-msg" data-done="OPENING…">EDIT MESSAGE</button></div>
         <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum, "Class of" is set, this message goes out, and they're added to All alumni plus the alumni channel for their division.</p>
       </li>
     </ul>
-    <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-channel" data-done="OPENING…" data-feedback="New channels are created from any filter combination once the database is connected." data-feedback-target="#msg-fb">NEW CHANNEL</button></div>
+    <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->
     <h2 class="t-sub portal-section-h">All messages</h2>
@@ -84,7 +71,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
       <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="scheduled">SCHEDULED</button>
       <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="sent">SENT</button>
     </div>
-    <ul class="portal-row-list t-caption" data-msg-list>
+    <ul class="portal-row-list t-caption" data-msg-list><li class="text-muted" data-msg-empty>No messages yet. Write one above and save it as a draft, schedule it, or send it.</li>
       {MESSAGES.map((m) => (
         <li data-state={m.state} style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))">
           <div class="flex items-center" style="gap:calc(12 * var(--u))">
@@ -97,7 +84,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
           <div class="flex items-center" style="gap:calc(16 * var(--u))">
             <span class="t-fine text-muted">To: {m.audience} · {m.count} {m.state === 'sent' ? 'received' : 'will receive'}{m.state === 'sent' && m.delivered != null ? ` · ${m.delivered} delivered` : ''}</span>
             <span style="flex:1"></span>
-            {m.state !== 'sent' && <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-action="edit-msg" data-done="OPENING…" data-feedback={`"${m.title}" loads into the composer once the database is connected.`} data-feedback-target="#msg-fb">EDIT</button>}
+            {m.state !== 'sent' && <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-action="edit-msg" data-done="OPENING…" data-feedback={`"${m.title}" loads into the composer once the database is connected.`}>EDIT</button>}
             {m.state === 'scheduled' && <button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Cancel "${m.title}"? It will not be sent.`}>CANCEL</button>}
             <button type="button" class="t-label portal-linklike" data-recipients={m.title}>{m.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT'}</button>
             {m.state === 'draft' && <button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Delete the draft "${m.title}"?`}>DELETE</button>}
@@ -108,3 +95,4 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
     </ul>
   </PortalShell>
 </BaseLayout>
+<script src="../../../scripts/portal-messages.ts"></script>

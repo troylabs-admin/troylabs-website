@@ -6,14 +6,16 @@
  * the people at that star. One column, in this order (Bryan): the question, the globe, the bar, every
  * filter row open, the results. Search, not a chatbot: the answer is a list of people. Keyword + filters
  * is the whole engine; semantic ranking on top is a later add with a key.
- * DESIGN PREVIEW: the generated roster in lib/portal/sample-people.ts; nothing is wired to data.
+ * People come from the database once you are an approved member (lib/portal/data.ts); a build without
+ * a session (or with ?sample=1) shows the generated roster in lib/portal/sample-people.ts.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { glideTo, tickNumber } from '../../lib/portal/tick';
 import { track } from '../../lib/analytics';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
-import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE, STATUS, type Person } from '../../lib/portal/sample-people';
+import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE as SAMPLE, STATUS, type Person } from '../../lib/portal/sample-people';
+import { listPeople } from '../../lib/portal/data';
 
 const FILTERS: [string, string, readonly string[]][] = [['status', 'STATUS', STATUS], ['cohort', 'COHORT', COHORTS], ['division', 'DIVISION', DIVISIONS], ['industry', 'INDUSTRY', INDUSTRIES]];
 const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did']);
@@ -31,7 +33,15 @@ function Tick({ n }: { n: number }) {
 export default function Network() {
   // approved yet? the gate (scripts/portal-auth.ts) stamps <html data-member>; until an admin lets you in, the network is a note
   const [member, setMember] = useState<string>(() => (typeof document !== 'undefined' ? document.documentElement.dataset.member ?? '' : ''));
-  useEffect(() => { const on = (e: Event) => setMember((e as CustomEvent).detail.approved ? 'ok' : 'pending'); document.addEventListener('tl:me', on); setMember(document.documentElement.dataset.member ?? ''); return () => document.removeEventListener('tl:me', on); }, []);
+  const [PEOPLE, setPeople] = useState<Person[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const sample = new URLSearchParams(location.search).has('sample');
+    const load = async (approved: boolean) => { if (sample) { setPeople(SAMPLE); setLoaded(true); return; } if (!approved) return; setPeople(await listPeople()); setLoaded(true); };
+    const on = (e: Event) => { const ok = (e as CustomEvent).detail.approved; setMember(ok ? 'ok' : 'pending'); void load(ok); };
+    document.addEventListener('tl:me', on); setMember(document.documentElement.dataset.member ?? ''); if (document.documentElement.dataset.member === 'ok' || sample) void load(true);
+    return () => document.removeEventListener('tl:me', on);
+  }, []);
   const [q, setQ] = useState('');
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [place, setPlace] = useState<Cluster | null>(null);
@@ -74,13 +84,13 @@ export default function Network() {
       out.push({ p, why, score });
     }
     return out.sort((a, b) => b.score - a.score);
-  }, [active, words.join(' ')]);
+  }, [active, words.join(' '), PEOPLE]);
 
   /* a tapped star narrows the list to its cities — the globe is the location filter */
   const placeKeys = useMemo(() => place && new Set(place.cities.map((c) => c.key)), [place]);
   const cityKey = (p: Person) => `${p.city}|${p.region}`.toLowerCase();
   const results = useMemo(() => (placeKeys ? matched.filter(({ p }) => placeKeys.has(cityKey(p))) : matched), [matched, placeKeys]);
-  const pins = useMemo(() => matched.map(({ p }) => p), [matched]);
+  const pins = useMemo(() => matched.map(({ p }) => p).filter((p) => p.lat || p.lng), [matched]);   // no city yet → in the list, not on the globe (0,0 is the Gulf of Guinea)
   const cities = useMemo(() => new Set(pins.map(cityKey)).size, [pins]);
   const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
   const leftCities = useMemo(() => new Set(results.map(({ p }) => cityKey(p))).size, [results]);
@@ -167,8 +177,8 @@ export default function Network() {
                 <ul className="m-0 p-0 list-none portal-grid">
                   {shown.map(({ p, why }, i) => (
                     <li key={i}>
-                      <a href={`/alumni-portal/members/${p.id}`} className="portal-card no-underline text-ink">
-                        <span className="portal-avatar t-sub" aria-hidden="true">{p.initials}</span>
+                      <a href={`/alumni-portal/members/?id=${p.id}`} className="portal-card no-underline text-ink">
+                        <span className="portal-avatar t-sub" aria-hidden="true">{p.avatar ? <img src={p.avatar} alt="" loading="lazy" /> : p.initials}</span>
                         <span className="portal-card-body">
                           <span className="t-name portal-card-name">{p.full_name} <span className="t-fine portal-role">{p.status}</span></span>
                           <span className="t-caption text-muted">{p.current_title} · {p.current_company}</span>
@@ -189,7 +199,7 @@ export default function Network() {
               {results.length > shown.length && <button type="button" className="portal-btn is-small is-quiet t-label portal-globe-more" onClick={() => setPage(page + 1)}>SHOW {Math.min(PAGE, results.length - shown.length)} MORE · {results.length - shown.length} LEFT</button>}
             </>
           ) : (
-            <p className="t-fine text-muted portal-results-hint">Everyone is on the globe. Type, press a filter, or tap a star to see who's where.</p>
+            <p className="t-fine text-muted portal-results-hint">{!loaded ? 'Loading the network…' : PEOPLE.length === 0 ? 'Nobody has a pin yet. Add your city on your profile and you will be the first star.' : "Everyone is on the globe. Type, press a filter, or tap a star to see who's where."}</p>
           )}
         </section>
     </div>

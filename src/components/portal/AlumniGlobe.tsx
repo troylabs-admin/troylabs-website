@@ -55,7 +55,7 @@ function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => 
   return el;
 }
 
-export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset = 0, profileHref = (p) => `/alumni-portal/members/${p.id}` }: {
+export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset = 0, profileHref = (p) => `/alumni-portal/members/?id=${p.id}` }: {
   pins: GlobePerson[]; onRefresh?: () => void;
   /** the selected star changed (null = nothing selected). The page narrows its list to it. */
   onPick?: (c: Cluster | null) => void;

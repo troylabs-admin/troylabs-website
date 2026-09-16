@@ -1,0 +1,35 @@
+---
+/**
+ * Alumni portal › a member's page. One static page; the person comes from the database by the id in
+ * the address (?id=…), filled in by scripts/portal-member.ts. Only approved members can read profiles
+ * (row-level security), so this page is empty to anyone else.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+---
+
+<BaseLayout nav="portal" current="home" title="Member — TL Alumni Network Portal" description="A TroyLabs alum.">
+  <PortalShell label="Member">
+    <a href="/alumni-portal/home" class="t-label portal-back">← BACK TO SEARCH</a>
+    <div class="portal-member-head" data-member-head hidden>
+      <span class="portal-avatar is-large t-sub" aria-hidden="true" data-m-avatar></span>
+      <div>
+        <h1 class="portal-member-name"><span data-m-name></span> <span class="t-fine portal-role" data-m-status></span></h1>
+        <p class="m-0 t-tagline text-muted" style="margin-top:calc(6 * var(--u))" data-m-work></p>
+        <p class="m-0 t-caption text-muted" style="margin-top:calc(8 * var(--u))" data-m-meta></p>
+        <div class="portal-inline" style="margin-top:calc(16 * var(--u));gap:calc(10 * var(--u))">
+          <a class="portal-btn is-small t-label no-underline text-ink" style="display:inline-flex;align-items:center" data-m-linkedin hidden target="_blank" rel="noopener noreferrer">LINKEDIN</a>
+          <a class="portal-btn is-small is-quiet t-label no-underline text-ink" style="display:inline-flex;align-items:center" data-m-email hidden>EMAIL</a>
+        </div>
+      </div>
+    </div>
+    <p class="t-caption text-muted" data-member-empty style="margin-top:calc(24 * var(--u))">Loading…</p>
+    <div data-member-body hidden>
+      <h2 class="t-sub portal-section-h">About</h2>
+      <p class="m-0 t-body" style="max-width:calc(560 * var(--u))" data-m-bio></p>
+      <div data-m-sections></div>
+    </div>
+  </PortalShell>
+</BaseLayout>
+<script src="../../../scripts/portal-member.ts"></script>

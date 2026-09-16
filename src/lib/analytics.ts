@@ -63,6 +63,9 @@ export function initAnalytics() {
     if (url.pathname.startsWith('/alumni-portal') && !location.pathname.startsWith('/alumni-portal')) return track('portal_click', base);
   }, { capture: true });
 
+  /* a sign-in landing (the magic link brings the session in the URL hash): one count, no one identified */
+  if (/access_token=/.test(location.hash) || /type=magiclink/.test(location.hash)) track('portal_signin');
+
   /* the DEMO reel: did anyone press play */
   document.addEventListener('play', (e) => { const v = e.target as HTMLVideoElement; if (v.tagName === 'VIDEO' && !v.dataset.phPlayed) { v.dataset.phPlayed = '1'; track('video_play', { section: sectionOf(v) }); } }, { capture: true });
 

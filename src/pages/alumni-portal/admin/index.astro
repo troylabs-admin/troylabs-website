@@ -1,16 +1,16 @@
 ---
-/** Alumni portal › Admin dashboard (the MVP's /admin). DESIGN PREVIEW: numbers are placeholders. */
+/** Alumni portal › Admin dashboard (the MVP's /admin). Numbers from the database (scripts/portal-admin-stats.ts). */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 /* plain words for a non-technical admin (Bryan, 2026-09-14): "campaign" was the MVP's word for one text
    blast; "profile completion" is the average across all alumni — how filled-in the directory is. */
-const TILES: [string, string, string][] = [
-  ['MEMBERS', '7', '4 students · 3 alumni'],
-  ['ACTIVE THIS MONTH', '3', 'signed in within 30 days'],
-  ['ACCESS REQUESTS', '2', 'waiting on the Members page'],
-  ['SENT THIS MONTH', '0', 'emails and texts'],
+const TILES: [string, string, string, string][] = [
+  ['MEMBERS', '—', 'students · alumni', 'members'],
+  ['ACTIVE THIS MONTH', '—', 'signed in within 30 days', 'active30'],
+  ['ACCESS REQUESTS', '—', 'waiting on the Members page', 'pending'],
+  ['SENT THIS MONTH', '—', 'emails and texts', 'sentThisMonth'],
 ];
 ---
 
@@ -23,13 +23,14 @@ const TILES: [string, string, string][] = [
         <p class="t-caption text-muted portal-page-sub">The club's people, in one place: who's in the network, how to reach them, what the site is doing.</p>
       </div>
     </div>
-    <div class="portal-tiles">{TILES.map(([l, v, hint]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat">{v}</span><span class="t-fine text-muted">{hint}</span></div>)}</div>
+    <div class="portal-tiles">{TILES.map(([l, v, hint, key]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat" data-stat={key}>{v}</span><span class="t-fine text-muted" data-stat-hint={key}>{hint}</span></div>)}</div>
     <div class="portal-panels">
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Quick links</h2>
         <ul class="portal-panel-list t-caption"><li><a href="/alumni-portal/admin/users">Find or add members</a></li><li><a href="/alumni-portal/admin/messages">Message a group</a></li><li><a href="/alumni-portal/admin/analytics">Analytics</a></li><li><a href="/alumni-portal/admin/handoff">Tech stack</a></li></ul></div>
       <div class="portal-panel"><h2 class="t-sub portal-panel-title">Who can sign up</h2>
         <p class="m-0 t-caption text-muted">Anyone with a usc.edu address can request access. You approve or decline them on the Members page; nobody gets in without that.</p></div>
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent messages</h2><p class="m-0 t-caption text-muted">Nothing sent yet. Emails and texts you send from Message show up here.</p></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recent messages</h2><p class="m-0 t-caption text-muted" data-recent-messages>Nothing yet. Drafts, scheduled and sent messages from Message show up here.</p></div>
     </div>
   </PortalShell>
 </BaseLayout>
+<script src="../../../scripts/portal-admin-stats.ts"></script>

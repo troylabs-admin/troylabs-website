@@ -48,6 +48,7 @@ export function initAnalytics() {
     debug,
   });
   on = true;
+  posthog.register({ device: device() });   // on every event, including the page views PostHog captures itself (the Analytics page showed those as 'unknown')
   if (debug) (window as any).posthog = posthog;   // ?ph=1 only: lets a test read the live config
 
   /* clicks that matter, classified from what was clicked — no markup to maintain:

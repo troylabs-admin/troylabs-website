@@ -1,12 +1,16 @@
 /**
  * Alumni portal › the globe. Charlotte Chang's GlobeMap from the MVP (troylabs-alumni-network) — real
- * pins at real coordinates, drag to rotate, click a pin for the person — with one structural change
- * (Bryan, 2026-09-15): people are grouped into ONE STAR PER CITY, and cities whose stars would overlap
- * at the current zoom merge into a bigger star with a count (see lib/portal/cluster.ts for the rules
- * and the prior art). One tap on any star zooms in and opens the people at it, grouped by city; a city
- * of one still shows Charlotte's card. On desktop the list is a panel beside the globe; on a phone it sits under the
- * globe in the page (the overlay was too small to scroll). Zoom is by the + / − buttons: the wheel
- * scrolls the page (OrbitControls hijacked it in the MVP).
+ * pins at real coordinates, drag to rotate — with one structural change (Bryan, 2026-09-15): people are
+ * grouped into ONE STAR PER CITY, and cities whose stars would overlap at the current zoom merge into a
+ * bigger star with a count (see lib/portal/cluster.ts for the rules and the prior art).
+ *
+ * A tap SELECTS a star: the globe flies in, and a card sits on the star naming it — the city, how many
+ * cities and people it holds — with a SEE WHO'S HERE link and a ×. The page (Network.tsx) is told which
+ * star is selected and narrows its results to it; nothing scrolls on its own (Bryan: "it doesn't scroll…
+ * it just says San Francisco +3 cities"). The selection follows the star through zooms and drags, and
+ * through the re-clustering they cause: if the tapped city ends up inside a bigger star, that star is
+ * selected; if a filter empties it, the selection clears. A star of one shows Charlotte's person card.
+ * Zoom is by the + / − buttons: the wheel scrolls the page (OrbitControls hijacked it in the MVP).
  * DESIGN PREVIEW: fed placeholder people from the page; nothing is wired to data.
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
@@ -17,14 +21,12 @@ export type GlobePin = GlobePerson;
 export type { Cluster } from '../../lib/portal/cluster';
 
 const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5, ladder: [3, 2.4, 1.9, 1.4, 1.0, 0.7, 0.5, 0.35, 0.25] };
-const PAGE = 40;   // list rows shown before SHOW MORE
-/* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
-   the globe's apparent angular radius at distance R(1+alt) is asin(1/(1+alt)). On a phone the frame is
-   narrower than it is tall, so the desktop altitude (1.9) showed a disc wider than the frame — "it looks
-   like a square, it gets cut off" (Bryan, 2026-09-15). Never closer than the desktop opening. */
-const fitAltitude = (w: number, h: number) => { const k = (0.9 * Math.min(w, h) / h) * Math.tan((25 * Math.PI) / 180); return Math.max(ALT.start, 1 / Math.sin(Math.atan(k)) - 1); };
 const tier = (n: number) => (n <= 1 ? 1 : n < 10 ? 2 : n < 50 ? 3 : 4);
 const upper = (s: string) => s.toUpperCase();
+/* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
+   the globe's apparent angular radius at distance R(1+alt) is asin(1/(1+alt)). Never closer than the desktop
+   opening (1.9). */
+const fitAltitude = (w: number, h: number) => { const k = (0.9 * Math.min(w, h) / h) * Math.tan((25 * Math.PI) / 180); return Math.max(ALT.start, 1 / Math.sin(Math.atan(k)) - 1); };
 
 const starLabel = (c: Cluster) => (c.count === 1 ? c.cities[0].people[0].full_name : `${clusterLabel(c)} · ${c.count}`);
 function decorateStar(el: HTMLElement, c: Cluster) {
@@ -53,23 +55,27 @@ function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => 
   return el;
 }
 
-type Open = { kind: 'person'; person: GlobePerson; key: string; anchor: { x: number; y: number } } | { kind: 'list'; cluster: Cluster } | null;
-
-/** onPick: when given (the merged search page), a tap zooms in and hands the star to the page — the page's
- *  results list is the list — instead of opening the globe's own list or card. */
-export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p) => `/alumni-portal/members/${p.id}` }: { pins: GlobePerson[]; onRefresh?: () => void; onPick?: (c: Cluster) => void; profileHref?: (p: GlobePerson) => string }) {
+export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset = 0, profileHref = (p) => `/alumni-portal/members/${p.id}` }: {
+  pins: GlobePerson[]; onRefresh?: () => void;
+  /** the selected star changed (null = nothing selected). The page narrows its list to it. */
+  onPick?: (c: Cluster | null) => void;
+  /** the card's SEE WHO'S HERE link — the page decides what that means (it scrolls to its results) */
+  onSeeList?: () => void;
+  /** bump to clear the selection and zoom back out to the opening view (the page's × on the place pill) */
+  reset?: number;
+  profileHref?: (p: GlobePerson) => string;
+}) {
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [altitude, setAltitude] = useState(ALT.start);
   const [view, setView] = useState({ kmPerPx: 30, lat: 30, lng: -80, alt: ALT.start, n: 0 });   // the settled camera; n bumps on every settle so clusters re-project
-  const [page, setPage] = useState(1);
-  const listRef = useRef<HTMLElement>(null);
-  const [open, setOpen] = useState<Open>(null);
-  const [listQ, setListQ] = useState('');
+  const [selected, setSelected] = useState<string | null>(null);      // seed key of the tapped star
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const clickRef = useRef<(c: Cluster, el: HTMLElement) => void>(() => undefined);
   const clusterCache = useRef(new Map<string, Cluster>());
+  const reported = useRef<string>('');
 
   useEffect(() => { import('react-globe.gl').then((m) => setGlobe(() => m.default)); }, []);   // WebGL: client only
 
@@ -89,8 +95,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  /* Runs when the camera SETTLES (debounced controls 'change' + 'end' — not every frame, so stars don't
-     reshuffle mid-drag). Measures km per screen pixel at the globe's centre from the library's own
+  /* Runs when the camera SETTLES. Measures km per screen pixel at the globe's centre from the library's own
      projection (a 1° step in longitude at the current latitude is 111.32·cos(lat) km) and bumps `view`
      so clusters re-project. */
   const measure = useCallback(() => {
@@ -114,11 +119,9 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
 
   const cities = useMemo(() => groupByCity(pins), [pins]);
   const clusters = useMemo(() => {
-    // screen-space distances from the globe's real projection; a city on the far side never merges
+    // screen-space distances from the globe's real projection; a city on the far side never merges.
     // "on the near side" uses the same test the library uses to decide whether to DRAW a star (three-globe's
     // isBehindGlobe: the star's 3D position against the camera's visible cone, at the stars' own altitude).
-    // A plain acos(R/D) horizon differed from it by a few degrees, and a star drawn in that band stayed
-    // unmerged and overlapped its neighbour (Boston at 73.6° from centre, measured).
     const g = globeRef.current; const cam = g?.camera?.(); const R = 100, STAR_ALT = 0.02;
     const povDist = cam ? Math.hypot(cam.position.x, cam.position.y, cam.position.z) : 0;
     const edgeDist = Math.sqrt(povDist * povDist - R * R), edgeAngle = Math.acos(edgeDist / povDist);
@@ -132,28 +135,16 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
     const screen = new Map<string, { x: number; y: number } | null>();
     const at = (c: City) => { if (!screen.has(c.key)) screen.set(c.key, nearSide(c) ? g.getScreenCoords(c.lat, c.lng, STAR_ALT) : null); return screen.get(c.key)!; };
     const distPx = (a: City, b: City) => { const p = at(a), q = at(b); return p && q ? Math.hypot(p.x - q.x, p.y - q.y) : Infinity; };
-    // reuse cluster objects whose membership didn't change, so the library keeps their DOM nodes
-    const fresh = clusterCities(cities, distPx); const cache = clusterCache.current; const next = new Map<string, Cluster>();
-    // same cities → same object, so the library keeps the star's element; if only the head-count changed
-    // (a chip narrowed the people) remember where it came from and let the number tick down, not jump
     // cached by the SEED city (the star's anchor), not the full membership: a chip that empties Oakland out
-    // of the San Francisco star must keep San Francisco's element so 382 can tick to 95 (measured: keyed
-    // on membership, the element was rebuilt and the number jumped)
+    // of the San Francisco star must keep San Francisco's element so 382 can tick to 95
+    const fresh = clusterCities(cities, distPx); const cache = clusterCache.current; const next = new Map<string, Cluster>();
     const out = fresh.map((c) => { const prev = cache.get(c.seed.key); if (!prev) { next.set(c.seed.key, c); return c; }
       if (prev.count !== c.count || prev.key !== c.key) { (prev as any).__from = prev.count; prev.count = c.count; prev.cities = c.cities; prev.key = c.key; }
       next.set(c.seed.key, prev); return prev; });
     clusterCache.current = next; return out;
   }, [cities, view]);
 
-  const anchorOf = (el: Element) => { const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top }; };
-  // keep the person card on its pin: after the fly-in, after a drag, after a re-cluster (the pin's element
-  // is looked up by key, since a re-cluster can rebuild it)
-  useEffect(() => {
-    if (open?.kind !== 'person') return;
-    const el = containerRef.current?.querySelector(`.tl-star[data-seed="${CSS.escape(open.key)}"]`);
-    if (el) { const a = anchorOf(el); if (Math.abs(a.x - open.anchor.x) > 0.5 || Math.abs(a.y - open.anchor.y) > 0.5) setOpen({ ...open, anchor: a }); }
-    else setOpen(null);   // its city merged into a bigger star — the card no longer has a pin to sit on
-  }, [view, clusters, open]);
+  // numbers tick, they don't jump: a star whose head-count changed counts to its new value
   useEffect(() => {
     for (const c of clusters) {
       const from = (c as any).__from as number | undefined; if (from === undefined) continue; delete (c as any).__from;
@@ -162,58 +153,62 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
       const n = el.querySelector<HTMLElement>('.tl-star-n'); if (n) tickNumber(n, from, c.count);
     }
   }, [clusters]);
+
+  /* the selection follows the stars: the tapped seed's own star, or the bigger star it merged into;
+     gone (filtered out) → cleared. The page is told whenever what's selected actually changes. */
+  const current = useMemo(() => {
+    if (!selected) return null;
+    return clusters.find((c) => c.seed.key === selected) ?? clusters.find((c) => c.cities.some((x) => x.key === selected)) ?? null;
+  }, [clusters, selected]);
+  useEffect(() => {
+    if (selected && !current) { setSelected(null); return; }
+    const sig = current ? `${current.key}#${current.count}` : '';
+    // a snapshot, not the live object: the cache updates clusters in place (so stars keep their elements
+    // and tick), which means the object's identity never changes — the page would never re-derive from it
+    if (sig !== reported.current) { reported.current = sig; onPick?.(current ? { ...current, cities: [...current.cities] } : null); }
+  }, [current, clusters, selected, onPick]);
+  // the card sits on the selected star and follows it (fly-in, drag, re-cluster rebuilding the element)
+  const anchorOf = (el: Element) => { const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top }; };
+  useEffect(() => {
+    if (!current) { setAnchor(null); return; }
+    const el = containerRef.current?.querySelector(`.tl-star[data-seed="${CSS.escape(current.seed.key)}"]`);
+    if (el) { const a = anchorOf(el); setAnchor((old) => (old && Math.abs(a.x - old.x) < 0.5 && Math.abs(a.y - old.y) < 0.5 ? old : a)); }
+  }, [current, view, clusters]);
+  useEffect(() => { containerRef.current?.querySelectorAll('.tl-star').forEach((el) => el.classList.toggle('is-selected', (el as HTMLElement).dataset.seed === current?.seed.key)); }, [current, clusters]);
+
   const flyTo = useCallback((lat: number, lng: number, alt: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: Math.min(ALT.max, Math.max(ALT.min, alt)) }, ms); }, []);
   const zoomBy = (f: number) => { const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, pov.altitude * f, 500); };
 
-  const handleClick = useCallback((c: Cluster, el: HTMLElement) => {
-    setListQ(''); setPage(1);
-    if (onPick) {   // the page owns the list: zoom in, hand over
-      let target = Math.max(ALT.min, Math.min(altitude, 1.0) * 0.7);
-      if (c.cities.length > 1) { const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude)); const k = expansionKmPerPx(c, ladder); if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1; }
-      flyTo(c.lat, c.lng, target); onPick(c); return;
-    }
-    if (c.count === 1) {
-      // Charlotte's card sits above the pin you clicked, and follows it: the fly-in moves the pin, and so
-      // does any later drag (the anchor is re-read from the pin's element whenever the camera settles).
-      const person = c.cities[0].people[0];
-      setOpen({ kind: 'person', person, key: c.key, anchor: anchorOf(el) });
-      flyTo(person.lat, person.lng, Math.min(altitude, 1.4));
-      return;
-    }
+  const handleClick = useCallback((c: Cluster) => {
     // zoom in on what you tapped: a bunched star to the coarsest zoom where it splits (supercluster's
-    // expansion zoom; km-per-px scales with camera distance, i.e. with 1 + altitude), a lone city a bit closer.
+    // expansion zoom; km-per-px scales with camera distance, i.e. with 1 + altitude), a lone city a bit closer
     let target = Math.max(ALT.min, Math.min(altitude, 1.0) * 0.7);
     if (c.cities.length > 1) {
       const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude));
       const k = expansionKmPerPx(c, ladder);
       if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1;
     }
-    setOpen({ kind: 'list', cluster: c });   // the list is what you tapped, before it splits
+    setSelected(c.seed.key);
     flyTo(c.lat, c.lng, target);
-    // phone: the list is under the globe — once the zoom has been seen, bring it up
-    if (innerWidth < 768) setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 650);
-  }, [altitude, view, flyTo, onPick]);
+  }, [altitude, view, flyTo]);
   clickRef.current = handleClick;
+  const buildStar = useCallback((d: object) => createStarMarker(d as Cluster, (c, el) => clickRef.current(c, el)), []);   // stable: a new identity makes three-globe rebuild every marker
+  // clearing = the selection goes and the globe returns to its opening size, where you left it pointed
+  const clear = useCallback(() => { setSelected(null); const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, fitAltitude(dimensions.width, dimensions.height)); }, [flyTo, dimensions]);
+  const lastReset = useRef(reset);
+  useEffect(() => { if (reset !== lastReset.current) { lastReset.current = reset; clear(); } }, [reset, clear]);
 
-  // one stable function for the life of the component: three-globe drops and rebuilds EVERY marker when
-  // this prop's identity changes (`changedProps.htmlElement → dataMapper.clear()`), so an inline arrow
-  // here — as in the MVP — meant a full rebuild on each render, restarting every pulse and, mid-coast,
-  // racing the re-cluster (a duplicate Boston star was caught once).
-  const buildStar = useCallback((d: object) => createStarMarker(d as Cluster, (c, el) => clickRef.current(c, el)), []);
-
-  const list = open?.kind === 'list' ? open.cluster : null;
-  const q = listQ.trim().toLowerCase();
-  const rows = (people: GlobePerson[]) => people.filter((p) => !q || `${p.full_name} ${p.current_title ?? ''} ${p.current_company ?? ''} ${p.cohort ?? ''}`.toLowerCase().includes(q));
+  const person = current?.count === 1 ? current.cities[0].people[0] : null;
 
   return (
     <div className="portal-globe">
-    <div ref={containerRef} className="portal-globe-wrap" data-open={open?.kind ?? ''} data-view={`${view.kmPerPx.toFixed(2)} km/px · alt ${altitude.toFixed(2)} · ${view.lat.toFixed(0)},${view.lng.toFixed(0)} · #${view.n}`}>   {/* data-view: the settled camera, for probes */}
+    <div ref={containerRef} className="portal-globe-wrap" data-open={current ? (person ? 'person' : 'place') : ''} data-view={`${view.kmPerPx.toFixed(2)} km/px · alt ${altitude.toFixed(2)} · ${view.lat.toFixed(0)},${view.lng.toFixed(0)} · #${view.n}`}>   {/* data-view: the settled camera, for probes */}
       <div className="portal-globe-canvas">
       {Globe && (
         <Globe
           ref={globeRef}
           onGlobeReady={() => {
-            globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: fitAltitude(dimensions.width, dimensions.height) }, 0);   // opened on the Americas where most alumni are; both US coasts well inside the disc, London on the edge
+            globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: fitAltitude(dimensions.width, dimensions.height) }, 0);   // opened on the Americas where most alumni are
             const c = globeRef.current?.controls(); if (c) { c.enableZoom = false; c.addEventListener('change', onCameraChange); c.addEventListener('end', measure); }   // wheel scrolls the PAGE; re-cluster when a drag or fly settles
             measure();
           }}
@@ -234,15 +229,27 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
       )}
       </div>
 
-      {open?.kind === 'person' && (
-        /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × in the corner */
-        <div className="portal-panel portal-globe-pop" style={{ left: open.anchor.x, top: open.anchor.y }} role="dialog" aria-label={open.person.full_name}>
-          <button type="button" className="portal-globe-x" aria-label="Close" onClick={() => setOpen(null)}>×</button>
-          <h3 className="t-name m-0">{open.person.full_name}</h3>
-          <p className="t-caption text-muted m-0">{open.person.current_title}{open.person.current_company ? ` · ${open.person.current_company}` : ''}</p>
-          {open.person.city && <p className="t-fine text-muted m-0">{open.person.city}{open.person.region ? `, ${open.person.region}` : ''}</p>}
-          {open.person.cohort && <p className="t-fine m-0 portal-globe-cohort">TL {open.person.cohort}</p>}
-          <a href={profileHref(open.person)} className="t-label portal-linklike portal-globe-view">VIEW PROFILE →</a>
+      {current && anchor && person && (
+        /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × */
+        <div className="portal-panel portal-globe-pop" style={{ left: anchor.x, top: anchor.y }} role="dialog" aria-label={person.full_name}>
+          <button type="button" className="portal-globe-x" aria-label="Close" onClick={clear}>×</button>
+          <h3 className="t-name m-0">{person.full_name}</h3>
+          <p className="t-caption text-muted m-0">{person.current_title}{person.current_company ? ` · ${person.current_company}` : ''}</p>
+          {person.city && <p className="t-fine text-muted m-0">{person.city}{person.region ? `, ${person.region}` : ''}</p>}
+          {person.cohort && <p className="t-fine m-0 portal-globe-cohort">TL {person.cohort}</p>}
+          <a href={profileHref(person)} className="t-label portal-linklike portal-globe-view">VIEW PROFILE →</a>
+        </div>
+      )}
+      {current && anchor && !person && (
+        /* place card: the star you tapped, named — city · how many cities and people · a way to the list */
+        <div className="portal-panel portal-globe-pop portal-globe-place" style={{ left: anchor.x, top: anchor.y }} role="dialog" aria-label={`${clusterLabel(current)} · ${current.count} people`}>
+          <button type="button" className="portal-globe-x" aria-label="Clear the selection" onClick={clear}>×</button>
+          <h3 className="t-name m-0">{upper(current.seed.name)}{current.seed.region ? `, ${upper(current.seed.region)}` : ''}</h3>
+          <p className="t-fine text-muted m-0 portal-globe-place-sub">
+            <b className="text-ink">{current.count}</b> {current.count === 1 ? 'PERSON' : 'PEOPLE'}
+            {current.cities.length > 1 && <> · WITH {upper(current.cities.slice(1, 4).map((c) => c.name).join(', '))}{current.cities.length > 4 ? ` +${current.cities.length - 4} MORE` : ''}</>}
+          </p>
+          {onSeeList && <button type="button" className="t-label portal-linklike portal-globe-view" onClick={onSeeList}>SEE WHO'S HERE ↓</button>}
         </div>
       )}
 
@@ -252,45 +259,6 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, profileHref = (p)
       </div>
       <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
     </div>
-      {list && (
-        /* city list: everyone at this star. Grouped by city when a merged star can't be split any further. */
-        <aside ref={listRef} className="portal-panel portal-globe-list" role="dialog" aria-label={`${clusterLabel(list)} · ${list.count} alumni`}>
-          <button type="button" className="portal-globe-x" aria-label="Close" onClick={() => setOpen(null)}>×</button>
-          <h3 className="t-name m-0">{upper(list.seed.name)}{list.seed.region ? `, ${upper(list.seed.region)}` : ''}</h3>
-          <p className="t-fine text-muted m-0 portal-globe-list-sub">{list.count} ALUMNI{list.cities.length > 1 ? ` · WITH ${upper(list.cities.slice(1, 4).map((c) => c.name).join(', '))}${list.cities.length > 4 ? ` +${list.cities.length - 4} MORE` : ''}` : ''}</p>
-          {list.count > 8 && <input type="search" className="t-caption portal-input is-wide portal-globe-list-q" placeholder="Filter by name, company or cohort" aria-label="Filter this list" value={listQ} onChange={(e) => setListQ(e.target.value)} />}
-          <div className="portal-globe-list-scroll">
-            {(() => {
-              // rows in city order, PAGE at a time (326 rows in the page flow on a phone is a long scroll)
-              let budget = page * PAGE, total = 0; const out: React.ReactNode[] = [];
-              for (const city of list.cities) {
-                const r = rows(city.people); total += r.length; if (!r.length || budget <= 0) continue;
-                const slice = r.slice(0, budget); budget -= slice.length;
-                out.push(
-                  <section key={city.key}>
-                    {list.cities.length > 1 && <h4 className="t-fine text-muted m-0 portal-globe-list-city">{upper(city.name)}{city.region ? `, ${upper(city.region)}` : ''} · {city.people.length}</h4>}
-                    <ul className="m-0 p-0 list-none">
-                      {slice.map((p, i) => (
-                        <li key={`${p.id}-${i}`}>
-                          <a href={profileHref(p)} className="portal-globe-row no-underline">
-                            <span className="t-caption text-ink portal-globe-row-name">{p.full_name}</span>
-                            <span className="t-fine text-muted portal-globe-row-role">{p.current_title}{p.current_company ? ` · ${p.current_company}` : ''}</span>
-                            {p.cohort && <span className="t-fine portal-globe-row-cohort">{p.cohort}</span>}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                );
-              }
-              if (q && total === 0) out.push(<p key="none" className="t-fine text-muted m-0" style={{ padding: '12px 0' }}>Nobody here matches “{listQ.trim()}”.</p>);
-              if (total > page * PAGE) out.push(<button key="more" type="button" className="portal-btn is-small is-quiet t-label portal-globe-more" onClick={() => setPage(page + 1)}>SHOW {Math.min(PAGE, total - page * PAGE)} MORE · {total - page * PAGE} LEFT</button>);
-              return out;
-            })()}
-          </div>
-        </aside>
-      )}
-
     </div>
   );
 }

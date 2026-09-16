@@ -156,8 +156,12 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-explore-globe { width: calc(560 * var(--u)); margin: calc(36 * var(--u)) auto 0; }
   .portal-explore-globe .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 0; }
   .portal-explore-globe .portal-globe-count { display: none; }   /* the count reads under the globe instead */
-  .portal-explore-stats { margin: calc(12 * var(--u)) 0 0; text-align: center; letter-spacing: calc(1.6 * var(--u)); line-height: calc(22 * var(--u)); }
-  .portal-explore-on { color: var(--color-orange); }
+  .portal-active { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: calc(8 * var(--u)); margin-top: calc(14 * var(--u)); }
+  .portal-active-label { letter-spacing: calc(1.6 * var(--u)); margin-right: calc(4 * var(--u)); }
+  .portal-chip.is-removable { padding-right: calc(10 * var(--u)); }
+  .portal-chip-x { display: inline-block; margin-left: calc(8 * var(--u)); opacity: 0.7; font-size: 1.15em; line-height: 0; vertical-align: -0.05em; }
+  .portal-chip.is-removable:hover .portal-chip-x { opacity: 1; }
+  .portal-explore-stats { margin: calc(10 * var(--u)) 0 0; text-align: center; letter-spacing: calc(1.6 * var(--u)); line-height: calc(22 * var(--u)); }
   .portal-explore-count { margin-top: calc(6 * var(--u)); letter-spacing: calc(1.2 * var(--u)); text-align: center; }
   .portal-network .portal-results { margin-top: calc(34 * var(--u)); width: calc(900 * var(--u)); max-width: 100%; margin-left: auto; margin-right: auto; }
   .portal-results-head { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); }
@@ -205,7 +209,11 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
     .portal-search-x { right: 12px; width: 24px; height: 24px; font-size: 18px; }
     .portal-explore-globe { width: 100%; margin-top: 20px; }
     .portal-network .portal-results { margin-top: 24px; width: 100%; }
-    .portal-explore-stats { margin-top: 10px; letter-spacing: 1.4px; line-height: 20px; font-size: 11px; }
+    .portal-active { gap: 8px; margin-top: 12px; }
+    .portal-active-label { letter-spacing: 1.4px; margin-right: 2px; }
+    .portal-chip.is-removable { padding-right: 10px; }
+    .portal-chip-x { margin-left: 8px; }
+    .portal-explore-stats { margin-top: 8px; letter-spacing: 1.4px; line-height: 20px; font-size: 11px; }
     .portal-explore-count { margin-top: 6px; letter-spacing: 1.2px; }
     .portal-results-head { gap: 12px; }
     .portal-place-x { font-size: 14px; padding: 0 4px; }
@@ -290,7 +298,11 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
 .portal-globe-canvas { position: absolute; inset: 0; }
 /* pin hover: the name appears above the star, so it's obvious pins are people you can click */
 .portal-globe-wrap .tl-pin-name { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); white-space: nowrap; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #fff; background: rgb(10 10 10 / 0.75); padding: 3px 8px; border-radius: 9999px; box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.35); opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
-.portal-globe-wrap button:hover .tl-pin-name, .portal-globe-wrap button:focus-visible .tl-pin-name { opacity: 1; }
+.portal-globe-wrap button:hover .tl-pin-name { opacity: 1; }
+/* touch screens have no hover: the pill only ever showed after a tap, half over the star — the card does that job */
+@media (hover: none) { .portal-globe-wrap .tl-pin-name { display: none; } }
+.portal-globe-wrap .tl-star.is-selected .tl-pin-name { display: none; }
+.portal-globe-wrap .tl-star.is-selected { filter: drop-shadow(0 0 12px rgb(255 255 255 / 0.9)) drop-shadow(0 0 22px rgb(255 213 106 / 0.7)); z-index: 3; }
 .portal-globe-pop { position: absolute; z-index: 10; width: calc(260 * var(--u)); max-width: calc(100% - 32px); background: rgb(10 10 10 / 0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transform: translate(-50%, calc(-100% - 28px)); }
 .portal-globe-pop::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: rgb(255 255 255 / 0.25); }
 .portal-globe-pop { padding-right: calc(34 * var(--u)); }
@@ -383,6 +395,9 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 16px; }
   .portal-globe-canvas { -webkit-mask-image: radial-gradient(circle closest-side, #000 86%, transparent 100%); mask-image: radial-gradient(circle closest-side, #000 86%, transparent 100%); }
   .portal-globe-pop { width: 240px; padding-right: 34px; }
+  .portal-globe-place { min-width: 0; }
+  .portal-globe-place-sub { margin-top: 6px; letter-spacing: 1.2px; line-height: 16px; }
+  .portal-globe-place .portal-globe-view { letter-spacing: 1.4px; }
   .portal-globe-x { top: 8px; right: 10px; width: 22px; height: 22px; font-size: 16px; }
   .portal-globe-count { right: 12px; bottom: 12px; }
   .portal-globe-foot { flex-direction: column; gap: 8px; margin-top: 20px; }
@@ -411,6 +426,10 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
 .portal-globe-wrap .tl-star-4 .tl-star-n { font-size: calc(var(--s) * 0.26); }
 .portal-globe-wrap .tl-star[data-count="1"] .tl-star-n { display: none; }   /* a lone person's star carries no number */
 @keyframes tl-star-pulse { 0%, 100% { transform: scale(0.85); opacity: 0.55; } 50% { transform: scale(1.25); opacity: 1; } }
+.portal-globe-place { min-width: calc(220 * var(--u)); }
+.portal-globe-place-sub { margin-top: calc(6 * var(--u)); letter-spacing: calc(1.2 * var(--u)); line-height: calc(18 * var(--u)); }
+.portal-globe-place-sub b { font-weight: 400; }
+.portal-globe-place .portal-globe-view { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; letter-spacing: calc(1.4 * var(--u)); }
 .portal-globe-pop .portal-globe-cohort { color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); margin-top: calc(6 * var(--u)); }
 .portal-globe-pop .portal-globe-view { color: var(--color-orange); display: inline-block; margin-top: calc(10 * var(--u)); }
 /* the city list: a side panel on desktop (the globe stays visible beside it), a bottom sheet on phones */

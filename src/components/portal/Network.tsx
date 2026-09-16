@@ -32,6 +32,7 @@ export default function Network() {
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [place, setPlace] = useState<Cluster | null>(null);
   const [page, setPage] = useState(1);
+  const [reset, setReset] = useState(0);   // bumped to make the globe drop its selection and zoom back out
   const resultsRef = useRef<HTMLElement>(null);
   const globeRef = useRef<HTMLDivElement>(null);
 
@@ -78,12 +79,14 @@ export default function Network() {
   const pins = useMemo(() => matched.map(({ p }) => p), [matched]);
   const cities = useMemo(() => new Set(pins.map(cityKey)).size, [pins]);
   const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
+  const leftCities = useMemo(() => new Set(results.map(({ p }) => cityKey(p))).size, [results]);
 
   const toggle = (key: string, v: string) => { setPage(1); setPlace(null); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
-  const clearAll = () => { setQ(''); setActive({}); setPlace(null); setPage(1); };
-  // a star tap: the globe flies in (0.9 s), you get a beat to read the star and the line under the globe,
-  // then the page glides down to the people. Not a fling.
-  const pick = (c: Cluster) => { setPlace(c); setPage(1); toResults(1600); };
+  const clearAll = () => { setQ(''); setActive({}); setPage(1); if (place) setReset((r) => r + 1); };
+  const placeName = (c: Cluster) => upper(c.cities.slice(0, 4).map((x) => x.name).join(' · ')) + (c.cities.length > 4 ? ` +${c.cities.length - 4} MORE` : '');
+  // a star tap selects it: the globe names it on a card and the list narrows. Nothing scrolls on its own
+  // (Bryan, 2026-09-15); the card's SEE WHO'S HERE link is the way down.
+  const pick = (c: Cluster | null) => { setPlace(c); setPage(1); };
 
   const small = typeof innerWidth !== 'undefined' && innerWidth < 768;
   const qStyle = typed ? { fontSize: small ? '20px' : 'calc(24 * var(--u))', lineHeight: small ? '24px' : 'calc(28 * var(--u))', letterSpacing: small ? '1.6px' : 'calc(2 * var(--u))' } : undefined;
@@ -99,18 +102,26 @@ export default function Network() {
       </header>
 
       <div ref={globeRef} className="portal-explore-globe">
-          <AlumniGlobe pins={pins} onPick={pick} />
+          <AlumniGlobe pins={pins} onPick={pick} onSeeList={() => toResults()} reset={reset} />
           {/* under the globe (Bryan, 2026-09-15): plain stats at rest; once anything is pressed or typed,
               what's on and how many are left. The numbers tick, and they keep their identity (keys) across
               the two states so the tick runs from the old value. */}
+          {searching && (
+            /* what's on, as the same orange pills as the rows below (one state — remove here, it unpresses
+               there). The place pill names the actual cities under the tapped star; its × also zooms the
+               globe back out. */
+            <div className="portal-active" aria-label="Active filters">
+              <span className="t-fine text-muted portal-active-label">FILTERS</span>
+              {Object.entries(active).flatMap(([k, vs]) => vs.map((v) => <button type="button" key={k + v} className="t-fine portal-chip is-removable" aria-pressed="true" onClick={() => toggle(k, v)} aria-label={`Remove ${v}`}>{v}<span className="portal-chip-x" aria-hidden="true">×</span></button>))}
+              {q.trim() && <button type="button" className="t-fine portal-chip is-removable" aria-pressed="true" onClick={() => setQ('')} aria-label="Clear the search words">“{q.trim()}”<span className="portal-chip-x" aria-hidden="true">×</span></button>}
+              {place && <button type="button" className="t-fine portal-chip is-removable" aria-pressed="true" onClick={() => setReset((r) => r + 1)} aria-label="Remove the place">{placeName(place)}<span className="portal-chip-x" aria-hidden="true">×</span></button>}
+            </div>
+          )}
           <p className="t-label portal-explore-stats">
-            {searching && <span className="text-muted">FILTERS · </span>}
-            {searching && <span className="portal-explore-on">{[...Object.values(active).flat(), ...(q.trim() ? [`“${q.trim()}”`] : []), ...(place ? [`IN ${upper(clusterLabel(place))}`] : [])].join(' · ')}</span>}
-            {searching && <br />}
             {[
-              <span key="n"><Tick n={pins.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
+              <span key="n"><Tick n={searching ? results.length : pins.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
               ...(searching ? [] : [<span key="s"> · <Tick n={students} /> STUDENTS</span>, <span key="a"> · <Tick n={pins.length - students} /> ALUMNI</span>]),
-              <span key="c"> · <Tick n={cities} /> {cities === 1 ? 'CITY' : 'CITIES'}</span>,
+              <span key="c"> · <Tick n={searching ? leftCities : cities} /> {(searching ? leftCities : cities) === 1 ? 'CITY' : 'CITIES'}</span>,
             ]}
           </p>
           <p className="t-fine text-muted m-0 portal-explore-count">One star per city; bigger stars are more people. Tap a star for who's there.</p>
@@ -135,7 +146,7 @@ export default function Network() {
           {searching ? (
             <>
               <div className="portal-results-head">
-                <p className="t-label text-muted m-0 portal-results-count">{results.length ? <><Tick n={results.length} /> {results.length === 1 ? 'person' : 'people'}</> : ''}{place ? <> · <span className="portal-place">IN {upper(clusterLabel(place))} <button type="button" className="portal-place-x" aria-label="Remove the location filter" onClick={() => setPlace(null)}>×</button></span></> : ''}</p>
+                <p className="t-label text-muted m-0 portal-results-count">{results.length ? <><Tick n={results.length} /> {results.length === 1 ? 'person' : 'people'}</> : ''}</p>
                 <button type="button" className="t-fine portal-linklike" onClick={clearAll}>CLEAR ALL</button>
               </div>
               {results.length > 0 ? (

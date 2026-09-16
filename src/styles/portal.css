@@ -159,6 +159,7 @@ html[data-portal-admin] header a[aria-current="page"] { color: var(--color-orang
   .portal-active { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: calc(8 * var(--u)); margin-top: calc(14 * var(--u)); }
   .portal-active-label { letter-spacing: calc(1.6 * var(--u)); margin-right: calc(4 * var(--u)); }
   .portal-chip.is-removable { padding-right: calc(10 * var(--u)); }
+  .portal-chip.is-removable::before { content: none; }   /* the × is the affordance here; orange already says it's on (Bryan) */
   .portal-chip-x { display: inline-block; margin-left: calc(8 * var(--u)); opacity: 0.7; font-size: 1.15em; line-height: 0; vertical-align: -0.05em; }
   .portal-chip.is-removable:hover .portal-chip-x { opacity: 1; }
   .portal-explore-stats { margin: calc(10 * var(--u)) 0 0; text-align: center; letter-spacing: calc(1.6 * var(--u)); line-height: calc(22 * var(--u)); }

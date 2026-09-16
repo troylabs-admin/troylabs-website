@@ -1,9 +1,11 @@
 ---
 /**
  * TL Alumni Network Portal — the entrance IS the sign-in (Bryan, 2026-09-14: no separate front door).
- * Log in with email + password, or Sign up for a one-time magic link (then set a password). Once auth
- * exists this route serves the search home to a signed-in member instead. Mirrors the MVP's auth flow; wired to the site's own Supabase project once it exists
- * (until then the form explains that, honestly, instead of pretending).
+ * Sign-in is a magic link only — no passwords anywhere (Bryan, 2026-09-16): alumni open this a few times a
+ * year and would forget one every time, and every reset is a support job for whoever runs the club. You
+ * enter the email on your profile, a link arrives, and the session stays alive for months. Once auth
+ * exists this route serves the search home to a signed-in member instead; wired to the site's own
+ * Supabase project once it exists (until then the form explains that, honestly, instead of pretending).
  * Inputs echo the pill CTA: 0.3 du inner stroke, inner white glow (PillButton.astro).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -22,11 +24,10 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
         <button type="button" role="tab" class="portal-tab" data-tab="signup" aria-selected="false">SIGN UP</button>
       </div>
 
-      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="you@usc.edu" aria-label="Email" class="t-caption portal-input only-login" required />
-      <input id="portal-password" type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" class="t-caption portal-input only-login" minlength="8" />
+      <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="the email on your profile" aria-label="Email" class="t-caption portal-input only-login" required />
 
-      <button type="submit" class="portal-btn t-title whitespace-nowrap only-login">LOG IN</button>
-      <button type="button" id="portal-magic" class="portal-link t-label only-login">FORGOT PASSWORD? EMAIL A MAGIC LINK</button>
+      <button type="submit" class="portal-btn t-title whitespace-nowrap only-login">EMAIL ME A SIGN-IN LINK</button>
+      <p class="m-0 t-fine text-muted text-center only-login portal-hint">No password. We email you a link; tap it and you're in, and you stay signed in on this device.</p>
 
       <!-- Sign up is deliberately inert (Bryan, 2026-09-14): no input, no button, nothing wired. Alumni join by invitation. -->
       <p class="m-0 t-caption text-center only-signup portal-signup-note">Sign up is by invitation. TroyLabs alumni will receive an email with their link.</p>
@@ -46,21 +47,17 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
     if (!form || form.dataset.ready) return;
     form.dataset.ready = '1';
     const msg = document.getElementById('portal-msg');
-    const pw = document.getElementById('portal-password');
     for (const tab of form.querySelectorAll('.portal-tab')) {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
         form.dataset.tab = t;
         for (const b of form.querySelectorAll('.portal-tab')) b.setAttribute('aria-selected', String(b === tab));
-        pw.required = t === 'login';
         document.getElementById('portal-email').required = t === 'login';
         msg.textContent = '';
       });
     }
-    pw.required = true;
     // Auth is wired to the site's own database once it exists. Until then, say so — never fake a login.
     const notYet = () => { msg.textContent = 'Sign-in opens when the alumni database goes live. Check back soon.'; };
     form.addEventListener('submit', (e) => { e.preventDefault(); notYet(); });
-    document.getElementById('portal-magic')?.addEventListener('click', notYet);
   })();
 </script>

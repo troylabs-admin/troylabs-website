@@ -64,7 +64,7 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
     <!-- the table scrolls sideways inside its own box on a phone instead of pushing the page wide -->
     <div class="portal-table-wrap">
     <table class="portal-table t-caption" data-members>
-      <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">STATUS</th><th class="t-label">COHORT</th><th class="t-label">DIVISION</th><th class="t-label">CITY</th><th class="t-label">PROFILE</th><th></th></tr></thead>
+      <thead><tr><th class="t-label">NAME</th><th class="t-label">EMAIL</th><th class="t-label">STATUS</th><th class="t-label">COHORT</th><th class="t-label">DIVISION</th><th class="t-label">CITY</th><th class="t-label">PROFILE</th><th class="m-meta"></th><th></th></tr></thead>
       <tbody>
         {MEMBERS.map((m) => <tr data-status={m.status} data-cohort={m.cohort} data-division={m.division} data-program={m.program} data-text={`${m.name} ${m.email} ${m.city} ${m.division} ${m.program}`.toLowerCase()}>
           <td>{m.name}{m.role === 'ADMIN' && <span class="t-fine portal-role">ADMIN</span>}</td><td class="text-muted">{m.email}</td><td><span class="t-fine portal-tag">{m.status}</span></td><td class="text-muted">{m.cohort}</td><td class="text-muted">{m.division}</td><td class="text-muted">{m.city}</td><td>{m.complete ? '✓' : '—'}</td>

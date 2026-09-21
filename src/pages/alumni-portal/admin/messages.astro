@@ -24,21 +24,25 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
         <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
         <div class="portal-field"><label class="t-label text-muted" for="mc-title">TITLE (FOR YOUR RECORDS)</label><input id="mc-title" class="t-caption portal-input is-wide" /></div>
         <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea></div>
-        <h3 class="t-label text-muted" style="margin:calc(22 * var(--u)) 0 calc(10 * var(--u))">EVENT DETAILS (OPTIONAL)</h3>
+        <details class="portal-fold" data-fold>
+          <summary class="t-label text-muted">EVENT DETAILS (OPTIONAL)</summary>
         <div class="portal-field" style="gap:calc(10 * var(--u))">
           <input id="mc-ev-name" class="t-caption portal-input is-wide" placeholder="Event name" aria-label="Event name" />
           <input id="mc-ev-when" class="t-caption portal-input is-wide" type="datetime-local" aria-label="Event date and time" />
           <input id="mc-ev-where" class="t-caption portal-input is-wide" placeholder="Location or link" aria-label="Location or link" />
           <input id="mc-ev-rsvp" class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
         </div>
+        </details>
       </form>
       <div class="portal-panel" data-audience="Sending to members matching" data-empty="No filters — sends to every opted-in member.">
         <h2 class="t-sub portal-panel-title">Who gets it</h2>
         <span class="t-label text-muted">A CHANNEL</span>
         <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences. Members join and leave automatically as their status changes — a student becomes an alum, and moves channels, the day they graduate.</p>
         <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))"></div>
-        <span class="t-label text-muted portal-or">OR PICK FILTERS</span>
+        <details class="portal-fold portal-or" data-fold>
+          <summary class="t-label text-muted">OR PICK FILTERS</summary>
         {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
+        </details>
         <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
         <span class="t-label text-muted">WHEN</span>
         <div class="flex flex-wrap portal-chips" data-single data-when style="margin:calc(8 * var(--u)) 0 calc(10 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
@@ -52,7 +56,8 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
       </div>
     </div>
 
-    <h2 class="t-sub portal-section-h">Channels</h2>
+    <details class="portal-fold portal-fold-section" data-fold>
+      <summary class="t-sub portal-section-h">Channels</summary>
     <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Each channel is a rule, not a list, so it stays current by itself. Some messages send automatically when someone enters a channel.</p>
     <ul class="portal-row-list t-caption" data-channel-list>
       {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`}>EDIT RULE</button></span></li>)}
@@ -62,6 +67,8 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
       </li>
     </ul>
     <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>
+
+    </details>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->
     <h2 class="t-sub portal-section-h">All messages</h2>

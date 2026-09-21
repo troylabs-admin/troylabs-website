@@ -63,6 +63,7 @@ function loadIntoComposer(m: Msg) {
   document.querySelectorAll<HTMLElement>('[data-channels] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(channels.find((x) => x.id === m.channel_id)?.name === c.dataset.value)));
   for (const block of document.querySelectorAll<HTMLElement>('[data-audience] [data-aud]')) { const on = m.filters[block.dataset.aud!] ?? []; block.querySelectorAll<HTMLElement>('.portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(on.includes(c.textContent!.replace(/^✓\s*/, '').trim())))); }
   if (m.scheduled_for) { ($('#mc-when') as HTMLInputElement).value = m.scheduled_for.slice(0, 16); $('[data-when] .portal-chip[data-value="later"]')?.click(); }
+  document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { if ((d.querySelector('#mc-ev-name') && m.event) || (d.classList.contains('portal-or') && Object.keys(m.filters ?? {}).length)) d.open = true; });
   document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Editing “${m.title || '(untitled)'}”. Save as a draft, schedule, or send.`);
 }
 async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
@@ -87,7 +88,9 @@ async function init() {
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
   // label the filter blocks by key so the audience can be read back
   const keys: Record<string, string> = { STATUS: 'status', COHORT: 'cohort', DIVISIONS: 'divisions', INDUSTRIES: 'industries' };
-  for (const label of document.querySelectorAll<HTMLElement>('[data-audience] > span.t-label')) { const k = keys[label.textContent!.trim()]; const chips = label.nextElementSibling as HTMLElement | null; if (k && chips?.classList.contains('portal-chips')) chips.dataset.aud = k; }
+  // on a phone the optional blocks start folded (the page was ~6,500 px of stacked panels); on desktop they are open
+  document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = innerWidth >= 768; });
+  for (const label of document.querySelectorAll<HTMLElement>('[data-audience] span.t-label')) { const k = keys[label.textContent!.trim()]; const chips = label.nextElementSibling as HTMLElement | null; if (k && chips?.classList.contains('portal-chips')) chips.dataset.aud = k; }
   const who = await me(); if (!who?.admin) return; await load();
   document.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;

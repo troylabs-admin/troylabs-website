@@ -29,7 +29,20 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       </div>
     </div>
 
-    <div class="portal-panel" style="margin-top:calc(22 * var(--u))">
+    <!-- sign-up (Bryan, 2026-09-30): until an admin approves them, this panel tells a new member what
+         leadership needs to recognise them and where they stand. Filled by scripts/portal-profile.ts. -->
+    <section class="portal-panel portal-onboard" id="pf-onboard" hidden aria-live="polite">
+      <span class="t-fine portal-role" data-onboard-chip>WAITING FOR APPROVAL</span>
+      <h2 class="t-sub portal-onboard-title" data-onboard-title>Create your profile</h2>
+      <p class="m-0 t-caption text-muted" data-onboard-text></p>
+      <p class="m-0 t-caption portal-onboard-missing" data-onboard-missing></p>
+      <div class="portal-field is-full portal-onboard-note" data-onboard-note>
+        <label class="t-label text-muted" for="pf-note">HOW WERE YOU PART OF TROYLABS? <span style="letter-spacing:0;text-transform:none">· optional, helps leadership recognise you</span></label>
+        <textarea id="pf-note" class="t-caption portal-textarea" maxlength="500" data-optional placeholder="e.g. Tech division, Fall 2022 to Spring 2024; built the BUILD demo-day site."></textarea>
+      </div>
+    </section>
+
+    <div class="portal-panel" id="pf-completion" style="margin-top:calc(22 * var(--u))">
       <div class="flex justify-between items-baseline">
         <span class="t-label text-muted">PROFILE COMPLETION</span>
         <span class="t-label" style="color:var(--color-orange)" data-completion>—</span>
@@ -39,8 +52,8 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
     </div>
 
     <form class="portal-profile" novalidate>
-      <h2 class="t-sub portal-section-h">Contact &amp; sign-in</h2>
-      <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">USC email stops working after graduation, so your personal email is how you sign in for good. Each row saves on its own.</p>
+      <h2 class="t-sub portal-section-h">Contact details</h2>
+      <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Keep a personal email on file so members can reach you after graduation. Each row saves on its own. Updating contact details does not change your sign-in address.</p>
       <div class="portal-form-grid portal-contact">
         <div class="portal-field portal-contact-row" data-contact="usc">
           <label class="t-label text-muted" for="pf-usc">USC EMAIL <span style="letter-spacing:0;text-transform:none">· matches you to the TroyLabs roster</span></label>
@@ -48,7 +61,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <p class="t-fine portal-feedback"></p>
         </div>
         <div class="portal-field portal-contact-row" data-contact="personal">
-          <label class="t-label text-muted" for="pf-personal">PERSONAL EMAIL <span style="letter-spacing:0;text-transform:none">· how you sign in after graduation</span></label>
+          <label class="t-label text-muted" for="pf-personal">PERSONAL EMAIL <span style="letter-spacing:0;text-transform:none">· how members reach you</span></label>
           <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
           <p class="t-fine portal-feedback"></p>
         </div>
@@ -72,7 +85,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <select id="pf-grad-term" class="t-caption portal-input portal-select" aria-label="Graduation semester"><option>Spring</option><option>Fall</option></select>
           <input id="pf-grad-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Graduation year" />
         </div>
-        <p id="pf-grad-note" class="m-0 t-fine text-muted">When that semester ends you become an alum automatically: your profile shows your class year, TroyLabs sends a congratulations, and you're added to the alumni channels for your division.</p>
+        <p id="pf-grad-note" class="m-0 t-fine text-muted">When that semester ends you become an alum automatically: your profile shows your class year, and you appear in the alumni channels for your division.</p>
       </div>
       <div id="pf-classof" class="portal-field portal-year-field">
         <label class="t-label text-muted" for="pf-classof-year">CLASS OF <span style="letter-spacing:0;text-transform:none">· the year you graduated USC</span></label>

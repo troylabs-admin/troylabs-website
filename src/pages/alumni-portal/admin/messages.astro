@@ -15,7 +15,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
     <AdminNav current="messages" />
     <div class="portal-page-head"><div>
       <h1 class="t-title portal-page-title">MESSAGES</h1>
-      <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement, or a referral ask. Pick who gets it on the right, then send it by email, by text, or both.</p>
+      <p class="t-caption text-muted portal-page-sub">Prepare an event invite, announcement, or referral ask and preview its audience. Drafts work; email and text delivery are not connected yet.</p>
     </div></div>
 
     <div class="portal-panels portal-panels-2">
@@ -49,8 +49,9 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
         <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input id="mc-when" type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
         <div class="portal-actions" style="flex-direction:column;align-items:stretch">
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…">PREVIEW RECIPIENTS</button>
+          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-draft">NEW DRAFT</button>
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
-          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-send-btn>SEND NOW</button>
+          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-send-btn disabled title="Email and text delivery are not connected yet">DELIVERY NOT CONNECTED</button>
           <p id="msg-fb" class="t-fine portal-feedback" style="margin:0"></p>
         </div>
       </div>
@@ -58,15 +59,15 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
 
     <details class="portal-fold portal-fold-section" data-fold>
       <summary class="t-sub portal-section-h">Channels</summary>
-    <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Each channel is a rule, not a list, so it stays current by itself. Some messages send automatically when someone enters a channel.</p>
+    <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Each channel is a rule, not a list, so it stays current by itself. Automatic message delivery is not connected yet.</p>
     <ul class="portal-row-list t-caption" data-channel-list>
       {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`}>EDIT RULE</button></span></li>)}
       <li style="flex-direction:column;align-items:stretch;gap:calc(6 * var(--u))">
-        <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" data-action="edit-msg" data-done="OPENING…">EDIT MESSAGE</button></div>
-        <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum, "Class of" is set, this message goes out, and they're added to All alumni plus the alumni channel for their division.</p>
+        <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" disabled title="Automatic messages are not connected yet" data-action="edit-msg" data-done="OPENING…">EDIT MESSAGE</button></div>
+        <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum, "Class of" is set, they're added to All alumni plus the alumni channel for their division.</p>
       </li>
     </ul>
-    <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>
+    <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" disabled title="Channel editing is not available yet" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>
 
     </details>
 
@@ -91,7 +92,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
           <div class="flex items-center" style="gap:calc(16 * var(--u))">
             <span class="t-fine text-muted">To: {m.audience} · {m.count} {m.state === 'sent' ? 'received' : 'will receive'}{m.state === 'sent' && m.delivered != null ? ` · ${m.delivered} delivered` : ''}</span>
             <span style="flex:1"></span>
-            {m.state !== 'sent' && <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-action="edit-msg" data-done="OPENING…" data-feedback={`"${m.title}" loads into the composer once the database is connected.`}>EDIT</button>}
+            {m.state !== 'sent' && <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" disabled title="Automatic messages are not connected yet" data-action="edit-msg" data-done="OPENING…" data-feedback={`"${m.title}" loads into the composer once the database is connected.`}>EDIT</button>}
             {m.state === 'scheduled' && <button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Cancel "${m.title}"? It will not be sent.`}>CANCEL</button>}
             <button type="button" class="t-label portal-linklike" data-recipients={m.title}>{m.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT'}</button>
             {m.state === 'draft' && <button type="button" class="t-label portal-linklike" data-action="delete" data-confirm={`Delete the draft "${m.title}"?`}>DELETE</button>}

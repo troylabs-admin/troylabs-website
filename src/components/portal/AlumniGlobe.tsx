@@ -11,7 +11,7 @@
  * through the re-clustering they cause: if the tapped city ends up inside a bigger star, that star is
  * selected; if a filter empties it, the selection clears. A star of one shows Charlotte's person card.
  * Zoom is by the + / − buttons: the wheel scrolls the page (OrbitControls hijacked it in the MVP).
- * DESIGN PREVIEW: fed placeholder people from the page; nothing is wired to data.
+ * Approved profiles supply live pins. The explicit sample preview supplies a generated roster.
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
 import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
@@ -32,8 +32,15 @@ const starLabel = (c: Cluster) => (c.count === 1 ? c.cities[0].people[0].full_na
 function decorateStar(el: HTMLElement, c: Cluster) {
   const label = starLabel(c);
   el.title = label; el.setAttribute('aria-label', label); el.dataset.count = String(c.count); el.dataset.cities = String(c.cities.length); el.dataset.key = c.key; el.dataset.seed = c.seed.key;   // seed: the stable handle (membership can change under a chip)
-  el.className = `tl-star tl-star-${tier(c.count)}`;
+  el.className = `tl-star tl-star-${tier(c.count)}${el.classList.contains('is-selected') ? ' is-selected' : ''}`;
 }
+class GlobeBoundary extends React.Component<{ children: React.ReactNode; onError: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
 function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => void) {
   const el = document.createElement('button');
   el.type = 'button';
@@ -41,15 +48,16 @@ function createStarMarker(c: Cluster, onClick: (c: Cluster, el: HTMLElement) => 
   el.innerHTML = `
     <span class="tl-star-box">
       <span class="tl-star-glow"></span>
-      <span class="tl-pin-name">${starLabel(c)}</span>
+      <span class="tl-pin-name"></span>
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="#ff4a2a" stroke="#ffd56a" stroke-width="1.4" d="M12 2.2l2.85 6.55 7.1.65-5.35 4.7 1.7 6.9L12 17.5l-6.3 3.5 1.7-6.9L2.05 9.4l7.1-.65L12 2.2z" />
+        <circle cx="12" cy="12" r="10.5" fill="#151a20" stroke="#ff7d2c" stroke-width="0.65"/><path class="tl-star-point" fill="#ff7d2c" d="M12 5.5 13.6 10.4 18.5 12 13.6 13.6 12 18.5 10.4 13.6 5.5 12 10.4 10.4Z"/>
       </svg>
       <span class="tl-star-n" aria-hidden="true">${c.count}</span>
     </span>`;
   // pointer-events:auto is required: the library's marker container is pointer-events:none, and children
   // inherit it — without this, hover and click never reach the pin (measured: elementFromPoint at the pin
   // centre returned the canvas). This also means pin clicks did not work in the MVP as deployed.
+  el.querySelector('.tl-pin-name')!.textContent = starLabel(c);
   el.style.pointerEvents = 'auto';
   el.addEventListener('click', (event) => { event.stopPropagation(); onClick(c, el); });
   return el;
@@ -66,6 +74,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   profileHref?: (p: GlobePerson) => string;
 }) {
   const [Globe, setGlobe] = useState<ComponentType<any> | null>(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -78,7 +88,29 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const clusterCache = useRef(new Map<string, Cluster>());
   const reported = useRef<string>('');
 
-  useEffect(() => { import('react-globe.gl').then((m) => setGlobe(() => m.default)); }, []);   // WebGL: client only
+  useEffect(() => {
+    let active = true;
+    const texture = new Image();
+    const loaded = new Promise<void>((resolve, reject) => { texture.onload = () => resolve(); texture.onerror = () => reject(new Error('Map unavailable')); texture.src = '/maps/alumni-earth.png'; });
+    Promise.all([import('react-globe.gl'), loaded]).then(([m]) => { if (active) setGlobe(() => m.default); }).catch(() => { if (active) setFailed(true); });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
+    if (ready || failed) return;
+    const timeout = window.setTimeout(() => setFailed(true), 12000);
+    return () => clearTimeout(timeout);
+  }, [ready, failed]);
+  useEffect(() => {
+    if (!ready || !containerRef.current) return;
+    let inView = true;
+    const update = () => { const g = globeRef.current; if (document.hidden || !inView) g?.pauseAnimation(); else g?.resumeAnimation(); };
+    const observer = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; update(); }, { rootMargin: '100px' });
+    observer.observe(containerRef.current); document.addEventListener('visibilitychange', update);
+    const canvas = containerRef.current.querySelector('canvas');
+    const lost = () => setFailed(true);
+    canvas?.addEventListener('webglcontextlost', lost);
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update); canvas?.removeEventListener('webglcontextlost', lost); };
+  }, [ready]);
 
   // Charlotte's "refresh": re-query the pins when the tab regains focus, so a globe left open for an
   // hour is not stale. Invisible by design — the Refresh button it also drove was dropped as redundant.
@@ -92,8 +124,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
 
   useEffect(() => {
     const updateSize = () => { if (containerRef.current) setDimensions({ width: containerRef.current.clientWidth, height: containerRef.current.clientHeight }); };
-    updateSize(); window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
+    updateSize(); const observer = new ResizeObserver(updateSize); if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, []);
 
   /* Runs when the camera SETTLES. Measures km per screen pixel at the globe's centre from the library's own
@@ -118,6 +150,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     window.clearTimeout(settleTimer.current); settleTimer.current = window.setTimeout(measure, 150);
   }, [measure]);
 
+  useEffect(() => () => { clearTimeout(settleTimer.current); const c = globeRef.current?.controls(); c?.removeEventListener('change', onCameraChange); c?.removeEventListener('end', measure); }, [onCameraChange, measure]);
+
   const cities = useMemo(() => groupByCity(pins), [pins]);
   const clusters = useMemo(() => {
     // screen-space distances from the globe's real projection; a city on the far side never merges.
@@ -140,19 +174,28 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     // of the San Francisco star must keep San Francisco's element so 382 can tick to 95
     const fresh = clusterCities(cities, distPx); const cache = clusterCache.current; const next = new Map<string, Cluster>();
     const out = fresh.map((c) => { const prev = cache.get(c.seed.key); if (!prev) { next.set(c.seed.key, c); return c; }
-      if (prev.count !== c.count || prev.key !== c.key) { (prev as any).__from = prev.count; prev.count = c.count; prev.cities = c.cities; prev.key = c.key; }
+      if (prev.count !== c.count || prev.key !== c.key || prev.seed !== c.seed) { Object.assign(prev, c); }
       next.set(c.seed.key, prev); return prev; });
     clusterCache.current = next; return out;
   }, [cities, view]);
 
-  // numbers tick, they don't jump: a star whose head-count changed counts to its new value
+  // HTML markers are inserted by the renderer after React effects. Observe insertion as well as
+  // cluster changes so a marker never keeps the old count while its live cluster has already changed.
   useEffect(() => {
-    for (const c of clusters) {
-      const from = (c as any).__from as number | undefined; if (from === undefined) continue; delete (c as any).__from;
-      const el = containerRef.current?.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(c.seed.key)}"]`); if (!el) continue;
-      decorateStar(el, c); const name = el.querySelector('.tl-pin-name'); if (name) name.textContent = starLabel(c);
-      const n = el.querySelector<HTMLElement>('.tl-star-n'); if (n) tickNumber(n, from, c.count);
-    }
+    const wrap = containerRef.current; if (!wrap) return;
+    const sync = () => {
+      for (const c of clusters) {
+        const el = wrap.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(c.seed.key)}"]`); if (!el) continue;
+        const from = Number(el.dataset.count);
+        if (from !== c.count || el.dataset.key !== c.key || el.getAttribute('aria-label') !== starLabel(c)) {
+          decorateStar(el, c);
+          const name = el.querySelector('.tl-pin-name'); if (name && name.textContent !== starLabel(c)) name.textContent = starLabel(c);
+          const n = el.querySelector<HTMLElement>('.tl-star-n'); if (n && from !== c.count) tickNumber(n, from, c.count);
+        }
+      }
+    };
+    const observer = new MutationObserver(sync); observer.observe(wrap, { childList: true, subtree: true }); sync();
+    return () => observer.disconnect();
   }, [clusters]);
 
   /* the selection follows the stars: the tapped city's own star, the bigger star it merged into, or any
@@ -187,7 +230,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   }, [current, view, clusters]);
   useEffect(() => { containerRef.current?.querySelectorAll('.tl-star').forEach((el) => el.classList.toggle('is-selected', (el as HTMLElement).dataset.seed === current?.seed.key)); }, [current, clusters]);
 
-  const flyTo = useCallback((lat: number, lng: number, alt: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: Math.min(ALT.max, Math.max(ALT.min, alt)) }, ms); }, []);
+  const flyTo = useCallback((lat: number, lng: number, alt: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: Math.min(ALT.max, Math.max(ALT.min, alt)) }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms); }, []);
   const zoomBy = (f: number) => { const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, pov.altitude * f, 500); };
 
   const handleClick = useCallback((c: Cluster) => {
@@ -209,24 +252,39 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const lastReset = useRef(reset);
   useEffect(() => { if (reset !== lastReset.current) { lastReset.current = reset; clear(); } }, [reset, clear]);
 
+  const selectCity = (key: string) => {
+    if (!key) { clear(); return; }
+    const city = cities.find((c) => c.key === key); if (!city) return;
+    const cluster = { key: city.key, seed: city, cities: [city], lat: city.lat, lng: city.lng, count: city.people.length };
+    if (!ready || failed) { lastSel.current = cluster; reported.current = `${cluster.key}#${cluster.count}`; onPick?.(cluster); }
+    setSelected({ seed: city.key, cities: [city.key] }); flyTo(city.lat, city.lng, 0.7);
+  };
+  const popStyle = anchor ? { left: Math.max(Math.min(dimensions.width / 2, 200), Math.min(dimensions.width - Math.min(dimensions.width / 2, 200), anchor.x)), top: Math.min(dimensions.height - 16, Math.max(230, anchor.y)) } : undefined;
   const person = current?.count === 1 ? current.cities[0].people[0] : null;
 
   return (
     <div className="portal-globe">
-    <div ref={containerRef} className="portal-globe-wrap" data-open={current ? (person ? 'person' : 'place') : ''} data-view={`${view.kmPerPx.toFixed(2)} km/px · alt ${altitude.toFixed(2)} · ${view.lat.toFixed(0)},${view.lng.toFixed(0)} · #${view.n}`}>   {/* data-view: the settled camera, for probes */}
+    <div className="portal-globe-tools">
+      <label className="t-fine text-muted" htmlFor="globe-city">FIND A CITY</label>
+      <select id="globe-city" className="portal-input t-caption" value={selected?.seed ?? ''} onChange={(e) => selectCity(e.target.value)}>
+        <option value="">All locations</option>
+        {[...cities].sort((a,b) => a.name.localeCompare(b.name)).map((c) => <option key={c.key} value={c.key}>{c.name}{c.region ? `, ${c.region}` : ''} · {c.people.length}</option>)}
+      </select>
+    </div>
+    <div ref={containerRef} className="portal-globe-wrap" data-ready={ready && !failed} data-open={current ? (person ? 'person' : 'place') : ''} data-view={`${view.kmPerPx.toFixed(2)} km/px · alt ${altitude.toFixed(2)} · ${view.lat.toFixed(0)},${view.lng.toFixed(0)} · #${view.n}`}>   {/* data-view: the settled camera, for probes */}
       <div className="portal-globe-canvas">
-      {Globe && (
-        <Globe
+      {Globe && !failed && (
+        <GlobeBoundary onError={() => setFailed(true)}><Globe
           ref={globeRef}
           onGlobeReady={() => {
             globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: fitAltitude(dimensions.width, dimensions.height) }, 0);   // opened on the Americas where most alumni are
             const c = globeRef.current?.controls(); if (c) { c.enableZoom = false; c.addEventListener('change', onCameraChange); c.addEventListener('end', measure); }   // wheel scrolls the PAGE; re-cluster when a drag or fly settles
-            measure();
+            setReady(true); measure();
           }}
           width={dimensions.width}
           height={dimensions.height}
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
-          bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+          globeImageUrl="/maps/alumni-earth.png"
+          animateIn={false}
           backgroundColor="rgba(0,0,0,0)"
           htmlElementsData={clusters}
           htmlLat="lat"
@@ -234,15 +292,19 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
           htmlAltitude={0.02}
           htmlTransitionDuration={0}
           htmlElement={buildStar}
-          atmosphereColor="#c9a84c"
-          atmosphereAltitude={0.15}
-        />
+          atmosphereColor="#8297aa"
+          atmosphereAltitude={0.10}
+        /></GlobeBoundary>
       )}
       </div>
+      {(!ready || failed) && <div className="portal-globe-status" role="status">
+        <p className="t-caption">{failed ? 'The 3D globe is unavailable on this device.' : 'Loading the globe…'}</p>
+        {failed && <p className="t-caption text-muted">Choose a city above or use the directory below to find members.</p>}
+      </div>}
 
       {current && anchor && person && (
         /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × */
-        <div className="portal-panel portal-globe-pop" style={{ left: anchor.x, top: anchor.y }} role="dialog" aria-label={person.full_name}>
+        <div className="portal-panel portal-globe-pop" style={popStyle} role="dialog" aria-label={person.full_name}>
           <button type="button" className="portal-globe-x" aria-label="Close" onClick={clear}>×</button>
           <h3 className="t-name m-0">{person.full_name}</h3>
           <p className="t-caption text-muted m-0">{person.current_title}{person.current_company ? ` · ${person.current_company}` : ''}</p>
@@ -253,7 +315,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
       )}
       {current && anchor && !person && (
         /* place card: the star you tapped, named — city · how many cities and people · a way to the list */
-        <div className="portal-panel portal-globe-pop portal-globe-place" style={{ left: anchor.x, top: anchor.y }} role="dialog" aria-label={`${clusterLabel(current)} · ${current.count} people`}>
+        <div className="portal-panel portal-globe-pop portal-globe-place" style={popStyle} role="dialog" aria-label={`${clusterLabel(current)} · ${current.count} people`}>
           <button type="button" className="portal-globe-x" aria-label="Clear the selection" onClick={clear}>×</button>
           <h3 className="t-name m-0">{upper(current.seed.name)}{current.seed.region ? `, ${upper(current.seed.region)}` : ''}</h3>
           <p className="t-fine text-muted m-0 portal-globe-place-sub">
@@ -264,11 +326,11 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
         </div>
       )}
 
-      <div className="portal-globe-zoom" role="group" aria-label="Zoom">
+      {ready && !failed && <div className="portal-globe-zoom" role="group" aria-label="Zoom">
         <button type="button" className="t-label" aria-label="Zoom in" onClick={() => zoomBy(1 / ALT.step)} disabled={altitude <= ALT.min + 0.01}>+</button>
         <button type="button" className="t-label" aria-label="Zoom out" onClick={() => zoomBy(ALT.step)} disabled={altitude >= ALT.max - 0.01}>−</button>
       </div>
-      <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
+      }<div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
     </div>
     </div>
   );

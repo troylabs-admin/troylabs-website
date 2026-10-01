@@ -29,6 +29,7 @@ export function toPerson(r: ProfileRow): Person & { avatar: string | null } {
   return {
     id: r.id, full_name: r.full_name || 'Unnamed member', initials: initialsOf(r.full_name || '?'),
     status: r.status === 'student' ? 'STUDENT' : 'ALUM', cohort: cohortOf(r.join_term, r.join_year), classOf: r.grad_year ? String(r.grad_year) : '',
+    divisions: (r.divisions ?? []).map(d => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')),
     division: (r.divisions?.[0] ?? '').replace('PRODUCT MANAGEMENT', 'PRODUCT'), current_title: r.current_title ?? '', current_company: r.current_company ?? '',
     industries: r.industries ?? [], bio: r.bio ?? '', city: r.city?.name ?? '', region: r.city?.region ?? '', lat: r.city?.lat ?? 0, lng: r.city?.lng ?? 0, programs: [],
     avatar: avatarUrl(r),
@@ -88,7 +89,8 @@ export const cityLabel = (c: CityRow | null | undefined) => c ? `${c.name}${c.re
 
 // ── the network ───────────────────────────────────────────────────────────────────────────────────
 export async function listPeople(): Promise<(Person & { avatar: string | null })[]> {
-  const { data } = await supabase().from('profiles').select(SELECT).eq('approved', true).order('full_name');
+  const { data, error } = await supabase().from('profiles').select(SELECT).eq('approved', true).order('full_name');
+  if (error) throw error;
   return ((data ?? []) as ProfileRow[]).map(toPerson);
 }
 export async function getProfile(id: string): Promise<{ row: ProfileRow; roles: RoleRow[] } | null> {
@@ -106,13 +108,13 @@ export async function adminListProfiles(): Promise<{ rows: ProfileRow[]; admins:
 }
 export const setApproved = (id: string, approved: boolean) => supabase().from('profiles').update({ approved, declined_at: approved ? null : undefined }).eq('id', id);
 export const setDeclined = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: new Date().toISOString() }).eq('id', id);
+/** back onto the waiting list after a decline (or after REMOVE ACCESS) */
+export const setRestored = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: null }).eq('id', id);
 export const setAdmin = (id: string, on: boolean) => on ? supabase().from('admins').upsert({ user_id: id }) : supabase().from('admins').delete().eq('user_id', id);
 export async function setRoles(profileId: string, roles: Omit<RoleRow, 'profile_id' | 'id'>[]) {
-  const sb = supabase(); await sb.from('eboard_roles').delete().eq('profile_id', profileId);
-  if (roles.length) return sb.from('eboard_roles').insert(roles.map((r) => ({ ...r, profile_id: profileId })));
-  return { error: null };
+  return supabase().rpc('replace_eboard_roles', { target_profile: profileId, new_roles: roles });
 }
-export const importRoster = (rows: { full_name: string; usc_email: string; join_term: 'FA' | 'SP' | null; join_year: number | null; division: string | null }[]) => supabase().from('roster').upsert(rows, { onConflict: 'usc_email' });
+export const importRoster = (rows: { full_name: string; usc_email: string; join_term: 'FA' | 'SP' | null; join_year: number | null; division: string | null }[]) => supabase().from('roster').upsert(rows.map(r => ({ ...r, divisions: r.division ? [r.division] : [] })), { onConflict: 'usc_email' });
 export const listRoster = async () => ((await supabase().from('roster').select('*').order('imported_at', { ascending: false })).data ?? []) as any[];
 
 /** how filled-in a profile is, the same fields the profile page scores */

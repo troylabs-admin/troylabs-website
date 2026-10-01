@@ -59,7 +59,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
 
 <style>
   header :global(svg) { width: 100%; height: 100%; }
-  .nav-who { transition: color 150ms ease; }
+  .nav-who { overflow: hidden; text-overflow: ellipsis; transition: color 150ms ease; }
   .nav-who:hover { color: var(--color-ink); }
   .m-nav { display: none; }
   @media (max-width: 767px) {

@@ -1,21 +1,44 @@
 /**
- * The gate on every signed-in portal page. No session → back to the sign-in. With one: the nav names
- * you, ADMIN shows only to admins (and /admin pages bounce non-admins), and the page learns whether
- * you are approved yet (<html data-member="ok|pending">) so it can show the network or the waiting note.
- * Without Supabase configured (a preview build) it does nothing, and the design preview stays usable.
+ * The gate on every signed-in portal page. No session → back to the sign-in. With one:
+ *   approved   → the whole portal; the nav names you; ADMIN only for admins, with a count of people waiting
+ *   not yet    → a new account must create its profile first (sent to /profile until the four required
+ *                answers are in); after that, /home is the waiting screen; nothing else is reachable
+ *   declined   → the same two pages, with the waiting screen saying so
+ * The page learns which through <html data-member="ok|pending|declined"> and the `tl:me` event.
+ * Data is protected by row-level security in the database; this only decides what to show.
  */
 import { configured } from '../lib/supabase';
-import { GATE, HOME, me, signOut, touchLastSeen } from '../lib/auth';
+import { GATE, HOME, me, signOut, touchLastSeen, waitingCount } from '../lib/auth';
+
+const PROFILE = '/alumni-portal/profile';
+const here = () => location.pathname.replace(/\/$/, '');
 
 async function gate() {
   if (!configured()) return;
   const root = document.documentElement;
   const who = await me();
   if (!who) { location.replace(GATE); return; }
-  root.dataset.member = who.approved ? 'ok' : 'pending';
-  root.dataset.admin = who.admin ? '' : undefined as unknown as string;
-  if (!who.admin) { root.removeAttribute('data-admin'); document.querySelectorAll('a[href="/alumni-portal/admin"]').forEach((a) => a.closest('li')?.remove() ?? a.remove()); }
-  if (!who.admin && location.pathname.startsWith('/alumni-portal/admin')) { location.replace(HOME); return; }
+  const state = who.approved ? 'ok' : who.declined ? 'declined' : 'pending';
+  root.dataset.member = state;
+
+  if (state !== 'ok') {
+    // first things first: a new account creates its profile; then the waiting screen is the only other page
+    if (state === 'pending' && who.missing.length && here() !== PROFILE) { location.replace(`${PROFILE}?welcome=1`); return; }
+    if (here() !== PROFILE && here() !== HOME) { location.replace(HOME); return; }
+  }
+  if (!who.admin) {
+    root.removeAttribute('data-admin');
+    document.querySelectorAll('a[href="/alumni-portal/admin"]').forEach((a) => a.closest('li')?.remove() ?? a.remove());
+    if (location.pathname.startsWith('/alumni-portal/admin')) { location.replace(HOME); return; }
+  } else {
+    root.dataset.admin = '';
+    void waitingCount().then((n) => {
+      document.querySelectorAll<HTMLElement>('a[href="/alumni-portal/admin"], a[href="/alumni-portal/admin/users"]').forEach((a) => {
+        a.querySelector('.portal-count')?.remove();
+        if (n > 0) { const b = document.createElement('span'); b.className = 'portal-count'; b.textContent = String(n); b.title = `${n} waiting for approval`; a.append(b); }
+      });
+    });
+  }
   const name = who.full_name || who.email.split('@')[0];
   document.querySelectorAll<HTMLElement>('.nav-who').forEach((el) => { el.textContent = name.toUpperCase(); });
   document.dispatchEvent(new CustomEvent('tl:me', { detail: who }));

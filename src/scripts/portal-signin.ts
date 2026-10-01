@@ -1,4 +1,4 @@
-/** The sign-in page: one field, one button, a magic link; no sign-up. Already signed in → straight to the network. */
+/** The sign-in page: one field, one button, a magic link. New emails get an account (pending approval). Already signed in → straight in. */
 import { configured } from '../lib/supabase';
 import { HOME, me, sendMagicLink } from '../lib/auth';
 
@@ -16,11 +16,11 @@ function init() {
   me().then((who) => { if (who) location.replace(HOME); });
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!email.value.trim()) { msg.textContent = 'Enter the email on your profile.'; email.focus(); return; }
+    if (!email.value.trim()) { msg.textContent = 'Enter your email.'; email.focus(); return; }
     button.disabled = true; msg.textContent = 'Sending your link…';
     const r = await sendMagicLink(email.value);
     button.disabled = false;
-    msg.textContent = r.ok ? `Check your email — the link is on its way to ${email.value.trim()}. It works once and expires in an hour.` : r.message;
+    msg.textContent = r.ok ? `Check your inbox at ${email.value.trim()}. The link works once and expires in an hour. Not there in a few minutes? Check spam.` : r.message;
     if (r.ok) email.blur();
   });
 }

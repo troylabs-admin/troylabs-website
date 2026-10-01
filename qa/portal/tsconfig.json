@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../../.astro/types.d.ts",
+    "../../src/components/portal/Network.tsx",
+    "../../src/components/portal/AlumniGlobe.tsx",
+    "../../src/lib/auth.ts",
+    "../../src/lib/portal/application.ts",
+    "../../src/lib/portal/data.ts",
+    "../../src/lib/portal/safe-html.ts",
+    "../../src/scripts/portal-auth.ts",
+    "../../src/scripts/portal-signin.ts",
+    "../../src/scripts/portal-profile.ts",
+    "../../src/scripts/portal-member.ts",
+    "../../src/scripts/portal-ui.ts",
+    "../../src/scripts/portal-members.ts",
+    "../../src/scripts/portal-messages.ts",
+    "../../src/scripts/portal-admin-stats.ts"
+  ],
+  "exclude": []
+}

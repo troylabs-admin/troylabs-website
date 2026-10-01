@@ -1,0 +1,14 @@
+import { chromium, expect } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { adminClient, makeUser, signInPage } from './helpers.mjs';
+const out='test-results/globe';mkdirSync(out,{recursive:true});const admin=adminClient();let user,browser;
+try {
+ user=await makeUser(admin,'Globe Audit · QA');browser=await chromium.launch();const {page}=await signInPage(browser,user,{width:1440,height:1100});const errors=[], failed=[];page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push({url:r.url().split('?')[0],error:r.failure()?.errorText}));
+ for(const width of [1440,768,390,320]){
+  await page.setViewportSize({width,height:width===1440?1100:844});await page.goto(`${process.env.PORTAL_URL || 'http://127.0.0.1:4321'}/alumni-portal/home?sample=1`);await expect(page.locator('.tl-star').first()).toBeAttached({timeout:15000}).catch(async e=>{await page.screenshot({path:`${out}/failure.png`,fullPage:true});console.log('GLOBE LOAD FAILURE',JSON.stringify({errors,failed}));throw e;});await page.waitForTimeout(2500);
+  await page.screenshot({path:`${out}/after-${width}.png`,fullPage:true});await page.locator('.portal-globe-wrap').screenshot({path:`${out}/after-globe-${width}.png`});
+  const stats=await page.evaluate(()=>({width:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,view:document.querySelector('.portal-globe-wrap')?.getAttribute('data-view'),canvas:[...document.querySelectorAll('.portal-globe-wrap canvas')].map(c=>({width:c.width,height:c.height})),stars:[...document.querySelectorAll('.tl-star')].filter(el=>el.checkVisibility()).map(el=>({label:el.getAttribute('aria-label'),r:el.getBoundingClientRect().toJSON()})),animation:getComputedStyle(document.querySelector('.tl-star-glow')).animationName}));expect(stats.overflow).toBe(0);expect(stats.animation).toBe('none');console.log('Globe layout',width,'no overflow, reduced motion respected');
+  const star=page.locator('.tl-star').filter({visible:true}).first();await star.click();await page.waitForTimeout(1600);await page.locator('.portal-globe-wrap').screenshot({path:`${out}/after-picked-${width}.png`});const bounds=await page.locator('.portal-globe-wrap').boundingBox();const card=await page.locator('.portal-globe-pop').boundingBox();expect(card.x).toBeGreaterThanOrEqual(bounds.x);expect(card.y).toBeGreaterThanOrEqual(bounds.y);expect(card.x+card.width).toBeLessThanOrEqual(bounds.x+bounds.width+1);expect(card.y+card.height).toBeLessThanOrEqual(bounds.y+bounds.height+1);console.log('Selection contained',width);
+ }
+ writeFileSync(`${out}/after-diagnostics.json`,JSON.stringify({errors,failed},null,2));expect(errors).toEqual([]);expect(failed.filter(r=>!r.url.includes('_vercel'))).toEqual([]);console.log('Responsive globe screenshots and assertions passed');
+}finally{if(browser)await browser.close();if(user)await user.cleanup();}

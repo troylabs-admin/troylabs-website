@@ -2,7 +2,7 @@
 /**
  * Admin › Members. The club's history and reach in one table (Bryan, 2026-09-15): filter by cohort,
  * status, division, program, city; free-text search; add a cohort; set e-board roles per member;
- * approve access requests; export. Everything comes from and goes to the database (scripts/portal-members.ts).
+ * approve people who signed up (the waiting list); export. Everything comes from and goes to the database (scripts/portal-members.ts).
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -45,11 +45,16 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
       <p class="m-0 t-fine text-muted" id="roster-summary" style="margin-top:calc(10 * var(--u))"></p>
     </div>
 
-    <!-- access requests: alumni not on the roster who asked to join (approve = account + invite link) -->
-    <div class="portal-panel" style="margin-top:calc(12 * var(--u))">
-      <h2 class="t-sub portal-panel-title">Access requests <span class="t-fine portal-role" id="requests-n">0</span></h2>
-      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">People who signed in with a usc.edu address that isn't on the roster. Approving lets them into the network right away; declining keeps them out.</p>
-      <ul class="portal-row-list t-caption" id="requests-list"><li class="text-muted">Nobody waiting.</li></ul>
+    <!-- the sign-up queue (Bryan, 2026-09-30): everyone gets the site link, signs up, creates their own profile,
+         and leadership accepts them here by hand. Filled by scripts/portal-members.ts. -->
+    <div class="portal-panel" style="margin-top:calc(12 * var(--u))" id="approvals">
+      <h2 class="t-sub portal-panel-title">Waiting for approval <span class="t-fine portal-role" id="requests-n">0</span></h2>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(14 * var(--u))">People who signed up and created a profile. Approve the ones who were part of TroyLabs: they're in the network the next time they open the portal. Declined people stay outside and can be restored below.</p>
+      <ul class="m-0 p-0 list-none portal-requests" id="requests-list"><li class="t-caption text-muted">Nobody waiting.</li></ul>
+      <details class="portal-fold portal-declined" id="declined-fold" hidden>
+        <summary class="t-label text-muted">DECLINED <span id="declined-n">0</span></summary>
+        <ul class="portal-row-list t-caption" id="declined-list"></ul>
+      </details>
     </div>
 
     <!-- filters + search: all client-side on the placeholder rows -->

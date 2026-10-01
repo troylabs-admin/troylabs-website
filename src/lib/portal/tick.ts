@@ -3,6 +3,7 @@
 export const EASE = (p: number) => 1 - Math.pow(2, -10 * p);
 export function tickNumber(el: HTMLElement, from: number, to: number, ms = 900, format: (n: number) => string = String) {
   const t0 = performance.now(); const prev = (el as any).__tick as number | undefined; if (prev) cancelAnimationFrame(prev);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = format(to); return; }
   const frame = (t: number) => {
     const p = Math.min(1, (t - t0) / ms); el.textContent = format(Math.round(from + (to - from) * EASE(p)));
     (el as any).__tick = p < 1 ? requestAnimationFrame(frame) : undefined;
@@ -15,6 +16,7 @@ export function tickNumber(el: HTMLElement, from: number, to: number, ms = 900, 
  *  after a star tap, where you need a beat to read the star and the line under the globe first. If the
  *  reader starts scrolling themselves during the pause or the glide, we stop and leave them alone. */
 export function glideTo(el: HTMLElement, { after = 0, ms = 1500, offset = 0 } = {}) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - offset); return () => {}; }
   let cancelled = false; const cancel = () => { cancelled = true; cleanup(); };
   const cleanup = () => { window.removeEventListener('wheel', cancel); window.removeEventListener('touchstart', cancel); window.removeEventListener('keydown', cancel); };
   window.addEventListener('wheel', cancel, { passive: true }); window.addEventListener('touchstart', cancel, { passive: true }); window.addEventListener('keydown', cancel);

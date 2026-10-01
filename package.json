@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:portal": "node qa/portal/onboarding.mjs && node qa/portal/system-audit.mjs && node qa/portal/system-edge-cases.mjs && node qa/portal/globe-interactions.mjs && node qa/portal/globe-audit.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.4",

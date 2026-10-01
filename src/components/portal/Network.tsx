@@ -9,7 +9,7 @@
  * People come from the database once you are an approved member (lib/portal/data.ts); a build without
  * a session (or with ?sample=1) shows the generated roster in lib/portal/sample-people.ts.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { glideTo, tickNumber } from '../../lib/portal/tick';
 import { track } from '../../lib/analytics';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
@@ -20,7 +20,7 @@ import { listPeople } from '../../lib/portal/data';
 const FILTERS: [string, string, readonly string[]][] = [['status', 'STATUS', STATUS], ['cohort', 'COHORT', COHORTS], ['division', 'DIVISION', DIVISIONS], ['industry', 'INDUSTRY', INDUSTRIES]];
 const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did']);
 const PAGE = 24;
-const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${p.division} ${p.bio}`.toLowerCase();
+const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
 const upper = (s: string) => s.toUpperCase();
 
 /** a number that ticks to its new value instead of jumping (same ease as the home page stats) */
@@ -32,16 +32,21 @@ function Tick({ n }: { n: number }) {
 
 export default function Network() {
   // approved yet? the gate (scripts/portal-auth.ts) stamps <html data-member>; until an admin lets you in, the network is a note
-  const [member, setMember] = useState<string>(() => (typeof document !== 'undefined' ? document.documentElement.dataset.member ?? '' : ''));
+  const [member, setMember] = useState<string>('');
   const [PEOPLE, setPeople] = useState<Person[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reload, setReload] = useState(0);
+  const [browsing, setBrowsing] = useState(false);
+  const refresh = useCallback(() => setReload(n => n + 1), []);
+  const [sample, setSample] = useState(false);
   useEffect(() => {
-    const sample = new URLSearchParams(location.search).has('sample');
-    const load = async (approved: boolean) => { if (sample) { setPeople(SAMPLE); setLoaded(true); return; } if (!approved) return; setPeople(await listPeople()); setLoaded(true); };
-    const on = (e: Event) => { const ok = (e as CustomEvent).detail.approved; setMember(ok ? 'ok' : 'pending'); void load(ok); };
+    const sample = new URLSearchParams(location.search).has('sample'); setSample(sample);
+    const load = async (approved: boolean) => { if (sample) { setPeople(SAMPLE); setLoaded(true); return; } if (!approved) return; try { setPeople(await listPeople()); setLoadError(false); } catch { setLoadError(true); } finally { setLoaded(true); } };
+    const on = (e: Event) => { const d = (e as CustomEvent).detail; setMember(d.approved ? 'ok' : d.declined ? 'declined' : 'pending'); void load(d.approved); };
     document.addEventListener('tl:me', on); setMember(document.documentElement.dataset.member ?? ''); if (document.documentElement.dataset.member === 'ok' || sample) void load(true);
     return () => document.removeEventListener('tl:me', on);
-  }, []);
+  }, [reload]);
   const [q, setQ] = useState('');
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [place, setPlace] = useState<Cluster | null>(null);
@@ -71,7 +76,7 @@ export default function Network() {
     for (const p of PEOPLE) {
       const why: string[] = []; let ok = true;
       for (const [key, vals] of Object.entries(active)) {
-        const have = key === 'industry' ? p.industries : [p[key as 'status' | 'cohort' | 'division']];
+        const have = key === 'division' ? p.divisions ?? [p.division] : key === 'industry' ? p.industries.map(v => v === 'CLIMATE TECH' ? 'CLIMATE' : v) : [p[key as 'status' | 'cohort' | 'division']];
         const hit = vals.filter((v) => have.includes(v));
         if (!hit.length) { ok = false; break; }
         why.push(...hit);
@@ -92,11 +97,11 @@ export default function Network() {
   const results = useMemo(() => (placeKeys ? matched.filter(({ p }) => placeKeys.has(cityKey(p))) : matched), [matched, placeKeys]);
   const pins = useMemo(() => matched.map(({ p }) => p).filter((p) => p.lat || p.lng), [matched]);   // no city yet → in the list, not on the globe (0,0 is the Gulf of Guinea)
   const cities = useMemo(() => new Set(pins.map(cityKey)).size, [pins]);
-  const students = useMemo(() => pins.filter((p) => p.status === 'STUDENT').length, [pins]);
-  const leftCities = useMemo(() => new Set(results.map(({ p }) => cityKey(p))).size, [results]);
+  const students = useMemo(() => PEOPLE.filter((p) => p.status === 'STUDENT').length, [PEOPLE]);
+  const leftCities = useMemo(() => new Set(results.filter(({p}) => p.city).map(({ p }) => cityKey(p))).size, [results]);
 
   const toggle = (key: string, v: string) => { track('filter_press', { group: key, value: v, on: !(active[key] ?? []).includes(v) }); setPage(1); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
-  const clearAll = () => { setQ(''); setActive({}); setPage(1); if (place) setReset((r) => r + 1); };
+  const clearAll = () => { setQ(''); setActive({}); setBrowsing(false); setPage(1); if (place) setReset((r) => r + 1); };
   const placeName = (c: Cluster) => upper(c.cities.slice(0, 4).map((x) => x.name).join(' · ')) + (c.cities.length > 4 ? ` +${c.cities.length - 4} MORE` : '');
   // a star tap selects it: the globe names it on a card and the list narrows. Nothing scrolls on its own
   // (Bryan, 2026-09-15); the card's SEE WHO'S HERE link is the way down.
@@ -108,25 +113,35 @@ export default function Network() {
   const shown = results.slice(0, page * PAGE);
   const echo = q.trim() || Object.values(active).flat().join(', ') || (place ? clusterLabel(place) : '');
 
-  if (member === 'pending') return (
+  // not in yet (Bryan, 2026-09-30: "if they try to log in and it hasn't been approved yet it'll just show
+  // waiting for it to get approved"). The gate only lets someone here once their profile has the basics.
+  if (member === 'pending' || member === 'declined') return (
     <div className="portal-network">
-      <header className="flex flex-col items-center portal-head">
+      <header className="flex flex-col items-center portal-head portal-waiting">
         <span className="t-label text-muted">THE NETWORK</span>
-        <h1 className="m-0 t-hero text-center glow-text portal-q">YOU'RE ALMOST IN</h1>
-        <p className="m-0 t-caption text-muted text-center portal-sub">Your request is with TroyLabs leadership. An admin approves new members, usually within a day, and you'll get an email the moment you're in. You can fill in your <a href="/alumni-portal/profile" className="text-ink">profile</a> while you wait.</p>
+        {member === 'pending' ? <>
+          <h1 className="m-0 t-hero text-center glow-text portal-q">YOU'RE ON THE LIST</h1>
+          <p className="m-0 t-caption text-muted text-center portal-sub">TroyLabs leadership approves every member by hand. Once you're in, this page becomes the network: everyone from TroyLabs on a globe, searchable by name, company, city or division. Check back here.</p>
+          <a href="/alumni-portal/profile" className="portal-btn is-small is-quiet t-label no-underline text-ink portal-waiting-cta">EDIT YOUR PROFILE</a>
+        </> : <>
+          <h1 className="m-0 t-hero text-center glow-text portal-q">NOT APPROVED</h1>
+          <p className="m-0 t-caption text-muted text-center portal-sub">Leadership couldn't match your profile to a TroyLabs member. If you were part of TroyLabs, email <a href="mailto:troylabs@usc.edu" className="text-ink">troylabs@usc.edu</a> and they'll take another look.</p>
+        </>}
       </header>
     </div>
   );
   return (
-    <div className="portal-network" data-searching={typed || undefined}>
+    <div className="portal-network" data-react-controls data-searching={typed || undefined}>
       <header className="flex flex-col items-center portal-head">
         <span className="t-label text-muted">THE NETWORK</span>
         <h1 className="m-0 t-hero text-center glow-text portal-q" style={qStyle}>WHO ARE YOU LOOKING FOR?</h1>
         <p className="m-0 t-caption text-muted text-center portal-sub">Type a name, a company, a city, an industry — or a few words about who you need. Filters and the globe narrow it together.</p>
       </header>
 
+      {sample && <p className="t-caption text-muted text-center">Design preview · 463 fictional members. <a href="/alumni-portal/home" className="portal-linklike">Back to the live network</a></p>}
+      {loadError && <p role="alert" className="t-caption text-center">Could not refresh the network. <button type="button" className="portal-linklike" onClick={refresh}>Try again</button></p>}
       <div ref={globeRef} className="portal-explore-globe">
-          <AlumniGlobe pins={pins} onPick={pick} onSeeList={() => toResults()} reset={reset} />
+          <AlumniGlobe pins={pins} onRefresh={refresh} onPick={pick} onSeeList={() => toResults()} reset={reset} />
           {/* under the globe (Bryan, 2026-09-15): plain stats at rest; once anything is pressed or typed,
               what's on and how many are left. The numbers tick, and they keep their identity (keys) across
               the two states so the tick runs from the old value. */}
@@ -143,12 +158,12 @@ export default function Network() {
           )}
           <p className="t-label portal-explore-stats">
             {[
-              <span key="n"><Tick n={searching ? results.length : pins.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
-              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> STUDENTS</span>, <span key="a"> · <Tick n={pins.length - students} /> ALUMNI</span>]),
+              <span key="n"><Tick n={searching ? results.length : PEOPLE.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
+              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> STUDENTS</span>, <span key="a"> · <Tick n={PEOPLE.length - students} /> ALUMNI</span>]),
               <span key="c"> · <Tick n={searching ? leftCities : cities} /> {(searching ? leftCities : cities) === 1 ? 'CITY' : 'CITIES'}</span>,
             ]}
           </p>
-          <p className="t-fine text-muted m-0 portal-explore-count">One star per city; bigger stars are more people. Tap a star for who's there.</p>
+          <p className="t-fine text-muted m-0 portal-explore-count">Drag to explore. Select a marker to meet members; nearby cities group together.</p>
       </div>
 
       <form className="portal-search" role="search" onSubmit={(e) => { e.preventDefault(); if (typed) toResults(); (document.activeElement as HTMLElement | null)?.blur(); }}>
@@ -158,16 +173,16 @@ export default function Network() {
       </form>
 
       <div className="portal-filters" data-search-filters>
-        {FILTERS.map(([key, label, items]) => (
+        {FILTERS.map(([key, label, defaults]) => { const items = key === 'cohort' ? [...new Set([...defaults, ...PEOPLE.map(p => p.cohort).filter(Boolean)])] : defaults; return (
           <div className="portal-filter-row" key={key}>
             <span className="t-fine text-muted portal-filter-label">{label}</span>
             <div className="flex flex-wrap portal-chips" data-filter={key}>{items.map((c) => <button type="button" key={c} className="t-fine portal-chip" aria-pressed={(active[key] ?? []).includes(c)} data-value={c} onClick={() => toggle(key, c)}>{c}</button>)}</div>
           </div>
-        ))}
+        ); })}
       </div>
 
         <section ref={resultsRef} className="portal-results" aria-live="polite">
-          {searching ? (
+          {searching || browsing ? (
             <>
               <div className="portal-results-head">
                 <p className="t-label text-muted m-0 portal-results-count">{results.length ? <><Tick n={results.length} /> {results.length === 1 ? 'person' : 'people'}</> : ''}</p>
@@ -176,7 +191,7 @@ export default function Network() {
               {results.length > 0 ? (
                 <ul className="m-0 p-0 list-none portal-grid">
                   {shown.map(({ p, why }, i) => (
-                    <li key={i}>
+                    <li key={`${p.id}-${i}`}>
                       <a href={`/alumni-portal/members/?id=${p.id}`} className="portal-card no-underline text-ink">
                         <span className="portal-avatar t-sub" aria-hidden="true">{p.avatar ? <img src={p.avatar} alt="" loading="lazy" /> : p.initials}</span>
                         <span className="portal-card-body">
@@ -199,7 +214,7 @@ export default function Network() {
               {results.length > shown.length && <button type="button" className="portal-btn is-small is-quiet t-label portal-globe-more" onClick={() => setPage(page + 1)}>SHOW {Math.min(PAGE, results.length - shown.length)} MORE · {results.length - shown.length} LEFT</button>}
             </>
           ) : (
-            <p className="t-fine text-muted portal-results-hint">{!loaded ? 'Loading the network…' : PEOPLE.length === 0 ? 'Nobody has a pin yet. Add your city on your profile and you will be the first star.' : "Everyone is on the globe. Type, press a filter, or tap a star to see who's where."}</p>
+            <p className="t-fine text-muted portal-results-hint">{!loaded ? 'Loading the network…' : PEOPLE.length === 0 ? 'The network is waiting for its first approved members.' : <><button type="button" className="t-label portal-linklike" onClick={() => setBrowsing(true)}>BROWSE ALL MEMBERS</button><br />Members without a city are included in the directory.</>}</p>
           )}
         </section>
     </div>

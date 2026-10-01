@@ -27,6 +27,7 @@ function init() {
     fb.textContent = on.length ? `${label}: ${on.join(', ')}` : '';
   };
   for (const chip of root.querySelectorAll<HTMLElement>('.portal-chip')) {
+    if (chip.closest('[data-react-controls]')) continue;
     chip.addEventListener('click', () => {
       const on = chip.getAttribute('aria-pressed') !== 'true';
       const single = chip.closest<HTMLElement>('[data-single]');
@@ -73,8 +74,7 @@ function init() {
   }
 
   // ── removable tags + ADD ──
-  const wireTag = (tag: HTMLElement) => tag.querySelector('button')?.addEventListener('click', () => { tag.remove(); recount(); });
-  root.querySelectorAll<HTMLElement>('.portal-tagx').forEach(wireTag);
+  root.addEventListener('click', (e) => { const tag = (e.target as HTMLElement).closest('.portal-tagx button')?.closest('.portal-tagx'); if (tag) { tag.remove(); recount(); } });
   for (const row of root.querySelectorAll<HTMLElement>('.portal-inline[data-adds]')) {
     const input = row.querySelector<HTMLInputElement>('input');
     const btn = row.querySelector<HTMLButtonElement>('button');
@@ -85,8 +85,8 @@ function init() {
       if (!v) { input.focus(); return; }
       const tag = document.createElement('span');
       tag.className = 't-fine portal-tagx';
-      tag.innerHTML = `${v.toUpperCase()} <button type="button" aria-label="Remove ${v}">×</button>`;
-      target.appendChild(tag); wireTag(tag); input.value = ''; recount();
+      tag.append(document.createTextNode(v.toUpperCase() + ' ')); const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '×'; remove.setAttribute('aria-label', `Remove ${v}`); tag.append(remove);
+      target.appendChild(tag); input.value = ''; recount();
     };
     btn.addEventListener('click', add);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
@@ -153,7 +153,7 @@ function init() {
   const when = root.querySelector<HTMLElement>('[data-when]');
   if (when) {
     const at = root.querySelector<HTMLElement>('[data-when-at]')!; const send = root.querySelector<HTMLElement>('[data-send-btn]')!;
-    when.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return; setTimeout(() => { const later = c.dataset.value === 'later'; at.hidden = !later; send.textContent = later ? 'SCHEDULE' : 'SEND NOW'; send.dataset.done = later ? 'SCHEDULED' : 'QUEUED'; send.dataset.feedback = later ? 'Scheduled. It appears under Scheduled below, editable until it sends.' : 'Sending is wired with the database (email) and SendBlue (texts). Nothing was sent.'; }, 0); });
+    when.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return; setTimeout(() => { const later = c.dataset.value === 'later'; at.hidden = !later; if (send.hasAttribute('disabled')) return; send.textContent = later ? 'SCHEDULE' : 'SEND NOW'; send.dataset.done = later ? 'SCHEDULED' : 'QUEUED'; send.dataset.feedback = later ? 'Scheduled. It appears under Scheduled below, editable until it sends.' : 'Sending is wired with the database (email) and SendBlue (texts). Nothing was sent.'; }, 0); });
   }
   const channels = root.querySelector<HTMLElement>('[data-channels]');
   if (channels) channels.addEventListener('click', (e) => { const c = (e.target as HTMLElement).closest<HTMLElement>('.portal-chip'); if (!c) return;

@@ -1,10 +1,13 @@
+import { parseRosterCsv } from '../lib/portal/csv';
 /**
  * Admin › Members, for real: the access queue (approve / decline), every profile as a row, admin on/off,
  * e-board roles saved per person, a CSV export of the current filter, and a cohort import into the
  * roster. All through the browser client under the admin policies.
  */
 import { me } from '../lib/auth';
-import { adminListProfiles, cityLabel, cohortOf, completeness, importRoster, listRoster, setAdmin, setApproved, setDeclined, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
+import { applicationMissing, listInWords } from '../lib/portal/application';
+import { webUrl } from '../lib/portal/safe-html';
+import { adminListProfiles, avatarUrl, cityLabel, cohortOf, completeness, importRoster, initialsOf, listRoster, setAdmin, setApproved, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const fb = (text: string, ok = true) => { const el = document.getElementById('members-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
@@ -18,9 +21,41 @@ async function load() {
 
 function renderRequests() {
   const list = document.getElementById('requests-list')!; const n = document.getElementById('requests-n')!;
-  const pending = rows.filter((r) => !r.approved && !r.declined_at);
+  // finished profiles first (they can be decided now), newest first within each
+  const pending = rows.filter((r) => !r.approved && !r.declined_at)
+    .sort((x, y) => (applicationMissing(x).length ? 1 : 0) - (applicationMissing(y).length ? 1 : 0) || y.created_at.localeCompare(x.created_at));
   n.textContent = String(pending.length);
-  list.innerHTML = pending.length ? pending.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || '(no name yet)')}</span> <span class="text-muted">· ${esc(r.usc_email || r.personal_email || '')}${cohortOf(r.join_term, r.join_year) ? ` · says ${cohortOf(r.join_term, r.join_year)}` : ''}${r.request_note ? ` · “${esc(r.request_note)}”` : ''} · asked ${new Date(r.created_at).toLocaleDateString()}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-decline="${r.id}">DECLINE</button></span></li>`).join('') : '<li class="text-muted">Nobody waiting.</li>';
+  const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  list.innerHTML = pending.length ? pending.map((r) => {
+    const missing = applicationMissing(r); const photo = avatarUrl(r); const li = r.linkedin_url ? webUrl(r.linkedin_url) : null;
+    const year = r.grad_year ? (r.status === 'alum' ? `Class of ${r.grad_year}` : `Expected ${r.grad_year}`) : '';
+    const facts = [year, cohortOf(r.join_term, r.join_year) ? `joined ${cohortOf(r.join_term, r.join_year)}` : '', (r.divisions ?? []).join(', '), cityLabel(r.city)].filter(Boolean).map(esc).join(' · ');
+    const emails = [r.personal_email, r.usc_email].filter(Boolean).map((e) => esc(e!)).join(' · ');
+    return `<li class="portal-request" data-id="${r.id}">
+      <span class="portal-avatar t-sub" aria-hidden="true">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initialsOf(r.full_name || '?'))}</span>
+      <div class="portal-request-body">
+        <p class="m-0"><span class="t-name text-ink">${esc(r.full_name || 'No name yet')}</span>${r.grad_year ? ` <span class="t-fine portal-tag">${r.status === 'student' ? 'STUDENT' : 'ALUM'}</span>` : ''}</p>
+        ${facts ? `<p class="m-0 t-caption text-muted">${facts}</p>` : ''}
+        <p class="m-0 t-fine text-muted">${emails}${li ? ` · <a href="${esc(li)}" target="_blank" rel="noopener noreferrer" class="text-ink">LinkedIn ↗</a>` : ''}</p>
+        ${r.request_note ? `<p class="m-0 t-caption portal-request-note">“${esc(r.request_note)}”</p>` : ''}
+        ${missing.length ? `<p class="m-0 t-fine portal-request-missing">Profile not finished: missing ${esc(listInWords(missing))}.</p>` : ''}
+        <p class="m-0 t-fine text-muted">Signed up ${date(r.created_at)}</p>
+      </div>
+      <div class="portal-request-actions">
+        <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button>
+        <button type="button" class="t-label portal-linklike" data-decline="${r.id}">DECLINE</button>
+        <a class="t-label portal-linklike no-underline" href="/alumni-portal/members/?id=${r.id}">VIEW PROFILE</a>
+      </div>
+    </li>`;
+  }).join('') : '<li class="t-caption text-muted">Nobody waiting.</li>';
+  const declined = rows.filter((r) => !r.approved && r.declined_at).sort((x, y) => (y.declined_at ?? '').localeCompare(x.declined_at ?? ''));
+  const fold = document.getElementById('declined-fold') as HTMLDetailsElement | null;
+  if (fold) {
+    fold.hidden = !declined.length; document.getElementById('declined-n')!.textContent = String(declined.length);
+    document.getElementById('declined-list')!.innerHTML = declined.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || 'No name yet')}</span> <span class="text-muted">· ${esc(r.personal_email || r.usc_email || '')} · declined ${date(r.declined_at!)}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-restore="${r.id}">BACK TO WAITING LIST</button></span></li>`).join('');
+  }
+  // the nav badges follow the queue
+  document.querySelectorAll<HTMLElement>('a[href="/alumni-portal/admin"] .portal-count, a[href="/alumni-portal/admin/users"] .portal-count').forEach((b) => { if (pending.length) b.textContent = String(pending.length); else b.remove(); });
 }
 
 function renderTable() {
@@ -53,7 +88,7 @@ function openRoles(btn: HTMLElement) {
   }
   td.querySelector<HTMLElement>('[data-action="save-roles"]')!.addEventListener('click', async (e) => {
     e.preventDefault(); const out: Omit<RoleRow, 'profile_id' | 'id'>[] = [];
-    for (const r of list.querySelectorAll<HTMLElement>('.portal-role-year')) for (const t of r.querySelectorAll<HTMLElement>('.portal-term-pair')) { const y = parseInt(t.querySelector('input')!.value, 10); if (Number.isFinite(y)) out.push({ role: r.dataset.role!, term: t.querySelector('select')!.value === 'Fall' ? 'FA' : 'SP', year: y }); }
+    for (const r of list.querySelectorAll<HTMLElement>('.portal-role-year')) for (const t of r.querySelectorAll<HTMLElement>('.portal-term-pair')) { const y = parseInt(t.querySelector('input')!.value, 10); if (!/^\d{4}$/.test(t.querySelector('input')!.value.trim()) || y < 1900 || y > 2100) { td.querySelector<HTMLElement>('.portal-feedback')!.textContent = 'Enter a valid year for every selected role.'; return; } out.push({ role: r.dataset.role!, term: t.querySelector('select')!.value === 'Fall' ? 'FA' : 'SP', year: y }); }
     const res = await setRoles(id, out); const f = td.querySelector<HTMLElement>('.portal-feedback')!;
     if (res.error) { f.textContent = res.error.message; f.style.color = 'var(--color-orange)'; } else { f.textContent = out.length ? `Saved: ${out.length} semester${out.length === 1 ? '' : 's'} of e-board history.` : 'Saved: no e-board roles.'; roles = roles.filter((r) => r.profile_id !== id).concat(out.map((o) => ({ ...o, profile_id: id }))); }
   });
@@ -72,8 +107,9 @@ function exportCsv() {
 async function importCohort(btn: HTMLElement) {
   const panel = document.getElementById('cohort-panel')!; const f = panel.querySelector<HTMLElement>('.portal-feedback')!;
   const year = parseInt((document.getElementById('cohort-year') as HTMLInputElement).value, 10); const term = (document.getElementById('cohort-term') as HTMLSelectElement).value === 'Fall' ? 'FA' : 'SP';
-  const lines = (document.getElementById('cohort-csv') as HTMLTextAreaElement).value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const parsed = lines.map((l) => l.split(/[,\t]/).map((c) => c.trim().replace(/^"|"$/g, ''))).filter((c) => !/^(name|full name)/i.test(c[0] ?? ''));
+  let parsed: string[][];
+  try { parsed = parseRosterCsv((document.getElementById('cohort-csv') as HTMLTextAreaElement).value).filter(c => !/^(name|full name)$/i.test(c[0] ?? '')); }
+  catch (e) { f.textContent = (e as Error).message; return; }
   const people = parsed.map((c) => { const email = c.find((x) => /@/.test(x)) ?? ''; const name = c.find((x) => x && !/@/.test(x)) ?? ''; const division = c.filter((x) => x && !/@/.test(x) && x !== name)[0] ?? null; return { full_name: name, usc_email: email.toLowerCase(), join_term: Number.isFinite(year) ? term as 'FA' | 'SP' : null, join_year: Number.isFinite(year) ? year : null, division: division ? division.toUpperCase() : null }; }).filter((p) => /@(?:[a-z0-9-]+\.)*usc\.edu$/i.test(p.usc_email));
   if (!people.length) { f.textContent = 'No rows with a usc.edu address found. One person per line: name, email, division.'; f.style.color = 'var(--color-orange)'; return; }
   const res = await importRoster(people);
@@ -88,12 +124,13 @@ async function init() {
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
   const who = await me(); if (!who?.admin) return; myId = who.id;
   await load(); void rosterSummary();
-  document.addEventListener('click', async (e) => {
+  document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const t = e.target as HTMLElement; const b = t.closest<HTMLElement>('button'); if (!b) return;
-    if (b.dataset.approve) { await setApproved(b.dataset.approve, true); fb('Approved. They are in the network now.'); await load(); }
-    else if (b.dataset.decline) { await setDeclined(b.dataset.decline); fb('Declined. They stay outside; you can find them again with a search.'); await load(); }
+    if (b.dataset.approve) { const p = rows.find((x) => x.id === b.dataset.approve); const r = await setApproved(b.dataset.approve, true); fb(r.error ? r.error.message : `Approved ${p?.full_name || 'them'}. They're in the network the next time they open the portal.`, !r.error); await load(); }
+    else if (b.dataset.restore) { const r = await setRestored(b.dataset.restore); fb(r.error ? r.error.message : 'Back on the waiting list.', !r.error); await load(); }
+    else if (b.dataset.decline) { const p = rows.find((x) => x.id === b.dataset.decline); if (!confirm(`Decline ${p?.full_name || 'this person'}? They stay outside the network and see that they weren't approved. You can restore them from the Declined list.`)) return; const r = await setDeclined(b.dataset.decline); fb(r.error ? r.error.message : 'Declined. They stay outside the network.', !r.error); await load(); }
     else if (b.dataset.adminToggle) { const on = !admins.has(b.dataset.adminToggle); const r = await setAdmin(b.dataset.adminToggle, on); fb(r.error ? r.error.message : on ? 'Made admin. They see the Admin pages next time they load the portal.' : 'Admin access removed.', !r.error); await load(); }
-    else if (b.dataset.remove) { const r = rows.find((x) => x.id === b.dataset.remove); if (r && confirm(`Remove ${r.full_name || 'this member'} from the network? They lose access right away and can be approved again later.`)) { await setDeclined(r.id); fb('Access removed.'); await load(); } }
+    else if (b.dataset.remove) { const r = rows.find((x) => x.id === b.dataset.remove); if (r && confirm(`Remove ${r.full_name || 'this member'} from the network? They lose access right away and can be approved again later.`)) { const res = await setDeclined(r.id); fb(res.error ? res.error.message : 'Access removed.', !res.error); await load(); } }
     else if (b.dataset.rolesFor) openRoles(b);
     else if (b.dataset.action === 'export') { e.preventDefault(); exportCsv(); flash(b, 'EXPORTED'); }
     else if (b.dataset.action === 'add-cohort') { e.preventDefault(); const p = document.getElementById('cohort-panel')!; p.hidden = !p.hidden; if (!p.hidden) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }

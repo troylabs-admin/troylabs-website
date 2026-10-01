@@ -67,15 +67,18 @@ function loadIntoComposer(m: Msg) {
   document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Editing “${m.title || '(untitled)'}”. Save as a draft, schedule, or send.`);
 }
 async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
+  if (btn.getAttribute('aria-busy') === 'true') return;
   const c = compose(); if (!c.body) { fb('Write the message first.', false); return; }
   const a = audience(); const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
   if (state === 'scheduled' && later && !at) { fb('Pick a date and time to schedule it.', false); return; }
   const row = { ...c, send_by: a.sendBy, channel_id: a.channel?.id ?? null, filters: a.channel ? {} : a.filters, state, scheduled_for: state === 'scheduled' ? (later && at ? new Date(at).toISOString() : new Date().toISOString()) : null };
+  btn.setAttribute('aria-busy', 'true');
   const sb = supabase(); const res = editing ? await sb.from('messages').update(row).eq('id', editing).select().single() : await sb.from('messages').insert(row).select().single();
+  btn.removeAttribute('aria-busy');
   if (res.error) { fb(res.error.message, false); return; }
   const o = btn.textContent; btn.classList.add('is-done'); btn.textContent = state === 'draft' ? 'SAVED' : 'QUEUED'; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = o; }, 1600);
   fb(state === 'draft' ? 'Saved as a draft. It is in the list below.' : later && at ? `Scheduled for ${new Date(at).toLocaleString()} to ${a.who.length} ${a.who.length === 1 ? 'person' : 'people'}. Delivery goes live when the email provider is connected.` : `Queued for ${a.who.length} ${a.who.length === 1 ? 'person' : 'people'}. Nothing was sent yet: delivery goes live when the email provider (Resend) is connected — the message is saved and will go out then.`);
-  editing = null; await load();
+  editing = res.data.id; await load();
 }
 async function load() {
   const sb = supabase();
@@ -91,15 +94,17 @@ async function init() {
   // on a phone the optional blocks start folded (the page was ~6,500 px of stacked panels); on desktop they are open
   document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = innerWidth >= 768; });
   for (const label of document.querySelectorAll<HTMLElement>('[data-audience] span.t-label')) { const k = keys[label.textContent!.trim()]; const chips = label.nextElementSibling as HTMLElement | null; if (k && chips?.classList.contains('portal-chips')) chips.dataset.aud = k; }
+  editing = null;
   const who = await me(); if (!who?.admin) return; await load();
-  document.addEventListener('click', async (e) => {
+  document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
     if (b.dataset.action === 'preview') { e.preventDefault(); const a = audience(); fb(`${a.who.length} ${a.who.length === 1 ? 'person' : 'people'} would get this by ${a.sendBy === 'both' ? 'email and text' : a.sendBy}${a.channel ? ` (channel ${a.channel.name})` : Object.keys(a.filters).length ? ` (${Object.values(a.filters).flat().join(', ')})` : ' (everyone)'}.${a.sendBy !== 'email' ? ' Texts go only to people who opted in.' : ''}`); }
+    else if (b.dataset.action === 'new-draft') { editing = null; for (const el of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#mc-title, #mc-body, #mc-ev-name, #mc-ev-when, #mc-ev-where, #mc-ev-rsvp')) el.value = ''; fb('New draft.'); $('#mc-title')?.focus(); }
     else if (b.dataset.action === 'draft') { e.preventDefault(); await save('draft', b); }
     else if (b.dataset.action === 'send') { e.preventDefault(); await save('scheduled', b); }
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
-    else if (b.dataset.cancel) { await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); fb('Cancelled. It is back in drafts.'); await load(); }
-    else if (b.dataset.del) { if (confirm('Delete this draft?')) { await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); await load(); } }
+    else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
+    else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }
     else if (b.dataset.who) { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT') : 'HIDE'; }
     else if (b.closest('[data-msg-tabs]')) setTimeout(renderMessages, 0);
     else if (b.closest('[data-channels]')) { const on = b.getAttribute('aria-pressed') !== 'true'; document.querySelectorAll('[data-channels] .portal-chip').forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', String(on)); }   // these chips are rendered after the shared script bound its per-chip toggle, so flip here

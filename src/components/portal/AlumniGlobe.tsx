@@ -10,17 +10,19 @@
  * it just says San Francisco +3 cities"). The selection follows the star through zooms and drags, and
  * through the re-clustering they cause: if the tapped city ends up inside a bigger star, that star is
  * selected; if a filter empties it, the selection clears. A star of one shows Charlotte's person card.
- * Zoom is by the + / − buttons: the wheel scrolls the page (OrbitControls hijacked it in the MVP).
+ * The whole world is always in view (Bryan, 2026-10-02: zoomed in, the globe overflowed its frame and was cut
+ * square). There is no zoom: a tap turns the globe to the star and opens its card, which lists every city a
+ * merged star holds. The wheel scrolls the page (OrbitControls hijacked it in the MVP).
  * Approved profiles supply live pins. The explicit sample preview supplies a generated roster.
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
-import { clusterCities, clusterLabel, expansionKmPerPx, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
+import { clusterCities, clusterLabel, groupByCity, type City, type Cluster, type GlobePerson } from '../../lib/portal/cluster';
 import { tickNumber } from '../../lib/portal/tick';
 
 export type GlobePin = GlobePerson;
 export type { Cluster } from '../../lib/portal/cluster';
 
-const ALT = { start: 1.9, min: 0.25, max: 3, step: 1.5, ladder: [3, 2.4, 1.9, 1.4, 1.0, 0.7, 0.5, 0.35, 0.25] };
+const ALT = { start: 1.9 };
 const tier = (n: number) => (n <= 1 ? 1 : n < 10 ? 2 : n < 50 ? 3 : 4);
 const upper = (s: string) => s.toUpperCase();
 /* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
@@ -230,25 +232,20 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   }, [current, view, clusters]);
   useEffect(() => { containerRef.current?.querySelectorAll('.tl-star').forEach((el) => el.classList.toggle('is-selected', (el as HTMLElement).dataset.seed === current?.seed.key)); }, [current, clusters]);
 
-  const flyTo = useCallback((lat: number, lng: number, alt: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: Math.min(ALT.max, Math.max(ALT.min, alt)) }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms); }, []);
-  const zoomBy = (f: number) => { const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, pov.altitude * f, 500); };
+  /** turn the globe to a point, always at the height where the whole world fits the frame */
+  const fit = fitAltitude(dimensions.width, dimensions.height);
+  const turnTo = useCallback((lat: number, lng: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: fit }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms); }, [fit]);
+  // the frame changed size (window resize, phone rotation): keep the whole world in it
+  useEffect(() => { if (!ready) return; const pov = globeRef.current?.pointOfView(); if (pov && Math.abs(pov.altitude - fit) > 0.005) globeRef.current?.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: fit }, 0); }, [fit, ready]);
 
   const handleClick = useCallback((c: Cluster) => {
-    // zoom in on what you tapped: a bunched star to the coarsest zoom where it splits (supercluster's
-    // expansion zoom; km-per-px scales with camera distance, i.e. with 1 + altitude), a lone city a bit closer
-    let target = Math.max(ALT.min, Math.min(altitude, 1.0) * 0.7);
-    if (c.cities.length > 1) {
-      const ladder = ALT.ladder.filter((a) => a < altitude - 0.01).map((a) => (view.kmPerPx * (1 + a)) / (1 + altitude));
-      const k = expansionKmPerPx(c, ladder);
-      if (k !== null) target = (k / view.kmPerPx) * (1 + altitude) - 1;
-    }
     setSelected({ seed: c.seed.key, cities: c.cities.map((x) => x.key) });
-    flyTo(c.lat, c.lng, target);
-  }, [altitude, view, flyTo]);
+    turnTo(c.lat, c.lng);
+  }, [turnTo]);
   clickRef.current = handleClick;
   const buildStar = useCallback((d: object) => createStarMarker(d as Cluster, (c, el) => clickRef.current(c, el)), []);   // stable: a new identity makes three-globe rebuild every marker
-  // clearing = the selection goes and the globe returns to its opening size, where you left it pointed
-  const clear = useCallback(() => { setSelected(null); const pov = globeRef.current?.pointOfView(); if (pov) flyTo(pov.lat, pov.lng, fitAltitude(dimensions.width, dimensions.height)); }, [flyTo, dimensions]);
+  // clearing = the selection goes; the globe stays where you left it pointed
+  const clear = useCallback(() => { setSelected(null); }, []);
   const lastReset = useRef(reset);
   useEffect(() => { if (reset !== lastReset.current) { lastReset.current = reset; clear(); } }, [reset, clear]);
 
@@ -257,7 +254,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     const city = cities.find((c) => c.key === key); if (!city) return;
     const cluster = { key: city.key, seed: city, cities: [city], lat: city.lat, lng: city.lng, count: city.people.length };
     if (!ready || failed) { lastSel.current = cluster; reported.current = `${cluster.key}#${cluster.count}`; onPick?.(cluster); }
-    setSelected({ seed: city.key, cities: [city.key] }); flyTo(city.lat, city.lng, 0.7);
+    setSelected({ seed: city.key, cities: [city.key] }); turnTo(city.lat, city.lng);
   };
   const popStyle = anchor ? { left: Math.max(Math.min(dimensions.width / 2, 200), Math.min(dimensions.width - Math.min(dimensions.width / 2, 200), anchor.x)), top: Math.min(dimensions.height - 16, Math.max(230, anchor.y)) } : undefined;
   const person = current?.count === 1 ? current.cities[0].people[0] : null;
@@ -326,11 +323,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
         </div>
       )}
 
-      {ready && !failed && <div className="portal-globe-zoom" role="group" aria-label="Zoom">
-        <button type="button" className="t-label" aria-label="Zoom in" onClick={() => zoomBy(1 / ALT.step)} disabled={altitude <= ALT.min + 0.01}>+</button>
-        <button type="button" className="t-label" aria-label="Zoom out" onClick={() => zoomBy(ALT.step)} disabled={altitude >= ALT.max - 0.01}>−</button>
-      </div>
-      }<div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
+      <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
     </div>
     </div>
   );

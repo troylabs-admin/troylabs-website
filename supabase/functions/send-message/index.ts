@@ -141,6 +141,7 @@ const TWILIO_ERRORS: Record<number, string> = {
   30007: 'the carrier filtered it as spam',
   30032: 'the TroyLabs toll-free number isn’t verified yet',
   30034: 'the TroyLabs number isn’t registered for business texting (A2P 10DLC)',
+  572006: 'a Twilio trial can only send Twilio’s sample templates, not our own wording; upgrade the Twilio account to send real messages',
 };
 const twilioError = (code: number | null | undefined, fallback = 'Twilio couldn’t send it') => (code && TWILIO_ERRORS[code]) || (code ? `${fallback} (Twilio error ${code})` : fallback);
 const STATUS: Record<string, string> = { accepted: 'queued', scheduled: 'queued', queued: 'queued', sending: 'sent', sent: 'sent', delivered: 'delivered', read: 'delivered', undelivered: 'undelivered', failed: 'failed', canceled: 'failed' };

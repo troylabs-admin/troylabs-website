@@ -37,7 +37,7 @@ function showDelivery() {
     : `Email is connected: from ${e.from ?? 'TroyLabs'}, replies go to troylabs@usc.edu.`;
   const text = t.error ? `Texts aren’t working: ${t.error}.`
     : !t.configured ? 'Texts aren’t connected yet: the Twilio keys haven’t been added.'
-    : t.trial ? `Texts are on a Twilio trial: they reach only Twilio’s Virtual Phone and numbers verified in Twilio${t.testTo ? ` (yours: ${prettyPhone(t.testTo)})` : ' (add your number on your profile)'}.`
+    : t.trial ? 'Texts are on a Twilio trial: Twilio only sends its own sample templates, so these messages can’t go out until the Twilio account is upgraded.'
     : `Texts are connected: from ${prettyPhone(t.from)}. Group texts go out 8 AM–9 PM Pacific.`;
   el.textContent = `${mail} ${text} Drafts and scheduling always save.`;
 }

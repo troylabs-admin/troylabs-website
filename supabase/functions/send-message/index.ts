@@ -13,7 +13,8 @@
  *   ?twilio=status         → the delivery outcome of each text (carriers can still drop an accepted text)
  *   ?twilio=inbound        → replies to the TroyLabs number; STOP turns texts off on the profile, START back on
  *
- * Recipients: approved members matching the message's channel rule or filters. Email: an address on file and
+ * Recipients: approved members in the message's audience (any ticked group × CURRENT/ALUMNI cell, narrowed by
+ * cohort/industry when set; _shared/audience.ts, the same code the page counts with). Email: an address on file and
  * announcements not turned off. Text: a number on file and "Text me TroyLabs event invitations" ticked. One per
  * address/number. A send that fails half way can be sent again: people already reached are skipped.
  *
@@ -29,30 +30,16 @@
  */
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { SMS_MAX, segments, smsBody } from '../_shared/sms.ts';
+import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret' };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 const SITE = 'https://usctroylabs.com';
 
-type Rule = Record<string, string | string[]>;
-interface Msg { id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; channel_id: number | null; filters: Rule; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
-interface Person { id: string; full_name: string; status: 'student' | 'alum'; join_term: string | null; join_year: number | null; divisions: string[]; industries: string[]; personal_email: string | null; usc_email: string | null; email_opt_in: boolean; phone: string | null; phone_opt_in: boolean; city: { name: string } | null }
+interface Msg { id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
+interface Person extends Member { full_name: string; personal_email: string | null; usc_email: string | null; email_opt_in: boolean; phone: string | null; phone_opt_in: boolean }
 
-// ── who gets it: the same rules the Message page previews with ───────────────────────────────────
-const cohortOf = (term: string | null, year: number | null) => (term && year ? `${term}${String(year).slice(2)}` : '');
-function matches(p: Person, rule: Rule, eboardNow: Set<string> = new Set()) {
-  return Object.entries(rule ?? {}).every(([k, v]) => {
-    const vals = ([] as string[]).concat(v as string | string[]).map((x) => String(x).toUpperCase());
-    if (!vals.length) return true;
-    if (k === 'status') return vals.some((x) => x.startsWith(p.status.toUpperCase().slice(0, 3)));
-    if (k === 'cohort') return vals.includes(cohortOf(p.join_term, p.join_year));
-    if (k === 'division' || k === 'divisions') return (p.divisions ?? []).some((d) => vals.includes(d.toUpperCase()) || vals.includes(d.toUpperCase().replace(' MANAGEMENT', '')));
-    if (k === 'industry' || k === 'industries') return (p.industries ?? []).some((d) => vals.includes(d.toUpperCase()));
-    if (k === 'city') return (p.city?.name ?? '').toUpperCase() === vals[0];
-    if (k === 'eboard') return eboardNow.has(p.id);   // the E-BOARD channel: a role this semester
-    return true;
-  });
-}
+// ── who gets it: the shared audience rules (_shared/audience.ts), the same code the Message page counts with ──
 /** the semester right now: spring January–June, fall July–December, in LA (same as lib/portal/options.ts) */
 function currentTerm(d = new Date()): { term: 'FA' | 'SP'; year: number } {
   const la = new Date(d.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
@@ -62,13 +49,13 @@ const emailOf = (p: Person) => (p.personal_email || p.usc_email || '').trim().to
 type EmailTo = { id: string; name: string; email: string }; type TextTo = { id: string; name: string; phone: string };
 const channelsOf = (m: Msg) => (m.send_by === 'both' ? ['email', 'text'] : [m.send_by]) as ('email' | 'text')[];
 async function recipientsFor(svc: SupabaseClient, m: Msg): Promise<{ email: EmailTo[]; text: TextTo[] }> {
-  let rule: Rule = m.filters ?? {};
-  if (m.channel_id) { const { data: ch } = await svc.from('channels').select('rule').eq('id', m.channel_id).single(); rule = (ch?.rule as Rule) ?? {}; }
-  const { data, error } = await svc.from('profiles').select('id, full_name, status, join_term, join_year, divisions, industries, personal_email, usc_email, email_opt_in, phone, phone_opt_in, city:cities(name)').eq('approved', true);
+  const a = cleanAudience(m.audience);
+  const { data, error } = await svc.from('profiles').select('id, full_name, status, join_term, join_year, divisions, industries, personal_email, usc_email, email_opt_in, phone, phone_opt_in').eq('approved', true);
   if (error) throw error;
-  let eboardNow = new Set<string>();
-  if ('eboard' in rule) { const t = currentTerm(); const { data: roles } = await svc.from('eboard_roles').select('profile_id').eq('term', t.term).eq('year', t.year); eboardNow = new Set((roles ?? []).map((r) => r.profile_id as string)); }
-  const audience = ((data ?? []) as unknown as Person[]).filter((p) => matches(p, rule, eboardNow)); const want = channelsOf(m);
+  const t = currentTerm(); const { data: roles, error: re } = await svc.from('eboard_roles').select('profile_id, term, year');
+  if (re) throw re;
+  const eb = { now: new Set((roles ?? []).filter((r) => r.term === t.term && r.year === t.year).map((r) => r.profile_id as string)), ever: new Set((roles ?? []).map((r) => r.profile_id as string)) };
+  const audience = ((data ?? []) as unknown as Person[]).filter((p) => inAudience(p, a, eb)); const want = channelsOf(m);
   const once = <T,>(list: T[], key: (x: T) => string) => { const seen = new Set<string>(); return list.filter((x) => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
   return {
     email: want.includes('email') ? once(audience.filter((p) => p.email_opt_in !== false && emailOf(p)).map((p) => ({ id: p.id, name: p.full_name, email: emailOf(p) })), (x) => x.email) : [],
@@ -205,6 +192,7 @@ async function deliver(svc: SupabaseClient, id: number, by: string | null, me: {
   const fail = async (error: string, status = 400) => { await svc.from('messages').update({ state: back === 'scheduled' && by === null ? 'draft' : back, last_error: error }).eq('id', id); return { status, body: { error } }; };
   if (!m.title?.trim()) return fail('Add a subject before sending.');
   if (!m.body?.trim()) return fail('The message is empty.');
+  if (!cleanAudience(m.audience).cells.length) return fail('Pick who gets it first: tick at least one group.');
   if (want.includes('email') && !config().key) return fail('Email isn’t connected yet: the Resend key hasn’t been added.' + (want.includes('text') ? ' Choose TEXT to send only the text.' : ''), 503);
   if (want.includes('text') && !tw.configured) return fail('Texts aren’t connected yet: the Twilio keys haven’t been added.' + (want.includes('email') ? ' Choose EMAIL to send only the email.' : ''), 503);
   const sms = smsBody(m.body, m.event);

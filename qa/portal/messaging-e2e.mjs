@@ -1,5 +1,6 @@
-// Admin › Message, end to end against the real providers (2026-10-02). Proves the audience is exactly right
-// for every channel and a matrix of filters (and that the page counts what the sender sends), then — with
+// Admin › Message, end to end against the real providers (2026-10-02). Proves mixed audiences (groups × CURRENT /
+// ALUMNI, narrowing) reach exactly the right people, that the page saves what was ticked and counts what the sender
+// sends, then — with
 // TL_TEST_PHONE set to a number verified in Twilio — really texts it:
 //   1. Twilio accepts the keys (status)
 //   2. SEND A TEST TO ME texts our own wording to TL_TEST_PHONE
@@ -44,69 +45,82 @@ try {
   const nameOf = Object.fromEntries([...Object.entries(who).map(([k, u]) => [u.id, k]), [F.id, 'F'], [boss.id, 'boss']]);
   const mine = (list) => list.filter((r) => nameOf[r.id]).map((r) => nameOf[r.id]).sort().join('');
 
-  // ── the matrix: every channel and a set of filters, both ways of sending, against what should happen ──
-  const channels = Object.fromEntries(((await admin.from('channels').select('id, name')).data ?? []).map((c) => [c.name, c.id]));
-  const ch = (name) => { assert.ok(channels[name], `channel ${name} exists`); return { channel_id: channels[name] }; };
+  // ── the matrix: mixed audiences against the live database, both ways of sending ───────────────────
+  const C = (group, who) => ({ group, who });
   const cases = [
-    ['EVERYONE', ch('EVERYONE'), 'ABCEHI', 'ABCDGHI'],
-    ['ALL ALUMNI', ch('ALL ALUMNI'), 'ABEI', 'ABGI'],
-    ['ALL STUDENTS', ch('ALL STUDENTS'), 'CH', 'CDH'],
-    ['E-BOARD', ch('E-BOARD'), 'H', 'H'],
-    ['BUILD', ch('BUILD'), 'H', 'H'],
-    ['DEMO', ch('DEMO'), 'E', ''],
-    ['PRODUCT MANAGEMENT', ch('PRODUCT MANAGEMENT'), 'BC', 'BC'],
-    ['VC/FINANCE', ch('VC/FINANCE'), 'I', 'I'],
-    ['TECH', ch('TECH'), 'A', 'ADG'],
-    ['MARKETING', ch('MARKETING'), 'H', 'H'],
-    ['DESIGN', ch('DESIGN'), '', 'D'],
-    ['alumni in TECH or DEMO', { filters: { status: ['ALUMNI'], divisions: ['TECH', 'DEMO'] } }, 'AE', 'AG'],
-    ['students in BUILD', { filters: { status: ['STUDENTS'], divisions: ['BUILD'] } }, 'H', 'H'],
-    ['cohort FA19', { filters: { cohort: ['FA19'] } }, 'ACEH', 'ACH'],
-    ['cohort FA19 or SP19', { filters: { cohort: ['FA19', 'SP19'] } }, 'ABCEHI', 'ABCDGHI'],
-    ['industry AI', { filters: { industries: ['AI'] } }, 'AC', 'AC'],
-    ['students in ROBOTICS', { filters: { industries: ['ROBOTICS'], status: ['STUDENTS'] } }, 'C', 'CD'],
-    ['students and alumni', { filters: { status: ['STUDENTS', 'ALUMNI'] } }, 'ABCEHI', 'ABCDGHI'],
-    ['alumni in ROBOTICS (nobody)', { filters: { status: ['ALUMNI'], industries: ['ROBOTICS'] } }, '', ''],
+    ['everyone current', { cells: [C('EVERYONE', 'current')] }, 'CH', 'CDH'],
+    ['everyone alumni', { cells: [C('EVERYONE', 'alumni')] }, 'ABEI', 'ABGI'],
+    ['everyone (current + alumni)', { cells: [C('EVERYONE', 'current'), C('EVERYONE', 'alumni')] }, 'ABCEHI', 'ABCDGHI'],
+    ['e-board current', { cells: [C('E-BOARD', 'current')] }, 'H', 'H'],
+    ['e-board alumni', { cells: [C('E-BOARD', 'alumni')] }, 'I', 'I'],
+    ['e-board current + alumni', { cells: [C('E-BOARD', 'current'), C('E-BOARD', 'alumni')] }, 'HI', 'HI'],
+    ['design current', { cells: [C('DESIGN', 'current')] }, '', 'D'],
+    ['design alumni (nobody)', { cells: [C('DESIGN', 'alumni')] }, '', ''],
+    ['tech + tech alumni + design + design alumni', { cells: [C('TECH', 'current'), C('TECH', 'alumni'), C('DESIGN', 'current'), C('DESIGN', 'alumni')] }, 'A', 'ADG'],
+    ['current e-board + all alumni', { cells: [C('E-BOARD', 'current'), C('EVERYONE', 'alumni')] }, 'ABEHI', 'ABGHI'],
+    ['build current + marketing current (H in both, once)', { cells: [C('BUILD', 'current'), C('MARKETING', 'current')] }, 'H', 'H'],
+    ['product management current', { cells: [C('PRODUCT MANAGEMENT', 'current')] }, 'C', 'C'],
+    ['product management alumni', { cells: [C('PRODUCT MANAGEMENT', 'alumni')] }, 'B', 'B'],
+    ['vc/finance alumni', { cells: [C('VC/FINANCE', 'alumni')] }, 'I', 'I'],
+    ['demo alumni (emails off: text only)', { cells: [C('DEMO', 'alumni')] }, 'E', ''],
+    ['tech alumni, only cohort FA19', { cells: [C('TECH', 'alumni')], cohort: ['FA19'] }, 'A', 'A'],
+    ['everyone, only industry AI', { cells: [C('EVERYONE', 'current'), C('EVERYONE', 'alumni')], industries: ['AI'] }, 'AC', 'AC'],
+    ['students, only ROBOTICS', { cells: [C('EVERYONE', 'current')], industries: ['ROBOTICS'] }, 'C', 'CD'],
+    ['nothing ticked (nobody)', { cells: [] }, '', ''],
   ];
   const bad = [];
-  for (const [label, row, wantText, wantEmail] of cases) {
-    const { data, error } = await admin.from('messages').insert({ title: `E2E ${label}`, body: 'Matrix check', send_by: 'both', filters: {}, ...row }).select().single(); if (error) throw error; msgs.push(data.id);
+  for (const [label, audience, wantText, wantEmail] of cases) {
+    const { data, error } = await admin.from('messages').insert({ title: `E2E ${label}`, body: 'Matrix check', send_by: 'both', audience }).select().single(); if (error) throw error; msgs.push(data.id);
     const p = await call(boss, 'preview', data.id);
     const gotText = mine(p.body.textRecipients), gotEmail = mine(p.body.recipients);
     if (gotText !== wantText || gotEmail !== wantEmail) bad.push(`${label}: texts ${gotText || '—'} (want ${wantText || '—'}), emails ${gotEmail || '—'} (want ${wantEmail || '—'})`);
     if (/F|boss/.test(gotText + gotEmail)) bad.push(`${label}: a pending member or the opted-out admin was included`);
   }
   assert.deepEqual(bad, [], `audience mismatches:\n${bad.join('\n')}`);
-  console.log(`PASS: audiences — ${cases.length} channels/filter combinations, texts and emails, exactly the right people (pending, not opted in, no number, emails off, former e-board all respected)`);
+  const none = msgs[cases.findIndex(([l]) => l.startsWith('nothing ticked'))];
+  const refused = await call(boss, 'send', none); assert.ok(refused.status >= 400 && /tick at least one group|Pick who gets it/i.test(refused.body.error), `a message with nothing ticked is refused: ${refused.body.error}`);
+  console.log(`PASS: audiences — ${cases.length} mixes on the live database (e-board current/alumni, divisions current/alumni, overlaps sent once, narrowing), email and text; nothing ticked is refused`);
 
-  // the page counts what the function sends (two implementations of the same rules)
+  // ── the page: ticking boxes saves exactly that audience, counts match the sender, EDIT brings it back ─
   browser = await chromium.launch(); const errors = [];
-  const { page } = await signInPage(browser, boss); page.on('pageerror', (e) => errors.push(e.message));
+  const { page } = await signInPage(browser, boss); page.on('pageerror', (e) => errors.push(e.message)); page.on('dialog', (d) => d.accept());
   await page.goto(`${base}/alumni-portal/admin/messages`); await expect(page.locator('[data-action="preview"]')).toBeEnabled();
+  await expect(page.locator('[data-aud-grid] .portal-aud-group')).toHaveText(['EVERYONE', 'E-BOARD', 'BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', 'TECH', 'MARKETING', 'DESIGN']);
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').click();
-  for (const [label, row] of cases.filter(([, r]) => r.channel_id)) {
-    const chip = page.locator(`[data-channels] .portal-chip[data-value="${label}"]`);
-    if ((await chip.getAttribute('aria-pressed')) !== 'true') await chip.click();
-    await page.locator('[data-action="preview"]').click();
-    const t = await page.locator('#msg-fb').innerText(); const m = /by email to (\d+) \w+ and by text to (\d+)/.exec(t); assert.ok(m, `preview text for ${label}: ${t}`);
-    const id = msgs[cases.findIndex(([l]) => l === label)]; const p = await call(boss, 'preview', id);
-    assert.deepEqual([Number(m[1]), Number(m[2])], [p.body.recipients.length, p.body.textRecipients.length], `page and sender agree for ${label}`);
+  const box = (g, w) => page.locator(`[data-aud-grid] .portal-chip[data-group="${g}"][data-who="${w}"]`);
+  const summaryCounts = async () => { const t = await page.locator('[data-aud-summary]').innerText(); const m = /by email to (\d+) \w+ and by text to (\d+)/.exec(t); assert.ok(m, `summary: ${t}`); return [Number(m[1]), Number(m[2])]; };
+  for (const label of ['tech + tech alumni + design + design alumni', 'current e-board + all alumni', 'e-board current + alumni', 'tech alumni, only cohort FA19']) {
+    const [, audience] = cases.find(([l]) => l === label);
+    await page.locator('[data-action="new-draft"]').click();
+    for (const c of audience.cells) await box(c.group, c.who).click();
+    for (const c of audience.cohort ?? []) await page.locator('[data-cohorts] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c}$`) }).click();
+    await page.locator('#mc-title').fill(`E2E page ${label}`); await page.locator('#mc-body').fill('Page routing check');
+    await page.locator('[data-action="draft"]').click(); await expect(page.locator('#msg-fb')).toContainText('Saved as a draft');
+    const saved = (await admin.from('messages').select('id, audience').eq('title', `E2E page ${label}`).single()).data; msgs.push(saved.id);
+    const key = (a) => JSON.stringify({ cells: [...a.cells].map((c) => `${c.group}|${c.who}`).sort(), cohort: [...(a.cohort ?? [])].sort(), industries: [...(a.industries ?? [])].sort() });
+    assert.equal(key(saved.audience), key(audience), `the page saved exactly the ticked boxes for ${label}`);
+    const p = await call(boss, 'preview', saved.id);
+    assert.deepEqual(await summaryCounts(), [p.body.recipients.length, p.body.textRecipients.length], `the page's count is the sender's for ${label}`);
+    // EDIT brings the same boxes back
+    await page.locator('[data-action="new-draft"]').click(); assert.equal(await page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]').count(), 0, 'NEW DRAFT clears the boxes');
+    await page.locator(`[data-msg-list] li[data-id="${saved.id}"] [data-edit]`).click();
+    const on = await page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]').evaluateAll((els) => els.map((e) => `${e.dataset.group}|${e.dataset.who}`).sort());
+    assert.deepEqual(on, audience.cells.map((c) => `${c.group}|${c.who}`).sort(), `EDIT restores the boxes for ${label}`);
   }
-  // filters picked on the page (cohort chips are built from members' data after load) count the same as the sender
-  const pressed = page.locator('[data-channels] .portal-chip[aria-pressed="true"]'); if (await pressed.count()) await pressed.first().click();   // back to no channel
-  for (const [label, chips] of [['cohort FA19', ['FA19']], ['students in BUILD', ['STUDENTS', 'BUILD']]]) {
-    for (const c of chips) await page.locator('[data-audience] [data-aud] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c.replace('/', '\\/')}$`) }).first().click();
-    await page.locator('[data-action="preview"]').click();
-    const t = await page.locator('#msg-fb').innerText(); const m = /by email to (\d+) \w+ and by text to (\d+)/.exec(t); assert.ok(m, `preview text for ${label}: ${t}`);
-    const p = await call(boss, 'preview', msgs[cases.findIndex(([l]) => l === label)]);
-    assert.deepEqual([Number(m[1]), Number(m[2])], [p.body.recipients.length, p.body.textRecipients.length], `page and sender agree for ${label}`);
-    for (const c of chips) await page.locator('[data-audience] [data-aud] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c.replace('/', '\\/')}$`) }).first().click();   // untick
-  }
-  await expect(page.locator('[data-cohorts] .portal-chip', { hasText: 'FA19' })).toHaveCount(1);
-  await expect(page.locator('[data-aud="divisions"] .portal-chip')).toHaveText(['BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', 'TECH', 'MARKETING', 'DESIGN']);
-  await page.locator('.portal-panels').screenshot({ path: 'test-results/portal/messages-audiences.png' });
+  // WHO WILL GET IT lists the same people the sender would pick (the box clicks above must not trigger it)
+  const last = (await admin.from('messages').select('id').eq('title', 'E2E page e-board current + alumni').single()).data.id;
+  const row = page.locator(`[data-msg-list] li[data-id="${last}"]`);
+  await row.locator('[data-recipients-for]').click(); await expect(row.locator('.portal-recipients')).toBeVisible();
+  await expect(row.locator('.portal-recipients li')).toHaveText([/E2E [HI] QA/, /E2E [HI] QA/]);
+  await row.locator('[data-recipients-for]').click(); await expect(row.locator('.portal-recipients')).toBeHidden();
+  await page.locator('[data-action="new-draft"]').click(); await page.locator('#mc-title').fill('E2E nothing ticked'); await page.locator('#mc-body').fill('x');
+  await page.locator('[data-action="draft"]').click(); await expect(page.locator('#msg-fb')).toContainText('tick at least one box');
+  assert.equal((await admin.from('messages').select('id').eq('title', 'E2E nothing ticked')).data.length, 0, 'a draft with nobody picked is not saved');
+  await page.setViewportSize({ width: 390, height: 844 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways scroll at 390');
+  await page.locator('[data-aud-grid]').screenshot({ path: 'test-results/portal/audience-grid-390.png' }); await page.setViewportSize({ width: 1440, height: 1000 });
+  await box('DESIGN', 'current').click(); await box('TECH', 'alumni').click(); await page.locator('.portal-panels').screenshot({ path: 'test-results/portal/audience-grid.png' });
   assert.deepEqual(errors, []);
-  console.log('PASS: the page’s counts equal the sender’s for every channel and for filters picked on the page (cohort chips from real data, all seven divisions)');
+  console.log('PASS: the page — ticked boxes are saved exactly, its counts are the sender’s, EDIT restores the boxes, nothing ticked can’t be saved, fits a phone');
 
   if (!TEST_PHONE) { console.log('SKIP: real sends (set TL_TEST_PHONE to a number verified in Twilio)'); process.exitCode = 0; }
   else {
@@ -115,7 +129,7 @@ try {
     assert.equal(st.error, null, 'Twilio accepts the keys'); assert.equal(st.configured, true);
 
     // ── 2. a test text to yourself, our own wording ─────────────────────────────────────────────────
-    const { data: tm } = await admin.from('messages').insert({ title: 'E2E test text', body: 'TroyLabs portal check: this is the SEND A TEST TO ME text. No reply needed.', send_by: 'text', filters: {} }).select().single(); msgs.push(tm.id);
+    const { data: tm } = await admin.from('messages').insert({ title: 'E2E test text', body: 'TroyLabs portal check: this is the SEND A TEST TO ME text. No reply needed.', send_by: 'text', audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] } }).select().single(); msgs.push(tm.id);
     const t = await call(boss, 'test', tm.id); console.log('test text:', t.status, JSON.stringify(t.body));
     assert.equal(t.status, 200, `test text accepted: ${t.body.error}`); assert.match(t.body.textSid, /^SM/);
     console.log('PASS: SEND A TEST TO ME — Twilio accepted our own wording for your phone');
@@ -126,7 +140,7 @@ try {
       const T = await makeUser(admin, 'E2E Target QA'); users.push(T); nameOf[T.id] = 'T';
       await admin.from('profiles').update({ status: 'alum', divisions: ['TECH'], join_term: 'FA', join_year: 2019, city_id: LA, phone: TEST_PHONE, phone_opt_in: true, email_opt_in: false }).eq('id', T.id);
       await admin.from('profiles').update({ phone: null }).eq('id', boss.id);   // so the phone belongs to T alone
-      const { data: gm } = await admin.from('messages').insert({ title: 'E2E group text', body: 'TroyLabs portal check: a group text to alumni in TECH from the FA19 cohort. No reply needed.', send_by: 'text', filters: { status: ['ALUMNI'], divisions: ['TECH'], cohort: ['FA19'] } }).select().single(); msgs.push(gm.id);
+      const { data: gm } = await admin.from('messages').insert({ title: 'E2E group text', body: 'TroyLabs portal check: a group text to alumni in TECH from the FA19 cohort. No reply needed.', send_by: 'text', audience: { cells: [{ group: 'TECH', who: 'alumni' }], cohort: ['FA19'] } }).select().single(); msgs.push(gm.id);
       const s = await call(boss, 'send', gm.id); console.log('group send:', s.status, JSON.stringify(s.body));
       assert.equal(s.status, 200, `group send: ${s.body.error}`);
       const rows = (await admin.from('message_recipients').select('profile_id, channel, phone, delivered_at, provider_id, status, error').eq('message_id', gm.id)).data;

@@ -564,3 +564,15 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 .portal-delivery.is-warn { color: var(--color-orange); }
 .portal-msg-error { color: var(--color-orange); }
 @media (max-width: 767px) { .portal-delivery { margin-top: 8px; letter-spacing: 0.3px; } }
+
+/* Admin › Message: who gets it, as groups × CURRENT / ALUMNI (any mix; Bryan, 2026-10-02) */
+.portal-aud-grid { display: grid; grid-template-columns: minmax(min-content, 1fr) auto auto; gap: calc(8 * var(--u)) calc(10 * var(--u)); align-items: center; }
+.portal-aud-group { letter-spacing: calc(1.5 * var(--u)); }   /* wraps between words only: PRODUCT / MANAGEMENT, never MANAGEME / NT */
+.portal-aud-cell { justify-content: center; min-width: calc(118 * var(--u)); }
+.portal-aud-cell [data-n] { margin-left: 0.35em; }
+.portal-aud-cell[aria-pressed="true"] [data-n] { color: inherit; }
+@media (max-width: 767px) {
+  .portal-aud-grid { gap: 8px; }
+  .portal-aud-cell { min-width: 0; padding-left: 10px; padding-right: 10px; }
+  .portal-aud-group { font-size: 11px; }
+}

@@ -6,10 +6,9 @@ import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string; by: string; preview: string; audience: string; count: number; delivered?: number; people: string[] };
 const MESSAGES: Msg[] = [];
-const CHANNELS: { name: string; rule: string; count: number }[] = [];
-import { DIVISIONS, INDUSTRIES } from '../../../lib/portal/options';
-// COHORT has no fixed list: the page fills in every cohort members actually joined in (scripts/portal-messages.ts)
-const AUD: [string, readonly string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', []], ['DIVISIONS', DIVISIONS], ['INDUSTRIES', INDUSTRIES]];
+import { INDUSTRIES } from '../../../lib/portal/options';
+import { GROUPS } from '../../../../supabase/functions/_shared/audience';
+const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this semester. Alumni: alumni who held one in any semester.', EVERYONE: 'Current: every student. Alumni: every alum.' };
 ---
 
 <BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Email or text a group of TroyLabs members.">
@@ -37,16 +36,23 @@ const AUD: [string, readonly string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], 
         </div>
         </details>
       </form>
-      <div class="portal-panel" data-audience="Sending to members matching" data-empty="No filters — sends to every opted-in member.">
+      <div class="portal-panel">
         <h2 class="t-sub portal-panel-title">Who gets it</h2>
-        <span class="t-label text-muted">A CHANNEL</span>
-        <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences that stay current by themselves: a student moves to All alumni the day they graduate, and E-BOARD is whoever holds an e-board role this semester.</p>
-        <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))"></div>
+        <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(10 * var(--u))">Tick any mix. Current means students (for e-board: this semester's e-board). Each person gets it once, even if they're in several boxes.</p>
+        <div class="portal-aud-grid" data-aud-grid role="group" aria-label="Who gets it">
+          {GROUPS.map((g) => (<>
+            <span class="t-label portal-aud-group" title={HINT[g]}>{g}</span>
+            <button type="button" class="t-fine portal-chip portal-aud-cell" aria-pressed="false" data-group={g} data-who="current" aria-label={`${g}, current`}>CURRENT <span class="text-muted" data-n></span></button>
+            <button type="button" class="t-fine portal-chip portal-aud-cell" aria-pressed="false" data-group={g} data-who="alumni" aria-label={`${g}, alumni`}>ALUMNI <span class="text-muted" data-n></span></button>
+          </>))}
+        </div>
         <details class="portal-fold portal-or" data-fold>
-          <summary class="t-label text-muted">OR PICK FILTERS</summary>
-        {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" data-cohorts={h === 'COHORT' ? '' : undefined} style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
+          <summary class="t-label text-muted">NARROW IT DOWN (OPTIONAL)</summary>
+          <p class="m-0 t-fine text-muted" style="margin:calc(2 * var(--u)) 0 calc(10 * var(--u))">Only people from these cohorts, or in these industries, among the boxes ticked above.</p>
+          <span class="t-label text-muted">COHORT</span><div class="flex flex-wrap portal-chips" data-cohorts style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"></div>
+          <span class="t-label text-muted">INDUSTRIES</span><div class="flex flex-wrap portal-chips" data-aud-industries style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{INDUSTRIES.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div>
         </details>
-        <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
+        <p class="t-fine portal-feedback" data-aud-summary role="status" style="margin:calc(10 * var(--u)) 0 calc(14 * var(--u))"></p>
         <span class="t-label text-muted">WHEN</span>
         <div class="flex flex-wrap portal-chips" data-single data-when style="margin:calc(8 * var(--u)) 0 calc(10 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
         <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input id="mc-when" type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
@@ -62,17 +68,13 @@ const AUD: [string, readonly string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], 
     </div>
 
     <details class="portal-fold portal-fold-section" data-fold>
-      <summary class="t-sub portal-section-h">Channels</summary>
-    <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Each channel is a rule, not a list, so it stays current by itself. Automatic message delivery is not connected yet.</p>
-    <ul class="portal-row-list t-caption" data-channel-list>
-      {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`}>EDIT RULE</button></span></li>)}
-      <li style="flex-direction:column;align-items:stretch;gap:calc(6 * var(--u))">
-        <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" disabled title="Automatic messages are not connected yet" data-action="edit-msg" data-done="OPENING…">EDIT MESSAGE</button></div>
-        <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum and "Class of" is set, so they move from All students to All alumni by themselves. Their division channels stay the same.</p>
-      </li>
-    </ul>
-    <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" disabled title="Channel editing is not available yet" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>
-
+      <summary class="t-sub portal-section-h">How the groups stay current</summary>
+      <ul class="portal-row-list t-fine text-muted">
+        <li>Groups are worked out the moment a message sends, never kept as lists, so nobody is added or removed by hand.</li>
+        <li>A student becomes an alum by themselves when their graduation semester ends (December for fall, June for spring), and moves from CURRENT to ALUMNI in every group they're in.</li>
+        <li>E-BOARD current is whoever has an e-board role for this semester on Admin › Members. When the semester changes, last semester's e-board who have graduated show up under E-BOARD alumni.</li>
+        <li>Divisions come from each member's profile. Someone in two divisions is in both rows.</li>
+      </ul>
     </details>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->

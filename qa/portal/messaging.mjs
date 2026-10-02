@@ -21,16 +21,15 @@ try {
   assert.equal((await call(plain, 'status')).status, 403, 'a non-admin member is refused');
 
   // audiences
-  const allAlumni = (await admin.from('channels').select('id').eq('name', 'ALL ALUMNI').single()).data.id;
   const ins = async (row) => { const { data, error } = await admin.from('messages').insert({ title: 'QA subject', body: 'Hello <b>team</b> & friends\nsecond line <script>alert(1)</script>', ...row }).select().single(); if (error) throw error; msgs.push(data.id); return data.id; };
   const onlyMine = (list) => list.filter((r) => mine.has(r.email)).map((r) => r.name).sort();
-  const pAlumni = await call(boss, 'preview', await ins({ channel_id: allAlumni }));
+  const pAlumni = await call(boss, 'preview', await ins({ audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] } }));
   console.log('ALL ALUMNI →', onlyMine(pAlumni.body.recipients));
-  assert.deepEqual(onlyMine(pAlumni.body.recipients), ['Admin QA', 'Alum Tech QA', 'Plain Member QA'], 'channel: alumni only; opted-out and pending excluded');
-  const pDesign = await call(boss, 'preview', await ins({ filters: { status: ['STUDENTS'], divisions: ['DESIGN'] } }));
+  assert.deepEqual(onlyMine(pAlumni.body.recipients), ['Admin QA', 'Alum Tech QA', 'Plain Member QA'], 'alumni only; opted-out and pending excluded');
+  const pDesign = await call(boss, 'preview', await ins({ audience: { cells: [{ group: 'DESIGN', who: 'current' }] } }));
   console.log('STUDENTS + DESIGN →', onlyMine(pDesign.body.recipients));
-  assert.deepEqual(onlyMine(pDesign.body.recipients), ['Student Design QA'], 'filters combine');
-  const everyone = await call(boss, 'preview', await ins({ filters: {}, event: { name: 'Fall mixer', when: '2026-10-08T19:00', where: 'Founders Lounge', rsvp: 'https://example.com/rsvp' } }));
+  assert.deepEqual(onlyMine(pDesign.body.recipients), ['Student Design QA'], 'design, current');
+  const everyone = await call(boss, 'preview', await ins({ audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, event: { name: 'Fall mixer', when: '2026-10-08T19:00', where: 'Founders Lounge', rsvp: 'https://example.com/rsvp' } }));
   assert.ok(!onlyMine(everyone.body.recipients).includes('Opted Out QA') && !onlyMine(everyone.body.recipients).includes('Pending QA'), 'everyone still excludes opted-out and pending');
   // the email: escaped body, line breaks, event block, footer
   const h = everyone.body.html;
@@ -39,7 +38,7 @@ try {
   assert.ok(h.includes('Thursday, October 8') && h.includes('7:00 PM') && h.includes('Founders Lounge') && h.includes('href="https://example.com/rsvp"'), 'event block');
   assert.ok(h.includes('alumni-portal/profile') && /stop these emails/.test(h), 'opt-out footer');
   assert.ok(everyone.body.text.includes('RSVP: https://example.com/rsvp'), 'plain-text version');
-  console.log('PASS: recipients (channel, filters, opt-out, pending), escaping, event block, footer, text version');
+  console.log('PASS: recipients (audience boxes, opt-out, pending), escaping, event block, footer, text version');
 
   // without a key nothing sends (skipped once the key exists: then a real test send goes to the admin's own inbox, which these throwaway example.com accounts can't receive)
   if (!keyed) {

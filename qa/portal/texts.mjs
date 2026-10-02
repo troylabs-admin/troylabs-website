@@ -31,7 +31,7 @@ try {
   await admin.from('profiles').update({ phone: phones.noOptIn, phone_opt_in: false }).eq('id', noOptIn.id);
   await admin.from('profiles').update({ phone: phones.pending, phone_opt_in: true }).eq('id', pending.id);
   const mine = new Set(users.map((u) => u.id));
-  const ins = async (row) => { const { data, error } = await admin.from('messages').insert({ title: 'QA text', body: 'Mixer “tonight” — bring a friend', filters: {}, ...row }).select().single(); if (error) throw error; msgs.push(data.id); return data.id; };
+  const ins = async (row) => { const { data, error } = await admin.from('messages').insert({ title: 'QA text', body: 'Mixer “tonight” — bring a friend', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, ...row }).select().single(); if (error) throw error; msgs.push(data.id); return data.id; };
 
   // ── status ───────────────────────────────────────────────────────────────────────────────────────
   const st = await call(boss, 'status'); console.log('status:', JSON.stringify(st.body));
@@ -72,6 +72,7 @@ try {
   const status = page.locator('#msg-delivery');
   await expect(status).toContainText(connected ? 'Texts are' : 'Texts aren’t connected yet');
   await expect(status).toContainText('Email');
+  await page.locator('[data-aud-grid] .portal-chip[data-group="EVERYONE"][data-who="current"]').click(); await page.locator('[data-aud-grid] .portal-chip[data-group="EVERYONE"][data-who="alumni"]').click();
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="text"]').click();
   await page.locator('#mc-title').fill('QA text from the page');
   await page.locator('#mc-body').fill('Mixer tonight at 7');

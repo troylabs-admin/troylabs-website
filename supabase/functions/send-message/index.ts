@@ -40,7 +40,7 @@ interface Person { id: string; full_name: string; status: 'student' | 'alum'; jo
 
 // ── who gets it: the same rules the Message page previews with ───────────────────────────────────
 const cohortOf = (term: string | null, year: number | null) => (term && year ? `${term}${String(year).slice(2)}` : '');
-function matches(p: Person, rule: Rule) {
+function matches(p: Person, rule: Rule, eboardNow: Set<string> = new Set()) {
   return Object.entries(rule ?? {}).every(([k, v]) => {
     const vals = ([] as string[]).concat(v as string | string[]).map((x) => String(x).toUpperCase());
     if (!vals.length) return true;
@@ -49,8 +49,14 @@ function matches(p: Person, rule: Rule) {
     if (k === 'division' || k === 'divisions') return (p.divisions ?? []).some((d) => vals.includes(d.toUpperCase()) || vals.includes(d.toUpperCase().replace(' MANAGEMENT', '')));
     if (k === 'industry' || k === 'industries') return (p.industries ?? []).some((d) => vals.includes(d.toUpperCase()));
     if (k === 'city') return (p.city?.name ?? '').toUpperCase() === vals[0];
+    if (k === 'eboard') return eboardNow.has(p.id);   // the E-BOARD channel: a role this semester
     return true;
   });
+}
+/** the semester right now: spring January–June, fall July–December, in LA (same as lib/portal/options.ts) */
+function currentTerm(d = new Date()): { term: 'FA' | 'SP'; year: number } {
+  const la = new Date(d.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  return { term: la.getMonth() >= 6 ? 'FA' : 'SP', year: la.getFullYear() };
 }
 const emailOf = (p: Person) => (p.personal_email || p.usc_email || '').trim().toLowerCase();
 type EmailTo = { id: string; name: string; email: string }; type TextTo = { id: string; name: string; phone: string };
@@ -60,7 +66,9 @@ async function recipientsFor(svc: SupabaseClient, m: Msg): Promise<{ email: Emai
   if (m.channel_id) { const { data: ch } = await svc.from('channels').select('rule').eq('id', m.channel_id).single(); rule = (ch?.rule as Rule) ?? {}; }
   const { data, error } = await svc.from('profiles').select('id, full_name, status, join_term, join_year, divisions, industries, personal_email, usc_email, email_opt_in, phone, phone_opt_in, city:cities(name)').eq('approved', true);
   if (error) throw error;
-  const audience = ((data ?? []) as unknown as Person[]).filter((p) => matches(p, rule)); const want = channelsOf(m);
+  let eboardNow = new Set<string>();
+  if ('eboard' in rule) { const t = currentTerm(); const { data: roles } = await svc.from('eboard_roles').select('profile_id').eq('term', t.term).eq('year', t.year); eboardNow = new Set((roles ?? []).map((r) => r.profile_id as string)); }
+  const audience = ((data ?? []) as unknown as Person[]).filter((p) => matches(p, rule, eboardNow)); const want = channelsOf(m);
   const once = <T,>(list: T[], key: (x: T) => string) => { const seen = new Set<string>(); return list.filter((x) => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
   return {
     email: want.includes('email') ? once(audience.filter((p) => p.email_opt_in !== false && emailOf(p)).map((p) => ({ id: p.id, name: p.full_name, email: emailOf(p) })), (x) => x.email) : [],

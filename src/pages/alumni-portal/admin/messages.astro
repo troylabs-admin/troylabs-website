@@ -7,7 +7,9 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string; by: string; preview: string; audience: string; count: number; delivered?: number; people: string[] };
 const MESSAGES: Msg[] = [];
 const CHANNELS: { name: string; rule: string; count: number }[] = [];
-const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', ['FA26', 'SP26', 'FA25', 'SP25']], ['DIVISIONS', ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO']], ['INDUSTRIES', ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY']]];
+import { DIVISIONS, INDUSTRIES } from '../../../lib/portal/options';
+// COHORT has no fixed list: the page fills in every cohort members actually joined in (scripts/portal-messages.ts)
+const AUD: [string, readonly string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT', []], ['DIVISIONS', DIVISIONS], ['INDUSTRIES', INDUSTRIES]];
 ---
 
 <BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Email or text a group of TroyLabs members.">
@@ -38,11 +40,11 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
       <div class="portal-panel" data-audience="Sending to members matching" data-empty="No filters — sends to every opted-in member.">
         <h2 class="t-sub portal-panel-title">Who gets it</h2>
         <span class="t-label text-muted">A CHANNEL</span>
-        <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences. Members join and leave automatically as their status changes — a student becomes an alum, and moves channels, the day they graduate.</p>
+        <p class="m-0 t-fine text-muted" style="margin:calc(4 * var(--u)) 0 calc(8 * var(--u))">Saved audiences that stay current by themselves: a student moves to All alumni the day they graduate, and E-BOARD is whoever holds an e-board role this semester.</p>
         <div class="flex flex-wrap portal-chips" data-channels style="margin-bottom:calc(16 * var(--u))"></div>
         <details class="portal-fold portal-or" data-fold>
           <summary class="t-label text-muted">OR PICK FILTERS</summary>
-        {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
+        {AUD.map(([h, items]) => (<><span class="t-label text-muted">{h}</span><div class="flex flex-wrap portal-chips" data-cohorts={h === 'COHORT' ? '' : undefined} style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{items.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div></>))}
         </details>
         <p class="t-fine portal-feedback" style="margin:0 0 calc(14 * var(--u))"></p>
         <span class="t-label text-muted">WHEN</span>
@@ -66,7 +68,7 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
       {CHANNELS.map((c) => <li><span><span class="text-ink">{c.name}</span> <span class="text-muted">· {c.rule} · {c.count} {c.count === 1 ? 'member' : 'members'}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-action="edit-channel" data-done="OPENING…" data-feedback={`Editing "${c.name}" opens once the database is connected.`}>EDIT RULE</button></span></li>)}
       <li style="flex-direction:column;align-items:stretch;gap:calc(6 * var(--u))">
         <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="color:var(--color-orange)">AUTOMATIC</span><span class="text-ink" style="flex:1">Graduation: congratulations + alumni channels</span><button type="button" class="t-label portal-linklike" disabled title="Automatic messages are not connected yet" data-action="edit-msg" data-done="OPENING…">EDIT MESSAGE</button></div>
-        <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum, "Class of" is set, they're added to All alumni plus the alumni channel for their division.</p>
+        <p class="m-0 t-fine text-muted">When a student's expected graduation semester ends: status becomes Alum and "Class of" is set, so they move from All students to All alumni by themselves. Their division channels stay the same.</p>
       </li>
     </ul>
     <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" disabled title="Channel editing is not available yet" data-action="new-channel" data-done="OPENING…">NEW CHANNEL</button></div>

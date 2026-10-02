@@ -33,31 +33,39 @@ try {
     D: { status: 'student', divisions: ['TECH', 'DESIGN'], join_term: 'SP', join_year: 2019, industries: ['ROBOTICS'], city_id: null, phone: fake(4), phone_opt_in: false, grad_year: 2028 },   // has a number, didn't opt in
     E: { status: 'alum', divisions: ['DEMO'], join_term: 'FA', join_year: 2019, industries: ['HEALTHTECH'], city_id: LA, phone: fake(5), phone_opt_in: true, email_opt_in: false },   // emails off, texts on
     G: { status: 'alum', divisions: ['TECH'], join_term: 'SP', join_year: 2019, industries: [], city_id: SF, phone: null, phone_opt_in: false },   // no number
+    H: { status: 'student', divisions: ['BUILD', 'MARKETING'], join_term: 'FA', join_year: 2019, industries: [], city_id: LA, phone: fake(7), phone_opt_in: true, grad_year: 2027 },   // on the e-board this semester
+    I: { status: 'alum', divisions: ['VC/FINANCE'], join_term: 'SP', join_year: 2019, industries: [], city_id: null, phone: fake(8), phone_opt_in: true },   // was on the e-board last year
   };
   const who = {};
   for (const [k, f] of Object.entries(cast)) { const u = await makeUser(admin, `E2E ${k} QA`); users.push(u); who[k] = u; const { error } = await admin.from('profiles').update({ grad_year: 2023, ...f }).eq('id', u.id); if (error) throw new Error(`${k}: ${error.message}`); }
   const F = await makeUser(admin, 'E2E F pending QA', false); users.push(F); await admin.from('profiles').update({ ...cast.A, phone: fake(6) }).eq('id', F.id);   // matches everything, not approved
+  const la = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })); const term = la.getMonth() >= 6 ? 'FA' : 'SP', year = la.getFullYear();
+  await admin.from('eboard_roles').insert([{ profile_id: who.H.id, role: 'DIRECTOR OF BUILD', term, year }, { profile_id: who.I.id, role: 'DIRECTOR OF VC/FINANCE', term: 'SP', year: year - 1 }, { profile_id: F.id, role: 'CO-PRESIDENT', term, year }]);
   const nameOf = Object.fromEntries([...Object.entries(who).map(([k, u]) => [u.id, k]), [F.id, 'F'], [boss.id, 'boss']]);
   const mine = (list) => list.filter((r) => nameOf[r.id]).map((r) => nameOf[r.id]).sort().join('');
 
-  // ── the matrix: channel rules and filters, both channels, compared with what should happen ────────
+  // ── the matrix: every channel and a set of filters, both ways of sending, against what should happen ──
   const channels = Object.fromEntries(((await admin.from('channels').select('id, name')).data ?? []).map((c) => [c.name, c.id]));
+  const ch = (name) => { assert.ok(channels[name], `channel ${name} exists`); return { channel_id: channels[name] }; };
   const cases = [
-    ['EVERYONE', { channel_id: channels.EVERYONE }, 'ABCE', 'ABCDG'],
-    ['ALL ALUMNI', { channel_id: channels['ALL ALUMNI'] }, 'ABE', 'ABG'],
-    ['ALL STUDENTS', { channel_id: channels['ALL STUDENTS'] }, 'C', 'CD'],
-    ['ALUMNI · PMS', { channel_id: channels['ALUMNI · PMS'] }, 'B', 'B'],
-    ['ALUMNI · TECH', { channel_id: channels['ALUMNI · TECH'] }, 'A', 'AG'],
-    ['STUDENTS · PMS', { channel_id: channels['STUDENTS · PMS'] }, 'C', 'C'],
-    ['STUDENTS · TECH', { channel_id: channels['STUDENTS · TECH'] }, '', 'D'],
-    ['LA', { channel_id: channels.LA }, 'ACE', 'AC'],
+    ['EVERYONE', ch('EVERYONE'), 'ABCEHI', 'ABCDGHI'],
+    ['ALL ALUMNI', ch('ALL ALUMNI'), 'ABEI', 'ABGI'],
+    ['ALL STUDENTS', ch('ALL STUDENTS'), 'CH', 'CDH'],
+    ['E-BOARD', ch('E-BOARD'), 'H', 'H'],
+    ['BUILD', ch('BUILD'), 'H', 'H'],
+    ['DEMO', ch('DEMO'), 'E', ''],
+    ['PRODUCT MANAGEMENT', ch('PRODUCT MANAGEMENT'), 'BC', 'BC'],
+    ['VC/FINANCE', ch('VC/FINANCE'), 'I', 'I'],
+    ['TECH', ch('TECH'), 'A', 'ADG'],
+    ['MARKETING', ch('MARKETING'), 'H', 'H'],
+    ['DESIGN', ch('DESIGN'), '', 'D'],
     ['alumni in TECH or DEMO', { filters: { status: ['ALUMNI'], divisions: ['TECH', 'DEMO'] } }, 'AE', 'AG'],
-    ['PRODUCT MANAGEMENT', { filters: { divisions: ['PRODUCT MANAGEMENT'] } }, 'BC', 'BC'],
-    ['cohort FA19', { filters: { cohort: ['FA19'] } }, 'ACE', 'AC'],
-    ['cohort FA19 or SP19', { filters: { cohort: ['FA19', 'SP19'] } }, 'ABCE', 'ABCDG'],
+    ['students in BUILD', { filters: { status: ['STUDENTS'], divisions: ['BUILD'] } }, 'H', 'H'],
+    ['cohort FA19', { filters: { cohort: ['FA19'] } }, 'ACEH', 'ACH'],
+    ['cohort FA19 or SP19', { filters: { cohort: ['FA19', 'SP19'] } }, 'ABCEHI', 'ABCDGHI'],
     ['industry AI', { filters: { industries: ['AI'] } }, 'AC', 'AC'],
-    ['industry ROBOTICS, students', { filters: { industries: ['ROBOTICS'], status: ['STUDENTS'] } }, 'C', 'CD'],
-    ['students and alumni', { filters: { status: ['STUDENTS', 'ALUMNI'] } }, 'ABCE', 'ABCDG'],
+    ['students in ROBOTICS', { filters: { industries: ['ROBOTICS'], status: ['STUDENTS'] } }, 'C', 'CD'],
+    ['students and alumni', { filters: { status: ['STUDENTS', 'ALUMNI'] } }, 'ABCEHI', 'ABCDGHI'],
     ['alumni in ROBOTICS (nobody)', { filters: { status: ['ALUMNI'], industries: ['ROBOTICS'] } }, '', ''],
   ];
   const bad = [];
@@ -69,7 +77,7 @@ try {
     if (/F|boss/.test(gotText + gotEmail)) bad.push(`${label}: a pending member or the opted-out admin was included`);
   }
   assert.deepEqual(bad, [], `audience mismatches:\n${bad.join('\n')}`);
-  console.log(`PASS: audiences — ${cases.length} channels/filter combinations, texts and emails, exactly the right people (pending, not opted in, no number, emails off all respected)`);
+  console.log(`PASS: audiences — ${cases.length} channels/filter combinations, texts and emails, exactly the right people (pending, not opted in, no number, emails off, former e-board all respected)`);
 
   // the page counts what the function sends (two implementations of the same rules)
   browser = await chromium.launch(); const errors = [];
@@ -84,8 +92,21 @@ try {
     const id = msgs[cases.findIndex(([l]) => l === label)]; const p = await call(boss, 'preview', id);
     assert.deepEqual([Number(m[1]), Number(m[2])], [p.body.recipients.length, p.body.textRecipients.length], `page and sender agree for ${label}`);
   }
+  // filters picked on the page (cohort chips are built from members' data after load) count the same as the sender
+  const pressed = page.locator('[data-channels] .portal-chip[aria-pressed="true"]'); if (await pressed.count()) await pressed.first().click();   // back to no channel
+  for (const [label, chips] of [['cohort FA19', ['FA19']], ['students in BUILD', ['STUDENTS', 'BUILD']]]) {
+    for (const c of chips) await page.locator('[data-audience] [data-aud] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c.replace('/', '\\/')}$`) }).first().click();
+    await page.locator('[data-action="preview"]').click();
+    const t = await page.locator('#msg-fb').innerText(); const m = /by email to (\d+) \w+ and by text to (\d+)/.exec(t); assert.ok(m, `preview text for ${label}: ${t}`);
+    const p = await call(boss, 'preview', msgs[cases.findIndex(([l]) => l === label)]);
+    assert.deepEqual([Number(m[1]), Number(m[2])], [p.body.recipients.length, p.body.textRecipients.length], `page and sender agree for ${label}`);
+    for (const c of chips) await page.locator('[data-audience] [data-aud] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c.replace('/', '\\/')}$`) }).first().click();   // untick
+  }
+  await expect(page.locator('[data-cohorts] .portal-chip', { hasText: 'FA19' })).toHaveCount(1);
+  await expect(page.locator('[data-aud="divisions"] .portal-chip')).toHaveText(['BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', 'TECH', 'MARKETING', 'DESIGN']);
+  await page.locator('.portal-panels').screenshot({ path: 'test-results/portal/messages-audiences.png' });
   assert.deepEqual(errors, []);
-  console.log('PASS: the page’s counts equal the sender’s for every channel (email and text)');
+  console.log('PASS: the page’s counts equal the sender’s for every channel and for filters picked on the page (cohort chips from real data, all seven divisions)');
 
   if (!TEST_PHONE) { console.log('SKIP: real sends (set TL_TEST_PHONE to a number verified in Twilio)'); process.exitCode = 0; }
   else {

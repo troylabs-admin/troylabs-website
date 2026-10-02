@@ -6,7 +6,7 @@
  */
 export const STATUS = ['STUDENT', 'ALUM'] as const;
 export const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25', 'FA24', 'SP24', 'FA23', 'SP23'];
-export const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING'];
+export { DIVISIONS_SHORT as DIVISIONS } from './options';   // one list for every page (lib/portal/options.ts)
 export const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'ROBOTICS', 'DESIGN', 'MEDIA'];
 
 export interface Person {

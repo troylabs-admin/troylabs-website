@@ -183,7 +183,7 @@ function init() {
       let shown = 0, total = 0;
       for (const tr of mtable.querySelectorAll<HTMLTableRowElement>('tr:not(.portal-row-detail)')) {
         total++;
-        const ok = Object.entries(active).every(([k, vals]) => vals.includes(tr.dataset[k] ?? '')) && (!text || (tr.dataset.text ?? '').includes(text));
+        const ok = Object.entries(active).every(([k, vals]) => { const have = (tr.dataset[k] ?? '').split('|'); return vals.some((v) => have.includes(v)); }) && (!text || (tr.dataset.text ?? '').includes(text));   // a row can hold several values (divisions), joined by |
         tr.hidden = !ok; if (ok) shown++;
         const detail = tr.nextElementSibling as HTMLElement | null; if (detail?.classList.contains('portal-row-detail')) detail.hidden = !ok;
       }

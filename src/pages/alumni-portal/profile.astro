@@ -6,8 +6,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
-const DIVISIONS = ['PRODUCT MANAGEMENT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING', 'DEMO'];
-const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
+import { DIVISIONS, INDUSTRIES } from '../../lib/portal/options';
 const ON = { divisions: [] as string[], industries: [] as string[] };
 ---
 

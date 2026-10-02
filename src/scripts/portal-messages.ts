@@ -8,6 +8,7 @@ import { me } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { cohortOf, type ProfileRow } from '../lib/portal/data';
 import { prettyPhone } from '../lib/portal/phone';
+import { currentTerm } from '../lib/portal/options';
 import { SMS_MAX, segments, smsBody } from '../../supabase/functions/_shared/sms';
 
 type Channel = { id: number; name: string; rule: Record<string, string>; system: boolean };
@@ -19,6 +20,7 @@ const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
 let people: ProfileRow[] = [], channels: Channel[] = [], messages: Msg[] = [], rcpts: Rcpt[] = [], editing: number | null = null;
 let delivery: Delivery | null = null;
+let eboardNow = new Set<string>();   // profile ids with an e-board role this semester (the E-BOARD channel)
 
 /** call the send-message function as the signed-in admin */
 async function fn(mode: string, messageId?: number): Promise<{ ok: boolean; status: number; body: any }> {
@@ -49,6 +51,7 @@ const matches = (p: ProfileRow, rule: Record<string, string | string[]>) => Obje
   if (k === 'division' || k === 'divisions') return (p.divisions ?? []).some((d) => vals.includes(d.toUpperCase()) || vals.includes(d.toUpperCase().replace(' MANAGEMENT', '')));
   if (k === 'industry' || k === 'industries') return (p.industries ?? []).some((d) => vals.includes(d.toUpperCase()));
   if (k === 'city') return (p.city?.name ?? '').toUpperCase() === vals[0];
+  if (k === 'eboard') return eboardNow.has(p.id);
   return true;
 });
 const audience = () => {
@@ -83,10 +86,20 @@ function smsCount() {
     : `As a text: ${size.chars} characters with “TroyLabs:” and the STOP line, ${size.segments === 1 ? 'one text' : `${size.segments} texts joined into one`} per person${size.unicode ? ' (an emoji or special character makes texts shorter)' : ''}.`;
 }
 
+/** every cohort an approved member joined in, newest first (FA26, SP26, FA25 …), keeping what was ticked */
+function renderCohorts() {
+  const box = $('[data-cohorts]'); if (!box) return; box.dataset.aud = 'cohort';
+  const on = new Set([...box.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.trim()));
+  const key = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
+  const list = [...new Set(people.filter((p) => p.approved).map((p) => cohortOf(p.join_term, p.join_year)).filter(Boolean))].sort((a, b) => key(b) - key(a));
+  box.innerHTML = list.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="${on.has(c)}">${esc(c)}</button>`).join('') || '<span class="t-fine text-muted">No cohorts yet: members add the semester they joined on their profile.</span>';
+}
+/** a channel's rule in words an admin reads at a glance */
+const describe = (rule: Record<string, string>) => Object.entries(rule).map(([k, v]) => k === 'status' ? (String(v).startsWith('alum') ? 'alumni' : 'students') : k === 'division' || k === 'divisions' ? `${v} division` : k === 'eboard' ? 'e-board this semester' : k === 'city' ? `in ${v}` : `${k} ${v}`).join(' · ') || 'every member';
 function renderChannels() {
-  const chips = $('[data-channels]')!; chips.innerHTML = channels.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="${esc(c.name)}" title="${esc(Object.entries(c.rule).map(([k, v]) => `${k} = ${v}`).join(', ') || 'every member')}">${esc(c.name)} · ${people.filter((p) => p.approved && matches(p, c.rule)).length}</button>`).join('');
+  const chips = $('[data-channels]')!; chips.innerHTML = channels.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="${esc(c.name)}" title="${esc(describe(c.rule))}">${esc(c.name)} · ${people.filter((p) => p.approved && matches(p, c.rule)).length}</button>`).join('');
   const list = $('[data-channel-list]')!; const auto = list.querySelector('li:last-child')!.outerHTML;
-  list.innerHTML = channels.map((c) => `<li><span><span class="text-ink">${esc(c.name)}</span> <span class="text-muted">· ${esc(Object.entries(c.rule).map(([k, v]) => `${k} = ${v}`).join(', ') || 'every member')} · ${people.filter((p) => p.approved && matches(p, c.rule)).length} members</span></span></li>`).join('') + auto;
+  list.innerHTML = channels.map((c) => `<li><span><span class="text-ink">${esc(c.name)}</span> <span class="text-muted">· ${esc(describe(c.rule))} · ${people.filter((p) => p.approved && matches(p, c.rule)).length} members</span></span></li>`).join('') + auto;
 }
 function renderMessages() {
   const list = $('[data-msg-list]')!; const tab = $('[data-msg-tabs] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'all';
@@ -174,9 +187,10 @@ async function sendNow(btn: HTMLElement) {
 }
 async function load() {
   const sb = supabase();
-  const [{ data: p }, { data: c }, { data: m }, { data: r }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('channels').select('*').order('id'), sb.from('messages').select('*').order('updated_at', { ascending: false }), sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error')]);
-  people = (p ?? []) as ProfileRow[]; channels = (c ?? []) as Channel[]; messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
-  renderChannels(); renderMessages(); smsCount();
+  const now = currentTerm();
+  const [{ data: p }, { data: c }, { data: m }, { data: r }, { data: e }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('channels').select('*').order('id'), sb.from('messages').select('*').order('updated_at', { ascending: false }), sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'), sb.from('eboard_roles').select('profile_id').eq('term', now.term).eq('year', now.year)]);
+  people = (p ?? []) as ProfileRow[]; channels = (c ?? []) as Channel[]; messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[]; eboardNow = new Set((e ?? []).map((x) => x.profile_id as string));
+  renderCohorts(); renderChannels(); renderMessages(); smsCount();
 }
 async function init() {
   const list = $('[data-msg-list]'); if (!list || list.dataset.wired) return; list.dataset.wired = '1';
@@ -207,6 +221,7 @@ async function init() {
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }
     else if (b.dataset.who) { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT') : 'HIDE'; }
     else if (b.closest('[data-msg-tabs]')) setTimeout(renderMessages, 0);
+    else if (b.closest('[data-cohorts]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); }   // filled in after load, so not bound by the shared script
     else if (b.closest('[data-channels]')) { const on = b.getAttribute('aria-pressed') !== 'true'; document.querySelectorAll('[data-channels] .portal-chip').forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', String(on)); }   // these chips are rendered after the shared script bound its per-chip toggle, so flip here
   }, { capture: true });
 }

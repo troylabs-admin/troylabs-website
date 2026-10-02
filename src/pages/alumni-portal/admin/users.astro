@@ -10,7 +10,7 @@ import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
 const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25'];
-const DIVISIONS = ['PRODUCT', 'DESIGN', 'TECH', 'VC/FINANCE', 'MARKETING'];
+import { DIVISIONS_SHORT as DIVISIONS } from '../../../lib/portal/options';
 type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM'; cohort: string; program: string; division: string; city: string; complete: boolean };
 const MEMBERS: M[] = [];
 const REQUESTS: { name: string; email: string; cohort: string; note: string }[] = [];

@@ -17,7 +17,7 @@ try {
 
   // status
   const st = await call(boss, 'status'); console.log('status:', JSON.stringify(st.body));
-  const keyed = st.body.configured === true;
+  const keyed = st.body.email?.configured === true;
   assert.equal((await call(plain, 'status')).status, 403, 'a non-admin member is refused');
 
   // audiences

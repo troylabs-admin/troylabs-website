@@ -65,11 +65,11 @@ function init() {
   if (audience) {
     const fb = audience.querySelector<HTMLElement>('.portal-feedback');
     const update = () => {
-      const on = [...audience.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.replace(/^✓\s*/, '').trim());
+      const on = [...audience.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].filter((c) => !c.closest('[data-when], [data-channels]')).map((c) => c.textContent!.replace(/^✓\s*/, '').trim());   // WHEN isn't part of who gets it; a channel reports itself
       const label = audience.dataset.audience || 'Selected';
       if (fb) fb.textContent = on.length ? `${label}: ${on.join(', ')}` : (audience.dataset.empty ?? '');
     };
-    audience.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.portal-chip')) update(); });
+    audience.addEventListener('click', (e) => { const chip = (e.target as HTMLElement).closest('.portal-chip'); if (chip && !chip.closest('[data-when], [data-channels]')) update(); });
     update();
   }
 

@@ -20,9 +20,13 @@ Deno.serve(async (req) => {
   if (!key) return json({ configured: false });
   const days = Math.min(90, Math.max(1, Number(new URL(req.url).searchParams.get('days') ?? 30)));
   const hogql = async (query: string) => {
-    const r = await fetch(`https://us.posthog.com/api/projects/${project}/query/`, { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ query: { kind: 'HogQLQuery', query } }) });
-    if (!r.ok) throw new Error(`PostHog ${r.status}: ${(await r.text()).slice(0, 200)}`);
-    return (await r.json()).results as unknown[][];
+    for (let attempt = 0; ; attempt++) {
+      const r = await fetch(`https://us.posthog.com/api/projects/${project}/query/`, { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ query: { kind: 'HogQLQuery', query } }) });
+      // PostHog sheds load with 429 / 503 ("queries are a little too busy right now"): wait and ask again, twice
+      if ((r.status === 429 || r.status === 503) && attempt < 2) { await new Promise((ok) => setTimeout(ok, 900 * (attempt + 1))); continue; }
+      if (!r.ok) throw new Error(`PostHog ${r.status}: ${(await r.text()).slice(0, 200)}`);
+      return (await r.json()).results as unknown[][];
+    }
   };
   const since = `timestamp > now() - interval ${days} day`;
   try {

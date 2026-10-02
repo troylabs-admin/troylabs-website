@@ -6,7 +6,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/portal.css';
 import PortalShell from '../../components/portal/PortalShell.astro';
-import { DIVISIONS, INDUSTRIES } from '../../lib/portal/options';
+import { DIVISIONS, EBOARD_ROLES, INDUSTRIES } from '../../lib/portal/options';
 const ON = { divisions: [] as string[], industries: [] as string[] };
 ---
 
@@ -50,12 +50,13 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))" data-completion-note>Updates live as you fill fields — save when you're done.</p>
     </div>
 
-    <form class="portal-profile" novalidate>
+    <!-- inert + SAVE disabled until the saved profile is in: typing before it loaded used to be overwritten by it -->
+    <form class="portal-profile" novalidate inert aria-busy="true">
       <h2 class="t-sub portal-section-h">Contact details</h2>
       <p class="m-0 t-fine text-muted" style="margin:calc(-6 * var(--u)) 0 calc(14 * var(--u))">Keep a personal email on file so members can reach you after graduation. Each row saves on its own. Updating contact details does not change your sign-in address.</p>
       <div class="portal-form-grid portal-contact">
         <div class="portal-field portal-contact-row" data-contact="usc">
-          <label class="t-label text-muted" for="pf-usc">USC EMAIL <span style="letter-spacing:0;text-transform:none">· matches you to the TroyLabs roster</span></label>
+          <label class="t-label text-muted" for="pf-usc">USC EMAIL <span style="letter-spacing:0;text-transform:none">· optional if you signed up with another email; helps leadership recognise you</span></label>
           <div class="portal-inline"><input id="pf-usc" type="email" class="t-caption portal-input" placeholder="you@usc.edu" autocomplete="email" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
           <p class="t-fine portal-feedback"></p>
         </div>
@@ -117,7 +118,14 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       <div class="flex flex-wrap portal-card-tags" style="margin-top:0" id="pf-eboard">
         <span class="t-fine text-muted" id="pf-eboard-none">None on record.</span>
       </div>
-      <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))">Served on e-board and don't see it here? Email troylabs@usc.edu and leadership will add it.</p>
+      <p class="m-0 t-fine text-muted" style="margin-top:calc(10 * var(--u))" id="pf-eboard-help">Served on e-board and don't see it here? Email troylabs@usc.edu and leadership will add it.</p>
+      <!-- while they wait (2026-10-02): applicants list the roles they held; leadership sees them in the approval list and
+           approving makes them their record. Hidden once approved (then it's leadership's to edit). -->
+      <div id="pf-claim" data-roles hidden style="margin-top:calc(12 * var(--u))">
+        <p class="m-0 t-label text-muted">WERE YOU ON E-BOARD? <span style="letter-spacing:0;text-transform:none">· optional. Pick each role, then the semester(s). Leadership confirms it when they approve you.</span></p>
+        <div class="flex flex-wrap portal-chips" data-field="eboard" data-optional style="margin-top:calc(8 * var(--u))">{EBOARD_ROLES.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false">{c}</button>)}</div>
+        <div class="portal-role-years"></div>
+      </div>
 
       <h2 class="t-sub portal-section-h">Divisions</h2>
       <div class="flex flex-wrap portal-chips" data-field="divisions" data-label="divisions">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed={ON.divisions.includes(c) ? 'true' : 'false'}>{c}</button>)}</div>
@@ -137,7 +145,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       <p class="m-0 t-fine text-muted" style="margin-top:calc(4 * var(--u))" id="pf-loc-note">No pin on the globe yet.</p>
 
 
-      <div class="portal-save"><button type="submit" class="portal-btn t-title" data-action="save" data-done="SAVED">SAVE</button><p class="t-fine portal-feedback"></p></div>
+      <div class="portal-save"><button type="submit" class="portal-btn t-title" data-action="save" data-done="SAVED" disabled>SAVE</button><p class="t-fine portal-feedback"></p></div>
     </form>
   </PortalShell>
 </BaseLayout>

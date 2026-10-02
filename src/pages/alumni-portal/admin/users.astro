@@ -1,16 +1,15 @@
 ---
 /**
  * Admin › Members. The club's history and reach in one table (Bryan, 2026-09-15): filter by cohort,
- * status, division, program, city; free-text search; add a cohort; set e-board roles per member;
+ * status, division, city; free-text search; set e-board roles per member;
  * approve people who signed up (the waiting list); export. Everything comes from and goes to the database (scripts/portal-members.ts).
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
-const EBOARD = ['DIRECTOR OF BUILD', 'DIRECTOR OF IGNITE', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF DESIGN', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DEMO', 'CO-PRESIDENT'];
-const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25'];
-import { DIVISIONS_SHORT as DIVISIONS } from '../../../lib/portal/options';
+import { DIVISIONS_SHORT as DIVISIONS, EBOARD_ROLES as EBOARD } from '../../../lib/portal/options';
+const COHORTS: string[] = [];   // filled from members' data by scripts/portal-members.ts
 type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM'; cohort: string; program: string; division: string; city: string; complete: boolean };
 const MEMBERS: M[] = [];
 const REQUESTS: { name: string; email: string; cohort: string; note: string }[] = [];
@@ -22,35 +21,40 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
     <div class="portal-page-head">
       <div>
         <h1 class="t-title portal-page-title">MEMBERS</h1>
-        <p class="t-caption text-muted portal-page-sub">Everyone in the network, students and alumni. Filter to find a group, then export or message them.</p>
+        <p class="t-caption text-muted portal-page-sub">Approve the people waiting to get in, then find anyone in the network: filter, set e-board roles, export.</p>
       </div>
       <div class="portal-actions">
-        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="add-cohort" data-done="OPENING…">ADD A COHORT</button>
         <button type="button" class="portal-btn is-small is-quiet t-label" data-action="export" data-done="EXPORTING…">EXPORT CSV</button>
       </div>
     </div>
     <p id="members-fb" class="t-fine portal-feedback" style="text-align:right"></p>
 
-    <!-- add a cohort: paste the roster (from Notion's CSV export, or typed). Anyone on it is approved the moment they sign in. -->
-    <div class="portal-panel" id="cohort-panel" hidden style="margin-top:calc(12 * var(--u))">
-      <h2 class="t-sub portal-panel-title">Add a cohort</h2>
-      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(12 * var(--u))">Paste one person per line: <span class="text-ink">name, usc email, division</span> (division optional). From Notion: open the semester's table, Export → CSV, and paste the rows. Anyone on the roster is let in automatically the first time they sign in with that address.</p>
-      <div class="portal-inline" style="margin-bottom:calc(10 * var(--u))">
-        <span class="t-label text-muted" style="flex:none">SEMESTER</span>
-        <select id="cohort-term" class="t-caption portal-input portal-select" aria-label="Semester"><option>Fall</option><option>Spring</option></select>
-        <input id="cohort-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Year" style="max-width:calc(140 * var(--u))" />
-      </div>
-      <textarea id="cohort-csv" class="t-caption portal-textarea" placeholder="Tommy Trojan, ttrojan@usc.edu, TECH&#10;Jane Doe, jdoe@usc.edu"></textarea>
-      <div class="portal-inline" style="margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small t-label" data-action="import-cohort" data-done="IMPORTED">IMPORT</button><button type="button" class="portal-btn is-small is-quiet t-label" data-action="close-cohort">CLOSE</button><p class="t-fine portal-feedback" style="margin:0"></p></div>
-      <p class="m-0 t-fine text-muted" id="roster-summary" style="margin-top:calc(10 * var(--u))"></p>
-    </div>
-
-    <!-- the sign-up queue (Bryan, 2026-09-30): everyone gets the site link, signs up, creates their own profile,
-         and leadership accepts them here by hand. Filled by scripts/portal-members.ts. -->
+    <!-- the sign-up queue (Bryan, 2026-09-30; at scale 2026-10-02): everyone gets the site link, signs up, fills in
+         the required profile, and leadership approves them here. Built for a hundred at once: compact rows, search,
+         sort, select all + bulk approve / decline with UNDO, 25 at a time. Filled by scripts/portal-members.ts. -->
     <div class="portal-panel" style="margin-top:calc(12 * var(--u))" id="approvals">
       <h2 class="t-sub portal-panel-title">Waiting for approval <span class="t-fine portal-role" id="requests-n">0</span></h2>
-      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(14 * var(--u))">People who signed up and created a profile. Approve the ones who were part of TroyLabs: they're in the network the next time they open the portal. Declined people stay outside and can be restored below.</p>
-      <ul class="m-0 p-0 list-none portal-requests" id="requests-list"><li class="t-caption text-muted">Nobody waiting.</li></ul>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(14 * var(--u))">Everyone here finished the sign-up profile. Approve the people who were part of TroyLabs: they're in the network the next time they open the portal, and any e-board roles they listed become their record.</p>
+      <div class="portal-q-tools" data-q-tools hidden>
+        <input id="q-search" type="search" class="t-caption portal-input" placeholder="Search name, email, division, cohort…" aria-label="Search the waiting list" />
+        <select id="q-sort" class="t-caption portal-input portal-select" aria-label="Sort the waiting list"><option value="oldest">Oldest first</option><option value="newest">Newest first</option><option value="name">Name A–Z</option></select>
+      </div>
+      <div class="portal-q-bar" data-q-bar hidden>
+        <label class="portal-check t-caption"><input type="checkbox" id="q-all" /><i></i><span data-q-all-label>Select all</span></label>
+        <button type="button" class="t-label portal-linklike" data-q-everyone hidden></button>
+        <span class="t-fine text-muted" data-q-selected>0 selected</span>
+        <span style="flex:1"></span>
+        <button type="button" class="portal-btn is-small t-label" data-q-approve disabled>APPROVE SELECTED</button>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-q-decline disabled>DECLINE SELECTED</button>
+      </div>
+      <p class="t-fine portal-feedback" id="q-fb" role="status" style="margin:0"></p>
+      <ul class="m-0 p-0 list-none portal-requests" id="requests-list"><li class="t-caption text-muted">Loading…</li></ul>
+      <div class="portal-inline" style="justify-content:center;margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-q-more hidden>SHOW MORE</button></div>
+      <details class="portal-fold portal-declined" id="incomplete-fold" hidden>
+        <summary class="t-label text-muted">STILL FILLING IN THEIR PROFILE <span id="incomplete-n">0</span></summary>
+        <p class="m-0 t-fine text-muted" style="margin:calc(8 * var(--u)) 0">They signed in but haven't finished the required profile yet. The portal keeps sending them back to it; they move up into the list above by themselves once they're done.</p>
+        <ul class="portal-row-list t-caption" id="incomplete-list"></ul>
+      </details>
       <details class="portal-fold portal-declined" id="declined-fold" hidden>
         <summary class="t-label text-muted">DECLINED <span id="declined-n">0</span></summary>
         <ul class="portal-row-list t-caption" id="declined-list"></ul>
@@ -58,7 +62,7 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
     </div>
 
     <!-- filters + search: all client-side on the placeholder rows -->
-    <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-members-filters>
+    <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-members-filters id="members">
       <div class="portal-inline"><svg class="portal-search-glyph" style="position:static;flex:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg><input id="members-q" type="search" class="t-caption portal-input" placeholder="Search name, email, company, city…" aria-label="Search members" /></div>
       <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">COHORT</span><div class="flex flex-wrap portal-chips" data-filter="cohort">{COHORTS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>

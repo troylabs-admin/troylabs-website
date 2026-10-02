@@ -65,5 +65,5 @@ console.log('PASS: cohort / industry narrow the ticked groups; neither picks any
 assert.deepEqual(cleanAudience({ cells: [C('TECH', 'current'), C('TECH', 'current'), { group: 'IGNITE', who: 'current' }, { group: 'TECH', who: 'everyone' }, null], cohort: ['FA21', 'FA21', ''], industries: 'AI' }),
   { cells: [C('TECH', 'current')], cohort: ['FA21'], industries: [] }, 'duplicates, unknown groups, bad values dropped');
 assert.deepEqual(cleanAudience(undefined), { cells: [], cohort: [], industries: [] });
-assert.equal(describeAudience({ cells: [C('DESIGN', 'current'), C('DESIGN', 'alumni'), C('TECH', 'alumni'), C('E-BOARD', 'current')], cohort: ['FA21'] }), 'E-board, current; Tech alumni; Design (current + alumni) · only cohort FA21');
+assert.equal(describeAudience({ cells: [C('DESIGN', 'current'), C('DESIGN', 'alumni'), C('TECH', 'alumni'), C('E-BOARD', 'current')], cohort: ['FA21'] }), 'Current e-board; Tech alumni; Design (current + alumni) · only cohort FA21');
 console.log('PASS: saved audiences are cleaned; descriptions read plainly');

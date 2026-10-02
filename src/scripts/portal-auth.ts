@@ -23,7 +23,7 @@ async function gate() {
 
   if (state !== 'ok') {
     // first things first: a new account creates its profile; then the waiting screen is the only other page
-    if (state === 'pending' && who.missing.length && here() !== PROFILE) { location.replace(`${PROFILE}?welcome=1`); return; }
+    if (state === 'pending' && who.missing.length && here() !== PROFILE) { location.replace(`${PROFILE}?welcome=1${here() === HOME ? '&from=search' : here().startsWith('/alumni-portal/') ? '&from=elsewhere' : ''}`); return; }   // from=: say why they landed here instead (audit: SEARCH silently bounced back)
     if (here() !== PROFILE && here() !== HOME) { location.replace(HOME); return; }
   }
   if (!who.admin) {

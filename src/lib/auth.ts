@@ -39,7 +39,8 @@ export async function me(): Promise<Me | null> {
 
 /** how many people are waiting for an admin (admins only; row-level security returns 0 to anyone else) */
 export async function waitingCount(): Promise<number> {
-  const { count } = await supabase().from('profiles').select('id', { count: 'exact', head: true }).eq('approved', false).is('declined_at', null);
+  // only finished applications (the four answers in lib/portal/application.ts): those are the ones an admin can decide
+  const { count } = await supabase().from('profiles').select('id', { count: 'exact', head: true }).eq('approved', false).is('declined_at', null).neq('full_name', '').not('grad_year', 'is', null).not('join_year', 'is', null).neq('divisions', '{}');
   return count ?? 0;
 }
 

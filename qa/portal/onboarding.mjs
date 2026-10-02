@@ -31,22 +31,25 @@ try {
   // ── a brand-new member is sent to create their profile ──────────────────────────────────────────
   const { page } = await signInPage(browser, fresh); page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`${base}/alumni-portal/home`);
-  await expect(page).toHaveURL(/\/alumni-portal\/profile\/?\?welcome=1$/);
+  await expect(page).toHaveURL(/\/alumni-portal\/profile\/?\?welcome=1&from=search$/);
   const panel = page.locator('#pf-onboard'), missing = panel.locator('[data-onboard-missing]');
   await expect(panel).toBeVisible();
+  await expect(panel).toContainText('Search opens once your profile is finished and leadership approves you.');
   await expect(panel.locator('[data-onboard-title]')).toHaveText('Create your profile');
-  await expect(missing).toHaveText('Still needed: your name, your graduation year, the semester you joined TroyLabs and your division.');
+  await expect(missing).toHaveText('Still needed: whether you’re a student or an alum, your name, your graduation year, the semester you joined TroyLabs and your division.');
+  assert.equal(await page.locator('[data-field="status"] .portal-chip[aria-pressed="true"]').count(), 0, 'a new profile has neither STUDENT nor ALUM picked for them');
   for (const width of [390, 320]) { await page.setViewportSize({ width, height: 844 }); await noOverflow(page, `profile sign-up panel at ${width}`); }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto(`${base}/alumni-portal/members/?id=${boss.id}`); await expect(page).toHaveURL(/profile\/?\?welcome=1$/);
-  await page.goto(`${base}/alumni-portal/admin`); await expect(page).toHaveURL(/profile\/?\?welcome=1$/);
+  await page.goto(`${base}/alumni-portal/members/?id=${boss.id}`); await expect(page).toHaveURL(/profile\/?\?welcome=1(&from=\w+)?$/);
+  await page.goto(`${base}/alumni-portal/admin`); await expect(page).toHaveURL(/profile\/?\?welcome=1(&from=\w+)?$/);
   console.log('PASS: new account lands on "Create your profile"; every other page sends it back there');
 
   // the list of what is still needed follows the form as it is filled (wait until the profile has loaded:
   // SAVE stays disabled until then, and the load fills every field)
   await expect(page.locator('.portal-profile [data-action="save"]')).toBeEnabled();
   await page.locator('#pf-name').fill('Jordan Fresh QA');
-  await expect(missing).toHaveText('Still needed: your graduation year, the semester you joined TroyLabs and your division.');
+  await expect(missing).toHaveText('Still needed: whether you’re a student or an alum, your graduation year, the semester you joined TroyLabs and your division.');
+  await page.locator('[data-action="save"]').click(); await expect(page.locator('.portal-save .portal-feedback')).toContainText('Pick whether you’re a current student or an alum');
   await page.locator('[data-field="status"] .portal-chip[data-value="alum"]').click();
   await page.locator('#pf-classof-year').fill('2023');
   await page.locator('#pf-term').selectOption('Fall'); await page.locator('#pf-year').fill('2021');
@@ -76,9 +79,10 @@ try {
   await expect(card).toBeVisible();
   for (const text of ['Class of 2023', 'joined FA21', 'DESIGN', fresh.email, 'ran the BUILD demo-day site']) await expect(card).toContainText(text);
   await expect(ap.locator('a[href="/alumni-portal/admin"] .portal-count').first()).toHaveText(/^[1-9]\d*$/);
-  await expect(card.getByRole('link', { name: 'VIEW PROFILE' })).toHaveAttribute('href', `/alumni-portal/members/?id=${fresh.id}`);
+  await card.getByRole('button', { name: 'DETAILS' }).click();
+  await expect(card.getByRole('link', { name: /VIEW FULL PROFILE/ })).toHaveAttribute('href', `/alumni-portal/members/?id=${fresh.id}&from=approvals`);
   await card.getByRole('button', { name: 'APPROVE' }).click();
-  await expect(ap.locator('#members-fb')).toContainText('Approved Jordan Fresh QA');
+  await expect(ap.locator('#q-fb')).toContainText('Approved Jordan Fresh QA');
   await expect(card).toHaveCount(0);
   await expect(ap.locator('[data-members] tbody')).toContainText('Jordan Fresh QA');
   await page.goto(`${base}/alumni-portal/home`);

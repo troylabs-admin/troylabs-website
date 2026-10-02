@@ -20,6 +20,7 @@ const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
 let people: ProfileRow[] = [], messages: Msg[] = [], rcpts: Rcpt[] = [], editing: number | null = null;
 let delivery: Delivery | null = null;
+let nudged = false;   // the 'tick a box' hint turns orange only after someone tries to send without one
 let eb: EboardSets = { now: new Set(), ever: new Set() };   // e-board this semester / in any semester (the E-BOARD row)
 
 /** call the send-message function as the signed-in admin */
@@ -93,8 +94,8 @@ function renderGrid() {
 }
 function summary() {
   const out = $('[data-aud-summary]'); if (!out) return; const a = audience();
-  out.style.color = a.aud.cells.length ? '' : 'var(--color-orange)';
-  out.textContent = !a.aud.cells.length ? 'Tick at least one box above. Nothing is sent to anyone until you do.'
+  out.style.color = !a.aud.cells.length && nudged ? 'var(--color-orange)' : 'var(--color-muted)';
+  out.textContent = !a.aud.cells.length ? 'Tick the groups who should get it. Nothing goes to anyone until you do.'
     : `Sending to ${describeAudience(a.aud)}: ${howMany(a.who.length)} (${reachText(a)}). Everyone gets it once, even if they're in several groups.`;
 }
 function renderMessages() {
@@ -118,7 +119,28 @@ function renderMessages() {
       <ul class="portal-row-list t-fine portal-recipients" hidden>${m.state === 'sent'
         ? sentTo.map((r) => `<li><span>${esc(named(r))} · ${r.channel === 'text' ? `text ${esc(prettyPhone(r.phone))}` : esc(r.email ?? '')}</span><span class="${r.error ? 'portal-msg-error' : 'text-muted'}" title="${esc(r.error ?? '')}">${r.error ? `FAILED: ${esc(r.error)}` : r.status === 'delivered' ? 'DELIVERED' : r.delivered_at ? 'SENT' : '—'}</span></li>`).join('') || '<li class="text-muted">No recipients recorded.</li>'
         : who.map((p) => `<li><span>${esc(p.full_name || '(no name)')} · ${[r0.emails.includes(p) && esc(p.personal_email || p.usc_email || ''), r0.texts.includes(p) && `text ${esc(prettyPhone(p.phone))}`].filter(Boolean).join(' · ')}</span></li>`).join('') || `<li class="text-muted">Nobody matches right now${m.send_by !== 'email' ? ' (texts go only to people who opted in)' : ''}.</li>`}</ul>
-    </li>`; }).join('') : '<li class="text-muted" data-msg-empty>No messages yet. Write one above and save it as a draft, schedule it, or send it.</li>';
+    </li>`; }).join('') : examples(tab);
+}
+/* Examples (Bryan, 2026-10-02: "put some mock ones, I want to see how they look"): shown only while there are no real
+   messages, each tagged EXAMPLE, with made-up people. They show every state a real message goes through. */
+type Example = { state: 'sent' | 'scheduled' | 'draft'; title: string; body: string; send_by: string; audience: Audience; days: number; reach: string; people: [string, string, string][] };
+const EXAMPLES: Example[] = [
+  { state: 'scheduled', title: 'One week until DEMO 2026', body: 'DEMO is a week from today at Bovard. Alumni get in free and we save you a seat up front. RSVP so we know how many to expect.', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] }, days: 11, reach: '186 will receive', people: [] },
+  { state: 'sent', title: 'DEMO 2026: save the date', body: 'Mark your calendars: DEMO, SoCal’s largest student-run entrepreneurship conference, is on October 20. Founders, investors, and every TroyLabs cohort in one room.', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, days: -3, reach: '412 emails + 158 texts sent · 6 failed',
+    people: [['Maya Chen', 'maya.chen@example.com', 'DELIVERED'], ['Jordan Park', 'text (310) 555-0142', 'DELIVERED'], ['Sam Rivera', 'sam@example.com', 'SENT'], ['Alex Kim', 'text (213) 555-0199', 'FAILED: the carrier filtered it as spam'], ['Priya Patel', 'priya@example.com', 'FAILED: the address bounced']] },
+  { state: 'draft', title: 'Looking for BUILD mentors', body: 'This semester’s BUILD teams are looking for alumni mentors in product and engineering. An hour every two weeks, on your schedule. Reply if you’re in.', send_by: 'email', audience: { cells: [{ group: 'BUILD', who: 'alumni' }, { group: 'TECH', who: 'alumni' }, { group: 'PRODUCT MANAGEMENT', who: 'alumni' }] }, days: -1, reach: '64 will receive', people: [] },
+  { state: 'sent', title: 'Welcome to the Fall 2026 e-board', body: 'Welcome aboard! Our first e-board meeting is Thursday at 7 PM in the Iovine and Young Hall commons.', send_by: 'email', audience: { cells: [{ group: 'E-BOARD', who: 'current' }] }, days: -12, reach: '14 emails sent', people: [['Taylor Brooks', 'taylor@example.com', 'DELIVERED'], ['Chris Nguyen', 'chris@example.com', 'DELIVERED']] },
+];
+function examples(tab: string) {
+  const day = (d: number) => { const t = new Date(); t.setDate(t.getDate() + d); t.setHours(10, 0, 0, 0); return t.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
+  return `<li class="t-fine text-muted portal-msg-examples" data-msg-empty>No messages yet. These four are <span class="text-ink">examples</span>, so you can see how drafts, scheduled and sent messages look here. They go away once you save your first message.</li>` + EXAMPLES.map((m, i) => `<li data-state="${m.state}" data-example="${i}" class="portal-msg-example" style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))"${tab !== 'all' && tab !== m.state ? ' hidden' : ''}>
+      <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag portal-tag-example">EXAMPLE</span><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title)}</span><span class="t-fine text-muted">${m.state === 'sent' ? `Sent ${day(m.days)}` : m.state === 'scheduled' ? `Sends ${day(m.days)}` : `Edited ${day(m.days)}`}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
+      <p class="m-0 t-fine text-muted" style="max-width:calc(620 * var(--u))">${esc(m.body.slice(0, 140))}${m.body.length > 140 ? '…' : ''}</p>
+      <div class="flex items-center" style="gap:calc(16 * var(--u))"><span class="t-fine text-muted">To: ${esc(describeAudience(m.audience))} · ${esc(m.reach)}</span><span style="flex:1"></span>
+        <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-example-use="${i}">USE AS A STARTING POINT</button>
+        ${m.people.length ? `<button type="button" class="t-label portal-linklike" data-recipients-for="ex${i}">WHO GOT IT</button>` : ''}</div>
+      ${m.people.length ? `<ul class="portal-row-list t-fine portal-recipients" hidden>${m.people.map(([n, to, st]) => `<li><span>${esc(n)} · ${esc(to)}</span><span class="${st.startsWith('FAILED') ? 'portal-msg-error' : 'text-muted'}">${esc(st)}</span></li>`).join('')}<li class="text-muted">…and the rest of the list, each with what happened.</li></ul>` : ''}
+    </li>`).join('');
 }
 const compose = () => ({ title: ($('#mc-title') as HTMLInputElement).value.trim(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
 function loadIntoComposer(m: Msg) {
@@ -140,7 +162,8 @@ function setPicked(a: Audience) {
 /** write the composer to the database (new or the one being edited) and return its id */
 async function persist(state: 'draft' | 'scheduled'): Promise<{ id: number; who: number } | { error: string }> {
   const c = compose(); if (!c.body) return { error: 'Write the message first.' };
-  const a = audience(); if (!a.aud.cells.length) return { error: 'Pick who gets it first: tick at least one box under Who gets it.' }; const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
+  const a = audience(); if (state === 'scheduled' && !a.aud.cells.length) { nudged = true; summary(); return { error: 'Pick who gets it first: tick at least one box under Who gets it.' }; }   // a draft can wait for its audience
+  const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
   if (state === 'scheduled' && later && !at) return { error: 'Pick a date and time to schedule it.' };
   if (state === 'scheduled' && at && new Date(at).getTime() < Date.now() - 60_000) return { error: 'That time has already passed. Pick a time in the future, or choose SEND NOW.' };
   if (state === 'scheduled' && later && at && a.sendBy !== 'email') { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(at))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a time in that window, or send it by email.' }; }
@@ -176,6 +199,7 @@ async function sendNow(btn: HTMLElement) {
   await busy(btn, async () => {
     const title = ($('#mc-title') as HTMLInputElement).value.trim(); if (!title) { fb('Add a subject first.', false); return; }
     const a = audience();
+    if (!a.aud.cells.length) { nudged = true; summary(); fb('Pick who gets it first: tick at least one box under Who gets it.', false); return; }
     if (!a.who.length) { fb(a.sendBy === 'email' ? 'Nobody matches this audience (or everyone in it has turned announcements off).' : 'Nobody in this audience can be reached that way. Texts go only to people who added a number and opted in.', false); return; }
     if (a.sendBy !== 'email') { const sms = smsBody(compose().body, compose().event); if (sms.length > SMS_MAX) { fb(`Too long for a text: ${sms.length} of ${SMS_MAX} characters. Shorten it, or send it by email.`, false); return; } }
     if (!confirm(`Send “${title}” ${reachText(a)} now? This can’t be unsent.`)) return;
@@ -218,6 +242,7 @@ async function init() {
     else if (b.dataset.action === 'draft') { e.preventDefault(); await save('draft', b); }
     else if (b.dataset.action === 'send') { e.preventDefault(); await sendNow(b); }
     else if (b.dataset.action === 'test-send') { e.preventDefault(); await testSend(b); }
+    else if (b.dataset.exampleUse) { const x = EXAMPLES[Number(b.dataset.exampleUse)]; editing = null; ($('#mc-title') as HTMLInputElement).value = x.title; ($('#mc-body') as HTMLTextAreaElement).value = x.body; document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === x.send_by))); setPicked(cleanAudience(x.audience)); smsCount(); document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Loaded the example “${x.title}” as a new draft. Change anything, then save, schedule or send.`); }
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
     else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }

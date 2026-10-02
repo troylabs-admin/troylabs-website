@@ -54,7 +54,9 @@ export function describeAudience(a: Audience | null | undefined): string {
   const label = (g: Group) => (g === 'EVERYONE' ? 'Everyone' : g === 'E-BOARD' ? 'E-board' : g === 'PRODUCT MANAGEMENT' ? 'Product Management' : g === 'VC/FINANCE' ? 'VC/Finance' : g[0] + g.slice(1).toLowerCase());
   const parts = GROUPS.filter((g) => a.cells.some((c) => c.group === g)).map((g) => {
     const cur = a.cells.some((c) => c.group === g && c.who === 'current'), alu = a.cells.some((c) => c.group === g && c.who === 'alumni');
-    return cur && alu ? `${label(g)} (current + alumni)` : cur ? `${label(g)}, current` : `${label(g)} alumni`;
+    if (g === 'EVERYONE') return cur && alu ? 'Everyone' : cur ? 'All current students' : 'All alumni';
+    if (g === 'E-BOARD') return cur && alu ? 'E-board (current + alumni)' : cur ? 'Current e-board' : 'E-board alumni';
+    return cur && alu ? `${label(g)} (current + alumni)` : cur ? `${label(g)} (current)` : `${label(g)} alumni`;
   });
   const narrow = [a.cohort?.length ? `cohort ${a.cohort.join(' or ')}` : '', a.industries?.length ? `industry ${a.industries.join(' or ')}` : ''].filter(Boolean);
   return parts.join('; ') + (narrow.length ? ` · only ${narrow.join(' and ')}` : '');

@@ -9,7 +9,7 @@
  * People come from the database once you are an approved member (lib/portal/data.ts); a build without
  * a session (or with ?sample=1) shows the generated roster in lib/portal/sample-people.ts.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { glideTo, tickNumber } from '../../lib/portal/tick';
 import { track } from '../../lib/analytics';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
@@ -24,6 +24,10 @@ const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_c
 const upper = (s: string) => s.toUpperCase();
 
 /** a number that ticks to its new value instead of jumping (same ease as the home page stats) */
+/** a result card: a link to the member's page, or (in the sample preview, where nobody has a page) a plain card */
+function CardLink({ sample, href, children }: { sample: boolean; href: string; children: React.ReactNode }) {
+  return sample ? <div className="portal-card text-ink" title="A sample person: the preview has no profile pages">{children}</div> : <a href={href} className="portal-card no-underline text-ink">{children}</a>;
+}
 function Tick({ n }: { n: number }) {
   const ref = useRef<HTMLSpanElement>(null); const last = useRef(n);
   useEffect(() => { if (ref.current && last.current !== n) tickNumber(ref.current, last.current, n); last.current = n; }, [n]);
@@ -42,13 +46,23 @@ export default function Network() {
   const [sample, setSample] = useState(false);
   useEffect(() => {
     const sample = new URLSearchParams(location.search).has('sample'); setSample(sample);
-    const load = async (approved: boolean) => { if (sample) { setPeople(SAMPLE); setLoaded(true); return; } if (!approved) return; try { setPeople(await listPeople()); setLoadError(false); } catch { setLoadError(true); } finally { setLoaded(true); } };
+    const load = async (approved: boolean) => { if (sample) { setPeople(SAMPLE); setLoaded(true); return; } if (!approved) return; try { setPeople((await listPeople()).filter((p) => p.full_name?.trim())); setLoadError(false); }   /* a profile with no name yet isn't a person anyone can find */ catch { setLoadError(true); } finally { setLoaded(true); } };
     const on = (e: Event) => { const d = (e as CustomEvent).detail; setMember(d.approved ? 'ok' : d.declined ? 'declined' : 'pending'); void load(d.approved); };
     document.addEventListener('tl:me', on); setMember(document.documentElement.dataset.member ?? ''); if (document.documentElement.dataset.member === 'ok' || sample) void load(true);
     return () => document.removeEventListener('tl:me', on);
   }, [reload]);
-  const [q, setQ] = useState('');
-  const [active, setActive] = useState<Record<string, string[]>>({});
+  /* the search lives in the address (?q=…&division=TECH,DESIGN), so Back from a member's page, or BACK TO SEARCH,
+     returns to the same results (audit 2026-10-02: they came back to an empty box) */
+  const fromUrl = () => { if (typeof location === 'undefined') return { q: '', active: {} as Record<string, string[]> }; const u = new URLSearchParams(location.search); const active: Record<string, string[]> = {}; for (const k of ['status', 'cohort', 'division', 'industry']) { const v = u.get(k); if (v) active[k] = v.split(',').filter(Boolean); } return { q: u.get('q') ?? '', active }; };
+  const [q, setQ] = useState(() => fromUrl().q);
+  const [active, setActive] = useState<Record<string, string[]>>(() => fromUrl().active);
+  const restored = useRef(Boolean(fromUrl().q));
+  useEffect(() => {
+    const u = new URLSearchParams(location.search); u.delete('q'); for (const k of ['status', 'cohort', 'division', 'industry']) u.delete(k);
+    if (q.trim()) u.set('q', q.trim()); for (const [k, v] of Object.entries(active)) if (v.length) u.set(k, v.join(','));
+    const next = `${location.pathname}${u.toString() ? `?${u}` : ''}${location.hash}`; if (next !== `${location.pathname}${location.search}${location.hash}`) history.replaceState(history.state, '', next);
+    try { sessionStorage.setItem('tl-last-search', next); } catch { /* private mode: BACK TO SEARCH falls back to a fresh search */ }
+  }, [q, active]);
   const [place, setPlace] = useState<Cluster | null>(null);
   const [page, setPage] = useState(1);
   const [reset, setReset] = useState(0);   // bumped to make the globe drop its selection and zoom back out
@@ -67,7 +81,7 @@ export default function Network() {
   const glide = useRef<(() => void) | null>(null);
   const toResults = (after = 0) => { glide.current?.(); if (resultsRef.current) glide.current = glideTo(resultsRef.current, { after, ms: 1500 }); };
   const typedKey = words.join(' ');
-  useEffect(() => { if (!typedKey) return; const t = setTimeout(() => { toResults(); track('search_run', { terms: typedKey, filters: activeCount, results: results.length }); }, 1000); return () => clearTimeout(t); }, [typedKey]);
+  useEffect(() => { if (!typedKey) return; const t = setTimeout(() => { toResults(); if (restored.current) { restored.current = false; return; } track('search_run', { words: words.length, filters: activeCount, results: results.length }); /* counts only: typed words often contain people's names */ }, 1000); return () => clearTimeout(t); }, [typedKey]);
 
   /* words + chips narrow the people; the globe shows THEM, so you see where a search lands. Every chip
      group is a hard requirement (any chip within a group), every word must appear somewhere. */
@@ -115,6 +129,9 @@ export default function Network() {
 
   // not in yet (Bryan, 2026-09-30: "if they try to log in and it hasn't been approved yet it'll just show
   // waiting for it to get approved"). The gate only lets someone here once their profile has the basics.
+  // until the gate says who you are, show nothing that might be wrong (pending people saw the whole search page for
+  // ~600 ms before "you're on the list"; audit 2026-10-02)
+  if (!member && !sample) return (<div className="portal-network"><header className="flex flex-col items-center portal-head"><span className="t-label text-muted">THE NETWORK</span><p className="m-0 t-caption text-muted" role="status" style={{ marginTop: 'calc(16 * var(--u))' }}>Loading…</p></header></div>);
   if (member === 'pending' || member === 'declined') return (
     <div className="portal-network">
       <header className="flex flex-col items-center portal-head portal-waiting">
@@ -159,7 +176,7 @@ export default function Network() {
           <p className="t-label portal-explore-stats">
             {[
               <span key="n"><Tick n={searching ? results.length : PEOPLE.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
-              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> STUDENTS</span>, <span key="a"> · <Tick n={PEOPLE.length - students} /> ALUMNI</span>]),
+              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> {students === 1 ? 'STUDENT' : 'STUDENTS'}</span>, <span key="a"> · <Tick n={PEOPLE.length - students} /> {PEOPLE.length - students === 1 ? 'ALUM' : 'ALUMNI'}</span>]),
               <span key="c"> · <Tick n={searching ? leftCities : cities} /> {(searching ? leftCities : cities) === 1 ? 'CITY' : 'CITIES'}</span>,
             ]}
           </p>
@@ -192,16 +209,16 @@ export default function Network() {
                 <ul className="m-0 p-0 list-none portal-grid">
                   {shown.map(({ p, why }, i) => (
                     <li key={`${p.id}-${i}`}>
-                      <a href={`/alumni-portal/members/?id=${p.id}`} className="portal-card no-underline text-ink">
+                      <CardLink sample={sample} href={`/alumni-portal/members/?id=${p.id}`}>
                         <span className="portal-avatar t-sub" aria-hidden="true">{p.avatar ? <img src={p.avatar} alt="" loading="lazy" /> : p.initials}</span>
                         <span className="portal-card-body">
                           <span className="t-name portal-card-name">{p.full_name} <span className="t-fine portal-role">{p.status}</span></span>
-                          <span className="t-caption text-muted">{p.current_title} · {p.current_company}</span>
-                          <span className="t-fine text-muted">{p.city}{p.region ? `, ${p.region}` : ''} · TL {p.cohort} · {p.status === 'ALUM' ? `Class of ${p.classOf}` : `Expected ${p.classOf}`}</span>
+                          {(p.current_title || p.current_company) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ')}</span>}
+                          <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.cohort ? `TL ${p.cohort}` : '', p.classOf ? (p.status === 'ALUM' ? `Class of ${p.classOf}` : `Expected ${p.classOf}`) : ''].filter(Boolean).join(' · ')}</span>
                           <span className="flex flex-wrap portal-card-tags">{p.industries.map((t) => <span key={t} className="t-fine portal-tag">{t}</span>)}</span>
                           {why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}
                         </span>
-                      </a>
+                      </CardLink>
                     </li>
                   ))}
                 </ul>

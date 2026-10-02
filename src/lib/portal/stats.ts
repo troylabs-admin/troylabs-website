@@ -1,12 +1,15 @@
 /** Numbers for Admin › Overview and Analytics: the network from our database, the website from PostHog through the posthog-stats function. */
 import { supabase } from '../supabase';
 import { completeness, cohortOf, cityLabel, type ProfileRow } from './data';
+import { applicationMissing } from './application';
 
-export interface NetworkStats { members: number; students: number; alumni: number; active30: number; pending: number; completeness: number; byCohort: [string, number][]; byCity: [string, number][]; sentThisMonth: number; recent: { title: string; state: string; when: string | null }[] }
+export interface MsgLine { id: number; title: string; state: string; when: string | null; send_by: string; audience: unknown; sent_count: number; failed_count: number }
+export interface NetworkStats { members: number; students: number; alumni: number; active30: number; pending: number; unfinished: number; newThisMonth: number; completeness: number; byCohort: [string, number][]; byCity: [string, number][]; sentThisMonth: number; recent: MsgLine[]; upcoming: MsgLine[] }
+const line = (m: any): MsgLine => ({ id: m.id, title: m.title, state: m.state, when: m.sent_at ?? m.scheduled_for ?? m.updated_at, send_by: m.send_by, audience: m.audience, sent_count: m.sent_count ?? 0, failed_count: m.failed_count ?? 0 });
 export async function networkStats(): Promise<NetworkStats> {
   const sb = supabase();
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const [{ data: rows, error: profilesError }, { data: msgs, error: messagesError }, { count: sent, error: countError }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('messages').select('title, state, sent_at, scheduled_for, updated_at').order('updated_at', { ascending: false }).limit(5), sb.from('messages').select('id', { count: 'exact', head: true }).eq('state', 'sent').gte('sent_at', monthStart.toISOString())]);
+  const [{ data: rows, error: profilesError }, { data: msgs, error: messagesError }, { count: sent, error: countError }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('messages').select('id, title, state, sent_at, scheduled_for, updated_at, send_by, audience, sent_count, failed_count').order('updated_at', { ascending: false }).limit(50), sb.from('messages').select('id', { count: 'exact', head: true }).eq('state', 'sent').gte('sent_at', monthStart.toISOString())]);
   if (profilesError || messagesError || countError) throw profilesError || messagesError || countError;
   const all = (rows ?? []) as ProfileRow[]; const members = all.filter((r) => r.approved);
   const monthAgo = Date.now() - 30 * 864e5;
@@ -14,11 +17,14 @@ export async function networkStats(): Promise<NetworkStats> {
   return {
     members: members.length, students: members.filter((r) => r.status === 'student').length, alumni: members.filter((r) => r.status === 'alum').length,
     active30: members.filter((r) => r.last_seen_at && Date.parse(r.last_seen_at) > monthAgo).length,
-    pending: all.filter((r) => !r.approved && !r.declined_at).length,
+    pending: all.filter((r) => !r.approved && !r.declined_at && !applicationMissing(r).length).length,   // finished applications only
+    unfinished: all.filter((r) => !r.approved && !r.declined_at && applicationMissing(r).length).length,
     completeness: members.length ? Math.round(members.reduce((n, r) => n + completeness(r), 0) / members.length) : 0,
     byCohort: tally(members.map((r) => cohortOf(r.join_term, r.join_year))), byCity: tally(members.map((r) => cityLabel(r.city))),
     sentThisMonth: sent ?? 0,
-    recent: (msgs ?? []).map((m: any) => ({ title: m.title, state: m.state, when: m.sent_at ?? m.scheduled_for ?? m.updated_at })),
+    newThisMonth: members.filter((r) => Date.parse(r.created_at) >= monthStart.getTime()).length,
+    recent: (msgs ?? []).filter((m: any) => m.state === 'sent').slice(0, 3).map(line),
+    upcoming: (msgs ?? []).filter((m: any) => m.state === 'scheduled').sort((a: any, b: any) => (a.scheduled_for ?? '').localeCompare(b.scheduled_for ?? '')).slice(0, 3).map(line),
   };
 }
 

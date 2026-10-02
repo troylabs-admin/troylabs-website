@@ -7,7 +7,7 @@ import { escapeHtml } from '../lib/portal/safe-html';
 import { HOME, me, type Me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { prettyPhone, toE164 } from '../lib/portal/phone';
-import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, uploadAvatar, getProfile, type ProfileRow } from '../lib/portal/data';
+import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
@@ -15,7 +15,8 @@ const termCode = (v: string) => (v === 'Fall' ? 'FA' : 'SP') as 'FA' | 'SP';
 const flash = (btn: HTMLElement | null, text: string, feedback = '', ok = true) => {
   if (!btn) return; const orig = btn.textContent; btn.classList.add('is-done'); btn.textContent = text;
   setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = orig; }, 1800);
-  const fb = btn.parentElement?.querySelector<HTMLElement>('.portal-feedback') ?? btn.closest<HTMLElement>('.portal-field, .portal-contact-row, .portal-save, .portal-panel')?.querySelector<HTMLElement>('.portal-feedback') ?? null;
+  const after = btn.parentElement?.nextElementSibling as HTMLElement | null;   // the line right under the button's row (the location row's; it never showed: audit 2026-10-02)
+  const fb = btn.parentElement?.querySelector<HTMLElement>('.portal-feedback') ?? (after?.classList.contains('portal-feedback') ? after : null) ?? btn.closest<HTMLElement>('.portal-field, .portal-contact-row, .portal-save, .portal-panel')?.querySelector<HTMLElement>('.portal-feedback') ?? null;
   if (fb) { fb.textContent = feedback; fb.style.color = ok ? '' : 'var(--color-orange)'; }
 };
 const chipsOn = (sel: string) => [...document.querySelectorAll<HTMLElement>(`${sel} .portal-chip[aria-pressed="true"]`)].map((c) => c.textContent!.replace(/^✓\s*/, '').trim());
@@ -37,9 +38,12 @@ function fill(r: ProfileRow, admin: boolean) {
   ($('#pf-usc') as HTMLInputElement).value = r.usc_email ?? ''; ($('#pf-personal') as HTMLInputElement).value = r.personal_email ?? '';
   ($('#pf-phone') as HTMLInputElement).value = prettyPhone(r.phone); ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in;
   const eo = $<HTMLInputElement>('#pf-email-opt'); if (eo) eo.checked = r.email_opt_in !== false;
-  document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === r.status)));
+  // a profile nobody has filled in yet shows neither STUDENT nor ALUM: the person has to say which (audit 2026-10-02:
+  // a preselected status let alumni save as students without noticing)
+  const unanswered = !r.full_name?.trim() && !r.grad_year;
+  document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(!unanswered && c.dataset.value === r.status)));
   const student = r.status === 'student';
-  ($('#pf-grad') as HTMLElement).hidden = !student; ($('#pf-classof') as HTMLElement).hidden = student;
+  ($('#pf-grad') as HTMLElement).hidden = unanswered || !student; ($('#pf-classof') as HTMLElement).hidden = unanswered || student;
   ($('#pf-grad-term') as HTMLSelectElement).value = term(r.grad_term) || 'Spring'; ($('#pf-grad-year') as HTMLInputElement).value = student && r.grad_year ? String(r.grad_year) : '';
   ($('#pf-classof-year') as HTMLInputElement).value = !student && r.grad_year ? String(r.grad_year) : '';
   ($('#pf-name') as HTMLInputElement).value = r.full_name ?? '';
@@ -56,6 +60,32 @@ function fill(r: ProfileRow, admin: boolean) {
   recount();
 }
 
+/** the e-board roles an applicant lists while they wait: every role needs at least one semester with a real year */
+function claimsFromForm(): { roles: ClaimedRole[]; problem: string | null } {
+  const roles: ClaimedRole[] = []; let problem: string | null = null;
+  for (const r of document.querySelectorAll<HTMLElement>('#pf-claim .portal-role-year')) {
+    let ok = 0;
+    for (const t of r.querySelectorAll<HTMLElement>('.portal-term-pair')) {
+      const raw = t.querySelector('input')!.value.trim(); if (!raw) continue; const y = Number(raw);
+      if (!/^\d{4}$/.test(raw) || y < 1990 || y > new Date().getFullYear() + 1) { problem = `Check the year for ${r.dataset.role}: "${raw}" isn't a year.`; continue; }
+      roles.push({ role: r.dataset.role!, term: t.querySelector('select')!.value === 'Fall' ? 'FA' : 'SP', year: y }); ok++;
+    }
+    if (!ok && !problem) problem = `Add the semester and year you were ${r.dataset.role}, or untick it.`;
+  }
+  return { roles, problem };
+}
+/** put saved claims back into the picker (the shared script builds a role's semester row when its chip is pressed) */
+function loadClaims(claims: ClaimedRole[]) {
+  const box = $('#pf-claim'); if (!box) return; box.hidden = false; const help = $('#pf-eboard-help'); if (help) help.hidden = true;
+  const by = new Map<string, ClaimedRole[]>(); for (const c of claims ?? []) by.set(c.role, [...(by.get(c.role) ?? []), c]);
+  for (const chip of box.querySelectorAll<HTMLElement>('[data-field="eboard"] .portal-chip')) {
+    const role = chip.textContent!.replace(/^✓\s*/, '').trim(); const mine = by.get(role); if (!mine || chip.getAttribute('aria-pressed') === 'true') continue;
+    chip.click(); const row = box.querySelector<HTMLElement>(`.portal-role-year[data-role="${CSS.escape(role)}"]`); if (!row) continue;
+    mine.forEach((c, i) => { if (i) row.querySelector<HTMLElement>('[data-more]')!.click(); const pair = row.querySelectorAll<HTMLElement>('.portal-term-pair')[i]; pair.querySelector('select')!.value = c.term === 'FA' ? 'Fall' : 'Spring'; pair.querySelector('input')!.value = String(c.year); });
+  }
+  (document.activeElement as HTMLElement | null)?.blur();
+}
+const statusPicked = () => Boolean(document.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]'));
 function collect(): Partial<ProfileRow> {
   const status = (document.querySelector<HTMLElement>('[data-field="status"] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'alum') as 'student' | 'alum';
   const student = status === 'student';
@@ -68,7 +98,7 @@ function collect(): Partial<ProfileRow> {
     current_title: ($('#pf-title') as HTMLInputElement).value.trim() || null, current_company: ($('#pf-co') as HTMLInputElement).value.trim() || null,
     linkedin_url: ($('#pf-li') as HTMLInputElement).value.trim() || null, bio: ($('#pf-bio') as HTMLTextAreaElement).value.trim() || null,
     divisions: chipsOn('[data-field="divisions"]'), startups: tags('#pf-startups'),
-    ...(who && !who.approved ? { request_note: ($('#pf-note') as HTMLTextAreaElement).value.trim() || null } : {}),
+    ...(who && !who.approved ? { request_note: ($('#pf-note') as HTMLTextAreaElement).value.trim() || null, claimed_roles: claimsFromForm().roles } : {}),
     industries: [...new Set([...chipsOn('[data-field="industries"]'), ...tags('#pf-industries-extra').map((t) => t.toUpperCase())])].filter((i) => known.includes(i) || true),
   };
 }
@@ -81,7 +111,7 @@ function onboard(justSaved = false) {
   if (!panel || !who || who.approved) { if (panel) panel.hidden = true; if (completion) completion.hidden = false; return; }
   panel.hidden = false; if (completion) completion.hidden = true;   // one list of what's needed while they wait, not two
   const c = collect();
-  const missing = applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [] });
+  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [] })];
   const savedMissing = row ? applicationMissing(row) : missing;
   const title = $('[data-onboard-title]')!, text = $('[data-onboard-text]')!, miss = $('[data-onboard-missing]')!, chip = $('[data-onboard-chip]')!;
   if (who.declined) {
@@ -92,7 +122,8 @@ function onboard(justSaved = false) {
   chip.textContent = 'WAITING FOR APPROVAL';
   if (savedMissing.length) {
     title.textContent = 'Create your profile';
-    text.textContent = 'TroyLabs leadership approves every member by hand. Fill in the basics so they can recognise you, then press SAVE at the bottom of the page.';
+    const bounced = new URLSearchParams(location.search).get('from');
+    text.textContent = `${bounced === 'search' ? 'Search opens once your profile is finished and leadership approves you. ' : bounced ? 'The rest of the portal opens once your profile is finished and leadership approves you. ' : ''}TroyLabs leadership approves every member by hand. Fill in the basics so they can recognise you, then press SAVE at the bottom of the page.`;
     miss.textContent = missing.length ? `Still needed: ${listInWords(missing)}.` : 'That’s everything needed. Press SAVE at the bottom to send it.';
   } else {
     title.textContent = justSaved ? 'Sent. You’re on the list.' : 'You’re on the list';
@@ -111,7 +142,8 @@ async function init() {
   who = await me(); if (!who) return;
   const r = await myProfile();
   if (!r) { flash(saveBtn, 'NOT LOADED', 'Could not load your profile. Reload before editing.', false); form.removeAttribute('aria-busy'); return; }
-  if (r) { fill(r, who.admin); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-tagx">${escapeHtml(t)}</span>`).join(''); } }
+  form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
+  if (r) { fill(r, who.admin); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-tagx">${escapeHtml(t)}</span>`).join(''); } }
 
   // SAVE: the whole form
   // (the shared script preventDefaults every [data-action] click before it checks `wired`, so the form's
@@ -119,6 +151,8 @@ async function init() {
   saveBtn.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = saveBtn;
     const patch = collect(); if (!patch.full_name) { flash(btn, 'NOT SAVED', 'Your name is the one thing we need.', false); return; }
+    if (!statusPicked()) { flash(btn, 'NOT SAVED', 'Pick whether you’re a current student or an alum (STATUS, near the top).', false); return; }
+    if (!who!.approved) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
     try {
@@ -177,6 +211,7 @@ async function init() {
   // location → pin
   $('[data-action="update"]')?.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = e.currentTarget as HTMLElement; const text = ($('#pf-loc') as HTMLInputElement).value;
+    if (!text.trim()) { flash(btn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
     const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
     const res = await saveMyProfile({ city_id: c.city.id });
     if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);

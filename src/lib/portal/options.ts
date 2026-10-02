@@ -10,6 +10,9 @@ export const DIVISIONS = ['BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', '
 export const shortDivision = (d: string) => d.replace('PRODUCT MANAGEMENT', 'PRODUCT');
 export const DIVISIONS_SHORT = DIVISIONS.map(shortDivision);
 
+/** e-board roles, as leadership records them (Admin › Members) and applicants list them (profile, while waiting) */
+export const EBOARD_ROLES = ['CO-PRESIDENT', 'DIRECTOR OF BUILD', 'DIRECTOR OF DEMO', 'DIRECTOR OF IGNITE', 'DIRECTOR OF PMS', 'DIRECTOR OF VC/FINANCE', 'DIRECTOR OF TECH', 'DIRECTOR OF MARKETING', 'DIRECTOR OF DESIGN', 'DIRECTOR OF COMMUNITY', 'DIRECTOR OF RECRUITMENT'];
+
 export const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE TECH', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'CYBERSECURITY', 'ROBOTICS', 'DESIGN', 'SAAS', 'VC/FINANCE', 'DEVELOPER TOOLS', 'NONPROFIT', 'TRAVEL', 'PRODUCTIVITY', 'INSURANCE', 'HARDWARE', 'MARKETING'];
 
 /** the semester right now: spring runs January to June, fall July to December (the graduation job uses the same split) */

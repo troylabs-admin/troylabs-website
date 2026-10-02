@@ -569,3 +569,45 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
   .portal-aud-cell { min-width: 0; padding-left: 10px; padding-right: 10px; }
   .portal-aud-group { font-size: 11px; }
 }
+
+/* Admin › Members › waiting for approval, built for a hundred (2026-10-02): compact rows, a selection bar, details on demand */
+.portal-requests.portal-requests { gap: 0; }
+.portal-q-tools { display: flex; gap: calc(10 * var(--u)); margin-bottom: calc(10 * var(--u)); }
+.portal-q-tools #q-search { flex: 1; min-width: 0; }
+.portal-q-bar { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: calc(14 * var(--u)); padding: calc(10 * var(--u)) 0; background: linear-gradient(rgb(14 12 12 / 0.96), rgb(14 12 12 / 0.9)); border-bottom: var(--hair) solid rgb(255 255 255 / 0.12); }
+.portal-q-bar .portal-btn { margin-top: 0; }
+.portal-q-row.portal-request { grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: calc(14 * var(--u)); padding: calc(12 * var(--u)) calc(4 * var(--u)); border-radius: 0; box-shadow: none; border-bottom: var(--hair) solid rgb(255 255 255 / 0.1); }
+.portal-q-row .portal-avatar { width: calc(38 * var(--u)); height: calc(38 * var(--u)); }
+.portal-q-main { display: flex; flex-direction: column; gap: calc(3 * var(--u)); min-width: 0; overflow-wrap: anywhere; }
+.portal-q-name { font-size: 1.05em; }
+.portal-q-claim { color: var(--color-orange); }
+.portal-q-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.portal-q-actions.portal-request-actions { flex-direction: row; align-items: center; gap: calc(18 * var(--u)); }
+.portal-q-details { grid-column: 3 / -1; display: flex; flex-direction: column; gap: calc(6 * var(--u)); padding: calc(4 * var(--u)) 0 calc(6 * var(--u)); overflow-wrap: anywhere; }
+.portal-q-details[hidden] { display: none; }
+.portal-q-pick i { flex: none; }
+@media (max-width: 767px) {
+  .portal-q-tools { flex-direction: column; }
+  .portal-q-tools #q-search { flex: none; }   /* in a column, flex:1 has a zero basis and squashed the box flat */
+  .portal-q-bar { gap: 10px; }
+  .portal-q-bar > label { flex: 1 1 auto; }
+  .portal-q-bar > span[style] { display: none; }
+  .portal-q-bar .portal-btn { flex: 1 1 calc(50% - 5px); font-size: 10px; letter-spacing: 1px; padding-left: 8px; padding-right: 8px; }
+  .portal-q-row.portal-request { grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; padding: 12px 2px; }
+  .portal-q-row .portal-avatar { display: none; }
+  .portal-q-actions.portal-request-actions { grid-column: 2; justify-content: flex-start; gap: 22px; padding-top: 0; border-top: 0; }
+  .portal-q-details { grid-column: 2; }
+}
+/* example messages on an empty Message page (2026-10-02) */
+.portal-msg-example { opacity: 0.92; }
+.portal-tag-example { color: var(--color-ink); background: rgb(255 255 255 / 0.08); }
+.portal-msg-examples { display: block !important; border: 0 !important; }
+
+/* a link styled as a button centres its label like a button does (the Overview's common jobs) */
+a.portal-btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+/* Admin › Members table (audit 2026-10-02: three actions in a row ran past the table at 1440) */
+[data-members] .portal-row-actions { display: flex; flex-direction: column; align-items: flex-end; gap: calc(8 * var(--u)); white-space: nowrap; }
+[data-members] td.m-name { min-width: calc(110 * var(--u)); }
+[data-members] td.m-email { overflow-wrap: anywhere; min-width: calc(140 * var(--u)); }
+[data-members] .portal-name-link:hover { text-decoration: underline; }
+@media (max-width: 767px) { [data-members] .portal-row-actions { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 18px; } }

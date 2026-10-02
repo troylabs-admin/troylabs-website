@@ -5,7 +5,11 @@ import { avatarUrl, cityLabel, cohortOf, getProfile, initialsOf, roleLabel } fro
 async function init() {
   const head = document.querySelector<HTMLElement>('[data-member-head]'); if (!head || head.dataset.wired) return; head.dataset.wired = '1';
   const empty = document.querySelector<HTMLElement>('[data-member-empty]')!; const body = document.querySelector<HTMLElement>('[data-member-body]')!;
-  const id = new URLSearchParams(location.search).get('id');
+  const params = new URLSearchParams(location.search); const id = params.get('id');
+  // back to wherever the admin came from (Bryan, 2026-10-02: VIEW PROFILE from the approval list used to strand you on "back to search")
+  const from = params.get('from'); const back = document.querySelector<HTMLAnchorElement>('[data-back]');
+  if (back && !from) { try { const last = sessionStorage.getItem('tl-last-search'); if (last?.startsWith('/alumni-portal/home')) back.href = last; } catch { /* keeps the plain link */ } }   // back to the same results
+  if (back && (from === 'approvals' || from === 'members')) { back.href = `/alumni-portal/admin/users${from === 'approvals' ? '#approvals' : '#members'}`; back.textContent = from === 'approvals' ? '← BACK TO WAITING FOR APPROVAL' : '← BACK TO MEMBERS'; }
   if (!id) { empty.textContent = 'No member chosen. Go back to search and pick someone.'; return; }
   const got = await getProfile(id).catch(() => null);
   if (!got) { empty.textContent = 'This member is not in the network, or you are not signed in as an approved member.'; return; }

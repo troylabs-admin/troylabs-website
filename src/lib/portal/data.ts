@@ -6,6 +6,7 @@
 import { supabase } from '../supabase';
 import type { Person } from './sample-people';
 
+export interface ClaimedRole { role: string; term: 'FA' | 'SP'; year: number }
 export interface ProfileRow {
   id: string; full_name: string; approved: boolean; declined_at: string | null;
   status: 'student' | 'alum'; grad_term: 'FA' | 'SP' | null; grad_year: number | null; join_term: 'FA' | 'SP' | null; join_year: number | null;
@@ -13,6 +14,7 @@ export interface ProfileRow {
   industries: string[]; startups: string[]; city_id: number | null;
   usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean; email_opt_in: boolean;
   avatar_path: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
+  claimed_roles: ClaimedRole[];   // e-board roles they say they held, written while they wait; become eboard_roles when approved
   city?: CityRow | null;
 }
 export interface CityRow { id: number; name: string; region: string; country: string; lat: number; lng: number }
@@ -110,6 +112,11 @@ export const setApproved = (id: string, approved: boolean) => supabase().from('p
 export const setDeclined = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: new Date().toISOString() }).eq('id', id);
 /** back onto the waiting list after a decline (or after REMOVE ACCESS) */
 export const setRestored = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: null }).eq('id', id);
+/** approve one person or a hundred in one call; their claimed e-board roles become their record (approve_members) */
+export const approveMany = (ids: string[]) => supabase().rpc('approve_members', { ids });
+export const declineMany = (ids: string[]) => supabase().rpc('decline_members', { ids });
+/** UNDO after an approve or a decline: back onto the waiting list */
+export const restoreMany = (ids: string[]) => supabase().from('profiles').update({ approved: false, declined_at: null }).in('id', ids);
 export const setAdmin = (id: string, on: boolean) => on ? supabase().from('admins').upsert({ user_id: id }) : supabase().from('admins').delete().eq('user_id', id);
 export async function setRoles(profileId: string, roles: Omit<RoleRow, 'profile_id' | 'id'>[]) {
   return supabase().rpc('replace_eboard_roles', { target_profile: profileId, new_roles: roles });

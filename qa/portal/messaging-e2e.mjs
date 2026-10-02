@@ -114,13 +114,17 @@ try {
   await expect(row.locator('.portal-recipients li')).toHaveText([/E2E [HI] QA/, /E2E [HI] QA/]);
   await row.locator('[data-recipients-for]').click(); await expect(row.locator('.portal-recipients')).toBeHidden();
   await page.locator('[data-action="new-draft"]').click(); await page.locator('#mc-title').fill('E2E nothing ticked'); await page.locator('#mc-body').fill('x');
-  await page.locator('[data-action="draft"]').click(); await expect(page.locator('#msg-fb')).toContainText('tick at least one box');
-  assert.equal((await admin.from('messages').select('id').eq('title', 'E2E nothing ticked')).data.length, 0, 'a draft with nobody picked is not saved');
+  await expect(page.locator('[data-aud-summary]')).not.toHaveCSS('color', 'rgb(255, 125, 44)');   // a quiet hint, not a warning, before anyone tries to send
+  await page.locator('[data-action="draft"]').click(); await expect(page.locator('#msg-fb')).toContainText('Saved as a draft');
+  const parked = (await admin.from('messages').select('id').eq('title', 'E2E nothing ticked')).data; assert.equal(parked.length, 1, 'a half-written draft saves without an audience'); msgs.push(parked[0].id);
+  await page.locator('[data-action="send"]').click(); await expect(page.locator('#msg-fb')).toContainText('tick at least one box');
+  await expect(page.locator('[data-aud-summary]')).toHaveCSS('color', 'rgb(255, 125, 44)');   // now it's a warning
+  assert.equal((await admin.from('messages').select('state').eq('id', parked[0].id).single()).data.state, 'draft', 'and it can’t be sent to nobody');
   await page.setViewportSize({ width: 390, height: 844 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways scroll at 390');
   await page.locator('[data-aud-grid]').screenshot({ path: 'test-results/portal/audience-grid-390.png' }); await page.setViewportSize({ width: 1440, height: 1000 });
   await box('DESIGN', 'current').click(); await box('TECH', 'alumni').click(); await page.locator('.portal-panels').screenshot({ path: 'test-results/portal/audience-grid.png' });
   assert.deepEqual(errors, []);
-  console.log('PASS: the page — ticked boxes are saved exactly, its counts are the sender’s, EDIT restores the boxes, nothing ticked can’t be saved, fits a phone');
+  console.log('PASS: the page — ticked boxes are saved exactly, its counts are the sender’s, EDIT restores the boxes, a draft saves without an audience but can’t be sent to nobody, fits a phone');
 
   if (!TEST_PHONE) { console.log('SKIP: real sends (set TL_TEST_PHONE to a number verified in Twilio)'); process.exitCode = 0; }
   else {

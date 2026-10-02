@@ -1,77 +1,140 @@
-import { parseRosterCsv } from '../lib/portal/csv';
 /**
- * Admin › Members, for real: the access queue (approve / decline), every profile as a row, admin on/off,
- * e-board roles saved per person, a CSV export of the current filter, and a cohort import into the
- * roster. All through the browser client under the admin policies.
+ * Admin › Members, for real: the waiting list (built for a hundred: search, sort, select all, bulk approve /
+ * decline with UNDO, 25 at a time), every profile as a row, admin on/off, e-board roles saved per person, and
+ * a CSV export of the current filter. All through the browser client under the admin policies.
  */
 import { me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { webUrl } from '../lib/portal/safe-html';
-import { adminListProfiles, avatarUrl, cityLabel, cohortOf, completeness, importRoster, initialsOf, listRoster, setAdmin, setApproved, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
+import { adminListProfiles, approveMany, avatarUrl, cityLabel, cohortOf, completeness, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const fb = (text: string, ok = true) => { const el = document.getElementById('members-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
 const flash = (btn: HTMLElement, text: string) => { const o = btn.textContent; btn.classList.add('is-done'); btn.textContent = text; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = o; }, 1600); };
 let rows: ProfileRow[] = [], admins = new Set<string>(), roles: RoleRow[] = [], myId = '';
+const PAGE = 25;
+const q = { search: '', sort: 'oldest', shown: PAGE, picked: new Set<string>(), open: new Set<string>() };
+let lastAction: { kind: 'approved' | 'declined'; ids: string[] } | null = null;
 
 async function load() {
   const got = await adminListProfiles(); rows = got.rows; admins = got.admins; roles = got.roles;
-  renderRequests(); renderTable();
+  renderRequests(); renderTable(); renderCohortChips();
 }
 
+const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+const ago = (iso: string) => { const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d < 30 ? `${d} days ago` : date(iso); };
+const termWord = (t: string) => (t === 'FA' ? 'Fall' : 'Spring');
+/** "Director of Tech (Fall 2024, Spring 2025)" */
+const claimedText = (r: ProfileRow) => { const by = new Map<string, string[]>(); for (const c of r.claimed_roles ?? []) by.set(c.role, [...(by.get(c.role) ?? []), `${termWord(c.term)} ${c.year}`]); return [...by].map(([role, terms]) => `${role[0]}${role.slice(1).toLowerCase()} (${terms.join(', ')})`).join('; '); };
+const waiting = () => rows.filter((r) => !r.approved && !r.declined_at);
+const ready = () => waiting().filter((r) => !applicationMissing(r).length);
+/** the queue as shown: search, then sort */
+function queue() {
+  const words = q.search.toLowerCase().split(/\s+/).filter(Boolean);
+  const hay = (r: ProfileRow) => `${r.full_name} ${r.personal_email ?? ''} ${r.usc_email ?? ''} ${(r.divisions ?? []).join(' ')} ${cohortOf(r.join_term, r.join_year)} ${r.grad_year ?? ''} ${r.request_note ?? ''} ${claimedText(r)}`.toLowerCase();
+  const list = ready().filter((r) => words.every((w) => hay(r).includes(w)));
+  return list.sort((x, y) => q.sort === 'name' ? x.full_name.localeCompare(y.full_name) : q.sort === 'newest' ? y.created_at.localeCompare(x.created_at) : x.created_at.localeCompare(y.created_at));
+}
 function renderRequests() {
-  const list = document.getElementById('requests-list')!; const n = document.getElementById('requests-n')!;
-  // finished profiles first (they can be decided now), newest first within each
-  const pending = rows.filter((r) => !r.approved && !r.declined_at)
-    .sort((x, y) => (applicationMissing(x).length ? 1 : 0) - (applicationMissing(y).length ? 1 : 0) || y.created_at.localeCompare(x.created_at));
-  n.textContent = String(pending.length);
-  const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-  list.innerHTML = pending.length ? pending.map((r) => {
-    const missing = applicationMissing(r); const photo = avatarUrl(r); const li = r.linkedin_url ? webUrl(r.linkedin_url) : null;
+  const list = document.getElementById('requests-list')!; const all = ready(); const matching = queue(); const shown = matching.slice(0, q.shown);
+  for (const id of [...q.picked]) if (!all.some((r) => r.id === id)) q.picked.delete(id);   // decided elsewhere, or gone
+  document.getElementById('requests-n')!.textContent = String(all.length);
+  (document.querySelector('[data-q-tools]') as HTMLElement).hidden = all.length < 2;
+  (document.querySelector('[data-q-bar]') as HTMLElement).hidden = !all.length;
+  list.innerHTML = shown.length ? shown.map((r) => {
+    const photo = avatarUrl(r); const li = r.linkedin_url ? webUrl(r.linkedin_url) : null; const claimed = claimedText(r);
     const year = r.grad_year ? (r.status === 'alum' ? `Class of ${r.grad_year}` : `Expected ${r.grad_year}`) : '';
-    const facts = [year, cohortOf(r.join_term, r.join_year) ? `joined ${cohortOf(r.join_term, r.join_year)}` : '', (r.divisions ?? []).join(', '), cityLabel(r.city)].filter(Boolean).map(esc).join(' · ');
+    const facts = [year, cohortOf(r.join_term, r.join_year) ? `joined ${cohortOf(r.join_term, r.join_year)}` : '', (r.divisions ?? []).join(', ')].filter(Boolean).map(esc).join(' · ');
     const emails = [r.personal_email, r.usc_email].filter(Boolean).map((e) => esc(e!)).join(' · ');
-    return `<li class="portal-request" data-id="${r.id}">
-      <span class="portal-avatar t-sub" aria-hidden="true">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initialsOf(r.full_name || '?'))}</span>
-      <div class="portal-request-body">
-        <p class="m-0"><span class="t-name text-ink">${esc(r.full_name || 'No name yet')}</span>${r.grad_year ? ` <span class="t-fine portal-tag">${r.status === 'student' ? 'STUDENT' : 'ALUM'}</span>` : ''}</p>
-        ${facts ? `<p class="m-0 t-caption text-muted">${facts}</p>` : ''}
-        <p class="m-0 t-fine text-muted">${emails}${li ? ` · <a href="${esc(li)}" target="_blank" rel="noopener noreferrer" class="text-ink">LinkedIn ↗</a>` : ''}</p>
-        ${r.request_note ? `<p class="m-0 t-caption portal-request-note">“${esc(r.request_note)}”</p>` : ''}
-        ${missing.length ? `<p class="m-0 t-fine portal-request-missing">Profile not finished: missing ${esc(listInWords(missing))}.</p>` : ''}
-        <p class="m-0 t-fine text-muted">Signed up ${date(r.created_at)}</p>
+    const open = q.open.has(r.id);
+    return `<li class="portal-request portal-q-row" data-id="${r.id}">
+      <label class="portal-check portal-q-pick" aria-label="Select ${esc(r.full_name)}"><input type="checkbox" data-q-pick="${r.id}"${q.picked.has(r.id) ? ' checked' : ''} /><i></i></label>
+      <span class="portal-avatar t-fine" aria-hidden="true">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initialsOf(r.full_name))}</span>
+      <div class="portal-q-main">
+        <p class="m-0"><span class="text-ink portal-q-name">${esc(r.full_name)}</span> <span class="t-fine portal-tag">${r.status === 'student' ? 'STUDENT' : 'ALUM'}</span></p>
+        <p class="m-0 t-fine text-muted">${facts}</p>
+        ${claimed ? `<p class="m-0 t-fine portal-q-claim">E-board: ${esc(claimed)}</p>` : ''}
+        ${r.request_note ? `<p class="m-0 t-fine portal-request-note portal-q-note">“${esc(r.request_note)}”</p>` : ''}
+        <p class="m-0 t-fine text-muted">${emails} · signed up ${ago(r.created_at)}</p>
       </div>
-      <div class="portal-request-actions">
+      <div class="portal-request-actions portal-q-actions">
         <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button>
         <button type="button" class="t-label portal-linklike" data-decline="${r.id}">DECLINE</button>
-        <a class="t-label portal-linklike no-underline" href="/alumni-portal/members/?id=${r.id}">VIEW PROFILE</a>
+        <button type="button" class="t-label portal-linklike" data-q-details="${r.id}" aria-expanded="${open}">${open ? 'LESS' : 'DETAILS'}</button>
+      </div>
+      <div class="portal-q-details t-fine" ${open ? '' : 'hidden'}>
+        ${r.request_note ? `<p class="m-0"><span class="text-muted">Their note:</span> “${esc(r.request_note)}”</p>` : '<p class="m-0 text-muted">No note.</p>'}
+        <p class="m-0"><span class="text-muted">Now:</span> ${esc([r.current_title, r.current_company].filter(Boolean).join(' at ') || '—')} · ${esc(cityLabel(r.city) || 'no city')}</p>
+        <p class="m-0">${li ? `<a href="${esc(li)}" target="_blank" rel="noopener noreferrer" class="text-ink">LinkedIn ↗</a> · ` : ''}<a class="portal-linklike no-underline" href="/alumni-portal/members/?id=${r.id}&from=approvals">VIEW FULL PROFILE →</a></p>
       </div>
     </li>`;
-  }).join('') : '<li class="t-caption text-muted">Nobody waiting.</li>';
+  }).join('') : `<li class="t-caption text-muted">${all.length ? 'Nobody matches that search.' : 'Nobody waiting. New sign-ups show up here once they finish their profile.'}</li>`;
+  const more = document.querySelector<HTMLButtonElement>('[data-q-more]')!; const left = matching.length - shown.length;
+  more.hidden = left <= 0; more.textContent = `SHOW ${Math.min(PAGE, left)} MORE · ${left} LEFT`;
+  syncPicks(shown, matching);
+
+  const date2 = date;
+  const incomplete = waiting().filter((r) => applicationMissing(r).length).sort((x, y) => y.created_at.localeCompare(x.created_at));
+  const inc = document.getElementById('incomplete-fold') as HTMLDetailsElement | null;
+  if (inc) {
+    inc.hidden = !incomplete.length; document.getElementById('incomplete-n')!.textContent = String(incomplete.length);
+    document.getElementById('incomplete-list')!.innerHTML = incomplete.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || r.personal_email || r.usc_email || 'Someone')}</span> <span class="text-muted">${r.full_name ? `· ${esc(r.personal_email || r.usc_email || '')} ` : ''}· signed up ${ago(r.created_at)} · still needs ${esc(listInWords(applicationMissing(r)).replace(/your /g, ''))}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-decline="${r.id}">DECLINE</button></span></li>`).join('');
+  }
   const declined = rows.filter((r) => !r.approved && r.declined_at).sort((x, y) => (y.declined_at ?? '').localeCompare(x.declined_at ?? ''));
   const fold = document.getElementById('declined-fold') as HTMLDetailsElement | null;
   if (fold) {
     fold.hidden = !declined.length; document.getElementById('declined-n')!.textContent = String(declined.length);
-    document.getElementById('declined-list')!.innerHTML = declined.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || 'No name yet')}</span> <span class="text-muted">· ${esc(r.personal_email || r.usc_email || '')} · declined ${date(r.declined_at!)}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-restore="${r.id}">BACK TO WAITING LIST</button></span></li>`).join('');
+    document.getElementById('declined-list')!.innerHTML = declined.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || 'No name yet')}</span> <span class="text-muted">· ${esc(r.personal_email || r.usc_email || '')} · declined ${date2(r.declined_at!)}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-restore="${r.id}">BACK TO WAITING LIST</button></span></li>`).join('');
   }
-  // the nav badges follow the queue
-  document.querySelectorAll<HTMLElement>('a[href="/alumni-portal/admin"] .portal-count, a[href="/alumni-portal/admin/users"] .portal-count').forEach((b) => { if (pending.length) b.textContent = String(pending.length); else b.remove(); });
+  // the nav badges count the people who can be decided now
+  document.querySelectorAll<HTMLElement>('a[href="/alumni-portal/admin"] .portal-count, a[href="/alumni-portal/admin/users"] .portal-count').forEach((b) => { if (all.length) b.textContent = String(all.length); else b.remove(); });
 }
-
+/** the selection bar: what's ticked, select-all of what's shown, and the Gmail-style "select all N" */
+function syncPicks(shown = queue().slice(0, q.shown), matching = queue()) {
+  const n = q.picked.size; const allBox = document.getElementById('q-all') as HTMLInputElement | null; if (!allBox) return;
+  const shownPicked = shown.filter((r) => q.picked.has(r.id)).length;
+  allBox.checked = shown.length > 0 && shownPicked === shown.length; allBox.indeterminate = shownPicked > 0 && shownPicked < shown.length;
+  document.querySelector<HTMLElement>('[data-q-all-label]')!.textContent = shown.length < matching.length ? `Select the ${shown.length} shown` : 'Select all';
+  const every = document.querySelector<HTMLButtonElement>('[data-q-everyone]')!;
+  every.hidden = !(allBox.checked && matching.length > shown.length && n < matching.length); every.textContent = `SELECT ALL ${matching.length}`;
+  document.querySelector<HTMLElement>('[data-q-selected]')!.textContent = `${n} selected`;
+  for (const sel of ['[data-q-approve]', '[data-q-decline]']) { const b = document.querySelector<HTMLButtonElement>(sel)!; b.disabled = !n; b.textContent = `${sel.includes('approve') ? 'APPROVE' : 'DECLINE'} ${n ? `${n} ` : ''}SELECTED`; }
+}
+const qfb = (html: string, ok = true) => { const el = document.getElementById('q-fb'); if (el) { el.innerHTML = html; el.style.color = ok ? '' : 'var(--color-orange)'; } };
+const people = (n: number) => `${n} ${n === 1 ? 'person' : 'people'}`;
+async function decide(kind: 'approved' | 'declined', ids: string[]) {
+  if (!ids.length) return;
+  const names = ids.length === 1 ? (rows.find((r) => r.id === ids[0])?.full_name || 'them') : people(ids.length);
+  const res = kind === 'approved' ? await approveMany(ids) : await declineMany(ids);
+  if (res.error) { qfb(esc(res.error.message), false); return; }
+  for (const id of ids) q.picked.delete(id);
+  lastAction = { kind, ids };
+  qfb(`${kind === 'approved' ? `Approved ${esc(names)}. ${ids.length === 1 ? "They're" : "They're all"} in the network the next time they open the portal.` : `Declined ${esc(names)}.`} <button type="button" class="t-label portal-linklike" data-q-undo style="color:var(--color-orange)">UNDO</button>`);
+  fb('');
+  await load();
+}
 function renderTable() {
   const tbody = document.querySelector<HTMLElement>('[data-members] tbody')!;
   const members = rows.filter((r) => r.approved);
   tbody.innerHTML = members.map((r) => {
     const status = r.status === 'student' ? 'STUDENT' : 'ALUM'; const division = (r.divisions ?? []).join(', ').replace('PRODUCT MANAGEMENT', 'PRODUCT'); const city = cityLabel(r.city); const email = r.personal_email || r.usc_email || '';
     return `<tr data-id="${r.id}" data-status="${status}" data-cohort="${cohortOf(r.join_term, r.join_year)}" data-division="${esc((r.divisions ?? []).map((d) => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')).join('|'))}" data-text="${esc(`${r.full_name} ${r.usc_email ?? ''} ${r.personal_email ?? ''} ${r.current_company ?? ''} ${city} ${division}`.toLowerCase())}">
-      <td class="m-name">${esc(r.full_name || '(no name yet)')}${admins.has(r.id) ? ' <span class="t-fine portal-role">ADMIN</span>' : ''}</td><td class="text-muted m-email">${esc(email)}</td><td class="m-status"><span class="t-fine portal-tag">${status}</span></td><td class="text-muted m-col">${cohortOf(r.join_term, r.join_year) || '—'}</td><td class="text-muted m-col">${esc(division) || '—'}</td><td class="text-muted m-col">${esc(city) || '—'}</td><td class="m-col">${completeness(r)}%</td>
+      <td class="m-name"><a class="text-ink no-underline portal-name-link" href="/alumni-portal/members/?id=${r.id}&from=members">${esc(r.full_name || '(no name yet)')}</a>${admins.has(r.id) ? ' <span class="t-fine portal-role">ADMIN</span>' : ''}</td><td class="text-muted m-email">${esc(email)}</td><td class="m-status"><span class="t-fine portal-tag">${status}</span></td><td class="text-muted m-col">${cohortOf(r.join_term, r.join_year) || '—'}</td><td class="text-muted m-col">${esc(division) || '—'}</td><td class="text-muted m-col">${esc(city) || '—'}</td><td class="m-col">${completeness(r)}%</td>
       <td class="t-fine text-muted m-meta">${[cohortOf(r.join_term, r.join_year), esc(division), esc(city), `${completeness(r)}% complete`].filter(Boolean).join(' · ')}</td>
-      <td class="m-actions" style="text-align:right;white-space:nowrap"><button type="button" class="t-label portal-linklike" data-roles-for="${r.id}" style="margin-right:calc(16 * var(--u))">ROLES</button><button type="button" class="t-label portal-linklike" data-admin-toggle="${r.id}" style="margin-right:calc(16 * var(--u))"${r.id === myId ? ' disabled title="You cannot change your own admin access"' : ''}>${admins.has(r.id) ? 'REMOVE ADMIN' : 'MAKE ADMIN'}</button><button type="button" class="t-label portal-linklike" data-remove="${r.id}">REMOVE ACCESS</button></td>
+      <td class="m-actions"><span class="portal-row-actions"><button type="button" class="t-label portal-linklike" data-roles-for="${r.id}">ROLES</button><button type="button" class="t-label portal-linklike" data-admin-toggle="${r.id}"${r.id === myId ? ' disabled title="You cannot change your own admin access"' : ''}>${admins.has(r.id) ? 'REMOVE ADMIN' : 'MAKE ADMIN'}</button><button type="button" class="t-label portal-linklike" data-remove="${r.id}"${r.id === myId ? ' disabled title="You cannot remove your own access"' : ''}>REMOVE ACCESS</button></span></td>
     </tr>`;
   }).join('') || '<tr><td colspan="9" class="text-muted">No approved members yet.</td></tr>';
   document.getElementById('members-q')?.dispatchEvent(new Event('input'));   // the shared filter recounts
 }
 
+/** the Members filter's cohort chips: every cohort approved members joined in, newest first (was four fixed ones) */
+function renderCohortChips() {
+  const box = document.querySelector<HTMLElement>('[data-filter="cohort"]'); if (!box) return;
+  const on = new Set([...box.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.dataset.value!));
+  const key = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
+  const list = [...new Set(rows.filter((r) => r.approved).map((r) => cohortOf(r.join_term, r.join_year)).filter(Boolean))].sort((a, b) => key(b) - key(a));
+  box.innerHTML = list.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="${on.has(c)}" data-value="${esc(c)}">${esc(c)}</button>`).join('') || '<span class="t-fine text-muted">No cohorts yet</span>';
+}
 function openRoles(btn: HTMLElement) {
   const id = btn.dataset.rolesFor!; const tr = btn.closest('tr')!; const next = tr.nextElementSibling as HTMLElement | null;
   if (next?.classList.contains('portal-row-detail')) { next.remove(); btn.textContent = 'ROLES'; return; }
@@ -104,38 +167,39 @@ function exportCsv() {
   fb(`Exported ${pick.length} member${pick.length === 1 ? '' : 's'}.`);
 }
 
-async function importCohort(btn: HTMLElement) {
-  const panel = document.getElementById('cohort-panel')!; const f = panel.querySelector<HTMLElement>('.portal-feedback')!;
-  const year = parseInt((document.getElementById('cohort-year') as HTMLInputElement).value, 10); const term = (document.getElementById('cohort-term') as HTMLSelectElement).value === 'Fall' ? 'FA' : 'SP';
-  let parsed: string[][];
-  try { parsed = parseRosterCsv((document.getElementById('cohort-csv') as HTMLTextAreaElement).value).filter(c => !/^(name|full name)$/i.test(c[0] ?? '')); }
-  catch (e) { f.textContent = (e as Error).message; return; }
-  const people = parsed.map((c) => { const email = c.find((x) => /@/.test(x)) ?? ''; const name = c.find((x) => x && !/@/.test(x)) ?? ''; const division = c.filter((x) => x && !/@/.test(x) && x !== name)[0] ?? null; return { full_name: name, usc_email: email.toLowerCase(), join_term: Number.isFinite(year) ? term as 'FA' | 'SP' : null, join_year: Number.isFinite(year) ? year : null, division: division ? division.toUpperCase() : null }; }).filter((p) => /@(?:[a-z0-9-]+\.)*usc\.edu$/i.test(p.usc_email));
-  if (!people.length) { f.textContent = 'No rows with a usc.edu address found. One person per line: name, email, division.'; f.style.color = 'var(--color-orange)'; return; }
-  const res = await importRoster(people);
-  if (res.error) { f.textContent = res.error.message; f.style.color = 'var(--color-orange)'; return; }
-  flash(btn, 'IMPORTED'); f.style.color = ''; f.textContent = `${people.length} added to the roster${Number.isFinite(year) ? ` as ${term}${String(year).slice(2)}` : ''}. ${parsed.length - people.length ? `${parsed.length - people.length} line${parsed.length - people.length === 1 ? '' : 's'} skipped (no usc.edu address).` : ''}`;
-  (document.getElementById('cohort-csv') as HTMLTextAreaElement).value = ''; void rosterSummary();
-}
-async function rosterSummary() { const r = await listRoster(); const el = document.getElementById('roster-summary'); if (el) el.textContent = r.length ? `Roster: ${r.length} people on file across ${new Set(r.map((x) => cohortOf(x.join_term, x.join_year))).size} semesters.` : 'Roster: empty. Until it has people, everyone who signs in waits in the queue above.'; }
-
 async function init() {
   const table = document.querySelector<HTMLElement>('[data-members]'); if (!table || table.dataset.wired) return; table.dataset.wired = '1';
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
   const who = await me(); if (!who?.admin) return; myId = who.id;
-  await load(); void rosterSummary();
+  // a fresh page each visit: the module outlives client-side navigation, the search box doesn't (a stale search once
+  // showed "Nobody matches" under an empty box after VIEW FULL PROFILE → back)
+  q.search = ''; q.sort = 'oldest'; q.shown = PAGE; q.picked.clear(); q.open.clear(); lastAction = null;
+  await load();
+  // the waiting list's own controls
+  document.getElementById('q-search')?.addEventListener('input', (e) => { q.search = (e.target as HTMLInputElement).value; q.shown = PAGE; renderRequests(); });
+  document.getElementById('q-sort')?.addEventListener('change', (e) => { q.sort = (e.target as HTMLSelectElement).value; renderRequests(); });
+  document.getElementById('q-all')?.addEventListener('change', (e) => { const on = (e.target as HTMLInputElement).checked; for (const r of queue().slice(0, q.shown)) on ? q.picked.add(r.id) : q.picked.delete(r.id); if (!on) q.picked.clear(); renderRequests(); });
+  document.getElementById('requests-list')?.addEventListener('change', (e) => { const box = (e.target as HTMLElement).closest<HTMLInputElement>('[data-q-pick]'); if (!box) return; box.checked ? q.picked.add(box.dataset.qPick!) : q.picked.delete(box.dataset.qPick!); syncPicks(); });
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const t = e.target as HTMLElement; const b = t.closest<HTMLElement>('button'); if (!b) return;
-    if (b.dataset.approve) { const p = rows.find((x) => x.id === b.dataset.approve); const r = await setApproved(b.dataset.approve, true); fb(r.error ? r.error.message : `Approved ${p?.full_name || 'them'}. They're in the network the next time they open the portal.`, !r.error); await load(); }
+    if (b.dataset.approve) await decide('approved', [b.dataset.approve]);
+    else if (b.hasAttribute('data-q-approve')) { const ids = [...q.picked]; if (ids.length > 1 && !confirm(`Approve ${people(ids.length)}? They're in the network the next time they open the portal.`)) return; await decide('approved', ids); }
+    else if (b.hasAttribute('data-q-decline')) { const ids = [...q.picked]; if (!confirm(`Decline ${people(ids.length)}? They stay outside the network and see that they weren't approved. You can undo this, or restore them from the Declined list.`)) return; await decide('declined', ids); }
+    else if (b.hasAttribute('data-q-undo') && lastAction) { const a = lastAction; lastAction = null; const r = await restoreMany(a.ids); qfb(r.error ? esc(r.error.message) : `Undone: ${people(a.ids.length)} back on the waiting list.`, !r.error); await load(); }
+    else if (b.hasAttribute('data-q-everyone')) { for (const r of queue()) q.picked.add(r.id); renderRequests(); }
+    else if (b.hasAttribute('data-q-more')) { q.shown += PAGE; renderRequests(); }
+    else if (b.dataset.qDetails) { const id = b.dataset.qDetails; q.open.has(id) ? q.open.delete(id) : q.open.add(id); const row = b.closest('li')!; const d = row.querySelector<HTMLElement>('.portal-q-details')!; d.hidden = !q.open.has(id); b.textContent = q.open.has(id) ? 'LESS' : 'DETAILS'; b.setAttribute('aria-expanded', String(q.open.has(id))); }
+    else if (b.closest('[data-filter="cohort"]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); document.getElementById('members-q')?.dispatchEvent(new Event('input')); }   // built after load, so the shared script didn't bind them
     else if (b.dataset.restore) { const r = await setRestored(b.dataset.restore); fb(r.error ? r.error.message : 'Back on the waiting list.', !r.error); await load(); }
-    else if (b.dataset.decline) { const p = rows.find((x) => x.id === b.dataset.decline); if (!confirm(`Decline ${p?.full_name || 'this person'}? They stay outside the network and see that they weren't approved. You can restore them from the Declined list.`)) return; const r = await setDeclined(b.dataset.decline); fb(r.error ? r.error.message : 'Declined. They stay outside the network.', !r.error); await load(); }
-    else if (b.dataset.adminToggle) { const on = !admins.has(b.dataset.adminToggle); const r = await setAdmin(b.dataset.adminToggle, on); fb(r.error ? r.error.message : on ? 'Made admin. They see the Admin pages next time they load the portal.' : 'Admin access removed.', !r.error); await load(); }
-    else if (b.dataset.remove) { const r = rows.find((x) => x.id === b.dataset.remove); if (r && confirm(`Remove ${r.full_name || 'this member'} from the network? They lose access right away and can be approved again later.`)) { const res = await setDeclined(r.id); fb(res.error ? res.error.message : 'Access removed.', !res.error); await load(); } }
+    else if (b.dataset.decline) { const p = rows.find((x) => x.id === b.dataset.decline); if (!confirm(`Decline ${p?.full_name || 'this person'}? They stay outside the network and see that they weren't approved. You can undo this, or restore them from the Declined list.`)) return; await decide('declined', [b.dataset.decline]); }
+    else if (b.dataset.adminToggle) {   // one change at a time, and the list knows the answer before the next click (a quick second click used to grant again)
+      if (b.getAttribute('aria-busy') === 'true') return; b.setAttribute('aria-busy', 'true'); (b as HTMLButtonElement).disabled = true;
+      const id = b.dataset.adminToggle; const on = !admins.has(id); const r = await setAdmin(id, on);
+      if (!r.error) { on ? admins.add(id) : admins.delete(id); }
+      fb(r.error ? r.error.message : on ? 'Made admin. They see the Admin pages next time they load the portal.' : 'Admin access removed.', !r.error); await load(); }
+    else if (b.dataset.remove) { if (b.dataset.remove === myId) return; const r = rows.find((x) => x.id === b.dataset.remove); if (r && confirm(`Remove ${r.full_name || 'this member'} from the network? They lose access right away and can be approved again later.`)) { const res = await setDeclined(r.id); fb(res.error ? res.error.message : 'Access removed.', !res.error); await load(); } }
     else if (b.dataset.rolesFor) openRoles(b);
     else if (b.dataset.action === 'export') { e.preventDefault(); exportCsv(); flash(b, 'EXPORTED'); }
-    else if (b.dataset.action === 'add-cohort') { e.preventDefault(); const p = document.getElementById('cohort-panel')!; p.hidden = !p.hidden; if (!p.hidden) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    else if (b.dataset.action === 'close-cohort') { e.preventDefault(); document.getElementById('cohort-panel')!.hidden = true; }
-    else if (b.dataset.action === 'import-cohort') { e.preventDefault(); await importCohort(b); }
   });
 }
 init();

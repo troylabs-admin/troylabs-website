@@ -6,6 +6,7 @@
 import { escapeHtml } from '../lib/portal/safe-html';
 import { HOME, me, type Me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
+import { prettyPhone, toE164 } from '../lib/portal/phone';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, uploadAvatar, getProfile, type ProfileRow } from '../lib/portal/data';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
@@ -34,7 +35,7 @@ function fill(r: ProfileRow, admin: boolean) {
   const img = $<HTMLImageElement>('#pf-photo-preview')!; const url = avatarUrl(r);
   if (url) { img.src = url; img.hidden = false; initials.dataset.hasPhoto = '1'; } else { img.hidden = true; delete initials.dataset.hasPhoto; }
   ($('#pf-usc') as HTMLInputElement).value = r.usc_email ?? ''; ($('#pf-personal') as HTMLInputElement).value = r.personal_email ?? '';
-  ($('#pf-phone') as HTMLInputElement).value = r.phone ?? ''; ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in;
+  ($('#pf-phone') as HTMLInputElement).value = prettyPhone(r.phone); ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in;
   const eo = $<HTMLInputElement>('#pf-email-opt'); if (eo) eo.checked = r.email_opt_in !== false;
   document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === r.status)));
   const student = r.status === 'student';
@@ -146,12 +147,16 @@ async function init() {
     const btn = rowEl.querySelector<HTMLButtonElement>('.portal-save-row'); const input = rowEl.querySelector<HTMLInputElement>('input:not([type="checkbox"])'); if (!btn || !input) continue;
     btn.addEventListener('click', async (e) => {
       e.preventDefault(); const kind = rowEl.dataset.contact; const v = input.value.trim() || null;
-      const patch: Partial<ProfileRow> = kind === 'usc' ? { usc_email: v } : kind === 'personal' ? { personal_email: v } : { phone: v, phone_opt_in: ($('#pf-phone-opt') as HTMLInputElement).checked };
+      const phone = kind === 'phone' && v ? toE164(v) : null;
+      if (kind === 'phone' && v && !phone) { flash(btn, 'NOT SAVED', 'Enter a number that can get texts, like (310) 555-0101, or +44 20 7946 0958 outside the US.', false); return; }
+      const textsOn = ($('#pf-phone-opt') as HTMLInputElement).checked;
+      if (kind === 'phone' && textsOn && !phone) { flash(btn, 'NOT SAVED', 'Add your number to get texts.', false); return; }
+      const patch: Partial<ProfileRow> = kind === 'usc' ? { usc_email: v } : kind === 'personal' ? { personal_email: v } : { phone, phone_opt_in: textsOn };
       if (kind === 'usc' && v && !/@(?:[a-z0-9-]+\.)*usc\.edu$/i.test(v)) { flash(btn, 'NOT SAVED', 'That is not a usc.edu address.', false); return; }
       if (kind === 'personal' && !v) { flash(btn, 'NOT SAVED', 'Keep a personal email on file so members can reach you.', false); return; }
       if (kind === 'personal' && v && !input.checkValidity()) { flash(btn, 'NOT SAVED', 'Enter a valid email address.', false); return; }
       const res = await saveMyProfile(patch);
-      if (res.ok) { row = res.row; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
+      if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });
   }
   // announcements on/off saves the moment it's ticked

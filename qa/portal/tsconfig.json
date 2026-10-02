@@ -8,6 +8,7 @@
     "../../src/lib/portal/application.ts",
     "../../src/lib/portal/data.ts",
     "../../src/lib/portal/safe-html.ts",
+    "../../src/lib/portal/phone.ts",
     "../../src/scripts/portal-auth.ts",
     "../../src/scripts/portal-signin.ts",
     "../../src/scripts/portal-profile.ts",

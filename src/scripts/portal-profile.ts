@@ -35,6 +35,7 @@ function fill(r: ProfileRow, admin: boolean) {
   if (url) { img.src = url; img.hidden = false; initials.dataset.hasPhoto = '1'; } else { img.hidden = true; delete initials.dataset.hasPhoto; }
   ($('#pf-usc') as HTMLInputElement).value = r.usc_email ?? ''; ($('#pf-personal') as HTMLInputElement).value = r.personal_email ?? '';
   ($('#pf-phone') as HTMLInputElement).value = r.phone ?? ''; ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in;
+  const eo = $<HTMLInputElement>('#pf-email-opt'); if (eo) eo.checked = r.email_opt_in !== false;
   document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === r.status)));
   const student = r.status === 'student';
   ($('#pf-grad') as HTMLElement).hidden = !student; ($('#pf-classof') as HTMLElement).hidden = student;
@@ -153,6 +154,11 @@ async function init() {
       if (res.ok) { row = res.row; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });
   }
+  // announcements on/off saves the moment it's ticked
+  $<HTMLInputElement>('#pf-email-opt')?.addEventListener('change', async (e) => {
+    const box = e.currentTarget as HTMLInputElement; const out = $('#pf-email-opt-fb')!; const res = await saveMyProfile({ email_opt_in: box.checked });
+    if (res.ok) { row = res.row; out.style.color = ''; out.textContent = box.checked ? 'Saved. You’ll get TroyLabs announcements by email.' : 'Saved. You won’t get announcement emails.'; } else { box.checked = !box.checked; out.style.color = 'var(--color-orange)'; out.textContent = res.message; }
+  });
   $('#pf-phone-opt')?.addEventListener('change', () => { const b = document.querySelector<HTMLButtonElement>('[data-contact="phone"] .portal-save-row'); if (b) b.disabled = false; });
 
   // photo: resize, upload, show

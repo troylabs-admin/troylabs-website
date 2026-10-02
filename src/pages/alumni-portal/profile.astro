@@ -65,6 +65,10 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>
           <p class="t-fine portal-feedback"></p>
         </div>
+        <div class="portal-field is-full">
+          <label class="portal-check t-caption"><input id="pf-email-opt" type="checkbox" checked /><i></i>Email me TroyLabs announcements</label>
+          <p class="t-fine portal-feedback" id="pf-email-opt-fb"></p>
+        </div>
         <div class="portal-field portal-contact-row" data-contact="phone">
           <label class="t-label text-muted" for="pf-phone">PHONE <span style="letter-spacing:0;text-transform:none">· optional, for event texts</span></label>
           <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="+1 310 555 0101" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div>

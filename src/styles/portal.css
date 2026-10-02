@@ -558,3 +558,9 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
   .portal-request-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 8px 18px; padding-top: 10px; border-top: 1px solid rgb(255 255 255 / 0.08); }
   .portal-declined { margin-top: 14px; }
 }
+
+/* email delivery on the Message page (2026-10-02) */
+.portal-delivery { margin-top: calc(10 * var(--u)); color: var(--color-muted); letter-spacing: calc(0.4 * var(--u)); }
+.portal-delivery.is-warn { color: var(--color-orange); }
+.portal-msg-error { color: var(--color-orange); }
+@media (max-width: 767px) { .portal-delivery { margin-top: 8px; letter-spacing: 0.3px; } }

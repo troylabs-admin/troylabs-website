@@ -11,7 +11,7 @@ export interface ProfileRow {
   status: 'student' | 'alum'; grad_term: 'FA' | 'SP' | null; grad_year: number | null; join_term: 'FA' | 'SP' | null; join_year: number | null;
   divisions: string[]; current_title: string | null; current_company: string | null; linkedin_url: string | null; bio: string | null;
   industries: string[]; startups: string[]; city_id: number | null;
-  usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean;
+  usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean; email_opt_in: boolean;
   avatar_path: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
   city?: CityRow | null;
 }

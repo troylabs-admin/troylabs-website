@@ -1,5 +1,5 @@
 ---
-/** Alumni portal › Admin › Messages: compose, pick who gets it, save/schedule to the database, and the list of every message (scripts/portal-messages.ts). Sending itself waits for an email provider (Resend). */
+/** Alumni portal › Admin › Messages: compose, pick who gets it, test, send or schedule by email (the send-message function, Resend), and the list of every message with who got it (scripts/portal-messages.ts). Texts are not connected. */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
@@ -15,14 +15,15 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
     <AdminNav current="messages" />
     <div class="portal-page-head"><div>
       <h1 class="t-title portal-page-title">MESSAGES</h1>
-      <p class="t-caption text-muted portal-page-sub">Prepare an event invite, announcement, or referral ask and preview its audience. Drafts work; email and text delivery are not connected yet.</p>
+      <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement or a referral ask, pick who gets it, and send it by email. Send yourself a test first. Texts aren't connected yet.</p>
+      <p class="m-0 t-fine portal-delivery" id="msg-delivery" role="status">Checking whether email is connected…</p>
     </div></div>
 
     <div class="portal-panels portal-panels-2">
       <form class="portal-panel" novalidate>
         <h2 class="t-sub portal-panel-title">Compose message</h2>
         <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
-        <div class="portal-field"><label class="t-label text-muted" for="mc-title">TITLE (FOR YOUR RECORDS)</label><input id="mc-title" class="t-caption portal-input is-wide" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="mc-title">SUBJECT <span style="letter-spacing:0;text-transform:none">· the email's subject line, and how it's listed below</span></label><input id="mc-title" class="t-caption portal-input is-wide" maxlength="150" /></div>
         <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea></div>
         <details class="portal-fold" data-fold>
           <summary class="t-label text-muted">EVENT DETAILS (OPTIONAL)</summary>
@@ -51,7 +52,8 @@ const AUD: [string, string[]][] = [['STATUS', ['STUDENTS', 'ALUMNI']], ['COHORT'
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…">PREVIEW RECIPIENTS</button>
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-draft">NEW DRAFT</button>
           <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
-          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-done="QUEUED" data-send-btn disabled title="Email and text delivery are not connected yet">DELIVERY NOT CONNECTED</button>
+          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="test-send">SEND A TEST TO ME</button>
+          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-send-btn>SEND NOW</button>
           <p id="msg-fb" class="t-fine portal-feedback" style="margin:0"></p>
         </div>
       </div>

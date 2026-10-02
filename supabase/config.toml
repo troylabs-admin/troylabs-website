@@ -416,3 +416,7 @@ enabled = true
 
 [functions.posthog-stats]
 verify_jwt = true
+
+[functions.send-message]
+# admin rights are checked inside the function; the database scheduler calls it with a shared secret instead of a JWT
+verify_jwt = false

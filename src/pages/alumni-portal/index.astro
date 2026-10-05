@@ -14,17 +14,23 @@ import PortalFrame from '../../components/portal/PortalFrame.astro';
 ---
 
 <BaseLayout nav="gate" title="TL Alumni Network Portal — TroyLabs" description="Sign in to the TroyLabs alumni network.">
-  <PortalFrame h={540} label="Sign in to the alumni portal">
+  <PortalFrame h={640} label="Sign in to the alumni portal">
     <form id="portal-auth" class="portal-form flex flex-col items-center" novalidate>
       <span class="t-label text-muted m-center">TROYLABS MEMBERS, PAST AND PRESENT</span>
       <h1 class="m-0 t-title-tight font-normal text-center portal-h">TL ALUMNI NETWORK PORTAL</h1>
+      <p class="m-0 t-caption text-center portal-gate-lead">Sign in or join with your email. It's the same button either way.</p>
 
       <input id="portal-email" type="email" name="email" autocomplete="email" placeholder="you@email.com" aria-label="Email" class="t-caption portal-input" required />
 
       <button type="submit" class="portal-btn t-title whitespace-nowrap">EMAIL ME A LINK</button>
-      <p class="m-0 t-fine text-muted text-center portal-hint">No password. Tap the link we email you and you're in.<br />New here? Use any email you check. You'll create your profile, and TroyLabs leadership approves new members by hand.</p>
+      <p id="portal-msg" class="m-0 t-caption text-center portal-msg" role="status"></p>
 
-      <p id="portal-msg" class="m-0 t-fine text-center portal-msg" role="status"></p>
+      <!-- how it works, for someone who has never been here (Bryan, 2026-10-05: "how do they know if they have an account?") -->
+      <ol class="portal-gate-steps" aria-label="How it works">
+        <li><span class="portal-gate-n">1</span><span><b>Enter your email</b>Any email you check. New or returning, it's the same.</span></li>
+        <li><span class="portal-gate-n">2</span><span><b>Tap the link we send</b>No password, ever. The link signs you in.</span></li>
+        <li><span class="portal-gate-n">3</span><span><b>New here? Create your profile</b>TroyLabs leadership approves every member, and we email you when you're in.</span></li>
+      </ol>
       <p class="m-0 t-fine text-muted text-center portal-hint">Questions? Email troylabs@usc.edu.</p>
     </form>
   </PortalFrame>

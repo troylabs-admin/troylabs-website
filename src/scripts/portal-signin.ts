@@ -20,7 +20,7 @@ function init() {
     button.disabled = true; msg.textContent = 'Sending your link…';
     const r = await sendMagicLink(email.value);
     button.disabled = false;
-    msg.textContent = r.ok ? `Check your inbox at ${email.value.trim()}. The link works once and expires in an hour. Not there in a few minutes? Check spam.` : r.message;
+    msg.textContent = r.ok ? `Check your inbox at ${email.value.trim()}. Tap the link in the email from TroyLabs to continue. It works once and expires in an hour; not there in a few minutes? Check spam.` : r.message;
     if (r.ok) email.blur();
   });
 }

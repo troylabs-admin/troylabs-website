@@ -13,8 +13,9 @@ const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
 const termCode = (v: string) => (v === 'Fall' ? 'FA' : 'SP') as 'FA' | 'SP';
 const flash = (btn: HTMLElement | null, text: string, feedback = '', ok = true) => {
-  if (!btn) return; const orig = btn.textContent; btn.classList.add('is-done'); btn.textContent = text;
-  setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = btn.dataset.label ?? orig; }, 1800);   // data-label: the button's current name (SUBMIT FOR APPROVAL becomes SAVE CHANGES)
+  if (!btn) return; const orig = btn.textContent;
+  // a problem never renames the button ("NOT SENT" in its place read as if the site broke): the message under it says what to do
+  if (ok) { btn.classList.add('is-done'); btn.textContent = text; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = btn.dataset.label ?? orig; }, 1800); }   // data-label: the button's current name (SUBMIT FOR APPROVAL becomes SAVE CHANGES)
   const after = btn.parentElement?.nextElementSibling as HTMLElement | null;   // the line right under the button's row (the location row's; it never showed: audit 2026-10-02)
   const fb = btn.parentElement?.querySelector<HTMLElement>('.portal-feedback') ?? (after?.classList.contains('portal-feedback') ? after : null) ?? btn.closest<HTMLElement>('.portal-field, .portal-contact-row, .portal-save, .portal-panel')?.querySelector<HTMLElement>('.portal-feedback') ?? null;
   if (fb) { fb.textContent = feedback; fb.style.color = ok ? '' : 'var(--color-orange)'; }
@@ -85,6 +86,19 @@ function loadClaims(claims: ClaimedRole[]) {
   }
   (document.activeElement as HTMLElement | null)?.blur();
 }
+/** where each required answer lives on the page, so a missing one can be shown, not just named */
+const FIELD_FOR: Record<string, string> = { 'whether you’re a student or an alum': '[data-field="status"]', 'your name': '#pf-name', 'your graduation year': '#pf-classof-year, #pf-grad-year', 'the semester you joined TroyLabs': '#pf-year', 'your division': '[data-field="divisions"]', 'your city': '#pf-loc' };
+/** say what's missing under the button, outline every missing answer, and take them to the first one */
+function showMissing(missing: string[], lead: string) {
+  const fb = $('.portal-save .portal-feedback'); if (fb) { fb.textContent = `${lead} ${listInWords(missing)}. They're outlined in orange.`; fb.style.color = 'var(--color-orange)'; }
+  document.querySelectorAll('.portal-needs').forEach((e) => e.classList.remove('portal-needs'));
+  let first: HTMLElement | null = null;
+  for (const m of missing) {
+    const el = [...document.querySelectorAll<HTMLElement>(FIELD_FOR[m] ?? '')].find((x) => x.offsetParent !== null) ?? null; if (!el) continue;
+    (el.matches('input, select') ? el : el).classList.add('portal-needs'); first ??= el;
+  }
+  if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.matches('input')) setTimeout(() => (first as HTMLInputElement).focus({ preventScroll: true }), 350); }
+}
 const statusPicked = () => Boolean(document.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]'));
 function collect(): Partial<ProfileRow> {
   const status = (document.querySelector<HTMLElement>('[data-field="status"] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'alum') as 'student' | 'alum';
@@ -129,9 +143,9 @@ function onboard(justSaved = false) {
     text.textContent = `${bounced === 'search' ? 'Search opens once your profile is finished and leadership approves you. ' : bounced ? 'The rest of the portal opens once your profile is finished and leadership approves you. ' : ''}TroyLabs leadership approves every member by hand. Fill in everything below so they can recognise you, then press SUBMIT FOR APPROVAL at the bottom. You can edit your profile any time after.`;
     miss.textContent = missing.length ? `Still needed: ${listInWords(missing)}.` : 'That’s everything. Press SUBMIT FOR APPROVAL at the bottom.';
   } else {
-    title.textContent = justSaved ? 'Sent. You’re on the list.' : 'You’re on the list';
+    title.textContent = justSaved ? 'Submitted. Waiting for approval.' : 'Waiting for approval';
     text.innerHTML = '';
-    text.append('Your profile is with TroyLabs leadership. You’ll get into the network as soon as an admin approves you, so check back on this site. You can keep editing your profile meanwhile. ');
+    text.append('Your profile is with TroyLabs leadership. We’ll email you the moment they approve you. You can keep editing your profile meanwhile. ');
     const a = document.createElement('a'); a.href = HOME; a.className = 'text-ink'; a.textContent = 'See where you stand'; text.append(a, '.');
     miss.textContent = missing.length ? `Your profile needs ${listInWords(missing)} before changes can be saved.` : '';
   }
@@ -153,9 +167,12 @@ async function init() {
   // submit event never fires — listen on the button itself)
   saveBtn.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = saveBtn;
-    const patch = collect(); if (!patch.full_name) { flash(btn, 'NOT SAVED', 'Your name is the one thing we need.', false); return; }
-    if (!statusPicked()) { flash(btn, 'NOT SAVED', 'Pick whether you’re a current student or an alum (STATUS, near the top).', false); return; }
-    if (!who!.approved) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
+    const patch = collect(); const applying = !who!.approved; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
+    const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...(applying
+      ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null) })
+      : patch.full_name ? [] : ['your name'])];
+    if (missing.length) { showMissing(missing, applying && !row?.submitted_at ? 'Before you can submit, add' : 'Your profile needs'); return; }
+    if (applying) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
     const waiting = !who!.approved, wasSubmitted = Boolean(row?.submitted_at);
@@ -163,9 +180,9 @@ async function init() {
       // someone applying: a city typed but not yet placed is placed now, so SUBMIT doesn't say "your city" is missing
       if (waiting) {
         const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
-        if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { flash(btn, 'NOT SENT', `${c.message} (LOCATION, near the bottom)`, false); return; } patch.city_id = c.city.id; }
+        if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
         const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null });
-        if (miss.length) { flash(btn, wasSubmitted ? 'NOT SAVED' : 'NOT SENT', `${wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'} ${listInWords(miss)}.`, false); return; }
+        if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
       const res = await saveMyProfile(patch);
       if (!res.ok) { flash(btn, 'NOT SAVED', res.message, false); return; }
@@ -183,8 +200,8 @@ async function init() {
 
   label(saveBtn); saveBtn.disabled = false; form.removeAttribute('aria-busy');
   // an error under the main button goes away as soon as they start fixing things (it read as if the finished profile were still wrong)
-  const clearError = () => { const f = form.querySelector<HTMLElement>('.portal-save .portal-feedback'); if (f && f.style.color) { f.textContent = ''; f.style.color = ''; } };
-  form.addEventListener('input', clearError); form.addEventListener('click', (e) => { if ((e.target as Element).closest('.portal-chip')) clearError(); });
+  const clearError = (e?: Event) => { const f = form.querySelector<HTMLElement>('.portal-save .portal-feedback'); if (f && f.style.color) { f.textContent = ''; f.style.color = ''; } (e?.target as Element | null)?.closest('.portal-needs, .portal-chips, input')?.classList.remove('portal-needs'); (e?.target as Element | null)?.closest('[data-field]')?.classList.remove('portal-needs'); };
+  form.addEventListener('input', clearError); form.addEventListener('click', (e) => { if ((e.target as Element).closest('.portal-chip')) clearError(e); });
 
   // the sign-up panel follows the form as they fill it (chips are toggled by the shared script, hence the tick)
   onboard();

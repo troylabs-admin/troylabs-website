@@ -44,7 +44,7 @@ try {
     const sp = await browser.newPage({ viewport: { width: w, height: h } }); sp.on('pageerror', (e) => errors.push(e.message));
     await sp.route('**/auth/v1/otp**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));   // no real email is sent
     await sp.goto(`${base}/alumni-portal`);
-    await expect(sp.getByRole('button', { name: 'EMAIL ME A LINK' })).toBeVisible(); await expect(sp.locator('#portal-auth')).toContainText('New here? Use any email you check.');
+    await expect(sp.getByRole('button', { name: 'EMAIL ME A LINK' })).toBeVisible(); await expect(sp.locator('#portal-auth')).toContainText('Sign in or join with your email');
     assert.equal(await sp.locator('input[type="password"], [role="tab"]').count(), 0, 'no password, no separate sign-up');
     await shot(sp, `01-sign-in-${tag}`);
     await sp.locator('#portal-email').fill('new.member@example.com'); await sp.getByRole('button', { name: 'EMAIL ME A LINK' }).click();
@@ -71,7 +71,10 @@ try {
 
   // they can't submit half of it — and the server refuses even if the page were bypassed
   await page.locator('#pf-name').fill('Jordan Rivera'); await submit.click();
-  await expect(page.locator('.portal-save .portal-feedback')).toContainText('Pick whether you’re a current student or an alum');
+  await expect(page.locator('.portal-save .portal-feedback')).toContainText('Before you can submit, add whether you’re a student or an alum, your graduation year');
+  await expect(submit).toHaveText('SUBMIT FOR APPROVAL');   // the button keeps its name; the message says what to do
+  await expect(page.locator('[data-field="status"].portal-needs')).toHaveCount(1); await expect(page.locator('#pf-year.portal-needs')).toHaveCount(1); await expect(page.locator('#pf-loc.portal-needs')).toHaveCount(1);
+  await expect(page.locator('#pf-name.portal-needs')).toHaveCount(0);   // the name was filled in
   await page.locator('[data-field="status"] .portal-chip[data-value="alum"]').click(); await submit.click();
   await expect(page.locator('.portal-save .portal-feedback')).toContainText('Before you can submit, add your graduation year, the semester you joined TroyLabs, your division and your city');
   assert.ok((await fresh.sb.rpc('submit_application')).error, 'the server refuses an unfinished submit');
@@ -93,7 +96,7 @@ try {
   await expect(page.locator('.portal-save .portal-feedback')).toHaveText('');   // the earlier "not sent" went away once they started fixing it
   await shot(page, '05-profile-filled-in');
   await submit.click();
-  await expect(panel.locator('[data-onboard-title]')).toHaveText('Sent. You’re on the list.');
+  await expect(panel.locator('[data-onboard-title]')).toHaveText('Submitted. Waiting for approval.');
   await expect(page.locator('.portal-save .portal-feedback')).toHaveText('Submitted. Your profile is with TroyLabs leadership.');
   await expect(submit).toHaveText('SAVE CHANGES', { timeout: 4000 });
   await shot(page, '06-submitted');
@@ -101,7 +104,7 @@ try {
   assert.equal(saved.full_name, 'Jordan Rivera'); assert.equal(saved.status, 'alum'); assert.equal(saved.grad_year, 2023); assert.equal(saved.join_term, 'FA'); assert.equal(saved.join_year, 2021);
   assert.deepEqual([...saved.divisions].sort(), ['DESIGN', 'MARKETING']); assert.equal(saved.city.name, 'San Francisco'); assert.equal(saved.request_note, 'Design division FA21 to SP23; Director of Design FA22.');
   assert.ok(saved.submitted_at, 'submitted'); assert.equal(saved.approved, false); assert.deepEqual(saved.claimed_roles, [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }]);
-  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Sent. You’re on the list."; the database matches');
+  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches');
 
   // the backup
   const backups = ok(await admin.from('profile_submissions').select('id, email, snapshot').eq('profile_id', fresh.id), 'backup');
@@ -116,7 +119,7 @@ try {
 
   // ── 3. they come back later: still waiting ───────────────────────────────────────────────────
   await page.goto(`${base}/alumni-portal/home`);
-  await expect(page.getByRole('heading', { name: "YOU'RE ON THE LIST" })).toBeVisible(); await shot(page, '07-came-back-still-waiting-desktop', false);
+  await expect(page.getByRole('heading', { name: 'WAITING FOR APPROVAL' })).toBeVisible(); await shot(page, '07-came-back-still-waiting-desktop', false);
   await page.setViewportSize({ width: 390, height: 844 }); await noOverflow(page, 'waiting, phone'); await shot(page, '07-came-back-still-waiting-phone', false); await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${base}/alumni-portal/admin`); await expect(page).toHaveURL(/\/alumni-portal\/home\/?$/);
   await page.goto(`${base}/alumni-portal/members/?id=${boss.id}`); await expect(page).toHaveURL(/\/alumni-portal\/home\/?$/);
@@ -124,7 +127,7 @@ try {
   await page.locator('#pf-bio').fill('Brand designer at Figma.'); await page.locator('.portal-profile [data-action="save"]').click();
   await expect(page.locator('.portal-save .portal-feedback')).toHaveText('Saved. Leadership sees your latest answers.');
   assert.equal(ok(await admin.from('profile_submissions').select('id').eq('profile_id', fresh.id), 'v2').length, 2, 'editing while waiting keeps another backup copy');
-  console.log('PASS: 5 · coming back later → "You’re on the list"; admin and member pages stay closed; edits while waiting save and are backed up too');
+  console.log('PASS: 5 · coming back later → "Waiting for approval"; admin and member pages stay closed; edits while waiting save and are backed up too');
 
   // someone who signed in but never submitted is invisible to the admins
   const lurker = await makeUser(admin, 'Never Submitted QA', false); users.push(lurker);
@@ -174,7 +177,7 @@ try {
   await dp.goto(`${base}/alumni-portal/home`); await expect(dp.getByRole('heading', { name: 'NOT APPROVED' })).toBeVisible(); await shot(dp, '15-declined-sees', false);
   await ap.locator('#declined-list li', { hasText: 'Riley Decline QA' }).getByRole('button', { name: 'BACK TO WAITING LIST' }).click();
   await expect(ap.locator('.portal-request', { hasText: 'Riley Decline QA' })).toBeVisible();
-  await dp.goto(`${base}/alumni-portal/home`); await expect(dp.getByRole('heading', { name: "YOU'RE ON THE LIST" })).toBeVisible();
+  await dp.goto(`${base}/alumni-portal/home`); await expect(dp.getByRole('heading', { name: 'WAITING FOR APPROVAL' })).toBeVisible();
   console.log('PASS: 8 · decline → they see "not approved"; BACK TO WAITING LIST restores them; a note is shown as text, never run');
 
   assert.deepEqual(errors, [], 'no browser errors');

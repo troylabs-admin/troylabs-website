@@ -24,7 +24,7 @@ try {
   await page.goto(`${base}/alumni-portal/admin`);
   const att = page.locator('[data-attention]');
   await expect(att).toContainText(/waiting for approval/); await expect(att.getByRole('link', { name: 'REVIEW →' })).toHaveAttribute('href', '/alumni-portal/admin/users#approvals');
-  await expect(att).toContainText('Email isn’t connected yet'); await expect(att).toContainText('Twilio trial');
+  await expect(att).not.toContainText('Email isn’t connected'); await expect(att).not.toContainText('test mode'); await expect(att).toContainText('Twilio trial');   // email is live since 2026-10-05; texts still on the trial
   await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d+$/); await expect(page.locator('[data-stat="site:$pageview"]')).toHaveText(/^[\d,]+$/, { timeout: 15000 });
   assert.ok(await num(page.locator('[data-stat="site:$pageview"]')) > 0, 'website visits come from PostHog');
   await expect(page.locator('[data-upcoming]')).toContainText(/Nothing scheduled|·/); await expect(page.locator('[data-recent]')).not.toContainText('—');
@@ -35,7 +35,7 @@ try {
   }
   await page.goto(`${base}/alumni-portal/admin`); await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d+$/);
   await page.locator('main, body').first().screenshot({ path: `${out}/overview-1440.png`, fullPage: true });
-  console.log('PASS: Overview — attention (waiting → REVIEW, email and texts not connected), numbers incl. PostHog visits, COPY, every common job lands on the right page');
+  console.log('PASS: Overview — attention (waiting → REVIEW, email live so no warning, texts on trial), numbers incl. PostHog visits, COPY, every common job lands on the right page');
 
   // ── Analytics ──────────────────────────────────────────────────────────────────────────────────
   let asks = 0; const count = (r) => { if (r.url().includes('posthog-stats')) asks++; }; page.on('request', count);
@@ -127,9 +127,9 @@ try {
 
   const { page: pp } = await signInPage(browser, waiting); const flashes = [];
   await pp.addInitScript(() => { new MutationObserver(() => { if (document.body?.innerText.includes('WHO ARE YOU LOOKING FOR')) window.__sawSearch = true; }).observe(document, { childList: true, subtree: true, characterData: true }); });
-  await pp.goto(`${base}/alumni-portal/home`); await expect(pp.getByRole('heading', { name: "YOU'RE ON THE LIST" })).toBeVisible();
+  await pp.goto(`${base}/alumni-portal/home`); await expect(pp.getByRole('heading', { name: 'WAITING FOR APPROVAL' })).toBeVisible();
   assert.equal(await pp.evaluate(() => window.__sawSearch ?? false), false, 'someone waiting never sees the search page, not even for a moment');
-  console.log('PASS: audit — no flash of the search page before "you’re on the list"');
+  console.log('PASS: audit — no flash of the search page before "waiting for approval"');
 
   assert.deepEqual(errors, [], 'no browser errors');
   console.log('PASS: no browser errors');

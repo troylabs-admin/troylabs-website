@@ -614,3 +614,32 @@ a.portal-btn { display: inline-flex; align-items: center; justify-content: cente
 
 /* the sign-up's required answers, marked where they are (2026-10-05) */
 .portal-req { display: inline-block; margin-left: 0.6em; padding: 0 0.55em; border-radius: 9999px; box-shadow: inset 0 0 0 var(--hair) rgb(255 125 44 / 0.7); color: var(--color-orange); font-size: 9px; letter-spacing: 1.2px; line-height: 1.7; vertical-align: 0.2em; font-weight: 400; text-shadow: none; }
+
+/* the sign-in page explains itself (2026-10-05) */
+.portal-gate-lead { color: var(--color-ink); opacity: 0.85; margin-top: calc(10 * var(--u)) !important; }
+.portal-gate-steps { list-style: none; margin: calc(26 * var(--u)) 0 calc(10 * var(--u)); padding: 0; display: grid; grid-template-columns: 1fr; gap: calc(8 * var(--u)); width: min(100%, calc(420 * var(--u))); }   /* stacked everywhere: three columns in the form's width wrapped word by word */
+.portal-gate-steps li { display: flex; gap: calc(12 * var(--u)); align-items: flex-start; padding: calc(11 * var(--u)) calc(14 * var(--u)); border-radius: calc(12 * var(--u)); box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.18); background: rgb(10 10 10 / 0.35); }
+.portal-gate-steps b { display: block; color: var(--color-ink); font-weight: 400; letter-spacing: calc(1 * var(--u)); margin-bottom: calc(4 * var(--u)); font-size: calc(12 * var(--u)); }
+.portal-gate-steps li > span:last-child { color: var(--color-muted); font-size: calc(10.5 * var(--u)); line-height: 1.45; text-align: left; }
+.portal-gate-n { flex: none; display: inline-flex; align-items: center; justify-content: center; width: calc(20 * var(--u)); height: calc(20 * var(--u)); border-radius: 9999px; box-shadow: inset 0 0 0 var(--hair) var(--color-orange); color: var(--color-orange); font-size: calc(10 * var(--u)); }
+#portal-auth .portal-msg { max-width: calc(520 * var(--u)); }
+#portal-auth .portal-msg:empty { display: none; }
+@media (max-width: 767px) {
+  .portal-gate-steps { grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
+  .portal-gate-steps li { padding: 12px 14px; border-radius: 12px; gap: 12px; }
+  .portal-gate-steps b { font-size: 13px; margin-bottom: 3px; letter-spacing: 0.8px; }
+  .portal-gate-steps li > span:last-child { font-size: 12.5px; }
+  .portal-gate-n { width: 22px; height: 22px; font-size: 11px; }
+}
+/* a required answer that's missing, after SUBMIT (2026-10-05) */
+.portal-input.portal-needs { box-shadow: inset 0 0 0 1px var(--color-orange), 0 0 calc(10 * var(--u)) rgb(255 125 44 / 0.35); }
+.portal-chips.portal-needs { border-radius: calc(14 * var(--u)); box-shadow: 0 0 0 1px var(--color-orange), 0 0 calc(12 * var(--u)) rgb(255 125 44 / 0.3); padding: calc(6 * var(--u)); }
+/* the waiting screen's three steps (2026-10-05) */
+.portal-wait-steps { list-style: none; padding: 0; margin: calc(26 * var(--u)) 0 calc(4 * var(--u)); display: flex; gap: calc(26 * var(--u)); justify-content: center; flex-wrap: wrap; }
+.portal-wait-steps li { display: flex; align-items: center; gap: calc(9 * var(--u)); color: var(--color-muted); font-size: calc(11.5 * var(--u)); letter-spacing: calc(0.8 * var(--u)); }
+.portal-wait-dot { flex: none; display: inline-flex; align-items: center; justify-content: center; width: calc(18 * var(--u)); height: calc(18 * var(--u)); border-radius: 9999px; box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.4); font-size: calc(10 * var(--u)); }
+.portal-wait-steps li.is-done { color: var(--color-ink); } .portal-wait-steps li.is-done .portal-wait-dot { background: var(--color-ink); color: #0a0a0a; box-shadow: none; }
+.portal-wait-steps li.is-now { color: var(--color-orange); } .portal-wait-steps li.is-now .portal-wait-dot { box-shadow: inset 0 0 0 1px var(--color-orange), 0 0 calc(10 * var(--u)) rgb(255 125 44 / 0.5); }
+html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-pulse 1.8s ease-in-out infinite; }
+@keyframes tl-wait-pulse { 50% { box-shadow: inset 0 0 0 1px var(--color-orange), 0 0 calc(16 * var(--u)) rgb(255 125 44 / 0.8); } }
+@media (max-width: 767px) { .portal-wait-steps { flex-direction: column; align-items: flex-start; gap: 12px; margin: 22px auto 4px; width: fit-content; } .portal-wait-steps li { font-size: 13px; gap: 10px; } .portal-wait-dot { width: 20px; height: 20px; font-size: 11px; } }

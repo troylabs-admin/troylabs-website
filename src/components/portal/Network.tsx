@@ -141,8 +141,13 @@ export default function Network() {
       <header className="flex flex-col items-center portal-head portal-waiting">
         <span className="t-label text-muted">THE NETWORK</span>
         {member === 'pending' ? <>
-          <h1 className="m-0 t-hero text-center glow-text portal-q">YOU'RE ON THE LIST</h1>
-          <p className="m-0 t-caption text-muted text-center portal-sub">TroyLabs leadership approves every member by hand. Once you're in, this page becomes the network: everyone from TroyLabs on a globe, searchable by name, company, city or division. Check back here.</p>
+          <h1 className="m-0 t-hero text-center glow-text portal-q">WAITING FOR APPROVAL</h1>
+          <p className="m-0 t-caption text-muted text-center portal-sub">Your profile is with TroyLabs leadership, who approve every member by hand. We'll email you the moment you're in. Then this page becomes the network: everyone from TroyLabs on a globe, searchable by name, company, city or division.</p>
+          <ol className="portal-wait-steps" aria-label="Where you are">
+            <li className="is-done"><span className="portal-wait-dot" aria-hidden="true">✓</span><span>Profile submitted</span></li>
+            <li className="is-now" aria-current="step"><span className="portal-wait-dot" aria-hidden="true" /><span>Leadership is reviewing it</span></li>
+            <li><span className="portal-wait-dot" aria-hidden="true" /><span>You're in: we email you</span></li>
+          </ol>
           <a href="/alumni-portal/profile" className="portal-btn is-small is-quiet t-label no-underline text-ink portal-waiting-cta">EDIT YOUR PROFILE</a>
         </> : <>
           <h1 className="m-0 t-hero text-center glow-text portal-q">NOT APPROVED</h1>

@@ -1,7 +1,7 @@
 ---
 /**
  * Alumni portal › Admin › Overview (rebuilt 2026-10-02, Bryan: "do you think this is the greatest overview?").
- * What needs you first (people to approve, delivery that isn't connected), then four numbers, then messages coming
+ * What needs you first (people to approve, email that can't reach members yet; hidden when there's nothing), then four numbers, then messages coming
  * up and just sent, then the sign-up link to share and the common jobs. Filled by scripts/portal-admin-stats.ts.
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -11,7 +11,7 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 const TILES: [string, string, string][] = [
   ['MEMBERS', 'members', 'students · alumni'],
   ['NEW THIS MONTH', 'newThisMonth', 'joined the network'],
-  ['ACTIVE THIS MONTH', 'active30', 'opened the portal in 30 days'],
+  ['ACTIVE MEMBERS', 'active30', 'opened the portal in 30 days'],
   ['WEBSITE VISITS', 'site:$pageview', 'page views, last 30 days'],
 ];
 ---
@@ -26,9 +26,10 @@ const TILES: [string, string, string][] = [
       </div>
     </div>
 
-    <div class="portal-panel portal-attention" style="margin-top:calc(12 * var(--u))">
+    <!-- shown only when there's something to act on (scripts/portal-admin-stats.ts); otherwise the numbers come first -->
+    <div class="portal-panel portal-attention" style="margin-top:calc(12 * var(--u))" hidden>
       <h2 class="t-sub portal-panel-title">Needs your attention</h2>
-      <ul class="portal-row-list t-caption" data-attention><li class="text-muted">Checking…</li></ul>
+      <ul class="portal-row-list t-caption" data-attention></ul>
     </div>
 
     <div class="portal-tiles">{TILES.map(([l, key, hint]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat" data-stat={key}>—</span><span class="t-fine text-muted" data-stat-hint={key}>{hint}</span></div>)}</div>

@@ -187,7 +187,7 @@ function init() {
         tr.hidden = !ok; if (ok) shown++;
         const detail = tr.nextElementSibling as HTMLElement | null; if (detail?.classList.contains('portal-row-detail')) detail.hidden = !ok;
       }
-      if (count) count.textContent = shown === total ? `Showing all ${total} members.` : `Showing ${shown} of ${total} members.`;
+      if (count) count.textContent = shown === total ? `Showing all ${total.toLocaleString()} members.` : `Showing ${shown.toLocaleString()} of ${total.toLocaleString()} members.`;
     };
     mf.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.portal-chip')) setTimeout(apply, 0); });
     q?.addEventListener('input', apply);

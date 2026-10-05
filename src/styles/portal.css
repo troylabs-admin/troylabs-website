@@ -747,6 +747,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .wh-logo.is-large { width: 64px; height: 64px; border-radius: 14px; }
   .wh-logo.is-large b { font-size: 20px; }
   .co-li { margin-top: 14px; }
+}
 /* ── Admin pages clean-up (2026-10-05, Bryan on Overview: "make sure everything works properly and looks nice") ─────── */
 /* Needs your attention: the sentence and its link never touch ("approval.REVIEW →"), the link never breaks its arrow off
    (TECH STACK / →); on a phone the link sits under the sentence instead of squeezing it into a column. */
@@ -782,6 +783,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   /* message rows: the title takes its own line under the tags (it was squeezed to a word per line beside them) */
   [data-msg-list] > li > .flex:first-child > .text-ink { flex: 1 1 100% !important; order: 1; }   /* !important: the row sets flex:1 inline */
   [data-msg-list] > li > .flex:first-child > .t-fine.text-muted { order: 2; }
+}
 /* ── globe › zoom controls and porthole (2026-10-05, components/portal/AlumniGlobe.tsx) ─────────────────────
    + / − / reset in the lower-right corner of the frame (Google Maps / Mapbox's control stack), outside the disc
    at the opening zoom. Round and glassy like .portal-btn and .portal-globe-x; a dark fill so they read over land

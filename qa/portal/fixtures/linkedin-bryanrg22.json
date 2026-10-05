@@ -1,0 +1,630 @@
+{
+ "originalQuery": {
+  "url": "https://www.linkedin.com/in/bryanrg22"
+ },
+ "headline": "NVIDIA | 4x Hackathon Winner | CS @ USC",
+ "about": "linkedin ~ % curl -I www.bryanram.com\n> First-Generation Latino studying CS @ USC\n> Quant, Research, Agentic AI, && ... the combination of them all\n> 4x Hackathon Winner @ Harvard, Caltech, Claude\n> 12 Hackathons and Counting \n\ni like to play soccer . and get on planes last minute .\n\nbryanram [@] usc [dot] edu\nbryanram2024 [@] gmail [dot] com",
+ "openToWork": false,
+ "photo": "https://usctroylabs.com/icon-512.png",
+ "experience": [
+  {
+   "position": "Software Engineering Intern",
+   "location": "Santa Clara, CA",
+   "employmentType": "Internship",
+   "workplaceType": null,
+   "companyName": "NVIDIA",
+   "companyUniversalName": "nvidia",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/nvidia/",
+   "companyId": "tl-qa-3608",
+   "duration": "6 mos",
+   "description": null,
+   "skills": null,
+   "startDate": {
+    "text": "May 2026",
+    "month": "May",
+    "year": 2026
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Campus Lead",
+   "location": null,
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "OpenAI",
+   "companyUniversalName": "openai",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/openai/",
+   "companyId": "tl-qa-11130470",
+   "duration": "3 mos",
+   "description": null,
+   "skills": null,
+   "startDate": {
+    "month": "Aug",
+    "year": 2026,
+    "text": "Aug 2026"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Software Engineering Intern",
+   "location": "Santa Clara, CA",
+   "employmentType": "Internship",
+   "workplaceType": "On-site",
+   "companyName": "NVIDIA",
+   "companyUniversalName": "nvidia",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/nvidia/",
+   "companyId": "tl-qa-3608",
+   "duration": "6 mos",
+   "description": null,
+   "skills": null,
+   "startDate": {
+    "month": "May",
+    "year": 2026,
+    "text": "May 2026"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   },
+   "geoUrn": null
+  },
+  {
+   "position": "Undergraduate Research Intern — iOS-Agent: Open Research Platform for Physical Mobile GUI Agents",
+   "location": "Los Angeles, CA",
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "USC Information Sciences Institute",
+   "companyUniversalName": "information-sciences-institute",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/information-sciences-institute/",
+   "companyId": "tl-qa-15092",
+   "duration": "1 yr 6 mos",
+   "description": "● First open research platform for autonomous AI agents on physical iOS, 22+ tool primitives, first autonomous multi-step drag on iPhone.\n● 3.5× speedup via rolling-summary context compression, direct XCTest HTTP, and prompt caching.",
+   "skills": null,
+   "experienceGroupId": "4f56f844cb56860be35828c17dd921fc0220915c",
+   "startDate": {
+    "month": "May",
+    "year": 2025,
+    "text": "May 2025"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Undergraduate Research Intern — LLM-assisted AI for TikTok Eating-Disorder Dataset (EDTok)",
+   "location": "Los Angeles, California, United States",
+   "employmentType": "Internship",
+   "workplaceType": "On-site",
+   "companyName": "USC Information Sciences Institute",
+   "companyUniversalName": "information-sciences-institute",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/information-sciences-institute/",
+   "companyId": "tl-qa-15092",
+   "duration": "10 mos",
+   "description": "● Published EDTok, multimodal eating disorder TikTok dataset\n● Accepted to ICWSM 2025\n● Research Paper: https://arxiv.org/abs/2505.02250",
+   "skills": null,
+   "experienceGroupId": "4f56f844cb56860be35828c17dd921fc0220915c",
+   "startDate": {
+    "month": "Aug",
+    "year": 2024,
+    "text": "Aug 2024"
+   },
+   "endDate": {
+    "month": "May",
+    "year": 2025,
+    "text": "May 2025"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Inside HRT — Algorithm Development Fellow",
+   "location": "New York, NY",
+   "employmentType": null,
+   "workplaceType": "On-site",
+   "companyName": "Hudson River Trading",
+   "companyUniversalName": "hudson-river-trading",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/hudson-river-trading/",
+   "companyId": "tl-qa-730004",
+   "duration": "1 mo",
+   "description": "● Algorithm Development (Quantitative Research) Track",
+   "skills": null,
+   "startDate": {
+    "month": "May",
+    "year": 2026,
+    "text": "May 2026"
+   },
+   "endDate": {
+    "month": "May",
+    "year": 2026,
+    "text": "May 2026"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Undergraduate Fellow",
+   "location": "New York, NY",
+   "employmentType": null,
+   "workplaceType": "On-site",
+   "companyName": "The D. E. Shaw Group",
+   "companyUniversalName": "d.-e.-shaw-&-co.",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/d.-e.-shaw-&-co./",
+   "companyId": "tl-qa-6508",
+   "duration": "1 mo",
+   "description": "● D. E. Shaw’s Connect Fellowship - NYC office",
+   "skills": null,
+   "startDate": {
+    "month": "Sep",
+    "year": 2025,
+    "text": "Sep 2025"
+   },
+   "endDate": {
+    "month": "Sep",
+    "year": 2025,
+    "text": "Sep 2025"
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Undergraduate Fellow",
+   "location": "New York, New York, United States",
+   "employmentType": "Internship",
+   "workplaceType": null,
+   "companyName": "Jane Street",
+   "companyUniversalName": "jane-street-global",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/jane-street-global/",
+   "companyId": "tl-qa-1713404",
+   "duration": "1 mo",
+   "description": "● Selected as 1 of 14 (FOCUS ’25)",
+   "skills": null,
+   "startDate": {
+    "text": "May 2025",
+    "month": "May",
+    "year": 2025
+   },
+   "endDate": {
+    "text": "May 2025",
+    "month": "May",
+    "year": 2025
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Two Sigma 2025 New Seekers Summit",
+   "location": null,
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "Two Sigma",
+   "companyUniversalName": "two-sigma-investments",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/two-sigma-investments/",
+   "companyId": "tl-qa-27915",
+   "duration": "1 mo",
+   "description": null,
+   "skills": null,
+   "startDate": {
+    "text": "Feb 2025",
+    "month": "Feb",
+    "year": 2025
+   },
+   "endDate": {
+    "text": "Feb 2025",
+    "month": "Feb",
+    "year": 2025
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Susquehanna Discovery Day for First Year Students",
+   "location": null,
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "Susquehanna International Group",
+   "companyUniversalName": "susquehanna-international-group",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/susquehanna-international-group/",
+   "companyId": "tl-qa-165964",
+   "duration": "1 mo",
+   "description": null,
+   "skills": null,
+   "startDate": {
+    "text": "Feb 2025",
+    "month": "Feb",
+    "year": 2025
+   },
+   "endDate": {
+    "text": "Feb 2025",
+    "month": "Feb",
+    "year": 2025
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Undergraduate Research Intern — Interpretable AI for Image–Text Misinformation Detection",
+   "location": "Los Angeles, California, United States",
+   "employmentType": "Internship",
+   "workplaceType": null,
+   "companyName": "USC Viterbi School of Engineering",
+   "companyUniversalName": "usc-viterbi-school-of-engineering",
+   "companyLinkedinUrl": "https://www.linkedin.com/school/usc-viterbi-school-of-engineering/",
+   "companyId": "tl-qa-3221523",
+   "duration": "2 mos",
+   "description": "● Improved out-of-context image–text detection to 68% accuracy.",
+   "skills": null,
+   "startDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "endDate": {
+    "text": "Aug 2024",
+    "month": "Aug",
+    "year": 2024
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Undergraduate Fellow",
+   "location": "New York, New York, United States",
+   "employmentType": "Internship",
+   "workplaceType": null,
+   "companyName": "Jane Street",
+   "companyUniversalName": "jane-street-global",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/jane-street-global/",
+   "companyId": "tl-qa-1713404",
+   "duration": "1 mo",
+   "description": "●  Selected as 1 of 37 (Unboxed ’24)",
+   "skills": null,
+   "startDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "endDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Software Developer",
+   "location": "Los Angeles, California, United States",
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "LavaLab",
+   "companyUniversalName": "usclavalab",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/usclavalab/",
+   "companyId": "tl-qa-3663395",
+   "duration": "1 mo",
+   "description": "● USC's Premier Startup Incubator\n● Lavalab’s Best Traction F25",
+   "skills": null,
+   "startDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "endDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  },
+  {
+   "position": "Software Developer",
+   "location": "Los Angeles, California, United States",
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "Quant SC",
+   "companyUniversalName": "quant-sc",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/quant-sc/",
+   "companyId": "tl-qa-70992462",
+   "duration": "1 mo",
+   "description": "● Software Developer for USC's Premier Quant Club",
+   "skills": null,
+   "startDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "endDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/email/troylabs-wordmark.png"
+   }
+  },
+  {
+   "position": "Software Developer",
+   "location": "Los Angeles, California, United States",
+   "employmentType": null,
+   "workplaceType": null,
+   "companyName": "TroyLabs",
+   "companyUniversalName": "troy-labs",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/troy-labs/",
+   "companyId": "tl-qa-18216697",
+   "duration": "1 mo",
+   "description": "● USC's Premier Startup Accelerator\n● Building the tech side of the next generation of startups.",
+   "skills": null,
+   "startDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "endDate": {
+    "text": "Jul 2024",
+    "month": "Jul",
+    "year": 2024
+   },
+   "companyLogo": {
+    "url": "https://usctroylabs.com/icon-192.png"
+   }
+  }
+ ],
+ "education": [
+  {
+   "schoolName": "University of Southern California",
+   "description": "● USC Viterbi School of Engineering - Computer Science\n● Leadership: Software Developer @ QuantSC, Software Developer / Mentor @ LavaLab, software Developer @ TroyLabs\n● Study Abroad: Berlin, Germany: Engineering in Society",
+   "insights": null,
+   "skills": null,
+   "schoolLinkedinUrl": "https://www.linkedin.com/company/3084/",
+   "schoolId": "3084",
+   "degree": "Bachelor's degree",
+   "fieldOfStudy": "Computer Science",
+   "period": null,
+   "startDate": null,
+   "endDate": null
+  }
+ ],
+ "certifications": [
+  {
+   "title": "Career Essentials in Generative AI by Microsoft and LinkedIn",
+   "issuedBy": "Microsoft",
+   "issuedAt": "Mar 2024",
+   "link": "https://www.linkedin.com/learning/certificates/0cf9754f65c88afecb8c93dc67e8da489c5b30715a9ac69a83ae86fd00a5f6db",
+   "credentialId": null,
+   "issuedByLink": "https://www.linkedin.com/company/1035/"
+  }
+ ],
+ "honorsAndAwards": [
+  {
+   "title": "Anthropic - Claude Builder Hackathon",
+   "issuedBy": "Anthropic",
+   "issuedAt": "Apr 2026",
+   "description": null,
+   "associatedWith": "Associated with University of Southern California",
+   "associatedWithLink": "https://www.linkedin.com/company/3084/"
+  },
+  {
+   "title": "Hacktech - Caltech's Hackathon Winner",
+   "issuedBy": "Hacktech - Caltech",
+   "issuedAt": "Apr 2025",
+   "description": "● Flown to Dryft’s San Francisco Neo office for on-site collaboration.",
+   "associatedWith": "Associated with University of Southern California",
+   "associatedWithLink": "https://www.linkedin.com/company/3084/"
+  },
+  {
+   "title": "HackHarvard - Harvard's Hackathon Winner",
+   "issuedBy": "HackHarvard",
+   "issuedAt": "Oct 2024",
+   "description": null,
+   "associatedWith": "Associated with University of Southern California",
+   "associatedWithLink": "https://www.linkedin.com/company/3084/"
+  },
+  {
+   "title": "AstroHacks Hackathon Winner",
+   "issuedBy": "AstroHacks",
+   "issuedAt": "Apr 2024",
+   "description": null,
+   "associatedWith": null,
+   "associatedWithLink": null
+  },
+  {
+   "title": "SkillsUSA California Engineering Technology/Design STATE BRONZE",
+   "issuedBy": "SkillsUSA California",
+   "issuedAt": "Apr 2024",
+   "description": "● 3rd Best Engineering Project in the State of California.",
+   "associatedWith": null,
+   "associatedWithLink": null
+  },
+  {
+   "title": "FIRST Tech Challenge Centerstage Regional SemiFinalist",
+   "issuedBy": "FIRST Robotics",
+   "issuedAt": "Feb 2024",
+   "description": "● Top 5 out of 32 Teams",
+   "associatedWith": null,
+   "associatedWithLink": null
+  },
+  {
+   "title": "SkillsUSA California Engineering Technology/Design Regional Finalist",
+   "issuedBy": "SkillsUSA California",
+   "issuedAt": "Feb 2024",
+   "description": "● 2nd Best Engineering Project in the Region of San Gabriel Valley",
+   "associatedWith": null,
+   "associatedWithLink": null
+  }
+ ],
+ "publications": [
+  {
+   "title": "EDTok: A Dataset for Eating Disorder Content on TikTok",
+   "publishedAt": "May 4, 2025",
+   "description": null,
+   "link": "https://arxiv.org/abs/2505.02250"
+  }
+ ],
+ "organizations": [
+  {
+   "name": "CodePath",
+   "positionHeld": null,
+   "description": null,
+   "startDate": {
+    "month": "Aug",
+    "year": 2024,
+    "text": "Aug 2024"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+  },
+  {
+   "name": "ColorStack",
+   "positionHeld": null,
+   "description": null,
+   "startDate": {
+    "month": "Aug",
+    "year": 2024,
+    "text": "Aug 2024"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+  },
+  {
+   "name": "SHPE - Society of Hispanic Professional Engineers",
+   "positionHeld": null,
+   "description": null,
+   "startDate": {
+    "month": "Aug",
+    "year": 2024,
+    "text": "Aug 2024"
+   },
+   "endDate": {
+    "text": "Present"
+   },
+   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+  }
+ ],
+ "languages": [
+  {
+   "name": "English",
+   "proficiency": "Native or bilingual proficiency"
+  },
+  {
+   "name": "Spanish",
+   "proficiency": "Native or bilingual proficiency"
+  }
+ ],
+ "skills": [
+  {
+   "name": "C++"
+  },
+  {
+   "name": "ChatGPT"
+  },
+  {
+   "name": "DreamStudio"
+  },
+  {
+   "name": "Google's Colab"
+  },
+  {
+   "name": "Python (Programming Language)"
+  },
+  {
+   "name": "360 Degree Thinking",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Intellectual Curiosity",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Empathy",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Cultural Competency",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Adaptive",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "WordPress"
+  },
+  {
+   "name": "Arduino"
+  },
+  {
+   "name": "Scratch"
+  },
+  {
+   "name": "Lua (Roblox)"
+  },
+  {
+   "name": "Java"
+  },
+  {
+   "name": "Artificial Intelligence (AI)",
+   "positions": [
+    "Career Essentials in Generative AI by Microsoft and LinkedIn"
+   ],
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Artificial Intelligence for Business",
+   "endorsements": "1 endorsement"
+  },
+  {
+   "name": "Generative AI",
+   "positions": [
+    "Career Essentials in Generative AI by Microsoft and LinkedIn"
+   ]
+  },
+  {
+   "name": "Search Engine Technology"
+  },
+  {
+   "name": "Productivity Improvement"
+  },
+  {
+   "name": "Microsoft 365"
+  },
+  {
+   "name": "Computer Ethics",
+   "positions": [
+    "Career Essentials in Generative AI by Microsoft and LinkedIn"
+   ]
+  }
+ ],
+ "topSkills": [
+  "Python (Programming Language)",
+  "Java",
+  "C++"
+ ]
+}

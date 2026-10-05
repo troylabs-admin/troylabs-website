@@ -14,7 +14,9 @@ export interface ProfileRow {
   divisions: string[]; current_title: string | null; current_company: string | null; linkedin_url: string | null; bio: string | null;
   industries: string[]; startups: string[]; city_id: number | null;
   usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean; email_opt_in: boolean;
-  avatar_path: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
+  avatar_path: string | null; avatar_source?: 'upload' | 'linkedin' | null;
+  current_job_source?: 'manual' | 'linkedin' | null;
+  linkedin_headline?: string | null; linkedin_about?: string | null; linkedin_skills?: string[]; linkedin_synced_at?: string | null; linkedin_sync_error?: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
   claimed_roles: ClaimedRole[];
   submitted_at: string | null;   // SUBMIT FOR APPROVAL pressed (submit_application); only then do admins see them   // e-board roles they say they held, written while they wait; become eboard_roles when approved
   city?: CityRow | null;
@@ -69,7 +71,7 @@ export async function uploadAvatar(file: File): Promise<{ ok: true; path: string
   const path = `${session.user.id}/avatar.webp`;
   const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/webp', cacheControl: '3600' });
   if (error) return { ok: false, message: error.message };
-  const saved = await saveMyProfile({ avatar_path: path }); if (!saved.ok) return saved;
+  const saved = await saveMyProfile({ avatar_path: path, avatar_source: 'upload' }); if (!saved.ok) return saved;   // their own photo: a LinkedIn sync never replaces it
   return { ok: true, path };
 }
 

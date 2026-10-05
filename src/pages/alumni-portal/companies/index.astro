@@ -1,0 +1,37 @@
+---
+/**
+ * Alumni portal › Companies (Bryan, 2026-10-05, the ColorStack idea): every company TroyLabs members have worked at,
+ * and one company's page (?id=<LinkedIn company id>) with who's there now and who was. One static page; the data
+ * comes from scripts/portal-companies.ts. Built from members' LinkedIn work history.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/portal.css';
+import PortalShell from '../../../components/portal/PortalShell.astro';
+---
+
+<BaseLayout nav="portal" current="companies" title="Companies — TL Alumni Network Portal" description="Where TroyLabs members have worked.">
+  <PortalShell label="Companies">
+    <!-- the list -->
+    <div data-co-list hidden>
+      <div class="portal-page-head"><div><h1 class="t-title portal-page-title">COMPANIES</h1><p class="t-caption text-muted portal-page-sub">Where TroyLabs members have worked, from their LinkedIn. Open one to see who's there.</p></div></div>
+      <input id="co-q" type="search" class="t-caption portal-input is-wide co-search" placeholder="Search companies" aria-label="Search companies" autocomplete="off" />
+      <p class="m-0 t-label text-muted co-count" data-co-count></p>
+      <ul class="m-0 p-0 list-none co-grid" data-co-grid></ul>
+    </div>
+    <!-- one company -->
+    <div data-co-one hidden>
+      <a href="/alumni-portal/companies" class="t-label portal-back" data-co-back>← ALL COMPANIES</a>
+      <div class="portal-member-head co-head">
+        <span data-co-logo></span>
+        <div>
+          <h1 class="portal-member-name" data-co-name></h1>
+          <p class="m-0 t-caption text-muted" style="margin-top:calc(8 * var(--u))" data-co-meta></p>
+          <a class="portal-btn is-small t-label no-underline text-ink co-li" data-co-linkedin hidden target="_blank" rel="noopener noreferrer">VIEW ON LINKEDIN</a>
+        </div>
+      </div>
+      <div data-co-people></div>
+    </div>
+    <p class="t-caption text-muted" data-co-empty style="margin-top:calc(24 * var(--u))">Loading…</p>
+  </PortalShell>
+</BaseLayout>
+<script src="../../../scripts/portal-companies.ts"></script>

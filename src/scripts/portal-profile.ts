@@ -7,6 +7,8 @@ import { escapeHtml } from '../lib/portal/safe-html';
 import { HOME, accountEmail, me, type Me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { prettyPhone, toE164 } from '../lib/portal/phone';
+import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/portal/work-render';
+import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
@@ -87,7 +89,7 @@ function loadClaims(claims: ClaimedRole[]) {
   (document.activeElement as HTMLElement | null)?.blur();
 }
 /** where each required answer lives on the page, so a missing one can be shown, not just named */
-const FIELD_FOR: Record<string, string> = { 'whether you’re a student or an alum': '[data-field="status"]', 'your name': '#pf-name', 'your graduation year': '#pf-classof-year, #pf-grad-year', 'the semester you joined TroyLabs': '#pf-year', 'your division': '[data-field="divisions"]', 'your city': '#pf-loc' };
+const FIELD_FOR: Record<string, string> = { 'whether you’re a student or an alum': '[data-field="status"]', 'your name': '#pf-name', 'your LinkedIn profile link': '#pf-li', 'your phone number': '#pf-phone', 'a personal email (not your USC one)': '#pf-personal', 'your graduation year': '#pf-classof-year, #pf-grad-year', 'the semester you joined TroyLabs': '#pf-year', 'your division': '[data-field="divisions"]', 'your city': '#pf-loc' };
 /** say what's missing under the button, outline every missing answer, and take them to the first one */
 function showMissing(missing: string[], lead: string) {
   const fb = $('.portal-save .portal-feedback'); if (fb) { fb.textContent = `${lead} ${listInWords(missing)}. They're outlined in orange.`; fb.style.color = 'var(--color-orange)'; }
@@ -99,6 +101,8 @@ function showMissing(missing: string[], lead: string) {
   }
   if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.matches('input')) setTimeout(() => (first as HTMLInputElement).focus({ preventScroll: true }), 350); }
 }
+/** the phone typed in its box, if it's a real number (E.164), whether or not its row was saved */
+const typedPhone = () => { const v = ($('#pf-phone') as HTMLInputElement | null)?.value.trim(); return v ? toE164(v) : null; };
 const statusPicked = () => Boolean(document.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]'));
 function collect(): Partial<ProfileRow> {
   const status = (document.querySelector<HTMLElement>('[data-field="status"] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'alum') as 'student' | 'alum';
@@ -128,7 +132,7 @@ function onboard(justSaved = false) {
   panel.hidden = false; if (completion) completion.hidden = true;   // one list of what's needed while they wait, not two
   const c = collect();
   const typedCity = ($('#pf-loc') as HTMLInputElement | null)?.value.trim();
-  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null) })];
+  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: c.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })];
   const submitted = Boolean(row?.submitted_at);
   const title = $('[data-onboard-title]')!, text = $('[data-onboard-text]')!, miss = $('[data-onboard-missing]')!, chip = $('[data-onboard-chip]')!;
   if (who.declined) {
@@ -151,6 +155,47 @@ function onboard(justSaved = false) {
   }
 }
 
+/** the LinkedIn panel: where their import stands, SYNC NOW, and their history as members see it */
+let liPoll = 0; let jobFromLinkedIn = false;   // USE THIS was pressed: the next save marks the job as LinkedIn's
+async function linkedInPanel() {
+  const box = $('#pf-linkedin'); if (!box || !who || !row) return;
+  const status = box.querySelector<HTMLElement>('[data-li-status]')!, btn = box.querySelector<HTMLButtonElement>('[data-li-sync]')!, fb = box.querySelector<HTMLElement>('[data-li-fb]')!;
+  const say = (text: string, error = false) => { status.textContent = text; status.classList.toggle('is-error', error); };
+  const [st, history] = await Promise.all([myLinkedInStatus().catch(() => null), getHistory(who.id).catch(() => null)]);
+  if (!box.isConnected) return;
+  const preview = $('[data-li-preview]'); if (preview) preview.innerHTML = history ? historyHtml(history) : '';
+  // LinkedIn's current job, when it differs from the one on their card
+  const hint = $('[data-li-job]'); const cur = history?.work.find((w) => w.end_year === null);
+  const same = (a: string | null | undefined, b: string | null | undefined) => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
+  if (hint) {
+    const typedTitle = ($('#pf-title') as HTMLInputElement).value, typedCo = ($('#pf-co') as HTMLInputElement).value;
+    if (cur && !(same(cur.title, typedTitle) && same(cur.company, typedCo))) {
+      hint.innerHTML = `LinkedIn says: ${escapeHtml(cur.title)} at ${escapeHtml(cur.company)}. <button type="button" class="t-fine portal-linklike wh-use-job" data-use-job>USE THIS</button>`;
+      hint.hidden = false;
+      hint.querySelector<HTMLButtonElement>('[data-use-job]')!.onclick = () => { ($('#pf-title') as HTMLInputElement).value = cur.title; ($('#pf-co') as HTMLInputElement).value = cur.company; jobFromLinkedIn = true; hint.textContent = 'Filled in from LinkedIn. Press SAVE to keep it; future syncs keep it current.'; ($('#pf-title') as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true })); };
+    } else hint.hidden = true;
+  }
+  btn.hidden = true; window.clearTimeout(liPoll);
+  const link = canonicalLinkedIn(row.linkedin_url ?? '');
+  if (!who.approved) return say(link ? 'Your LinkedIn imports when leadership approves you.' : 'Add your LinkedIn link above. It imports when leadership approves you.');
+  if (!link) return say('Add your LinkedIn link above and press SAVE, then sync.');
+  if (st?.queued) { say('Importing from LinkedIn… this takes a minute or two.'); const was = st.synced_at; liPoll = window.setTimeout(async function check() { const s2 = await myLinkedInStatus().catch(() => null); if (!box.isConnected) return; if (s2 && (!s2.queued || s2.synced_at !== was)) void linkedInPanel(); else liPoll = window.setTimeout(check, 10000); }, 10000); return; }
+  btn.hidden = false; btn.disabled = false; fb.textContent = '';
+  const day = st?.synced_at && Date.now() - Date.parse(st.synced_at) < 24 * 3600_000 && !who.admin;
+  if (st?.error) say(`The last import didn’t work: ${st.error}`, true);
+  else if (st?.synced_at) say(`Imported from LinkedIn on ${new Date(st.synced_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.`);
+  else say('Not imported yet.');
+  if (day && !st?.error) { btn.disabled = true; fb.textContent = 'You can sync again tomorrow.'; fb.style.color = 'var(--color-muted)'; }   // information, not an error
+}
+document.addEventListener('input', (e) => { const t = e.target as Element; if (t.matches?.('#pf-title, #pf-co') && (e as InputEvent).inputType) jobFromLinkedIn = false; });   // typed by hand after USE THIS → theirs
+document.addEventListener('click', async (e) => {
+  const btn = (e.target as Element).closest<HTMLButtonElement>('#pf-linkedin [data-li-sync]'); if (!btn || btn.disabled) return;
+  const fb = document.querySelector<HTMLElement>('#pf-linkedin [data-li-fb]')!; btn.disabled = true; fb.style.color = ''; fb.textContent = '';
+  const r: Awaited<ReturnType<typeof requestSync>> = await requestSync().catch(() => ({ status: 0, error: 'Check your connection and try again.' }));
+  if (r.queued) { void linkedInPanel(); return; }
+  btn.disabled = r.status === 429; fb.style.color = 'var(--color-orange)'; fb.textContent = r.error ?? 'Something went wrong. Try again.';
+});
+
 async function init() {
   const form = document.querySelector<HTMLFormElement>('.portal-profile'); if (!form || form.dataset.wired) return; form.dataset.wired = '1';
   document.querySelectorAll<HTMLElement>('.portal-profile [data-action], .portal-profile .portal-save-row').forEach((b) => { b.dataset.wired = '1'; });
@@ -161,7 +206,7 @@ async function init() {
   if (!form.isConnected) return;   // left the page while it loaded (client-side navigation keeps this script running)
   if (!r) { flash(saveBtn, 'NOT LOADED', 'Could not load your profile. Reload before editing.', false); form.removeAttribute('aria-busy'); return; }
   form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
-  if (r) { fill(r, who.admin); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
+  if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
 
   // SAVE: the whole form
   // (the shared script preventDefaults every [data-action] click before it checks `wired`, so the form's
@@ -170,19 +215,24 @@ async function init() {
     e.preventDefault(); const btn = saveBtn;
     const patch = collect(); const applying = !who!.approved; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
     const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...(applying
-      ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null) })
+      ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: patch.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })
       : patch.full_name ? [] : ['your name'])];
     if (missing.length) { showMissing(missing, applying && !row?.submitted_at ? 'Before you can submit, add' : 'Your profile needs'); return; }
     if (applying) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
+    // whose current job this is: typed → theirs (a sync never overwrites it); USE THIS → LinkedIn's (syncs keep it current)
+    if ((patch.current_title ?? '') !== (row?.current_title ?? '') || (patch.current_company ?? '') !== (row?.current_company ?? '')) patch.current_job_source = jobFromLinkedIn ? 'linkedin' : patch.current_title || patch.current_company ? 'manual' : null;
+    // a LinkedIn link must be a profile link; any spelling is stored in one form
+    if (patch.linkedin_url) { const li = canonicalLinkedIn(patch.linkedin_url); if (!li) { const f = $('#pf-li') as HTMLInputElement; f.classList.add('portal-needs'); f.focus(); flash(btn, 'NOT SAVED', 'That isn’t a LinkedIn profile link. Copy it from your LinkedIn profile; it looks like linkedin.com/in/your-name.', false); return; } patch.linkedin_url = li; }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
     const waiting = !who!.approved, wasSubmitted = Boolean(row?.submitted_at);
     try {
       // someone applying: a city typed but not yet placed is placed now, so SUBMIT doesn't say "your city" is missing
       if (waiting) {
+        const ph = typedPhone(); if (ph && ph !== row?.phone) { const saved = await saveMyProfile({ phone: ph }); if (saved.ok) row = saved.row; }
         const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
         if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
-        const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null });
+        const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
       const res = await saveMyProfile(patch);
@@ -192,7 +242,7 @@ async function init() {
         if (sub.error) { fill(res.row, who!.admin); flash(btn, 'NOT SENT', `Saved, but it couldn't be sent to leadership: ${sub.error.message}`, false); return; }
         res.row.submitted_at = (sub.data as string | null) ?? new Date().toISOString(); who!.submitted = true;
       }
-      fill(res.row, who!.admin); label(saveBtn);
+      fill(res.row, who!.admin); label(saveBtn); jobFromLinkedIn = false; void linkedInPanel();
       if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
       else flash(btn, 'SAVED', 'Saved. Your card in search and your pin on the globe are up to date.');
     } catch { flash(btn, 'NOT SAVED', 'Check your connection and try again. Your changes are still in the form.', false); }

@@ -61,7 +61,7 @@ try {
   await expect(submit).toBeEnabled(); await expect(submit).toHaveText('SUBMIT FOR APPROVAL');
   await expect(panel.locator('[data-onboard-title]')).toHaveText('Create your profile');
   await expect(panel).toContainText('Search opens once your profile is finished and leadership approves you.');
-  await expect(missing).toHaveText('Still needed: whether you’re a student or an alum, your name, your graduation year, the semester you joined TroyLabs, your division and your city.');
+  await expect(missing).toHaveText('Still needed: whether you’re a student or an alum, your name, your graduation year, the semester you joined TroyLabs, your division, your city, your LinkedIn profile link and your phone number.');
   assert.equal(await page.locator('[data-field="status"] .portal-chip[aria-pressed="true"]').count(), 0, 'neither STUDENT nor ALUM is picked for them');
   await shot(page, '03-create-profile-desktop');
   await page.setViewportSize({ width: 390, height: 844 }); await noOverflow(page, 'create profile, phone'); await shot(page, '03-create-profile-phone'); await page.setViewportSize({ width: 1440, height: 1000 });
@@ -73,10 +73,10 @@ try {
   await page.locator('#pf-name').fill('Jordan Rivera'); await submit.click();
   await expect(page.locator('.portal-save .portal-feedback')).toContainText('Before you can submit, add whether you’re a student or an alum, your graduation year');
   await expect(submit).toHaveText('SUBMIT FOR APPROVAL');   // the button keeps its name; the message says what to do
-  await expect(page.locator('[data-field="status"].portal-needs')).toHaveCount(1); await expect(page.locator('#pf-year.portal-needs')).toHaveCount(1); await expect(page.locator('#pf-loc.portal-needs')).toHaveCount(1);
+  await expect(page.locator('[data-field="status"].portal-needs')).toHaveCount(1); await expect(page.locator('#pf-year.portal-needs')).toHaveCount(1); await expect(page.locator('#pf-loc.portal-needs')).toHaveCount(1); await expect(page.locator('#pf-li.portal-needs')).toHaveCount(1); await expect(page.locator('#pf-phone.portal-needs')).toHaveCount(1);
   await expect(page.locator('#pf-name.portal-needs')).toHaveCount(0);   // the name was filled in
   await page.locator('[data-field="status"] .portal-chip[data-value="alum"]').click(); await submit.click();
-  await expect(page.locator('.portal-save .portal-feedback')).toContainText('Before you can submit, add your graduation year, the semester you joined TroyLabs, your division and your city');
+  await expect(page.locator('.portal-save .portal-feedback')).toContainText('Before you can submit, add your graduation year, the semester you joined TroyLabs, your division, your city, your LinkedIn profile link and your phone number');
   assert.ok((await fresh.sb.rpc('submit_application')).error, 'the server refuses an unfinished submit');
   await fresh.sb.from('profiles').update({ submitted_at: new Date().toISOString() }).eq('id', fresh.id);
   assert.equal((await admin.from('profiles').select('submitted_at').eq('id', fresh.id).single()).data.submitted_at, null, 'nobody can mark themselves submitted by editing the row');
@@ -87,7 +87,7 @@ try {
   // fill in everything, including e-board roles and a city typed but not placed
   await page.locator('#pf-classof-year').fill('2023'); await page.locator('#pf-term').selectOption('Fall'); await page.locator('#pf-year').fill('2021');
   for (const d of ['DESIGN', 'MARKETING']) await page.locator('[data-field="divisions"] .portal-chip', { hasText: d }).click();
-  await page.locator('#pf-title').fill('Brand Designer'); await page.locator('#pf-co').fill('Figma'); await page.locator('#pf-li').fill('https://www.linkedin.com/in/example');
+  await page.locator('#pf-title').fill('Brand Designer'); await page.locator('#pf-co').fill('Figma'); await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');   // any spelling of the link; the phone saves with SUBMIT
   await page.locator('#pf-claim .portal-chip', { hasText: 'DIRECTOR OF DESIGN' }).click(); const role = page.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF DESIGN"]');
   await role.locator('select').first().selectOption('Fall'); await role.locator('input').first().fill('2022');
   await page.locator('#pf-note').fill('Design division FA21 to SP23; Director of Design FA22.');
@@ -98,6 +98,7 @@ try {
   await submit.click();
   await expect(panel.locator('[data-onboard-title]')).toHaveText('Submitted. Waiting for approval.');
   await expect(page.locator('.portal-save .portal-feedback')).toHaveText('Submitted. Your profile is with TroyLabs leadership.');
+  { const saved = (await admin.from('profiles').select('linkedin_url, phone').eq('id', fresh.id).single()).data; assert.deepEqual(saved, { linkedin_url: 'https://www.linkedin.com/in/example-person', phone: '+12135550142' }, 'the link in one form, the phone saved by SUBMIT'); }
   await expect(submit).toHaveText('SAVE CHANGES', { timeout: 4000 });
   await shot(page, '06-submitted');
   const saved = ok(await admin.from('profiles').select('full_name, status, grad_year, join_term, join_year, divisions, approved, submitted_at, claimed_roles, request_note, city:cities(name)').eq('id', fresh.id).single(), 'saved');

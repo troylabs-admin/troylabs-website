@@ -19,7 +19,7 @@ const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 const MODEL = 'text-embedding-3-small';
 
-import { profileText, type ProfileFacts as Row } from '../_shared/profile-text.ts';
+import { profileChunks, type ProfileFacts as Row } from '../_shared/profile-text.ts';
 
 const fingerprint = async (s: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))).map((b) => b.toString(16).padStart(2, '0')).join('');
 
@@ -36,14 +36,27 @@ async function embed(texts: string[]): Promise<number[][]> {
 }
 
 async function embedProfiles(svc: SupabaseClient, ids: string[] | null): Promise<{ embedded: number; skipped: number }> {
-  let q = svc.from('profiles').select('id, status, grad_year, join_term, join_year, divisions, current_title, current_company, industries, startups, bio, embedding_hash, city:cities(name, region)').eq('approved', true);
+  let q = svc.from('profiles').select('id, status, grad_year, join_term, join_year, divisions, current_title, current_company, industries, startups, bio, embedding_hash, linkedin_headline, linkedin_skills, city:cities(name, region), work:work_experiences(title, company, start_year, end_year, sort), items:linkedin_items(kind, title, issuer, detail, is_usc, sort)').eq('approved', true);
   if (ids) q = q.in('id', ids);
   const { data, error } = await q; if (error) throw error;
-  const todo: { id: string; text: string; hash: string }[] = [];
-  for (const r of (data ?? []) as unknown as Row[]) { const text = profileText(r); const hash = await fingerprint(`${MODEL}|${text}`); if (hash !== r.embedding_hash) todo.push({ id: r.id, text, hash }); }
-  for (let i = 0; i < todo.length; i += 100) {
-    const chunk = todo.slice(i, i + 100); const vectors = await embed(chunk.map((c) => c.text));
-    await Promise.all(chunk.map((c, j) => svc.from('profiles').update({ embedding: JSON.stringify(vectors[j]), embedding_hash: c.hash }).eq('id', c.id)));
+  // each person is several pieces (profileChunks); unchanged pieces (same fingerprint) are never re-sent
+  const todo: { id: string; pieces: string[]; hash: string }[] = [];
+  for (const r of (data ?? []) as unknown as Row[]) {
+    r.work?.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)); r.items?.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+    const pieces = profileChunks(r); const hash = await fingerprint(`${MODEL}|pieces-v1|${pieces.join('\n')}`);   // the version makes every profile re-embed once when the format changes
+    if (hash !== r.embedding_hash) todo.push({ id: r.id, pieces, hash });
+  }
+  // OpenAI takes up to 100 texts per call: fill calls with whole people
+  for (let i = 0; i < todo.length;) {
+    const group: typeof todo = []; let n = 0;
+    while (i < todo.length && (group.length === 0 || n + todo[i].pieces.length <= 100)) { n += todo[i].pieces.length; group.push(todo[i++]); }
+    const vectors = await embed(group.flatMap((g) => g.pieces)); let at = 0;
+    for (const g of group) {
+      const vs = vectors.slice(at, at + g.pieces.length); at += g.pieces.length;
+      const { error: de } = await svc.from('profile_chunks').delete().eq('profile_id', g.id); if (de) throw de;
+      const { error: ie } = await svc.from('profile_chunks').insert(vs.map((v, piece) => ({ profile_id: g.id, piece, embedding: JSON.stringify(v) }))); if (ie) throw ie;
+      await svc.from('profiles').update({ embedding: JSON.stringify(vs[0]), embedding_hash: g.hash }).eq('id', g.id);   // the core facts stay on the profile too
+    }
   }
   return { embedded: todo.length, skipped: (data?.length ?? 0) - todo.length };
 }

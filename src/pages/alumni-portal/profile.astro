@@ -61,8 +61,8 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <p class="t-fine portal-feedback"></p>
         </div>
         <div class="portal-field portal-contact-row" data-contact="personal">
-          <label class="t-label text-muted" for="pf-personal">PERSONAL EMAIL</label>
-          <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">How members reach you after graduation.</p>
+          <label class="t-label text-muted" for="pf-personal">PERSONAL EMAIL <span class="portal-req" title="Required">REQUIRED</span></label>
+          <div class="portal-inline"><input id="pf-personal" type="email" class="t-caption portal-input" data-label="personal email" placeholder="you@gmail.com" autocomplete="email" /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">How members reach you after graduation (your USC email stops working). A new address gets a confirmation email first.</p>
           <p class="t-fine portal-feedback"></p>
         </div>
         <div class="portal-field is-full">
@@ -70,8 +70,8 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <p class="t-fine portal-feedback" id="pf-email-opt-fb"></p>
         </div>
         <div class="portal-field portal-contact-row" data-contact="phone">
-          <label class="t-label text-muted" for="pf-phone">PHONE</label>
-          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="e.g. +1 213 555 0123" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">Optional, for event texts.</p>
+          <label class="t-label text-muted" for="pf-phone">PHONE <span class="portal-req" title="Required">REQUIRED</span></label>
+          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="e.g. +1 213 555 0123" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">How members reach you. TroyLabs only texts you if you turn that on below.</p>
           <label class="portal-check t-caption"><input id="pf-phone-opt" type="checkbox" /><i></i>Text me TroyLabs event invitations</label>
           <p class="portal-help t-fine text-muted">A few texts a month at most. Message and data rates may apply. Reply STOP to any text to stop, HELP for help.</p>
           <p class="t-fine portal-feedback"></p>
@@ -107,10 +107,19 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           </div>
         </div>
         <div class="portal-field"><label class="t-label text-muted" for="pf-title">CURRENT JOB TITLE</label><input id="pf-title" data-label="job title" class="t-caption portal-input is-wide" placeholder="e.g. Product Manager" /><p class="portal-help t-fine text-muted">What you do now, not your TroyLabs role.</p></div>
-        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" placeholder="e.g. Stripe, or your startup" /></div>
-        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE</label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /></div>
+        <div class="portal-field"><label class="t-label text-muted" for="pf-co">CURRENT COMPANY</label><input id="pf-co" data-label="company" class="t-caption portal-input is-wide" placeholder="e.g. Stripe, or your startup" /><p class="portal-help t-fine text-muted" data-li-job hidden></p></div>
+        <div class="portal-field is-full"><label class="t-label text-muted" for="pf-li">LINKEDIN PROFILE <span class="portal-req" title="Required">REQUIRED</span></label><input id="pf-li" data-label="LinkedIn" class="t-caption portal-input is-wide" placeholder="https://www.linkedin.com/in/your-profile" /><p class="portal-help t-fine text-muted">Your exact profile link: on LinkedIn, open your profile and copy the address (linkedin.com/in/…).</p></div>
         <div class="portal-field is-full"><label class="t-label text-muted" for="pf-bio">BIO</label><textarea id="pf-bio" data-label="bio" class="t-caption portal-textarea" placeholder="A line or two about what you do and what you're into."></textarea></div>
       </div>
+
+      <!-- LinkedIn import (2026-10-05): work history, honors, publications… from the link above, after approval -->
+      <h2 class="t-sub portal-section-h">Work history from LinkedIn</h2>
+      <p class="portal-section-sub t-fine text-muted">Your jobs, honors and publications come from the LinkedIn link above (your profile must be public). The first import starts when leadership approves you; after that, sync whenever your LinkedIn changes, once a day. A photo you upload here is never replaced.</p>
+      <div class="portal-panel" id="pf-linkedin">
+        <div class="portal-li-status"><p class="m-0 t-caption" data-li-status>Loading…</p><button type="button" class="portal-btn is-small t-label" data-li-sync hidden>SYNC NOW</button></div>
+        <p class="m-0 t-fine portal-feedback" data-li-fb></p>
+      </div>
+      <div data-li-preview></div>
 
       <h2 class="t-sub portal-section-h">E-Board history</h2>
       <!-- read-only: a role is a credential, so only admins set it (Bryan, 2026-09-14: "not everyone who signs up was e-board").

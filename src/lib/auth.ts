@@ -42,14 +42,14 @@ export async function me(): Promise<Me | null> {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
   const [{ data: profile }, { data: adminRow }] = await Promise.all([
-    sb.from('profiles').select('full_name, approved, declined_at, submitted_at, grad_year, join_year, divisions, city_id').eq('id', session.user.id).maybeSingle(),
+    sb.from('profiles').select('full_name, approved, declined_at, submitted_at, grad_year, join_year, divisions, city_id, linkedin_url, phone, personal_email').eq('id', session.user.id).maybeSingle(),
     sb.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle(),
   ]);
   return {
     id: session.user.id, email: session.user.email ?? '', full_name: profile?.full_name ?? '',
     approved: Boolean(profile?.approved), declined: Boolean(profile && !profile.approved && profile.declined_at), admin: Boolean(adminRow),
     submitted: Boolean(profile?.submitted_at),
-    missing: applicationMissing({ full_name: profile?.full_name ?? '', grad_year: profile?.grad_year ?? null, join_year: profile?.join_year ?? null, divisions: profile?.divisions ?? [], city_id: profile?.city_id ?? null }),
+    missing: applicationMissing({ full_name: profile?.full_name ?? '', grad_year: profile?.grad_year ?? null, join_year: profile?.join_year ?? null, divisions: profile?.divisions ?? [], city_id: profile?.city_id ?? null, linkedin_url: profile?.linkedin_url ?? null, phone: profile?.phone ?? null, personal_email: profile?.personal_email ?? null }),
   };
 }
 

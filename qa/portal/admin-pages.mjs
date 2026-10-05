@@ -14,7 +14,7 @@ const num = async (loc) => Number((await loc.innerText()).replace(/[^\d]/g, ''))
 
 try {
   const boss = await makeUser(admin, 'Pages Admin QA'); users.push(boss); await admin.from('admins').insert({ user_id: boss.id });
-  const waiting = await makeUser(admin, 'Pages Waiting QA', false); users.push(waiting);
+  const waiting = await makeUser(admin, 'Pages Waiting QA', false); users.push(waiting); await admin.from('profiles').update({ submitted_at: new Date().toISOString() }).eq('id', waiting.id);
   browser = await chromium.launch(); const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
   await ctx.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: 'sb-ackmhqxyxnceoarbhcrp-auth-token', session: boss.session });
@@ -91,7 +91,7 @@ try {
   await row.locator('input').first().fill('20x4'); await wp.locator('[data-action="save"]').click(); await expect(wp.locator('.portal-save .portal-feedback')).toContainText('isn\'t a year');
   await row.locator('select').first().selectOption('Fall'); await row.locator('input').first().fill('2024');
   await row.getByRole('button', { name: '+ ANOTHER SEMESTER' }).click(); await row.locator('select').nth(1).selectOption('Spring'); await row.locator('input').nth(1).fill('2025');
-  await wp.locator('[data-action="save"]').click(); await expect(wp.locator('.portal-save .portal-feedback')).toContainText('Saved');
+  await wp.locator('[data-action="save"]').click(); await expect(wp.locator('.portal-save .portal-feedback')).toContainText(/Saved|Submitted/);
   assert.deepEqual((await admin.from('profiles').select('claimed_roles').eq('id', waiting.id).single()).data.claimed_roles, [{ role: 'DIRECTOR OF TECH', term: 'FA', year: 2024 }, { role: 'DIRECTOR OF TECH', term: 'SP', year: 2025 }]);
   await wp.reload(); await expect(wp.locator('.portal-profile [data-action="save"]')).toBeEnabled();
   await expect(wp.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF TECH"] input')).toHaveCount(2); await expect(wp.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF TECH"] input').nth(1)).toHaveValue('2025');
@@ -136,5 +136,6 @@ try {
 } finally {
   if (browser) await browser.close();
   for (const u of users.reverse()) await u.cleanup();
-  console.log(`Cleaned up ${users.length} temporary accounts.`);
+  const purged = await admin.rpc('purge_test_backups');
+  console.log(`Cleaned up ${users.length} temporary accounts; purged ${purged.data ?? 0} test backup rows.`);
 }

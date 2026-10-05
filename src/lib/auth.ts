@@ -19,7 +19,7 @@ export async function sendMagicLink(email: string): Promise<{ ok: true } | { ok:
   return { ok: false, message: error.message };
 }
 
-export interface Me { id: string; email: string; full_name: string; approved: boolean; declined: boolean; admin: boolean; missing: string[] }
+export interface Me { id: string; email: string; full_name: string; approved: boolean; declined: boolean; submitted: boolean; admin: boolean; missing: string[] }
 
 /** who is signed in, and the facts every page needs: approved, declined, admin, and what their sign-up still lacks */
 export async function me(): Promise<Me | null> {
@@ -27,20 +27,21 @@ export async function me(): Promise<Me | null> {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
   const [{ data: profile }, { data: adminRow }] = await Promise.all([
-    sb.from('profiles').select('full_name, approved, declined_at, grad_year, join_year, divisions').eq('id', session.user.id).maybeSingle(),
+    sb.from('profiles').select('full_name, approved, declined_at, submitted_at, grad_year, join_year, divisions, city_id').eq('id', session.user.id).maybeSingle(),
     sb.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle(),
   ]);
   return {
     id: session.user.id, email: session.user.email ?? '', full_name: profile?.full_name ?? '',
     approved: Boolean(profile?.approved), declined: Boolean(profile && !profile.approved && profile.declined_at), admin: Boolean(adminRow),
-    missing: applicationMissing({ full_name: profile?.full_name ?? '', grad_year: profile?.grad_year ?? null, join_year: profile?.join_year ?? null, divisions: profile?.divisions ?? [] }),
+    submitted: Boolean(profile?.submitted_at),
+    missing: applicationMissing({ full_name: profile?.full_name ?? '', grad_year: profile?.grad_year ?? null, join_year: profile?.join_year ?? null, divisions: profile?.divisions ?? [], city_id: profile?.city_id ?? null }),
   };
 }
 
 /** how many people are waiting for an admin (admins only; row-level security returns 0 to anyone else) */
 export async function waitingCount(): Promise<number> {
-  // only finished applications (the four answers in lib/portal/application.ts): those are the ones an admin can decide
-  const { count } = await supabase().from('profiles').select('id', { count: 'exact', head: true }).eq('approved', false).is('declined_at', null).neq('full_name', '').not('grad_year', 'is', null).not('join_year', 'is', null).neq('divisions', '{}');
+  // only submitted applications (SUBMIT FOR APPROVAL): nobody reaches the admins before that
+  const { count } = await supabase().from('profiles').select('id', { count: 'exact', head: true }).eq('approved', false).is('declined_at', null).not('submitted_at', 'is', null);
   return count ?? 0;
 }
 

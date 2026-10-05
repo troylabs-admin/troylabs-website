@@ -15,9 +15,13 @@ import { track } from '../../lib/analytics';
 import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE as SAMPLE, STATUS, type Person } from '../../lib/portal/sample-people';
+import { INDUSTRIES as ALL_INDUSTRIES } from '../../lib/portal/options';
 import { listPeople } from '../../lib/portal/data';
 
-const FILTERS: [string, string, readonly string[]][] = [['status', 'STATUS', STATUS], ['cohort', 'COHORT', COHORTS], ['division', 'DIVISION', DIVISIONS], ['industry', 'INDUSTRY', INDUSTRIES]];
+/* the live network offers what members can actually pick (lib/portal/options.ts) and the cohorts they actually joined in;
+   the sample preview keeps its own generated lists (2026-10-05: search offered the sample's 10 industries, not the profile's 19) */
+const filtersFor = (sample: boolean): [string, string, readonly string[]][] => [['status', 'STATUS', STATUS], ['cohort', 'COHORT', sample ? COHORTS : []], ['division', 'DIVISION', DIVISIONS], ['industry', 'INDUSTRY', sample ? INDUSTRIES : ALL_INDUSTRIES]];
+const cohortKey = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
 const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did']);
 const PAGE = 24;
 const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
@@ -90,7 +94,7 @@ export default function Network() {
     for (const p of PEOPLE) {
       const why: string[] = []; let ok = true;
       for (const [key, vals] of Object.entries(active)) {
-        const have = key === 'division' ? p.divisions ?? [p.division] : key === 'industry' ? p.industries.map(v => v === 'CLIMATE TECH' ? 'CLIMATE' : v) : [p[key as 'status' | 'cohort' | 'division']];
+        const have = key === 'division' ? p.divisions ?? [p.division] : key === 'industry' ? (sample ? p.industries.map(v => v === 'CLIMATE TECH' ? 'CLIMATE' : v) : p.industries) : [p[key as 'status' | 'cohort' | 'division']];
         const hit = vals.filter((v) => have.includes(v));
         if (!hit.length) { ok = false; break; }
         why.push(...hit);
@@ -103,7 +107,7 @@ export default function Network() {
       out.push({ p, why, score });
     }
     return out.sort((a, b) => b.score - a.score);
-  }, [active, words.join(' '), PEOPLE]);
+  }, [active, words.join(' '), PEOPLE, sample]);
 
   /* a tapped star narrows the list to its cities — the globe is the location filter */
   const placeKeys = useMemo(() => place && new Set(place.cities.map((c) => c.key)), [place]);
@@ -190,7 +194,7 @@ export default function Network() {
       </form>
 
       <div className="portal-filters" data-search-filters>
-        {FILTERS.map(([key, label, defaults]) => { const items = key === 'cohort' ? [...new Set([...defaults, ...PEOPLE.map(p => p.cohort).filter(Boolean)])] : defaults; return (
+        {filtersFor(sample).map(([key, label, defaults]) => { const items = key === 'cohort' ? [...new Set([...defaults, ...PEOPLE.map(p => p.cohort).filter(Boolean)])].sort((a, b) => cohortKey(b) - cohortKey(a)) : defaults; return (
           <div className="portal-filter-row" key={key}>
             <span className="t-fine text-muted portal-filter-label">{label}</span>
             <div className="flex flex-wrap portal-chips" data-filter={key}>{items.map((c) => <button type="button" key={c} className="t-fine portal-chip" aria-pressed={(active[key] ?? []).includes(c)} data-value={c} onClick={() => toggle(key, c)}>{c}</button>)}</div>

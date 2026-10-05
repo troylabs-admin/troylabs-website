@@ -55,7 +55,6 @@ async function fillAttention(n: Awaited<ReturnType<typeof fillNetwork>>) {
   const box = $('[data-attention]'); if (!box) return;
   const d = await delivery(); const items: string[] = [];
   if (n?.pending) items.push(`<li><span><span class="text-ink">${n.pending} ${n.pending === 1 ? 'person is' : 'people are'} waiting for approval.</span></span><a class="t-label portal-linklike no-underline" style="color:var(--color-orange)" href="/alumni-portal/admin/users#approvals">REVIEW →</a></li>`);
-  if (n?.unfinished) items.push(`<li class="text-muted"><span>${n.unfinished} ${n.unfinished === 1 ? 'sign-up is' : 'sign-ups are'} still filling in ${n.unfinished === 1 ? 'their' : 'their'} profile. Nothing to do yet.</span></li>`);
   if (d && !d.email?.configured) items.push('<li><span>Email isn’t connected yet (no Resend key), so messages can be written and scheduled but not sent.</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
   else if (d?.email?.testMode) items.push('<li><span>Email is in Resend’s test mode: it only reaches you until usctroylabs.com is verified.</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
   if (d && (!d.text?.configured || d.text?.error)) items.push('<li><span>Texts aren’t connected yet (no Twilio keys).</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');

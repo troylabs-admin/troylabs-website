@@ -1,8 +1,8 @@
 /**
  * The gate on every signed-in portal page. No session → back to the sign-in. With one:
  *   approved   → the whole portal; the nav names you; ADMIN only for admins, with a count of people waiting
- *   not yet    → a new account must create its profile first (sent to /profile until the four required
- *                answers are in); after that, /home is the waiting screen; nothing else is reachable
+ *   not yet    → a new account must fill in its profile and press SUBMIT FOR APPROVAL first (sent to /profile
+ *                until then); after that, /home is the waiting screen; nothing else is reachable
  *   declined   → the same two pages, with the waiting screen saying so
  * The page learns which through <html data-member="ok|pending|declined"> and the `tl:me` event.
  * Data is protected by row-level security in the database; this only decides what to show.
@@ -23,7 +23,7 @@ async function gate() {
 
   if (state !== 'ok') {
     // first things first: a new account creates its profile; then the waiting screen is the only other page
-    if (state === 'pending' && who.missing.length && here() !== PROFILE) { location.replace(`${PROFILE}?welcome=1${here() === HOME ? '&from=search' : here().startsWith('/alumni-portal/') ? '&from=elsewhere' : ''}`); return; }   // from=: say why they landed here instead (audit: SEARCH silently bounced back)
+    if (state === 'pending' && !who.submitted && here() !== PROFILE) { location.replace(`${PROFILE}?welcome=1${here() === HOME ? '&from=search' : here().startsWith('/alumni-portal/') ? '&from=elsewhere' : ''}`); return; }   // from=: say why they landed here instead (audit: SEARCH silently bounced back)
     if (here() !== PROFILE && here() !== HOME) { location.replace(HOME); return; }
   }
   if (!who.admin) {

@@ -27,7 +27,7 @@ const termWord = (t: string) => (t === 'FA' ? 'Fall' : 'Spring');
 /** "Director of Tech (Fall 2024, Spring 2025)" */
 const claimedText = (r: ProfileRow) => { const by = new Map<string, string[]>(); for (const c of r.claimed_roles ?? []) by.set(c.role, [...(by.get(c.role) ?? []), `${termWord(c.term)} ${c.year}`]); return [...by].map(([role, terms]) => `${role[0]}${role.slice(1).toLowerCase()} (${terms.join(', ')})`).join('; '); };
 const waiting = () => rows.filter((r) => !r.approved && !r.declined_at);
-const ready = () => waiting().filter((r) => !applicationMissing(r).length);
+const ready = () => waiting().filter((r) => r.submitted_at);   // SUBMIT FOR APPROVAL pressed; anyone still filling in their profile isn't shown
 /** the queue as shown: search, then sort */
 function queue() {
   const words = q.search.toLowerCase().split(/\s+/).filter(Boolean);
@@ -74,12 +74,6 @@ function renderRequests() {
   syncPicks(shown, matching);
 
   const date2 = date;
-  const incomplete = waiting().filter((r) => applicationMissing(r).length).sort((x, y) => y.created_at.localeCompare(x.created_at));
-  const inc = document.getElementById('incomplete-fold') as HTMLDetailsElement | null;
-  if (inc) {
-    inc.hidden = !incomplete.length; document.getElementById('incomplete-n')!.textContent = String(incomplete.length);
-    document.getElementById('incomplete-list')!.innerHTML = incomplete.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || r.personal_email || r.usc_email || 'Someone')}</span> <span class="text-muted">${r.full_name ? `· ${esc(r.personal_email || r.usc_email || '')} ` : ''}· signed up ${ago(r.created_at)} · still needs ${esc(listInWords(applicationMissing(r)).replace(/your /g, ''))}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" data-decline="${r.id}">DECLINE</button></span></li>`).join('');
-  }
   const declined = rows.filter((r) => !r.approved && r.declined_at).sort((x, y) => (y.declined_at ?? '').localeCompare(x.declined_at ?? ''));
   const fold = document.getElementById('declined-fold') as HTMLDetailsElement | null;
   if (fold) {

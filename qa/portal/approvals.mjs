@@ -15,7 +15,7 @@ const out = 'test-results/portal'; mkdirSync(out, { recursive: true });
 async function applicant(name, fields = {}) {
   const { data, error } = await admin.auth.admin.createUser({ email: `tl-qa-${crypto.randomUUID()}@example.com`, email_confirm: true });
   if (error) throw error; const id = data.user.id; made.push(id);
-  const { error: pe } = await admin.from('profiles').update({ full_name: name, status: 'alum', grad_year: 2022, join_term: 'FA', join_year: 2019, divisions: ['TECH'], approved: false, ...fields }).eq('id', id);
+  const { error: pe } = await admin.from('profiles').update({ full_name: name, status: 'alum', grad_year: 2022, join_term: 'FA', join_year: 2019, divisions: ['TECH'], city_id: 1, approved: false, submitted_at: new Date().toISOString(), ...fields }).eq('id', id);
   if (pe) throw pe; return id;
 }
 const state = async (ids) => Object.fromEntries(((await admin.from('profiles').select('id, approved, declined_at').in('id', ids)).data ?? []).map((r) => [r.id, r.approved ? 'approved' : r.declined_at ? 'declined' : 'waiting']));
@@ -29,7 +29,7 @@ try {
     ids.push(id);
   }
   const claimer = await applicant('Queue Claimer QA', { divisions: ['DESIGN', 'MARKETING'], request_note: 'Ran design FA23 to SP24.', linkedin_url: 'https://www.linkedin.com/in/example', claimed_roles: [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2023 }, { role: 'DIRECTOR OF DESIGN', term: 'SP', year: 2024 }] });
-  const unfinished1 = await applicant('', { grad_year: null, divisions: [] }), unfinished2 = await applicant('Half Done QA', { join_year: null });
+  const unsubmitted = await applicant('Half Done QA', { join_year: null, submitted_at: null });   // signed in, never pressed SUBMIT
   const declinedOne = await applicant('Already Declined QA', { declined_at: new Date().toISOString() });
   const mine = new Set([...ids, claimer]);
 
@@ -99,10 +99,10 @@ try {
   assert.deepEqual(roles, [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2023 }, { role: 'DIRECTOR OF DESIGN', term: 'SP', year: 2024 }], 'approving made the claimed roles their e-board record');
   console.log('PASS: details (note, LinkedIn), claimed e-board roles shown, VIEW FULL PROFILE → back to the waiting list, approve → roles recorded');
 
-  // the unfinished fold
-  await page.locator('#incomplete-fold summary').click();
-  await expect(page.locator('#incomplete-list')).toContainText('Half Done QA'); await expect(page.locator('#incomplete-list')).toContainText('still needs the semester you joined TroyLabs');
-  console.log('PASS: unfinished sign-ups wait in their own fold with what they still need');
+  // someone who never submitted is nowhere on the admin pages
+  await page.locator('#q-search').fill('Half Done'); await expect(page.locator('#requests-list')).toContainText('Nobody matches that search');
+  await expect(page.locator('body')).not.toContainText('Half Done QA'); await page.locator('#q-search').fill('');
+  console.log('PASS: people who never pressed SUBMIT FOR APPROVAL aren’t shown to admins at all');
 
   // the database refuses non-admins
   const member = await makeUser(admin, 'Queue Member QA'); made.push(member.id);

@@ -1,10 +1,9 @@
 /** Numbers for Admin › Overview and Analytics: the network from our database, the website from PostHog through the posthog-stats function. */
 import { supabase } from '../supabase';
 import { completeness, cohortOf, cityLabel, type ProfileRow } from './data';
-import { applicationMissing } from './application';
 
 export interface MsgLine { id: number; title: string; state: string; when: string | null; send_by: string; audience: unknown; sent_count: number; failed_count: number }
-export interface NetworkStats { members: number; students: number; alumni: number; active30: number; pending: number; unfinished: number; newThisMonth: number; completeness: number; byCohort: [string, number][]; byCity: [string, number][]; sentThisMonth: number; recent: MsgLine[]; upcoming: MsgLine[] }
+export interface NetworkStats { members: number; students: number; alumni: number; active30: number; pending: number; newThisMonth: number; completeness: number; byCohort: [string, number][]; byCity: [string, number][]; sentThisMonth: number; recent: MsgLine[]; upcoming: MsgLine[] }
 const line = (m: any): MsgLine => ({ id: m.id, title: m.title, state: m.state, when: m.sent_at ?? m.scheduled_for ?? m.updated_at, send_by: m.send_by, audience: m.audience, sent_count: m.sent_count ?? 0, failed_count: m.failed_count ?? 0 });
 export async function networkStats(): Promise<NetworkStats> {
   const sb = supabase();
@@ -17,8 +16,7 @@ export async function networkStats(): Promise<NetworkStats> {
   return {
     members: members.length, students: members.filter((r) => r.status === 'student').length, alumni: members.filter((r) => r.status === 'alum').length,
     active30: members.filter((r) => r.last_seen_at && Date.parse(r.last_seen_at) > monthAgo).length,
-    pending: all.filter((r) => !r.approved && !r.declined_at && !applicationMissing(r).length).length,   // finished applications only
-    unfinished: all.filter((r) => !r.approved && !r.declined_at && applicationMissing(r).length).length,
+    pending: all.filter((r) => !r.approved && !r.declined_at && r.submitted_at).length,   // submitted applications only
     completeness: members.length ? Math.round(members.reduce((n, r) => n + completeness(r), 0) / members.length) : 0,
     byCohort: tally(members.map((r) => cohortOf(r.join_term, r.join_year))), byCity: tally(members.map((r) => cityLabel(r.city))),
     sentThisMonth: sent ?? 0,

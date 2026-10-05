@@ -7,14 +7,14 @@ import { escapeHtml } from '../lib/portal/safe-html';
 import { HOME, me, type Me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { prettyPhone, toE164 } from '../lib/portal/phone';
-import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
+import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
 const termCode = (v: string) => (v === 'Fall' ? 'FA' : 'SP') as 'FA' | 'SP';
 const flash = (btn: HTMLElement | null, text: string, feedback = '', ok = true) => {
   if (!btn) return; const orig = btn.textContent; btn.classList.add('is-done'); btn.textContent = text;
-  setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = orig; }, 1800);
+  setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = btn.dataset.label ?? orig; }, 1800);   // data-label: the button's current name (SUBMIT FOR APPROVAL becomes SAVE CHANGES)
   const after = btn.parentElement?.nextElementSibling as HTMLElement | null;   // the line right under the button's row (the location row's; it never showed: audit 2026-10-02)
   const fb = btn.parentElement?.querySelector<HTMLElement>('.portal-feedback') ?? (after?.classList.contains('portal-feedback') ? after : null) ?? btn.closest<HTMLElement>('.portal-field, .portal-contact-row, .portal-save, .portal-panel')?.querySelector<HTMLElement>('.portal-feedback') ?? null;
   if (fb) { fb.textContent = feedback; fb.style.color = ok ? '' : 'var(--color-orange)'; }
@@ -104,6 +104,8 @@ function collect(): Partial<ProfileRow> {
 }
 
 let who: Me | null = null;
+/** the main button says what it does: SUBMIT FOR APPROVAL before someone has applied, SAVE CHANGES while they wait, SAVE once they're in */
+function label(btn: HTMLElement) { const t = who?.approved ? 'SAVE' : row?.submitted_at ? 'SAVE CHANGES' : 'SUBMIT FOR APPROVAL'; btn.dataset.label = t; if (!btn.classList.contains('is-done')) btn.textContent = t; }
 
 /** the sign-up panel: what is still missing (live, from the form), or that they are on the list, or declined */
 function onboard(justSaved = false) {
@@ -111,8 +113,9 @@ function onboard(justSaved = false) {
   if (!panel || !who || who.approved) { if (panel) panel.hidden = true; if (completion) completion.hidden = false; return; }
   panel.hidden = false; if (completion) completion.hidden = true;   // one list of what's needed while they wait, not two
   const c = collect();
-  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [] })];
-  const savedMissing = row ? applicationMissing(row) : missing;
+  const typedCity = ($('#pf-loc') as HTMLInputElement | null)?.value.trim();
+  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null) })];
+  const submitted = Boolean(row?.submitted_at);
   const title = $('[data-onboard-title]')!, text = $('[data-onboard-text]')!, miss = $('[data-onboard-missing]')!, chip = $('[data-onboard-chip]')!;
   if (who.declined) {
     chip.textContent = 'NOT APPROVED'; title.textContent = 'Your request wasn’t approved';
@@ -120,17 +123,17 @@ function onboard(justSaved = false) {
     miss.textContent = ''; return;
   }
   chip.textContent = 'WAITING FOR APPROVAL';
-  if (savedMissing.length) {
+  if (!submitted) {
     title.textContent = 'Create your profile';
     const bounced = new URLSearchParams(location.search).get('from');
-    text.textContent = `${bounced === 'search' ? 'Search opens once your profile is finished and leadership approves you. ' : bounced ? 'The rest of the portal opens once your profile is finished and leadership approves you. ' : ''}TroyLabs leadership approves every member by hand. Fill in the basics so they can recognise you, then press SAVE at the bottom of the page.`;
-    miss.textContent = missing.length ? `Still needed: ${listInWords(missing)}.` : 'That’s everything needed. Press SAVE at the bottom to send it.';
+    text.textContent = `${bounced === 'search' ? 'Search opens once your profile is finished and leadership approves you. ' : bounced ? 'The rest of the portal opens once your profile is finished and leadership approves you. ' : ''}TroyLabs leadership approves every member by hand. Fill in everything below so they can recognise you, then press SUBMIT FOR APPROVAL at the bottom. You can edit your profile any time after.`;
+    miss.textContent = missing.length ? `Still needed: ${listInWords(missing)}.` : 'That’s everything. Press SUBMIT FOR APPROVAL at the bottom.';
   } else {
     title.textContent = justSaved ? 'Sent. You’re on the list.' : 'You’re on the list';
     text.innerHTML = '';
     text.append('Your profile is with TroyLabs leadership. You’ll get into the network as soon as an admin approves you, so check back on this site. You can keep editing your profile meanwhile. ');
     const a = document.createElement('a'); a.href = HOME; a.className = 'text-ink'; a.textContent = 'See where you stand'; text.append(a, '.');
-    miss.textContent = missing.length ? `If you save now, your profile would be missing ${listInWords(missing)}.` : '';
+    miss.textContent = missing.length ? `Your profile needs ${listInWords(missing)} before changes can be saved.` : '';
   }
 }
 
@@ -155,18 +158,33 @@ async function init() {
     if (!who!.approved) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
+    const waiting = !who!.approved, wasSubmitted = Boolean(row?.submitted_at);
     try {
+      // someone applying: a city typed but not yet placed is placed now, so SUBMIT doesn't say "your city" is missing
+      if (waiting) {
+        const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
+        if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { flash(btn, 'NOT SENT', `${c.message} (LOCATION, near the bottom)`, false); return; } patch.city_id = c.city.id; }
+        const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null });
+        if (miss.length) { flash(btn, wasSubmitted ? 'NOT SAVED' : 'NOT SENT', `${wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'} ${listInWords(miss)}.`, false); return; }
+      }
       const res = await saveMyProfile(patch);
-      if (res.ok) {
-        const wasMissing = applicationMissing(row ?? res.row).length > 0; fill(res.row, who!.admin);
-        if (!who!.approved) { who!.missing = applicationMissing(res.row); onboard(wasMissing && !who!.missing.length); flash(btn, 'SAVED', who!.missing.length ? `Saved. Still needed before leadership can approve you: ${listInWords(who!.missing)}.` : 'Saved. Your profile is with TroyLabs leadership.'); if (!who!.missing.length) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-        else flash(btn, 'SAVED', 'Saved. Your card in search and your pin on the globe are up to date.');
-      } else flash(btn, 'NOT SAVED', res.message, false);
+      if (!res.ok) { flash(btn, 'NOT SAVED', res.message, false); return; }
+      if (waiting) {
+        const sub = await submitApplication();   // marks them submitted (first time) and keeps a backup copy of what they sent
+        if (sub.error) { fill(res.row, who!.admin); flash(btn, 'NOT SENT', `Saved, but it couldn't be sent to leadership: ${sub.error.message}`, false); return; }
+        res.row.submitted_at = (sub.data as string | null) ?? new Date().toISOString(); who!.submitted = true;
+      }
+      fill(res.row, who!.admin); label(saveBtn);
+      if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      else flash(btn, 'SAVED', 'Saved. Your card in search and your pin on the globe are up to date.');
     } catch { flash(btn, 'NOT SAVED', 'Check your connection and try again. Your changes are still in the form.', false); }
     finally { saveBtn.disabled = false; }
   });
 
-  saveBtn.disabled = false; form.removeAttribute('aria-busy');
+  label(saveBtn); saveBtn.disabled = false; form.removeAttribute('aria-busy');
+  // an error under the main button goes away as soon as they start fixing things (it read as if the finished profile were still wrong)
+  const clearError = () => { const f = form.querySelector<HTMLElement>('.portal-save .portal-feedback'); if (f && f.style.color) { f.textContent = ''; f.style.color = ''; } };
+  form.addEventListener('input', clearError); form.addEventListener('click', (e) => { if ((e.target as Element).closest('.portal-chip')) clearError(); });
 
   // the sign-up panel follows the form as they fill it (chips are toggled by the shared script, hence the tick)
   onboard();
@@ -214,7 +232,7 @@ async function init() {
     if (!text.trim()) { flash(btn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
     const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
     const res = await saveMyProfile({ city_id: c.city.id });
-    if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
+    if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
   });
 }
 init();

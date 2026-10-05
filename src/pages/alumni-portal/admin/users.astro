@@ -34,7 +34,7 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
          sort, select all + bulk approve / decline with UNDO, 25 at a time. Filled by scripts/portal-members.ts. -->
     <div class="portal-panel" style="margin-top:calc(12 * var(--u))" id="approvals">
       <h2 class="t-sub portal-panel-title">Waiting for approval <span class="t-fine portal-role" id="requests-n">0</span></h2>
-      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(14 * var(--u))">Everyone here finished the sign-up profile. Approve the people who were part of TroyLabs: they're in the network the next time they open the portal, and any e-board roles they listed become their record.</p>
+      <p class="m-0 t-fine text-muted" style="margin-bottom:calc(14 * var(--u))">Everyone here filled in the whole sign-up profile and pressed SUBMIT FOR APPROVAL. Approve the people who were part of TroyLabs: they're in the network the next time they open the portal, and any e-board roles they listed become their record.</p>
       <div class="portal-q-tools" data-q-tools hidden>
         <input id="q-search" type="search" class="t-caption portal-input" placeholder="Search name, email, division, cohort…" aria-label="Search the waiting list" />
         <select id="q-sort" class="t-caption portal-input portal-select" aria-label="Sort the waiting list"><option value="oldest">Oldest first</option><option value="newest">Newest first</option><option value="name">Name A–Z</option></select>
@@ -50,11 +50,6 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
       <p class="t-fine portal-feedback" id="q-fb" role="status" style="margin:0"></p>
       <ul class="m-0 p-0 list-none portal-requests" id="requests-list"><li class="t-caption text-muted">Loading…</li></ul>
       <div class="portal-inline" style="justify-content:center;margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-q-more hidden>SHOW MORE</button></div>
-      <details class="portal-fold portal-declined" id="incomplete-fold" hidden>
-        <summary class="t-label text-muted">STILL FILLING IN THEIR PROFILE <span id="incomplete-n">0</span></summary>
-        <p class="m-0 t-fine text-muted" style="margin:calc(8 * var(--u)) 0">They signed in but haven't finished the required profile yet. The portal keeps sending them back to it; they move up into the list above by themselves once they're done.</p>
-        <ul class="portal-row-list t-caption" id="incomplete-list"></ul>
-      </details>
       <details class="portal-fold portal-declined" id="declined-fold" hidden>
         <summary class="t-label text-muted">DECLINED <span id="declined-n">0</span></summary>
         <ul class="portal-row-list t-caption" id="declined-list"></ul>

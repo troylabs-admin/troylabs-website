@@ -14,7 +14,8 @@ export interface ProfileRow {
   industries: string[]; startups: string[]; city_id: number | null;
   usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean; email_opt_in: boolean;
   avatar_path: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
-  claimed_roles: ClaimedRole[];   // e-board roles they say they held, written while they wait; become eboard_roles when approved
+  claimed_roles: ClaimedRole[];
+  submitted_at: string | null;   // SUBMIT FOR APPROVAL pressed (submit_application); only then do admins see them   // e-board roles they say they held, written while they wait; become eboard_roles when approved
   city?: CityRow | null;
 }
 export interface CityRow { id: number; name: string; region: string; country: string; lat: number; lng: number }
@@ -112,6 +113,8 @@ export const setApproved = (id: string, approved: boolean) => supabase().from('p
 export const setDeclined = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: new Date().toISOString() }).eq('id', id);
 /** back onto the waiting list after a decline (or after REMOVE ACCESS) */
 export const setRestored = (id: string) => supabase().from('profiles').update({ approved: false, declined_at: null }).eq('id', id);
+/** SUBMIT FOR APPROVAL: the server checks the required answers, marks them submitted and keeps a backup copy */
+export const submitApplication = () => supabase().rpc('submit_application');
 /** approve one person or a hundred in one call; their claimed e-board roles become their record (approve_members) */
 export const approveMany = (ids: string[]) => supabase().rpc('approve_members', { ids });
 export const declineMany = (ids: string[]) => supabase().rpc('decline_members', { ids });

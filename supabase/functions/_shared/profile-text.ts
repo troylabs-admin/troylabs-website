@@ -32,7 +32,7 @@ export function profileChunks(r: ProfileFacts): string[] {
   const list = (kind: string, label: string) => { const xs = (r.items ?? []).filter((i) => i.kind === kind); if (xs.length) out.push(`${label}: ${xs.slice(0, 15).map((i) => [i.title, i.issuer && `(${i.issuer})`].filter(Boolean).join(' ')).join('; ')}.`); };
   list('honor', 'Honors and awards'); list('publication', 'Publications'); list('certification', 'Certifications'); list('organization', 'Organizations');
   if (r.linkedin_skills?.length) out.push(`Skills: ${r.linkedin_skills.slice(0, 30).join(', ')}.`);
-  const schools = (r.items ?? []).filter((i) => i.kind === 'education' && !i.is_usc);
+  const schools = (r.items ?? []).filter((i) => i.kind === 'education' && !i.is_usc && !/\b(high school|secondary school|preparatory|prep school|middle school)\b/i.test(`${i.title} ${i.detail ?? ''}`));   // grad school, not high school
   if (schools.length) out.push(`Other schools: ${schools.map((i) => [i.title, i.detail].filter(Boolean).join(', ')).join('; ')}.`);
   return out.map((t) => t.slice(0, 2000));
 }

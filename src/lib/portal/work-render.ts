@@ -75,6 +75,8 @@ export function timelineHtml(work: WorkRow[]): string {
   }).join('')}</ol>${showAll(groups.length > SHOW_GROUPS ? 1 : 0, work.length, work.length === 1 ? 'experience' : 'experiences')}</div>`;
 }
 
+/** "Other schools" is for after USC (grad school): high schools are left out (Stasia's LinkedIn lists Saratoga High School) */
+const isHighSchool = (i: ItemRow) => /\b(high school|secondary school|preparatory|prep school|middle school)\b/i.test(`${i.title} ${i.detail ?? ''}`);
 const SECTIONS: { kind: ItemRow['kind']; title: string }[] = [
   { kind: 'honor', title: 'Honors & awards' }, { kind: 'publication', title: 'Publications' }, { kind: 'certification', title: 'Certifications' },
   { kind: 'organization', title: 'Organizations' }, { kind: 'education', title: 'Other schools' },
@@ -96,7 +98,7 @@ export function historyHtml(h: History, opts: { synced?: boolean; part?: 'work' 
     out.push(`<div class="wh-head"><h2 class="t-sub portal-section-h">Experience</h2>${note}</div>${timelineHtml(h.work)}`);
   }
   if (opts.part !== 'work') for (const s of SECTIONS) {
-    const xs = h.items.filter((i) => i.kind === s.kind && !(i.kind === 'education' && i.is_usc));
+    const xs = h.items.filter((i) => i.kind === s.kind && !(i.kind === 'education' && (i.is_usc || isHighSchool(i))));
     if (xs.length) out.push(`<h2 class="t-sub portal-section-h">${s.title}</h2><div class="wh-collapse"><ul class="wh-items">${xs.map((x, i) => itemHtml(x, i >= SHOW_ITEMS)).join('')}</ul>${showAll(xs.length - SHOW_ITEMS, xs.length, s.title.replace('&', 'and'))}</div>`);
   }
   return out.join('');

@@ -27,7 +27,7 @@ export async function getCompany(id: string): Promise<{ company: Company; people
   const name = (company.name as string).replace(/[%_\\]/g, (c) => `\\${c}`);   // ilike pattern: the name literally
   const [jobs, typed] = await Promise.all([
     sb.from('work_experiences').select('title, employment_type, start_year, start_month, end_year, end_month, sort, profile:profiles!inner(id, full_name, status, avatar_path, updated_at, approved)').eq('company_linkedin_id', id).order('sort'),
-    sb.from('profiles').select('id, full_name, status, avatar_path, updated_at, approved, current_title').eq('approved', true).ilike('current_company', name),
+    sb.from('profiles').select('id, full_name, status, avatar_path, updated_at, approved, current_title, current_job_source, current_job_edited_at, linkedin_synced_at').eq('approved', true).ilike('current_company', name),
   ]);
   const by = new Map<string, CompanyPerson>();
   for (const j of (jobs.data ?? []) as unknown as (CompanyRole & { profile: ProfileBit })[]) {
@@ -36,8 +36,10 @@ export async function getCompany(id: string): Promise<{ company: Company; people
     p.roles.push({ title: j.title, employment_type: j.employment_type, start_year: j.start_year, start_month: j.start_month, end_year: j.end_year, end_month: j.end_month });
     p.now ||= !j.end_year; by.set(p.id, p);
   }
-  for (const t of (typed.data ?? []) as (ProfileBit & { current_title: string | null })[]) {
-    if (by.has(t.id)) continue;   // their LinkedIn lists this company: its dates decide now vs before (a typed company goes stale)
+  for (const t of (typed.data ?? []) as (ProfileBit & { current_title: string | null; current_job_source: string | null; current_job_edited_at: string | null; linkedin_synced_at: string | null })[]) {
+    // the latest update wins: an edit made after the last sync says they're here now; otherwise LinkedIn's dates decide
+    const newer = t.current_job_source !== 'linkedin' && Boolean(t.current_job_edited_at) && Date.parse(t.current_job_edited_at!) > (t.linkedin_synced_at ? Date.parse(t.linkedin_synced_at) : -Infinity);
+    if (by.has(t.id)) { if (newer) by.get(t.id)!.now = true; continue; }
     by.set(t.id, { ...person(t), roles: t.current_title ? [{ title: t.current_title, employment_type: null, start_year: null, start_month: null, end_year: null, end_month: null }] : [], now: true });
   }
   const newest = (p: CompanyPerson) => Math.max(0, ...p.roles.map((r) => (r.end_year ?? 9999) * 12 + (r.end_month ?? 12)));

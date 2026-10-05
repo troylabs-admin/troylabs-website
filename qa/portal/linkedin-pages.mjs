@@ -20,7 +20,7 @@ const syncAs = async (u, link, scrape) => { await call({ mode: 'request', profil
 try {
   const L1 = handle(), L2 = handle();
   const mem = await make('History Member QA', true, L1); await syncAs(mem, L1, bryan);
-  const stanford = { ...bryan, education: [...bryan.education, { schoolName: 'Stanford University', degree: 'MBA', schoolId: '1792' }], honorsAndAwards: [{ title: '<img src=x onerror=alert(1)>Hacked', issuedBy: '<b>bold</b>', issuedAt: 'Jan 2025' }] };
+  const stanford = { ...bryan, education: [...bryan.education, { schoolName: 'Stanford University', degree: 'MBA', schoolId: '1792' }, { schoolName: 'Saratoga High School', startDate: { year: 2019 }, endDate: { year: 2023 } }], honorsAndAwards: [{ title: '<img src=x onerror=alert(1)>Hacked', issuedBy: '<b>bold</b>', issuedAt: 'Jan 2025' }] };
   const alum = await make('History Alum QA', true, L2); await syncAs(alum, L2, stanford);
   const viewer = await make('History Viewer QA', true);
   browser = await chromium.launch(); const errors = []; const dialogs = [];
@@ -63,7 +63,7 @@ try {
   console.log('PASS: member page — 12 timeline groups / 13 roles (no TroyLabs; LavaLab unlinked as a club), USC ISI grouped, NOW, bullets, our logos, 7 honors / 1 publication (opens safely) / 1 certification / 3 organizations, no USC school, LinkedIn About as the bio');
 
   await page.goto(`${base}/alumni-portal/members/?id=${alum.id}`); await page.locator('.wh-rail').waitFor();
-  await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).toContainText('Stanford University'); await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).not.toContainText('Southern California');
+  await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).toContainText('Stanford University'); await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).not.toContainText('Southern California'); await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).not.toContainText('High School');
   const honor = page.locator('h2:has-text("Honors & awards") + .wh-collapse .wh-item').first();
   await expect(honor).toContainText('<img src=x onerror=alert(1)>Hacked'); await expect(honor).toContainText('<b>bold</b>');
   assert.equal(await honor.locator('img, b').count(), 0, 'LinkedIn text is shown as text, never as HTML');
@@ -86,7 +86,7 @@ try {
 
   const pending = await make('History Pending QA', false, handle());
   await expect((await panel(pending)).locator('[data-li-status]')).toHaveText('Your LinkedIn imports when leadership approves you.');
-  const failed = await make('History Failed QA', true, handle()); await admin.from('profiles').update({ linkedin_sync_error: 'LinkedIn didn’t return this profile. Is it public?' }).eq('id', failed.id);
+  const failed = await make('History Failed QA', true, handle()); await admin.from('linkedin_sync_queue').delete().eq('profile_id', failed.id); await admin.from('profiles').update({ linkedin_sync_error: 'LinkedIn didn’t return this profile. Is it public?' }).eq('id', failed.id);   // (adding the link queued it; this one already tried and failed)
   const pf = await panel(failed); await expect(pf.locator('[data-li-status]')).toContainText('The last import didn’t work: LinkedIn didn’t return this profile'); await expect(pf.locator('[data-li-sync]')).toBeEnabled();
 
   const fresh = await make('History Fresh QA', true);
@@ -98,13 +98,14 @@ try {
   await p3.locator('#pf-li').fill(`${L3.replace('https://www.', '').toUpperCase().replace('LINKEDIN.COM/IN/', 'linkedin.com/in/')}/?utm_source=share`); await p3.locator('.portal-save [data-action="save"]').click();
   await expect(p3.locator('.portal-save .portal-feedback')).toContainText('Saved');
   assert.equal((await admin.from('profiles').select('linkedin_url').eq('id', fresh.id).single()).data.linkedin_url, L3, 'any spelling is stored in one form');
-  await expect(p3.locator('[data-li-status]')).toHaveText('Not imported yet.'); await expect(p3.locator('[data-li-sync]')).toBeEnabled();
-  await p3.locator('[data-li-sync]').click();
-  await expect(p3.locator('[data-li-status]')).toHaveText('Importing from LinkedIn… this takes a minute or two.');
+  // adding a link imports it on its own (after a 2-minute pause so quick edits become one import): no SYNC NOW needed
+  await expect(p3.locator('[data-li-status]')).toHaveText('Importing from LinkedIn… this takes a minute or two.'); await expect(p3.locator('[data-li-sync]')).toBeHidden();
+  assert.ok(Date.parse((await admin.from('linkedin_sync_queue').select('next_try_at').eq('profile_id', fresh.id).single()).data.next_try_at) > Date.now() + 60_000);
+  await admin.from('linkedin_sync_queue').update({ next_try_at: new Date().toISOString() }).eq('profile_id', fresh.id);   // skip the pause
   assert.equal((await call({ mode: 'worker', fixture: { [L3]: { ...bryan, originalQuery: { url: L3 } } } })).done, 1);
   await expect(p3.locator('[data-li-status]')).toContainText('Imported from LinkedIn on', { timeout: 20000 });
   assert.equal(await p3.locator('[data-li-preview] .wh-group').count(), 12, 'the history appears without reloading');
-  console.log('PASS: profile panel — imported (sync again tomorrow), waiting for approval, a failed import with SYNC NOW, no link → bad link refused → saved in one form → SYNC NOW → importing → imported');
+  console.log('PASS: profile panel — imported (sync again tomorrow), waiting for approval, a failed import with SYNC NOW, no link → bad link refused → saved in one form → imports on its own → imported');
 
   // ── whose current job ─────────────────────────────────────────────────────────────────────────
   const job = async (u) => (await admin.from('profiles').select('current_title, current_company, current_job_source').eq('id', u.id).single()).data;

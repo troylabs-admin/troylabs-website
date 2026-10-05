@@ -123,9 +123,14 @@ try {
   const nvJob = { position: 'Software Engineering Intern', companyName: 'NVIDIA', companyId: NV, startDate: { month: 'May', year: 2026 }, endDate: { month: 'Aug', year: 2026 } };
   await sync(a, LA, { ...bryan, experience: [nvJob] });
   assert.deepEqual((await section()).before, ['Ada Company QA', 'Ben Company QA'], 'a job that ended moves to "Worked here before"');
+  // the latest update wins: she edits her profile AFTER the sync to say she's at NVIDIA → there now, everywhere
   await admin.from('profiles').update({ current_title: 'Intern', current_company: 'NVIDIA', current_job_source: 'manual' }).eq('id', a.id);
-  { const s1 = await section(); assert.deepEqual([s1.now, s1.before], [[], ['Ada Company QA', 'Ben Company QA']], 'typed "NVIDIA" + an ended LinkedIn job → one card, and LinkedIn\'s dates decide: before'); }
-  await page.goto(`${base}/alumni-portal/companies`); await expect(page.locator(`a.co-tile[href$="id=${NV}"]`)).toContainText(`${2 + R} members${R ? ` · ${R} there now` : ''}`);   // the list agrees
+  { const s1 = await section(); assert.deepEqual([s1.now, s1.before], [['Ada Company QA'], ['Ben Company QA']], 'edited after the sync → her edit wins: there now (one card)'); }
+  await page.goto(`${base}/alumni-portal/companies`); await expect(page.locator(`a.co-tile[href$="id=${NV}"]`)).toContainText(`${2 + R} members · ${1 + R} there now`);   // the list agrees
+  // …then a LinkedIn sync lands after that edit → LinkedIn's dates win again: before
+  await sync(a, LA, { ...bryan, experience: [nvJob] });
+  { const s2 = await section(); assert.deepEqual([s2.now, s2.before], [[], ['Ada Company QA', 'Ben Company QA']], 'synced after the edit → LinkedIn\'s dates win: before'); }
+  await page.goto(`${base}/alumni-portal/companies`); await expect(page.locator(`a.co-tile[href$="id=${NV}"]`)).toContainText(`${2 + R} members${R ? ` · ${R} there now` : ''}`);
   await admin.from('profiles').update({ current_title: null, current_company: null, current_job_source: null }).eq('id', a.id);
   assert.deepEqual((await section()).before, ['Ada Company QA', 'Ben Company QA'], 'typed company cleared → back to before');
   await sync(b, LB, { ...bScrape, experience: bScrape.experience.filter((e) => e.companyId === NV).map((e) => ({ ...e, companyName: 'NVIDIA Corporation' })) });
@@ -142,7 +147,7 @@ try {
   await a.cleanup(); users.splice(users.indexOf(a), 1);
   await page.goto(`${base}/alumni-portal/companies/?id=${NV}`);
   await expect(page.locator('[data-co-meta]')).toHaveText('No approved members list this company yet.');   // Ada deleted; Ben unlinked; Cy at LavaLab (and real "NVIDIA" typists no longer match "NVIDIA Corporation")
-  console.log('PASS: edge cases — ended job → before; typed + LinkedIn → one card; typed cleared; renamed on LinkedIn; a typed club; declined leaves, restored returns; LinkedIn link removed; account deleted');
+  console.log('PASS: edge cases — ended job → before; the latest update wins (an edit after the sync → there now; a sync after the edit → before); typed cleared; renamed on LinkedIn; a typed club; declined leaves, restored returns; LinkedIn link removed; account deleted');
 
   // ── phone, gate, errors ───────────────────────────────────────────────────────────────────────
   await page.setViewportSize({ width: 390, height: 844 });

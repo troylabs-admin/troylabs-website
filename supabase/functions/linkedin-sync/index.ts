@@ -78,7 +78,8 @@ async function worker(svc: SupabaseClient, fixture: Record<string, ScrapedProfil
   const spent = (used ?? []).reduce((n, r) => n + (r.profiles as number), 0);
   if (spent >= MONTHLY_CAP) return { capped: true, spent };
 
-  const { data: claimed, error } = await svc.rpc('claim_linkedin_batch', { n: Math.min(BATCH, MONTHLY_CAP - spent) }); if (error) throw error;
+  // test runs (fixtures) take only temporary test accounts; the schedule and admins never do
+  const { data: claimed, error } = await svc.rpc('claim_linkedin_batch', { n: Math.min(BATCH, MONTHLY_CAP - spent), tests: fixture !== null }); if (error) throw error;
   const jobs = (claimed ?? []) as { profile_id: string; linkedin_url: string | null; attempts: number }[];
   if (!jobs.length) return { done: 0 };
 

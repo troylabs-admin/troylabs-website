@@ -15,7 +15,7 @@ const num = async (loc) => Number((await loc.innerText()).replace(/[^\d]/g, ''))
 
 try {
   const boss = await makeUser(admin, 'Pages Admin QA'); users.push(boss); await admin.from('admins').insert({ user_id: boss.id });
-  const waiting = await makeUser(admin, 'Pages Waiting QA', false); users.push(waiting); await admin.from('profiles').update({ submitted_at: new Date().toISOString() }).eq('id', waiting.id);
+  const waiting = await makeUser(admin, 'Pages Waiting QA', false); users.push(waiting); await admin.from('profiles').update({ submitted_at: new Date().toISOString(), linkedin_url: 'https://www.linkedin.com/in/tl-qa-waiting', phone: '+12135550177' }).eq('id', waiting.id);   // LinkedIn and phone are required to apply (2026-10-05)
   const declined = await makeUser(admin, 'Pages Declined QA', false); users.push(declined); await admin.from('profiles').update({ submitted_at: new Date().toISOString(), declined_at: new Date().toISOString() }).eq('id', declined.id);
   browser = await chromium.launch(); const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });

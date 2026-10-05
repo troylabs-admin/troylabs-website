@@ -34,7 +34,7 @@ try {
   const isi = page.locator('.wh-group', { hasText: 'USC Information Sciences Institute' });
   await expect(isi.locator('.wh-title').first()).toContainText(/USC Information Sciences Institute · \d+ yrs? ?\d* ?mos?/); assert.equal(await isi.locator('.wh-role.is-sub').count(), 2);
   await expect(isi.locator('.wh-bullets li').first()).toContainText('First open research platform');
-  await page.waitForFunction(() => [...document.querySelectorAll('.wh-logo img')].filter((i) => i.complete && i.naturalWidth > 0).length >= 10, null, { timeout: 15000 });
+  await page.waitForFunction(() => { const shown = [...document.querySelectorAll('.wh-logo img')].filter((i) => i.offsetParent !== null); return shown.length >= 5 && shown.every((i) => i.complete && i.naturalWidth > 0); }, null, { timeout: 15000 });   // the five companies shown (the rest wait behind SHOW ALL) have their logos
   assert.ok(await page.locator('.wh-logo img').first().evaluate((i) => i.src.includes('/storage/v1/object/public/company-logos/')), 'logos come from our storage');
   for (const [h, n] of [['Honors & awards', 7], ['Publications', 1], ['Certifications', 1], ['Organizations', 3]]) assert.equal(await page.locator(`h2:has-text("${h}") + .wh-collapse .wh-item`).count(), n, h);
   const pub = page.locator('h2:has-text("Publications") + .wh-collapse a'); await expect(pub).toHaveAttribute('href', 'https://arxiv.org/abs/2505.02250'); await expect(pub).toHaveAttribute('target', '_blank'); await expect(pub).toHaveAttribute('rel', /noopener/);

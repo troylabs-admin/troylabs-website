@@ -747,4 +747,39 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .wh-logo.is-large { width: 64px; height: 64px; border-radius: 14px; }
   .wh-logo.is-large b { font-size: 20px; }
   .co-li { margin-top: 14px; }
+/* ── Admin pages clean-up (2026-10-05, Bryan on Overview: "make sure everything works properly and looks nice") ─────── */
+/* Needs your attention: the sentence and its link never touch ("approval.REVIEW →"), the link never breaks its arrow off
+   (TECH STACK / →); on a phone the link sits under the sentence instead of squeezing it into a column. */
+.portal-attention .portal-row-list li { gap: calc(18 * var(--u)); }
+.portal-attention .portal-row-list li > span { min-width: 0; }
+.portal-attention-go { flex: none; white-space: nowrap; }
+/* stat tiles in a row share their label / number / hint rows (CSS subgrid), so a label that wraps to two lines moves
+   every number in that row down together instead of leaving one number lower than its neighbours */
+.portal-tiles { grid-auto-rows: auto; }
+.portal-tiles > .portal-tile { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: calc(6 * var(--u)); align-content: start; }
+/* a link inside a sentence reads as part of it: same type, underlined, no label tracking */
+.portal-inline-link { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: rgb(255 255 255 / 0.35); }
+.portal-inline-link:hover { color: var(--color-orange); text-decoration-color: currentColor; }
+/* Members › DECLINED: the count sits beside its label (it floated mid-row: summary is space-between) as a quiet pill */
+.portal-declined > summary > span { display: inline-flex; align-items: center; gap: calc(8 * var(--u)); }
+.portal-declined-n.portal-role { margin-left: 0; color: var(--color-muted); box-shadow: inset 0 0 0 calc(0.4 * var(--u)) rgb(255 255 255 / 0.35); letter-spacing: calc(0.6 * var(--u)); }
+/* a declined row: who on the left (wraps inside itself), the two actions on the right on one line each */
+.portal-declined #declined-list li { gap: calc(18 * var(--u)); }
+.portal-declined-who { min-width: 0; overflow-wrap: anywhere; }
+.portal-declined-actions { flex: none; gap: calc(16 * var(--u)); white-space: nowrap; }
+/* the members table: ADMIN keeps its space through the literal space before it, not a margin, so when a long name
+   pushes it to the next line it starts flush under the name instead of indented */
+[data-members] td.m-name .portal-role { margin-left: 0; }
+@media (max-width: 767px) {
+  .portal-attention .portal-row-list li { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .portal-tiles > .portal-tile { row-gap: 4px; }
+  .portal-declined > summary > span { gap: 8px; }
+  .portal-declined-n.portal-role { letter-spacing: 0.6px; }
+  .portal-declined #declined-list li { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .portal-declined-actions { gap: 22px; }
+  /* waiting list bar: Select all + the count on one line, APPROVE / DECLINE SELECTED side by side under it */
+  .portal-q-bar > label { flex: 1 1 55%; }
+  /* message rows: the title takes its own line under the tags (it was squeezed to a word per line beside them) */
+  [data-msg-list] > li > .flex:first-child > .text-ink { flex: 1 1 100% !important; order: 1; }   /* !important: the row sets flex:1 inline */
+  [data-msg-list] > li > .flex:first-child > .t-fine.text-muted { order: 2; }
 }

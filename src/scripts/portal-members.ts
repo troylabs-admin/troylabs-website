@@ -40,7 +40,7 @@ function queue() {
 function renderRequests() {
   const list = document.getElementById('requests-list')!; const all = ready(); const matching = queue(); const shown = matching.slice(0, q.shown);
   for (const id of [...q.picked]) if (!all.some((r) => r.id === id)) q.picked.delete(id);   // decided elsewhere, or gone
-  document.getElementById('requests-n')!.textContent = String(all.length);
+  document.getElementById('requests-n')!.textContent = all.length.toLocaleString();
   (document.querySelector('[data-q-tools]') as HTMLElement).hidden = all.length < 2;
   (document.querySelector('[data-q-bar]') as HTMLElement).hidden = !all.length;
   list.innerHTML = shown.length ? shown.map((r) => {
@@ -79,8 +79,8 @@ function renderRequests() {
   const declined = rows.filter((r) => !r.approved && r.declined_at).sort((x, y) => (y.declined_at ?? '').localeCompare(x.declined_at ?? ''));
   const fold = document.getElementById('declined-fold') as HTMLDetailsElement | null;
   if (fold) {
-    fold.hidden = !declined.length; document.getElementById('declined-n')!.textContent = String(declined.length);
-    document.getElementById('declined-list')!.innerHTML = declined.map((r) => `<li data-id="${r.id}"><span><span class="text-ink">${esc(r.full_name || 'No name yet')}</span> <span class="text-muted">· ${esc(r.personal_email || r.usc_email || '')} · declined ${date2(r.declined_at!)}</span></span><span class="portal-inline" style="gap:calc(14 * var(--u))"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-restore="${r.id}">BACK TO WAITING LIST</button></span></li>`).join('');
+    fold.hidden = !declined.length; document.getElementById('declined-n')!.textContent = declined.length.toLocaleString();
+    document.getElementById('declined-list')!.innerHTML = declined.map((r) => `<li data-id="${r.id}"><span class="portal-declined-who"><span class="text-ink">${esc(r.full_name || 'No name yet')}</span> <span class="text-muted">· ${esc(r.personal_email || r.usc_email || '')} · declined ${date2(r.declined_at!)}</span></span><span class="portal-inline portal-declined-actions"><button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button><button type="button" class="t-label portal-linklike" data-restore="${r.id}">BACK TO WAITING LIST</button></span></li>`).join('');
   }
   // the nav badges count the people who can be decided now
   document.querySelectorAll<HTMLElement>('a[href="/alumni-portal/admin"] .portal-count, a[href="/alumni-portal/admin/users"] .portal-count').forEach((b) => { if (all.length) b.textContent = String(all.length); else b.remove(); });
@@ -97,7 +97,7 @@ function syncPicks(shown = queue().slice(0, q.shown), matching = queue()) {
   for (const sel of ['[data-q-approve]', '[data-q-decline]']) { const b = document.querySelector<HTMLButtonElement>(sel)!; b.disabled = !n; b.textContent = `${sel.includes('approve') ? 'APPROVE' : 'DECLINE'} ${n ? `${n} ` : ''}SELECTED`; }
 }
 const qfb = (html: string, ok = true) => { const el = document.getElementById('q-fb'); if (el) { el.innerHTML = html; el.style.color = ok ? '' : 'var(--color-orange)'; } };
-const people = (n: number) => `${n} ${n === 1 ? 'person' : 'people'}`;
+const people = (n: number) => `${n.toLocaleString()} ${n === 1 ? 'person' : 'people'}`;
 /** tell the people just approved that they're in (send-message, mode 'approved'); the approval itself never depends on it */
 async function emailApproved(ids: string[]): Promise<{ sent: number; error: string | null }> {
   const { data: { session } } = await supabase().auth.getSession();

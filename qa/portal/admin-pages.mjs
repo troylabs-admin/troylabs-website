@@ -1,4 +1,5 @@
-// The admin pages rebuilt on 2026-10-02, button by button: Overview (needs-your-attention, numbers, copy the sign-up
+// The admin pages rebuilt on 2026-10-02, button by button (clean-up 2026-10-05: no text alarms, the attention box hides
+// when there's nothing to do, numbers line up and carry thousands separators, the DECLINED fold): Overview (needs-your-attention, numbers, copy the sign-up
 // link, every common job), Analytics (PostHog connected + refreshed time, 7 / 30 / 90 days, refresh), Message (the
 // example messages while there are none, their buttons and tabs), the member page's way back, and the profile's
 // "were you on e-board?" picker for people waiting. Temporary accounts only; all removed.
@@ -15,6 +16,7 @@ const num = async (loc) => Number((await loc.innerText()).replace(/[^\d]/g, ''))
 try {
   const boss = await makeUser(admin, 'Pages Admin QA'); users.push(boss); await admin.from('admins').insert({ user_id: boss.id });
   const waiting = await makeUser(admin, 'Pages Waiting QA', false); users.push(waiting); await admin.from('profiles').update({ submitted_at: new Date().toISOString() }).eq('id', waiting.id);
+  const declined = await makeUser(admin, 'Pages Declined QA', false); users.push(declined); await admin.from('profiles').update({ submitted_at: new Date().toISOString(), declined_at: new Date().toISOString() }).eq('id', declined.id);
   browser = await chromium.launch(); const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
   await ctx.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: 'sb-ackmhqxyxnceoarbhcrp-auth-token', session: boss.session });
@@ -22,20 +24,78 @@ try {
 
   // ── Overview ───────────────────────────────────────────────────────────────────────────────────
   await page.goto(`${base}/alumni-portal/admin`);
-  const att = page.locator('[data-attention]');
+  const att = page.locator('[data-attention]'), attBox = page.locator('.portal-attention');
   await expect(att).toContainText(/waiting for approval/); await expect(att.getByRole('link', { name: 'REVIEW →' })).toHaveAttribute('href', '/alumni-portal/admin/users#approvals');
-  await expect(att).not.toContainText('Email isn’t connected'); await expect(att).not.toContainText('test mode'); await expect(att).toContainText('Twilio trial');   // email is live since 2026-10-05; texts still on the trial
-  await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d+$/); await expect(page.locator('[data-stat="site:$pageview"]')).toHaveText(/^[\d,]+$/, { timeout: 15000 });
+  await expect(att).not.toContainText('Email isn’t connected'); await expect(att).not.toContainText('test mode');   // email is live since 2026-10-05
+  await expect(att).not.toContainText(/Twilio|Texts?\b/i);   // texting is deferred (Bryan, 2026-10-05): never an alarm here
+  await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d[\d,]*$/); await expect(page.locator('[data-stat="site:$pageview"]')).toHaveText(/^\d{1,3}(,\d{3})*$/, { timeout: 15000 });   // 1,248 like the lists, never 1248
   assert.ok(await num(page.locator('[data-stat="site:$pageview"]')) > 0, 'website visits come from PostHog');
   await expect(page.locator('[data-upcoming]')).toContainText(/Nothing scheduled|·/); await expect(page.locator('[data-recent]')).not.toContainText('—');
+  // layout the audit flagged: every tile's number on one line across the row; the link beside its sentence with a gap, on one line
+  const layout = async () => page.evaluate(() => {
+    const r = (el) => el.getBoundingClientRect();
+    const tops = [...document.querySelectorAll('.portal-tiles .t-stat')].map((n) => Math.round(r(n).top));
+    const links = [...document.querySelectorAll('.portal-attention-go')].map((a) => { const t = r(a.previousElementSibling), l = r(a); return { lines: Math.round(l.height / parseFloat(getComputedStyle(a).lineHeight)), gapX: Math.round(l.left - t.right), gapY: Math.round(l.top - t.bottom) }; });
+    return { tops, links };
+  });
+  let lay = await layout();
+  assert.equal(new Set(lay.tops).size, 1, `the four tile numbers line up at 1440: ${lay.tops}`);
+  assert.ok(lay.links.length && lay.links.every((l) => l.lines === 1 && l.gapX >= 12), `attention links sit on one line, clear of their sentence at 1440: ${JSON.stringify(lay.links)}`);
+  await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(300); lay = await layout();
+  assert.deepEqual([lay.tops[0] === lay.tops[1], lay.tops[2] === lay.tops[3]], [true, true], `tile numbers line up per row at 390: ${lay.tops}`);
+  assert.ok(lay.links.every((l) => l.lines === 1 && l.gapY >= 4), `on a phone the link sits under its sentence: ${JSON.stringify(lay.links)}`);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // the delivery check can say anything about texts (trial, no keys, an error): the box never mentions them
+  const fakeStatus = (text) => async (route) => {
+    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' } });
+    if (route.request().postDataJSON()?.mode !== 'status') return route.continue();
+    return route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, json: { email: { configured: true, testMode: false, testTo: null, from: 'TroyLabs <hello@usctroylabs.com>' }, text } });
+  };
+  const trial = { configured: true, from: '+18005550100', trial: true, error: null, testTo: null };
+  for (const text of [trial, { configured: false, from: null, trial: false, error: null, testTo: null }, { configured: true, from: '+18005550100', trial: false, error: 'Twilio said no', testTo: null }]) {
+    await page.route('**/functions/v1/send-message', fakeStatus(text)); await page.goto(`${base}/alumni-portal/admin`);
+    await expect(att).toContainText(/waiting for approval/); await page.waitForTimeout(1500);
+    await expect(att).not.toContainText(/Twilio|Texts?\b/i); await expect(att.locator('li')).toHaveCount(1);
+    await page.unroute('**/functions/v1/send-message');
+  }
+  // nothing to review (nobody waiting, email live, texts on a trial): no box at all, no filler
+  await page.route('**/functions/v1/send-message', fakeStatus(trial));
+  await page.route('**/rest/v1/profiles?*', async (route) => { const res = await route.fetch(); const rows = await res.json().catch(() => null); return Array.isArray(rows) ? route.fulfill({ response: res, json: rows.filter((p) => p.approved) }) : route.fulfill({ response: res }); });
+  await page.goto(`${base}/alumni-portal/admin`); await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d[\d,]*$/); await page.waitForTimeout(2500);
+  await expect(attBox).toBeHidden(); await expect(page.getByRole('heading', { name: 'Needs your attention' })).toBeHidden(); await expect(page.getByText(/All caught up|Checking…/)).toHaveCount(0);
+  await page.unroute('**/rest/v1/profiles?*'); await page.unroute('**/functions/v1/send-message');
+  await page.goto(`${base}/alumni-portal/admin`); await expect(attBox).toBeVisible(); await expect(att).toContainText(/waiting for approval/);   // and it comes back when someone is waiting
   await page.locator('[data-copy-link]').click(); await expect(page.locator('[data-copy-link]')).toHaveText('COPIED');
   assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'https://usctroylabs.com/alumni-portal', 'COPY puts the sign-up link on the clipboard');
   for (const [name, url] of [['WRITE A MESSAGE', /admin\/messages/], ['REVIEW SIGN-UPS', /admin\/users\/?#approvals/], ['FIND OR EXPORT MEMBERS', /admin\/users\/?#members/], ['SEE ANALYTICS', /admin\/analytics/]]) {
     await page.goto(`${base}/alumni-portal/admin`); await page.getByRole('link', { name, exact: true }).click(); await expect(page).toHaveURL(url);
   }
-  await page.goto(`${base}/alumni-portal/admin`); await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d+$/);
+  await page.goto(`${base}/alumni-portal/admin`); await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d[\d,]*$/);
   await page.locator('main, body').first().screenshot({ path: `${out}/overview-1440.png`, fullPage: true });
-  console.log('PASS: Overview — attention (waiting → REVIEW, email live so no warning, texts on trial), numbers incl. PostHog visits, COPY, every common job lands on the right page');
+  console.log('PASS: Overview — attention (waiting → REVIEW; never a Twilio/text warning, whatever the text status; hidden when nothing needs review), numbers with thousands separators and lined up at 1440 and 390, COPY, every common job lands on the right page');
+
+  // ── Message: the delivery line mentions texts only when TEXT or BOTH is picked ──────────────────
+  await page.route('**/functions/v1/send-message', fakeStatus(trial));
+  await page.goto(`${base}/alumni-portal/admin/messages`); const line = page.locator('#msg-delivery');
+  await expect(line).toContainText('Email is connected'); await expect(line).not.toContainText(/Twilio|Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
+  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="text"]').click(); await expect(line).toContainText('Texts aren’t switched on yet'); await expect(line).toHaveClass(/is-warn/); await expect(line).not.toContainText('Twilio');
+  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').click(); await expect(line).toContainText('Texts aren’t switched on yet');
+  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"]').click(); await expect(line).not.toContainText(/Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
+  await page.unroute('**/functions/v1/send-message');
+  console.log('PASS: Message — no text alarm while EMAIL is picked; TEXT or BOTH says plainly that texts can’t go out yet (no Twilio jargon)');
+
+  // ── Members: the DECLINED fold ───────────────────────────────────────────────────────────────
+  await page.goto(`${base}/alumni-portal/admin/users`); await expect(page.locator('#declined-fold')).toBeVisible();
+  for (const [w, h] of [[1440, 1000], [390, 844]]) {
+    await page.setViewportSize({ width: w, height: h }); await page.locator('#declined-fold').evaluate((d) => { d.open = true; });
+    await expect(page.locator(`#declined-list li[data-id="${declined.id}"]`)).toBeVisible();
+    const m = await page.evaluate((id) => { const r = (el) => el.getBoundingClientRect(); const n = document.querySelector('#declined-n'), label = n.closest('summary'); const back = document.querySelector(`[data-restore="${id}"]`);
+      return { countFromLabel: Math.round(r(n).left - r(label).left), labelWidth: Math.round(r(label).width), backLines: Math.round(r(back).height / parseFloat(getComputedStyle(back).lineHeight)), spill: r(back).right > r(back.closest('li')).right + 1 }; }, declined.id);
+    assert.ok(m.countFromLabel < 160 && m.countFromLabel < m.labelWidth / 2, `the declined count sits beside its label at ${w}: ${JSON.stringify(m)}`);
+    assert.deepEqual([m.backLines, m.spill], [1, false], `BACK TO WAITING LIST stays on one line inside its row at ${w}: ${JSON.stringify(m)}`);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  console.log('PASS: Members — the DECLINED count sits by its label; BACK TO WAITING LIST on one line, at 1440 and 390');
 
   // ── Analytics ──────────────────────────────────────────────────────────────────────────────────
   let asks = 0; const count = (r) => { if (r.url().includes('posthog-stats')) asks++; }; page.on('request', count);

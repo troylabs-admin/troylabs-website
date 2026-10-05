@@ -32,17 +32,19 @@ async function fn(mode: string, messageId?: number): Promise<{ ok: boolean; stat
     return { ok: r.ok, status: r.status, body: await r.json().catch(() => ({})) };
   } catch { return { ok: false, status: 0, body: { error: 'Couldn’t reach the sending service. Check your connection.' } }; }
 }
+/* The delivery line under the title. Email always; texts only when they matter: they're deferred (2026-10-05, Bryan:
+   "remove … Twilio trial"), so a trial or missing keys stay out of the way until someone picks TEXT or BOTH, and only
+   then does the line say (in orange) that texts can't go out yet. Connected texts are always mentioned. */
 function showDelivery() {
   const el = $('#msg-delivery'); if (!el || !delivery) return; const { email: e, text: t } = delivery;
-  el.classList.toggle('is-warn', !e.configured || e.testMode || !t.configured || t.trial);
+  const textsReady = t.configured && !t.trial && !t.error, wantsText = sendByNow() !== 'email';
+  el.classList.toggle('is-warn', !e.configured || e.testMode || (wantsText && !textsReady));
   const mail = !e.configured ? 'Email isn’t connected yet: the Resend key hasn’t been added.'
     : e.testMode ? `Email is in test mode: until usctroylabs.com is verified in Resend, it can only go to you (${e.testTo}).`
     : `Email is connected: from ${e.from ?? 'TroyLabs'}, replies go to troylabs@usc.edu.`;
-  const text = t.error ? `Texts aren’t working: ${t.error}.`
-    : !t.configured ? 'Texts aren’t connected yet: the Twilio keys haven’t been added.'
-    : t.trial ? 'Texts are on a Twilio trial: Twilio only sends its own sample templates, so these messages can’t go out until the Twilio account is upgraded.'
-    : `Texts are connected: from ${prettyPhone(t.from)}. Group texts go out 8 AM–9 PM Pacific.`;
-  el.textContent = `${mail} ${text} Drafts and scheduling always save.`;
+  const text = textsReady ? ` Texts are connected: from ${prettyPhone(t.from)}. Group texts go out 8 AM–9 PM Pacific.`
+    : wantsText ? ' Texts aren’t switched on yet, so they can’t go out: pick EMAIL to reach people now.' : '';
+  el.textContent = `${mail}${text} Drafts and scheduling always save.`;
 }
 
 /** what the grid and the narrowing chips say right now */
@@ -62,10 +64,11 @@ function reach(aud: Audience, sendBy: string) {
   const who = base.filter((p) => emails.includes(p) || texts.includes(p));
   return { emails, texts, who };
 }
-const howMany = (n: number, what = 'person') => `${n} ${n === 1 ? what : what === 'person' ? 'people' : `${what}s`}`;
+const howMany = (n: number, what = 'person') => `${n.toLocaleString()} ${n === 1 ? what : what === 'person' ? 'people' : `${what}s`}`;
 const reachText = (a: { sendBy: string; emails: unknown[]; texts: unknown[] }) => a.sendBy === 'email' ? `by email to ${howMany(a.emails.length)}` : a.sendBy === 'text' ? `by text to ${howMany(a.texts.length)}` : `by email to ${howMany(a.emails.length)} and by text to ${howMany(a.texts.length)}`;
 /** the live text counter under the body: what the text will look like in length and cost */
 function smsCount() {
+  showDelivery();   // the delivery line mentions texts only while TEXT or BOTH is picked
   const out = $('#mc-sms'); if (!out) return;
   const sendBy = $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
   const body = ($('#mc-body') as HTMLTextAreaElement).value;
@@ -88,7 +91,7 @@ function renderCohorts() {
 function renderGrid() {
   for (const c of document.querySelectorAll<HTMLElement>('[data-aud-grid] .portal-chip')) {
     const n = people.filter((p) => p.approved && inCell(p, { group: c.dataset.group as Group, who: c.dataset.who as Cell['who'] }, eb)).length;
-    const label = c.querySelector<HTMLElement>('[data-n]'); if (label) label.textContent = String(n);
+    const label = c.querySelector<HTMLElement>('[data-n]'); if (label) label.textContent = n.toLocaleString();
   }
   summary();
 }
@@ -105,7 +108,7 @@ function renderMessages() {
     const sentTo = rcpts.filter((r) => r.message_id === m.id); const named = (r: Rcpt) => people.find((p) => p.id === r.profile_id)?.full_name || '(no name)';
     const ok = (c: string) => sentTo.filter((r) => r.channel === c && r.delivered_at && r.status !== 'undelivered' && r.status !== 'failed').length;
     const lost = sentTo.filter((r) => r.error).length;
-    const reached = m.state === 'sent' ? [ok('email') && howMany(ok('email'), 'email'), ok('text') && howMany(ok('text'), 'text')].filter(Boolean).join(' + ') + ` sent${lost ? ` · ${lost} failed` : ''}` : `${who.length} will receive`;
+    const reached = m.state === 'sent' ? [ok('email') && howMany(ok('email'), 'email'), ok('text') && howMany(ok('text'), 'text')].filter(Boolean).join(' + ') + ` sent${lost ? ` · ${lost.toLocaleString()} failed` : ''}` : `${who.length.toLocaleString()} will receive`;
     const when = m.state === 'sent' && m.sent_at ? `Sent ${new Date(m.sent_at).toLocaleString()}` : m.state === 'scheduled' && m.scheduled_for ? `Sends ${new Date(m.scheduled_for).toLocaleString()}` : `Edited ${new Date(m.updated_at).toLocaleDateString()}`;
     return `<li data-state="${m.state}" data-id="${m.id}" style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))"${tab !== 'all' && tab !== m.state ? ' hidden' : ''}>
       <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' || m.state === 'sending' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title || '(untitled)')}</span><span class="t-fine text-muted">${when}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>

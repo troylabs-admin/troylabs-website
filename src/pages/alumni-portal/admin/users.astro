@@ -51,7 +51,7 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
       <ul class="m-0 p-0 list-none portal-requests" id="requests-list"><li class="t-caption text-muted">Loading…</li></ul>
       <div class="portal-inline" style="justify-content:center;margin-top:calc(12 * var(--u))"><button type="button" class="portal-btn is-small is-quiet t-label" data-q-more hidden>SHOW MORE</button></div>
       <details class="portal-fold portal-declined" id="declined-fold" hidden>
-        <summary class="t-label text-muted">DECLINED <span id="declined-n">0</span></summary>
+        <summary class="t-label text-muted"><span>DECLINED <span class="t-fine portal-role portal-declined-n" id="declined-n">0</span></span></summary>
         <ul class="portal-row-list t-caption" id="declined-list"></ul>
       </details>
     </div>

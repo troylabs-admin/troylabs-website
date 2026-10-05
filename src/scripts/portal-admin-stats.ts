@@ -11,10 +11,12 @@ import { tickNumber } from '../lib/portal/tick';
 import { cleanAudience, describeAudience } from '../../supabase/functions/_shared/audience';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
-const set = (key: string, value: string | number) => document.querySelectorAll<HTMLElement>(`[data-stat="${CSS.escape(key)}"]`).forEach((el) => { if (typeof value === 'number' && /^\d+$/.test(el.textContent?.trim() ?? '')) tickNumber(el, parseInt(el.textContent!, 10), value); else if (typeof value === 'number') tickNumber(el, 0, value, 700); else el.textContent = value; });
-const list = (key: string, rows: [string, number][], empty: string) => { const el = $(`[data-list="${key}"]`); if (el) el.innerHTML = rows.length ? rows.slice(0, 10).map(([k, n]) => `<li><span>${escapeHtml(k)}</span><span class="text-ink">${n.toLocaleString()}</span></li>`).join('') : `<li class="text-muted">${empty}</li>`; };
+/** every number on these pages reads the same way: 1,248 in a tile, a list, a hint or a sentence */
+const fmt = (n: number) => n.toLocaleString();
+const set = (key: string, value: string | number) => document.querySelectorAll<HTMLElement>(`[data-stat="${CSS.escape(key)}"]`).forEach((el) => { const shown = (el.textContent ?? '').trim(); if (typeof value === 'number' && /^\d[\d,]*$/.test(shown)) tickNumber(el, parseInt(shown.replace(/,/g, ''), 10), value, 900, fmt); else if (typeof value === 'number') tickNumber(el, 0, value, 700, fmt); else el.textContent = value; });
+const list = (key: string, rows: [string, number][], empty: string) => { const el = $(`[data-list="${key}"]`); if (el) el.innerHTML = rows.length ? rows.slice(0, 10).map(([k, n]) => `<li><span>${escapeHtml(k)}</span><span class="text-ink">${fmt(n)}</span></li>`).join('') : `<li class="text-muted">${empty}</li>`; };
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '');
-const msgLine = (m: MsgLine, sent: boolean) => `<li><span><a class="text-ink no-underline" href="/alumni-portal/admin/messages">${escapeHtml(m.title || '(untitled)')}</a><br><span class="t-fine text-muted">${escapeHtml(describeAudience(cleanAudience(m.audience)))} · ${m.send_by === 'both' ? 'email + text' : escapeHtml(m.send_by ?? 'email')}</span></span><span class="t-fine text-muted" style="text-align:right">${sent ? `${escapeHtml(when(m.when))}<br>${m.sent_count} sent${m.failed_count ? ` · ${m.failed_count} failed` : ''}` : escapeHtml(when(m.when))}</span></li>`;
+const msgLine = (m: MsgLine, sent: boolean) => `<li><span><a class="text-ink no-underline" href="/alumni-portal/admin/messages">${escapeHtml(m.title || '(untitled)')}</a><br><span class="t-fine text-muted">${escapeHtml(describeAudience(cleanAudience(m.audience)))} · ${m.send_by === 'both' ? 'email + text' : escapeHtml(m.send_by ?? 'email')}</span></span><span class="t-fine text-muted" style="text-align:right">${sent ? `${escapeHtml(when(m.when))}<br>${fmt(m.sent_count)} sent${m.failed_count ? ` · ${fmt(m.failed_count)} failed` : ''}` : escapeHtml(when(m.when))}</span></li>`;
 let days = 30, siteSeq = 0;   // siteSeq: only the latest period's answer is drawn (a slow 30-day answer once landed under "last 7 days")
 
 async function delivery(): Promise<{ email: any; text: any } | null> {
@@ -27,9 +29,9 @@ async function fillNetwork() {
   const n = await networkStats().catch(() => null);
   if (!n) { document.querySelectorAll<HTMLElement>('[data-stat]:not([data-stat^="site:"])').forEach((el) => (el.textContent = 'Unavailable')); return null; }
   set('members', n.members); set('students', n.students); set('alumni', n.alumni); set('active30', n.active30); set('pending', n.pending); set('completeness', `${n.completeness}%`); set('sentThisMonth', n.sentThisMonth); set('newThisMonth', n.newThisMonth);
-  const hint = $('[data-stat-hint="members"]'); if (hint) hint.textContent = `${n.students} ${n.students === 1 ? 'student' : 'students'} · ${n.alumni} ${n.alumni === 1 ? 'alum' : 'alumni'}`;
+  const hint = $('[data-stat-hint="members"]'); if (hint) hint.textContent = `${fmt(n.students)} ${n.students === 1 ? 'student' : 'students'} · ${fmt(n.alumni)} ${n.alumni === 1 ? 'alum' : 'alumni'}`;
   list('byCohort', n.byCohort, 'No semesters recorded yet.'); list('byCity', n.byCity, 'No cities yet.');
-  const up = $('[data-upcoming]'); if (up) up.innerHTML = n.upcoming.length ? n.upcoming.map((m) => msgLine(m, false)).join('') : '<li class="text-muted"><span>Nothing scheduled. <a href="/alumni-portal/admin/messages" class="portal-linklike no-underline">Write a message</a> and pick SCHEDULE to send it later.</span></li>';
+  const up = $('[data-upcoming]'); if (up) up.innerHTML = n.upcoming.length ? n.upcoming.map((m) => msgLine(m, false)).join('') : '<li class="text-muted"><span>Nothing scheduled. <a href="/alumni-portal/admin/messages" class="portal-inline-link">Write a message</a> and pick SCHEDULE to send it later.</span></li>';
   const rec = $('[data-recent]'); if (rec) rec.innerHTML = n.recent.length ? n.recent.map((m) => msgLine(m, true)).join('') : '<li class="text-muted">Nothing sent yet.</li>';
   return n;
 }
@@ -51,15 +53,17 @@ async function fillSite() {
   if (status) { status.classList.remove('is-warn'); status.textContent = `Connected to PostHog · refreshed ${new Date().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })} · last ${want} days`; }
 }
 
+/* "Needs your attention" (Bryan, 2026-10-05: "remove this … Twilio trial"): only things an admin can act on now, people
+   waiting and email that can't reach members yet. Texting is deferred, so its state never shows here (the Message page
+   says it when someone picks TEXT). Nothing to do = no box at all: no empty panel, no "all caught up" filler. */
 async function fillAttention(n: Awaited<ReturnType<typeof fillNetwork>>) {
-  const box = $('[data-attention]'); if (!box) return;
+  const box = $('[data-attention]'); if (!box) return; const panel = box.closest<HTMLElement>('.portal-attention') ?? box;
   const d = await delivery(); const items: string[] = [];
-  if (n?.pending) items.push(`<li><span><span class="text-ink">${n.pending} ${n.pending === 1 ? 'person is' : 'people are'} waiting for approval.</span></span><a class="t-label portal-linklike no-underline" style="color:var(--color-orange)" href="/alumni-portal/admin/users#approvals">REVIEW →</a></li>`);
-  if (d && !d.email?.configured) items.push('<li><span>Email isn’t connected yet (no Resend key), so messages can be written and scheduled but not sent.</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
-  else if (d?.email?.testMode) items.push('<li><span>Email is in Resend’s test mode: it only reaches you until usctroylabs.com is verified.</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
-  if (d && (!d.text?.configured || d.text?.error)) items.push('<li><span>Texts aren’t connected yet (no Twilio keys).</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
-  else if (d?.text?.trial) items.push('<li><span>Texts are on a Twilio trial: only Twilio’s sample texts can go out until the account is upgraded and the number verified.</span><a class="t-label portal-linklike no-underline" href="/alumni-portal/admin/handoff">TECH STACK →</a></li>');
-  box.innerHTML = items.join('') || '<li class="text-muted">All caught up: nobody is waiting and messages can go out.</li>';
+  const row = (text: string, link: string, href: string, orange = false) => `<li><span>${text}</span><a class="t-label portal-linklike no-underline portal-attention-go"${orange ? ' style="color:var(--color-orange)"' : ''} href="${href}">${link}</a></li>`;
+  if (n?.pending) items.push(row(`<span class="text-ink">${fmt(n.pending)} ${n.pending === 1 ? 'person is' : 'people are'} waiting for approval.</span>`, 'REVIEW →', '/alumni-portal/admin/users#approvals', true));
+  if (d && !d.email?.configured) items.push(row('Email isn’t connected yet (no Resend key), so messages can be written and scheduled but not sent.', 'TECH STACK →', '/alumni-portal/admin/handoff'));
+  else if (d?.email?.testMode) items.push(row('Email is in Resend’s test mode: it only reaches you until usctroylabs.com is verified.', 'TECH STACK →', '/alumni-portal/admin/handoff'));
+  box.innerHTML = items.join(''); panel.hidden = !items.length;
 }
 
 async function fill() {

@@ -27,6 +27,9 @@ export const avatarUrl = (row: Pick<ProfileRow, 'avatar_path' | 'updated_at'>) =
 export const initialsOf = (name: string) => name.trim().split(/\s+/).map((w) => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?';
 export const cohortOf = (term: string | null, year: number | null) => (term && year ? `${term}${String(year).slice(2)}` : '');
 const SELECT = '*, city:cities(*)';
+/** what a search card needs, nothing else (2026-10-05: `*` also sent each profile's 1,536-number embedding, ~19 KB a person,
+ *  so 1,000 members would have been ~20 MB per visit to search) */
+const CARD_SELECT = 'id, full_name, status, grad_year, join_term, join_year, divisions, current_title, current_company, industries, bio, avatar_path, updated_at, city:cities(name, region, lat, lng)';
 
 /** the shape the search page, the globe and the cards draw */
 export function toPerson(r: ProfileRow): Person & { avatar: string | null } {
@@ -94,10 +97,10 @@ export const cityLabel = (c: CityRow | null | undefined) => c ? `${c.name}${c.re
 // ── the network ───────────────────────────────────────────────────────────────────────────────────
 export async function listPeople(): Promise<(Person & { avatar: string | null })[]> {
   const sb = supabase();
-  const [{ data, error }, { data: roles }] = await Promise.all([sb.from('profiles').select(SELECT).eq('approved', true).order('full_name'), sb.from('eboard_roles').select('profile_id, role, term, year')]);
+  const [{ data, error }, { data: roles }] = await Promise.all([sb.from('profiles').select(CARD_SELECT).eq('approved', true).order('full_name'), sb.from('eboard_roles').select('profile_id, role, term, year')]);
   if (error) throw error;
   const byPerson = new Map<string, RoleTerm[]>(); for (const r of (roles ?? []) as (RoleTerm & { profile_id: string })[]) byPerson.set(r.profile_id, [...(byPerson.get(r.profile_id) ?? []), r]);
-  return ((data ?? []) as ProfileRow[]).map((r) => ({ ...toPerson(r), role: cardRole(byPerson.get(r.id) ?? []) }));   // the card's e-board tag
+  return ((data ?? []) as unknown as ProfileRow[]).map((r) => ({ ...toPerson(r), role: cardRole(byPerson.get(r.id) ?? []) }));   // the card's e-board tag
 }
 export async function getProfile(id: string): Promise<{ row: ProfileRow; roles: RoleRow[] } | null> {
   const sb = supabase();

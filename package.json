@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test:portal": "node --experimental-strip-types qa/portal/audience-unit.mts && node qa/portal/onboarding.mjs && node qa/portal/messaging.mjs && node qa/portal/phone.mjs && node qa/portal/texts.mjs && node qa/portal/messaging-e2e.mjs && node --experimental-strip-types qa/portal/semantic.mjs && node qa/portal/leave-while-loading.mjs && node qa/portal/approvals.mjs && node qa/portal/admin-pages.mjs && node qa/portal/system-audit.mjs && node qa/portal/system-edge-cases.mjs && node qa/portal/globe-interactions.mjs && node qa/portal/globe-audit.mjs"
+    "test:portal": "node --experimental-strip-types qa/portal/audience-unit.mts && node --experimental-strip-types qa/portal/names-unit.mts && node qa/portal/onboarding.mjs && node qa/portal/messaging.mjs && node qa/portal/phone.mjs && node qa/portal/texts.mjs && node qa/portal/messaging-e2e.mjs && node --experimental-strip-types qa/portal/semantic.mjs && node qa/portal/leave-while-loading.mjs && node qa/portal/approvals.mjs && node qa/portal/admin-pages.mjs && node qa/portal/system-audit.mjs && node qa/portal/system-edge-cases.mjs && node qa/portal/globe-interactions.mjs && node qa/portal/globe-audit.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.4",

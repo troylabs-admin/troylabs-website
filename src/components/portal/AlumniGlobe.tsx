@@ -263,7 +263,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     <div className="portal-globe">
     <div className="portal-globe-tools">
       <label className="t-fine text-muted" htmlFor="globe-city">FIND A CITY</label>
-      <select id="globe-city" className="portal-input t-caption" value={selected?.seed ?? ''} onChange={(e) => selectCity(e.target.value)}>
+      <select id="globe-city" className="portal-input portal-select t-caption" value={selected?.seed ?? ''} onChange={(e) => selectCity(e.target.value)}>
         <option value="">All locations</option>
         {[...cities].sort((a,b) => a.name.localeCompare(b.name)).map((c) => <option key={c.key} value={c.key}>{c.name}{c.region ? `, ${c.region}` : ''} · {c.people.length}</option>)}
       </select>

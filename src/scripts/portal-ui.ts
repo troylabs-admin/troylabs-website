@@ -296,7 +296,7 @@ function init() {
     const pct = total ? Math.round((100 * done) / total) : 0;
     bar.style.width = `${pct}%`; label.textContent = `${pct}% · ${done}/${total} FIELDS`;
     bar.parentElement?.setAttribute('aria-valuenow', String(pct));
-    if (note) note.textContent = missing.length ? `Still missing: ${missing.join(', ')}. Startups and phone are optional and don't count; e-board history is set by leadership.` : 'Complete — everything alumni can see about you is filled in.';
+    if (note) note.textContent = missing.length ? `Still missing: ${missing.join(', ')}. Startups and phone are optional and don't count.` : 'Complete — everything alumni can see about you is filled in.';
   }
   root.querySelectorAll('.portal-profile input, .portal-profile textarea').forEach((i) => i.addEventListener('input', recount));
   recount();

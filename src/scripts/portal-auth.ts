@@ -9,6 +9,7 @@
  */
 import { configured } from '../lib/supabase';
 import { GATE, HOME, me, signOut, touchLastSeen, waitingCount } from '../lib/auth';
+import { shortName } from '../lib/portal/names';
 
 const PROFILE = '/alumni-portal/profile';
 const here = () => location.pathname.replace(/\/$/, '');
@@ -40,7 +41,7 @@ async function gate() {
     });
   }
   const name = who.full_name || who.email.split('@')[0];
-  document.querySelectorAll<HTMLElement>('.nav-who').forEach((el) => { el.textContent = name.toUpperCase(); el.dataset.filled = ''; });
+  document.querySelectorAll<HTMLElement>('.nav-who').forEach((el) => { el.textContent = shortName(name).toUpperCase(); el.title = `${name} · your profile`; el.dataset.filled = ''; });
   document.dispatchEvent(new CustomEvent('tl:me', { detail: who }));
   void touchLastSeen(who.id);
 }

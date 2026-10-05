@@ -501,7 +501,8 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 
 /* Network globe: a quiet cartographic Earth; orange is reserved for member locations. */
 .portal-globe-tools { display: flex; gap: calc(12 * var(--u)); align-items: center; justify-content: center; margin-bottom: calc(10 * var(--u)); }
-.portal-globe-tools .portal-input { width: calc(235 * var(--u)); max-width: 70%; }
+.portal-globe-tools .portal-input { width: calc(235 * var(--u)); max-width: 70%; margin-top: 0; }   /* the shared input's top margin pushed the box below its label (2026-10-05) */
+.portal-globe-tools label { letter-spacing: calc(1.4 * var(--u)); }
 .portal-globe-wrap .tl-star-glow { display: none; }
 .portal-globe-wrap .tl-star-point { display: none; }
 .portal-globe-wrap .tl-star[data-count="1"] .tl-star-point { display: block; }
@@ -513,7 +514,7 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 .portal-globe-tools select:focus-visible { outline: 2px solid var(--color-orange); outline-offset: 4px; }
 @media (max-width: 767px) {
   .portal-globe-tools { gap: 12px; margin-bottom: 12px; }
-  .portal-globe-tools .portal-input { width: 220px; }
+  .portal-globe-tools .portal-input { width: 220px; margin-top: 0; }
   .portal-globe-pop { left: 16px !important; right: 16px; top: auto !important; bottom: 12px; transform: none; width: auto; padding: 14px 48px 14px 16px; max-width: none; }
   .portal-globe-pop::after { display: none; }
   .portal-globe-x { width: 36px; height: 36px; }
@@ -606,9 +607,12 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 /* a link styled as a button centres its label like a button does (the Overview's common jobs) */
 a.portal-btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 /* Admin › Members table (audit 2026-10-02: three actions in a row ran past the table at 1440) */
-[data-members] .portal-row-actions { display: flex; flex-direction: column; align-items: flex-end; gap: calc(8 * var(--u)); white-space: nowrap; }
+[data-members] .portal-row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: calc(6 * var(--u)) calc(14 * var(--u)); white-space: nowrap; }
+[data-members] .portal-row-actions .portal-linklike { font-size: calc(8.5 * var(--u)); letter-spacing: calc(1.2 * var(--u)); }   /* .portal-linklike's `font: inherit` was undoing t-fine: the actions stayed full size */
+[data-members] td.m-city { white-space: nowrap; }
+@media (max-width: 767px) { [data-members] .portal-row-actions .portal-linklike { font-size: 12px; letter-spacing: 1.2px; } [data-members] td.m-city { white-space: normal; } }
 [data-members] td.m-name { min-width: calc(110 * var(--u)); }
-[data-members] td.m-email { overflow-wrap: anywhere; min-width: calc(140 * var(--u)); }
+[data-members] .m-email { display: block; margin-top: calc(4 * var(--u)); overflow-wrap: anywhere; letter-spacing: calc(0.4 * var(--u)); }   /* under the name (2026-10-05: its own column squeezed every other one) */
 [data-members] .portal-name-link:hover { text-decoration: underline; }
 @media (max-width: 767px) { [data-members] .portal-row-actions { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 18px; } }
 
@@ -648,3 +652,23 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 
 /* the header name stays hidden until the gate writes the signed-in person in (it used to flash the placeholder SAMPLE ALUM) */
 .nav-who:not([data-filled]) { visibility: hidden; }
+
+/* form consistency (Bryan, 2026-10-05: "the components aren't aligned… different fonts"). The standard form pattern:
+   label on one line → control → help text under it (Material's helper text, GOV.UK's hint). Hints used to sit inside the
+   label in a different case and tracking, which read as a second font and wrapped labels to two lines, so fields side by
+   side started at different heights. Section notes get one style too. */
+.portal-help { margin: calc(8 * var(--u)) 0 0; max-width: calc(560 * var(--u)); }
+.portal-field > .portal-help { margin-top: 0; }
+.portal-section-sub { margin: calc(-6 * var(--u)) 0 calc(14 * var(--u)); max-width: calc(560 * var(--u)); }
+.portal-form-grid { align-items: start; }
+.portal-field-label { letter-spacing: calc(1.4 * var(--u)); }
+.portal-chips-static .portal-chip { cursor: default; pointer-events: none; }   /* e-board record: reads like Divisions, but it's leadership's to change */
+@media (max-width: 767px) {
+  .portal-help { margin-top: 6px; max-width: none; }
+  .portal-field > .portal-help { margin-top: 0; }
+  .portal-section-sub { margin: -4px 0 12px; max-width: none; }
+  .portal-field-label { letter-spacing: 1.4px; }
+}
+/* inside the profile form an empty message line left visible holes (around the email checkbox, above the location note);
+   it takes space only while it says something. The SAVE row keeps its reserved line. */
+.portal-profile .portal-field > .portal-feedback:empty, .portal-profile > .portal-feedback:empty { display: none; }

@@ -18,7 +18,7 @@ try {
   browser = await chromium.launch(); const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
   await ctx.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: 'sb-ackmhqxyxnceoarbhcrp-auth-token', session: boss.session });
-  const page = await ctx.newPage(); page.on('pageerror', (e) => errors.push(e.message)); page.on('dialog', (d) => d.accept());
+  const page = await ctx.newPage(); page.on('pageerror', (e) => errors.push(`${new URL(page.url()).pathname}: ${e.message} ${(e.stack ?? '').split('\n')[1]?.trim() ?? ''}`)); page.on('dialog', (d) => d.accept());
 
   // ── Overview ───────────────────────────────────────────────────────────────────────────────────
   await page.goto(`${base}/alumni-portal/admin`);
@@ -82,7 +82,7 @@ try {
   console.log('PASS: member page — back to members / waiting list when you came from Admin, back to search otherwise');
 
   // ── the profile's e-board picker, for someone waiting ─────────────────────────────────────────
-  const { page: wp } = await signInPage(browser, waiting); wp.on('pageerror', (e) => errors.push(e.message));
+  const { page: wp } = await signInPage(browser, waiting); wp.on('pageerror', (e) => errors.push(`${new URL(wp.url()).pathname}: ${e.message} ${(e.stack ?? '').split('\n')[1]?.trim() ?? ''}`));
   await wp.goto(`${base}/alumni-portal/profile`); await expect(wp.locator('.portal-profile [data-action="save"]')).toBeEnabled();
   await expect(wp.locator('#pf-claim')).toBeVisible();
   await wp.locator('#pf-claim .portal-chip', { hasText: 'DIRECTOR OF TECH' }).click();

@@ -12,6 +12,7 @@ async function init() {
   if (back && (from === 'approvals' || from === 'members')) { back.href = `/alumni-portal/admin/users${from === 'approvals' ? '#approvals' : '#members'}`; back.textContent = from === 'approvals' ? '← BACK TO WAITING FOR APPROVAL' : '← BACK TO MEMBERS'; }
   if (!id) { empty.textContent = 'No member chosen. Go back to search and pick someone.'; return; }
   const got = await getProfile(id).catch(() => null);
+  if (!head.isConnected) return;   // left the page while it loaded (client-side navigation keeps this script running)
   if (!got) { empty.textContent = 'This member is not in the network, or you are not signed in as an approved member.'; return; }
   const { row: r, roles } = got;
   const $ = (sel: string) => document.querySelector<HTMLElement>(sel)!;

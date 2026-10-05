@@ -643,3 +643,5 @@ a.portal-btn { display: inline-flex; align-items: center; justify-content: cente
 html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-pulse 1.8s ease-in-out infinite; }
 @keyframes tl-wait-pulse { 50% { box-shadow: inset 0 0 0 1px var(--color-orange), 0 0 calc(16 * var(--u)) rgb(255 125 44 / 0.8); } }
 @media (max-width: 767px) { .portal-wait-steps { flex-direction: column; align-items: flex-start; gap: 12px; margin: 22px auto 4px; width: fit-content; } .portal-wait-steps li { font-size: 13px; gap: 10px; } .portal-wait-dot { width: 20px; height: 20px; font-size: 11px; } }
+/* an AI close match on the network page: not the exact words, but about what was asked (2026-10-05) */
+.portal-close-match { color: #8fb4ff; }

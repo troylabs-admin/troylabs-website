@@ -16,6 +16,7 @@ import AlumniGlobe, { type Cluster } from './AlumniGlobe';
 import { clusterLabel } from '../../lib/portal/cluster';
 import { COHORTS, DIVISIONS, INDUSTRIES, PEOPLE as SAMPLE, STATUS, type Person } from '../../lib/portal/sample-people';
 import { INDUSTRIES as ALL_INDUSTRIES } from '../../lib/portal/options';
+import { closeMatches, semanticSearch, type Hit } from '../../lib/portal/semantic';
 import { listPeople } from '../../lib/portal/data';
 
 /* the live network offers what members can actually pick (lib/portal/options.ts) and the cohorts they actually joined in;
@@ -87,10 +88,20 @@ export default function Network() {
   const typedKey = words.join(' ');
   useEffect(() => { if (!typedKey) return; const t = setTimeout(() => { toResults(); if (restored.current) { restored.current = false; return; } track('search_run', { words: words.length, filters: activeCount, results: results.length }); /* counts only: typed words often contain people's names */ }, 1000); return () => clearTimeout(t); }, [typedKey]);
 
+  /* AI close matches for what was typed (live network only; the sample roster has no embeddings) */
+  const [hits, setHits] = useState<{ q: string; list: Hit[] }>({ q: '', list: [] });
+  useEffect(() => {
+    if (sample || member !== 'ok' || q.trim().length < 3) { setHits({ q: '', list: [] }); return; }
+    const ctl = new AbortController(); const query = q.trim();
+    const t = setTimeout(async () => { const list = await semanticSearch(query, ctl.signal); if (!ctl.signal.aborted) setHits({ q: query, list: closeMatches(list) }); }, 350);
+    return () => { clearTimeout(t); ctl.abort(); };
+  }, [q, sample, member]);
+  const close = useMemo(() => new Map((hits.q === q.trim() ? hits.list : []).map((h) => [h.id, h.similarity])), [hits, q]);
+
   /* words + chips narrow the people; the globe shows THEM, so you see where a search lands. Every chip
      group is a hard requirement (any chip within a group), every word must appear somewhere. */
   const matched = useMemo(() => {
-    const out: { p: Person; why: string[]; score: number }[] = [];
+    const out: { p: Person; why: string[]; score: number; closeMatch?: boolean }[] = [];
     for (const p of PEOPLE) {
       const why: string[] = []; let ok = true;
       for (const [key, vals] of Object.entries(active)) {
@@ -101,13 +112,17 @@ export default function Network() {
       }
       if (!ok) continue;
       const text = haystack(p); const cityText = `${p.city} ${p.region}`.toLowerCase(); let score = 0, cityHit = false;
+      const chipWhy = why.length;
       for (const w of words) { if (!text.includes(w)) { ok = false; break; } score++; if (cityText.includes(w)) cityHit = true; else why.push(w); }
-      if (!ok) continue;
+      if (!ok) {   // the words aren't in their profile, but the AI says it's about what was asked: a close match, after every keyword match
+        const sim = close.get(p.id); if (sim !== undefined) out.push({ p, why: why.slice(0, chipWhy), score: -1 + sim, closeMatch: true });
+        continue;
+      }
       if (cityHit) why.push(p.region ? `${p.city}, ${p.region}` : p.city);   // "san francisco" reads as one place, not two words
       out.push({ p, why, score });
     }
     return out.sort((a, b) => b.score - a.score);
-  }, [active, words.join(' '), PEOPLE, sample]);
+  }, [active, words.join(' '), PEOPLE, sample, close]);
 
   /* a tapped star narrows the list to its cities — the globe is the location filter */
   const placeKeys = useMemo(() => place && new Set(place.cities.map((c) => c.key)), [place]);
@@ -216,7 +231,7 @@ export default function Network() {
               </div>
               {results.length > 0 ? (
                 <ul className="m-0 p-0 list-none portal-grid">
-                  {shown.map(({ p, why }, i) => (
+                  {shown.map(({ p, why, closeMatch }, i) => (
                     <li key={`${p.id}-${i}`}>
                       <CardLink sample={sample} href={`/alumni-portal/members/?id=${p.id}`}>
                         <span className="portal-avatar t-sub" aria-hidden="true">{p.avatar ? <img src={p.avatar} alt="" loading="lazy" /> : p.initials}</span>
@@ -225,7 +240,8 @@ export default function Network() {
                           {(p.current_title || p.current_company) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ')}</span>}
                           <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.cohort ? `TL ${p.cohort}` : '', p.classOf ? (p.status === 'ALUM' ? `Class of ${p.classOf}` : `Expected ${p.classOf}`) : ''].filter(Boolean).join(' · ')}</span>
                           <span className="flex flex-wrap portal-card-tags">{p.industries.map((t) => <span key={t} className="t-fine portal-tag">{t}</span>)}</span>
-                          {why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}
+                          {closeMatch ? <span className="t-fine portal-match portal-close-match" title="Not the exact words, but their profile is about what you asked">CLOSE MATCH{why.length ? ` · ${[...new Set(why.map(upper))].join(' · ')}` : ''}</span>
+                            : why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}
                         </span>
                       </CardLink>
                     </li>

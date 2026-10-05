@@ -1,5 +1,6 @@
 /** Alumni portal › Companies: the list (search by name) and one company's people. See pages/alumni-portal/companies. */
-import { companyDirectory, getCompany, type CompanyPerson, type CompanyRole } from '../lib/portal/companies';
+import { companyDirectory, getCompany, setClub, type CompanyPerson, type CompanyRole } from '../lib/portal/companies';
+import { me } from '../lib/auth';
 import { logoHtml, span } from '../lib/portal/work-render';
 import { escapeHtml as esc } from '../lib/portal/safe-html';
 
@@ -24,9 +25,9 @@ async function init() {
   const id = new URLSearchParams(location.search).get('id');
 
   if (id) {   // one company
-    const got = await getCompany(id).catch(() => null);
+    const [got, who] = await Promise.all([getCompany(id).catch(() => null), me().catch(() => null)]);
     if (!root.isConnected) return;   // left while it loaded
-    if (!got) { empty.textContent = 'This company isn’t in the network.'; return; }
+    if (!got || (got.company.is_club && !who?.admin)) { empty.textContent = 'This company isn’t in the network.'; return; }   // a student club has no company page
     const { company: c, people: ps } = got; const now = ps.filter((p) => p.now), before = ps.filter((p) => !p.now);
     document.querySelector<HTMLElement>('[data-co-logo]')!.innerHTML = logoHtml(c.logo_path, c.name, 'is-large');
     document.querySelector<HTMLElement>('[data-co-name]')!.textContent = c.name;
@@ -34,6 +35,13 @@ async function init() {
     const li = document.querySelector<HTMLAnchorElement>('[data-co-linkedin]')!; if (c.linkedin_url) { li.href = c.linkedin_url; li.hidden = false; }
     const section = (title: string, list: CompanyPerson[]) => (list.length ? `<h2 class="t-sub portal-section-h">${title}</h2><ul class="m-0 p-0 list-none portal-grid co-people">${list.map((p) => personCard(p, c.linkedin_id)).join('')}</ul>` : '');
     document.querySelector<HTMLElement>('[data-co-people]')!.innerHTML = section('There now', now) + section('Worked here before', before);
+    // admins: student clubs (LavaLab, Quant SC…) stay off Companies; mark them here as they show up
+    const adminBox = document.querySelector<HTMLElement>('[data-co-admin]')!;
+    if (who?.admin) {
+      const draw = (club: boolean) => { adminBox.innerHTML = `<p class="m-0 t-fine text-muted">${club ? 'Hidden from Companies: marked as a student club.' : 'A student club, not a company?'} <button type="button" class="t-fine portal-linklike co-club-btn" data-co-club>${club ? 'SHOW IN COMPANIES' : 'THIS IS A STUDENT CLUB'}</button></p><p class="m-0 t-fine portal-feedback" data-co-club-fb></p>`; adminBox.hidden = false;
+        adminBox.querySelector<HTMLButtonElement>('[data-co-club]')!.onclick = async (e) => { const b = e.currentTarget as HTMLButtonElement; b.disabled = true; const err = await setClub(c.linkedin_id, !club); if (err) { adminBox.querySelector<HTMLElement>('[data-co-club-fb]')!.textContent = err; b.disabled = false; } else draw(!club); }; };
+      draw(c.is_club);
+    }
     document.title = `${c.name} — TL Alumni Network Portal`;
     empty.hidden = true; one.hidden = false; return;
   }

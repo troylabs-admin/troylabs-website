@@ -107,23 +107,38 @@ try {
   for (const q of ['someone who interned at Jane Street', 'who won a hackathon', 'published research on TikTok']) { const hits = await ask(q); assert.equal(hits[0]?.id, ana.id, `"${q}" ranks them first (got ${JSON.stringify(hits.slice(0, 3))})`); }
   console.log('PASS: AI search — after a sync, "interned at Jane Street", "won a hackathon" and "published research on TikTok" find them first');
 
-  // ── failures keep what's saved ────────────────────────────────────────────────────────────────
-  const ghost = `https://www.linkedin.com/in/tl-qa-nobody-${crypto.randomUUID().slice(0, 8)}`;
-  await admin.from('profiles').update({ linkedin_url: ghost }).eq('id', ana.id); await call({ mode: 'request', profile_id: ana.id });
-  const wf = await worker(LIVE ? null : {}); assert.equal(wf.failed, 1, `a profile LinkedIn doesn't return fails: ${JSON.stringify(wf)}`);
+  // ── failures keep what's saved (same link; LinkedIn is what fails) ─────────────────────────────
+  await call({ mode: 'request', profile_id: ana.id });
+  const wf = await worker({ [BRYAN]: { originalQuery: { url: BRYAN }, error: 'Profile not found' } }); assert.equal(wf.failed, 1, `LinkedIn not returning the profile fails: ${JSON.stringify(wf)}`);
   assert.equal((await jobs(ana.id)).length, 14, 'and the saved history is kept');
   const qf = (await queued([ana.id]))[0]; assert.equal(qf.attempts, 1); assert.ok(Date.parse(qf.next_try_at) > Date.now() + 4 * 60_000, 'retried about 5 minutes later');
   assert.match((await admin.from('profiles').select('linkedin_sync_error').eq('id', ana.id).single()).data.linkedin_sync_error, /LinkedIn/);
-  // an empty scrape (LinkedIn showing no jobs) never wipes a saved history
-  await admin.from('profiles').update({ linkedin_url: BRYAN }).eq('id', ana.id); await call({ mode: 'request', profile_id: ana.id });
+  await emptyQueue(); await call({ mode: 'request', profile_id: ana.id });
   const we = await worker({ [BRYAN]: { originalQuery: { url: BRYAN }, experience: [] } }); assert.equal(we.failed, 1);
-  assert.equal((await jobs(ana.id)).length, 14, 'an empty scrape keeps the 14 jobs');
-  // a link that isn't a LinkedIn profile: no retry, told why
-  await admin.from('profiles').update({ linkedin_url: 'https://www.linkedin.com/company/nvidia' }).eq('id', ana.id); await call({ mode: 'request', profile_id: ana.id });
-  assert.equal((await worker({})).failed, 1); assert.deepEqual(await queued([ana.id]), [], 'a bad link isn\'t retried');
-  assert.match((await admin.from('profiles').select('linkedin_sync_error').eq('id', ana.id).single()).data.linkedin_sync_error, /isn’t a LinkedIn profile link/);
+  assert.equal((await jobs(ana.id)).length, 14, 'an empty scrape (LinkedIn showing no jobs) keeps the 14 jobs');
   await emptyQueue();
-  console.log('PASS: failures — an unknown profile retries in 5 min, an empty scrape and a bad link keep the saved history');
+  console.log('PASS: failures — LinkedIn not returning the profile retries in 5 min and keeps the history; an empty scrape keeps it too');
+
+  // ── the link removed or changed: what came from the old link goes ─────────────────────────────
+  const fromLinkedIn = async () => { const p = (await admin.from('profiles').select('linkedin_headline, linkedin_skills, linkedin_synced_at, current_title, current_job_source, avatar_source').eq('id', ana.id).single()).data; return { jobs: (await jobs(ana.id)).length, items: (await admin.from('linkedin_items').select('id', { count: 'exact', head: true }).eq('profile_id', ana.id)).count, copy: (await admin.from('linkedin_snapshots').select('profile_id', { count: 'exact', head: true }).eq('profile_id', ana.id)).count, headline: p.linkedin_headline, skills: p.linkedin_skills.length, synced: Boolean(p.linkedin_synced_at), job: p.current_job_source === 'linkedin' ? p.current_title : '(theirs)', photo: p.avatar_source }; };
+  await admin.from('profiles').update({ current_title: 'Software Engineering Intern', current_company: 'NVIDIA', current_job_source: 'linkedin' }).eq('id', ana.id);
+  const other = `https://www.linkedin.com/in/tl-qa-other-${crypto.randomUUID().slice(0, 6)}`;
+  await ana.sb.from('profiles').update({ linkedin_url: other.replace('https://www.', '') + '/' }).eq('id', ana.id);   // as the member, any spelling
+  assert.deepEqual(await fromLinkedIn(), { jobs: 0, items: 0, copy: 0, headline: null, skills: 0, synced: false, job: null, photo: (await fromLinkedIn()).photo }, 'a changed link clears what the old one brought in');
+  const q2 = (await queued([ana.id]))[0]; assert.equal(q2?.reason, 'member', 'the new link is queued'); assert.ok(Date.parse(q2.next_try_at) > Date.now() + 60_000, 'after a 2-minute pause, so quick edits become one import');
+  await ana.sb.from('profiles').update({ linkedin_url: null }).eq('id', ana.id);
+  assert.deepEqual(await queued([ana.id]), [], 'removing the link cancels the import');
+  await ana.sb.from('profiles').update({ linkedin_url: BRYAN }).eq('id', ana.id);
+  await admin.from('linkedin_sync_queue').update({ next_try_at: new Date().toISOString() }).eq('profile_id', ana.id);
+  assert.equal((await worker({ [BRYAN]: bryanScrape })).done, 1); assert.equal((await jobs(ana.id)).length, 14, 'back on the old link: imported again');
+  // a link that isn't a LinkedIn profile: stored as typed, not imported, told why, not retried
+  await admin.from('profiles').update({ linkedin_url: 'https://www.linkedin.com/company/nvidia' }).eq('id', ana.id);
+  assert.equal((await jobs(ana.id)).length, 0, 'the old history went with the old link'); await call({ mode: 'request', profile_id: ana.id });
+  assert.deepEqual((await queued([ana.id])), [], 'a company page isn\'t queued');
+  await admin.from('profiles').update({ linkedin_url: BRYAN }).eq('id', ana.id); await admin.from('linkedin_sync_queue').update({ next_try_at: new Date().toISOString() }).eq('profile_id', ana.id);
+  assert.equal((await worker({ [BRYAN]: bryanScrape })).done, 1);
+  await emptyQueue();
+  console.log('PASS: link changed or removed — everything from the old link goes (jobs, items, copy, headline, skills, a LinkedIn current job); a new link queues after 2 minutes; removing it cancels; a company page isn\'t imported');
 
   // ── 30 approved at once, two workers at the same time ─────────────────────────────────────────
   const crowd = []; const fixture = {};

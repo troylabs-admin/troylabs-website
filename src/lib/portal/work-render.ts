@@ -6,7 +6,7 @@
 import { escapeHtml as esc, webUrl } from './safe-html';
 import { supabase } from '../supabase';
 
-export interface WorkRow { title: string; company: string; company_linkedin_id?: string | null; company_logo: string | null; employment_type: string | null; workplace_type: string | null; location: string | null; start_year: number | null; start_month: number | null; end_year: number | null; end_month: number | null; description: string | null; sort: number }
+export interface WorkRow { title: string; company: string; company_linkedin_id?: string | null; is_club?: boolean; company_logo: string | null; employment_type: string | null; workplace_type: string | null; location: string | null; start_year: number | null; start_month: number | null; end_year: number | null; end_month: number | null; description: string | null; sort: number }
 export interface ItemRow { kind: 'honor' | 'publication' | 'certification' | 'organization' | 'education'; title: string; issuer: string | null; detail: string | null; year: number | null; month: number | null; end_year: number | null; end_month: number | null; is_current: boolean; link: string | null; description: string | null; is_usc: boolean; sort: number }
 export interface History { work: WorkRow[]; items: ItemRow[]; syncedAt: string | null }
 
@@ -21,7 +21,12 @@ export async function getHistory(id: string): Promise<History> {
     sb.from('linkedin_items').select('kind, title, issuer, detail, year, month, end_year, end_month, is_current, link, description, is_usc, sort').eq('profile_id', id).order('sort'),
     sb.from('profiles').select('linkedin_synced_at').eq('id', id).maybeSingle(),
   ]);
-  return { work: (w.data ?? []) as WorkRow[], items: (i.data ?? []) as ItemRow[], syncedAt: (p.data?.linkedin_synced_at as string | null) ?? null };
+  // clubs aren't companies (no company page to link to), and TroyLabs itself is left out: everyone here was in it (Bryan, 2026-10-05)
+  const ids = [...new Set(((w.data ?? []) as WorkRow[]).map((r) => r.company_linkedin_id).filter((x): x is string => Boolean(x)))];
+  const { data: clubs } = ids.length ? await sb.from('companies').select('linkedin_id').in('linkedin_id', ids).eq('is_club', true) : { data: [] };
+  const club = new Set((clubs ?? []).map((c) => c.linkedin_id as string));
+  const work = ((w.data ?? []) as WorkRow[]).filter((r) => !isTroyLabs(r)).map((r) => ({ ...r, is_club: Boolean(r.company_linkedin_id && club.has(r.company_linkedin_id)) }));
+  return { work, items: (i.data ?? []) as ItemRow[], syncedAt: (p.data?.linkedin_synced_at as string | null) ?? null };
 }
 
 const now = () => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() + 1 }; };
@@ -42,10 +47,12 @@ const SHOW_LINES = 2;
 const bullets = (d: string | null) => { const ls = lines(d); if (!ls.length) return ''; const more = ls.length - SHOW_LINES;
   return `<ul class="wh-bullets t-caption text-muted">${ls.map((l, i) => `<li${i >= SHOW_LINES ? ' class="wh-more-line"' : ''}>${esc(l)}</li>`).join('')}</ul>${more > 0 ? `<button type="button" class="t-fine wh-more-btn" data-wh-lines aria-expanded="false">…see more</button>` : ''}`; };
 /** a company page link, when LinkedIn told us which company it is */
-const companyLink = (r: WorkRow, text: string) => (r.company_linkedin_id ? `<a class="wh-co-link" href="/alumni-portal/companies/?id=${encodeURIComponent(r.company_linkedin_id)}">${text}</a>` : text);
+const companyLink = (r: WorkRow, text: string) => (r.company_linkedin_id && !r.is_club ? `<a class="wh-co-link" href="/alumni-portal/companies/?id=${encodeURIComponent(r.company_linkedin_id)}">${text}</a>` : text);
 /** "SHOW ALL 14 EXPERIENCES" under a trimmed list */
 const showAll = (hidden: number, total: number, noun: string) => (hidden > 0 ? `<button type="button" class="t-label portal-linklike wh-show-all" data-wh-all data-label="SHOW ALL ${total} ${noun.toUpperCase()}" aria-expanded="false">SHOW ALL ${total} ${noun.toUpperCase()} ↓</button>` : '');
 const SHOW_GROUPS = 5, SHOW_ITEMS = 3;
+/** TroyLabs on someone's LinkedIn (by LinkedIn's company id, or the name) */
+export const isTroyLabs = (r: { company: string; company_linkedin_id?: string | null }) => r.company_linkedin_id === '18216697' || /^\s*troy\s?labs\s*$/i.test(r.company);
 export const companyLogoUrl = (path: string | null) => (path ? LOGOS + path : null);
 export const logoHtml = (path: string | null, name: string, cls = '') => `<span class="wh-logo${cls ? ` ${cls}` : ''}" aria-hidden="true">${path ? `<img src="${esc(LOGOS + path)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<b>${esc(initials(name))}</b></span>`;
 const logo = (path: string | null, name: string) => `<span class="wh-logo" aria-hidden="true">${path ? `<img src="${esc(LOGOS + path)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<b>${esc(initials(name))}</b></span>`;

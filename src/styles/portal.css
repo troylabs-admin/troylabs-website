@@ -730,7 +730,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 @media (max-width: 767px) { .wh-more-btn { margin-top: 4px; letter-spacing: 0.4px; } .wh-show-all { margin-top: 4px; } }
 
 /* Companies (2026-10-05): the list and one company's page */
-.co-search { margin-top: calc(22 * var(--u)); }
+.portal-input.co-search { margin-top: calc(26 * var(--u)); }   /* .portal-input.is-wide sets margin-top: 0 and outranks a single class: this gap never applied */
 .co-count { margin-top: calc(18 * var(--u)); }
 .co-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(14 * var(--u)); margin-top: calc(14 * var(--u)); }
 .co-tile, .co-person { align-items: center; text-decoration: none; color: inherit; height: 100%; box-sizing: border-box; }
@@ -740,7 +740,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 .wh-logo.is-large b { font-size: calc(22 * var(--u)); }
 .co-li { display: inline-flex; align-items: center; margin-top: calc(16 * var(--u)); }
 @media (max-width: 767px) {
-  .co-search { margin-top: 18px; }
+  .portal-input.co-search { margin-top: 20px; }
   .co-count { margin-top: 14px; }
   .co-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
   .co-role { letter-spacing: 0.4px; }
@@ -808,3 +808,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .portal-globe-zoom button { width: 44px; height: 44px; }   /* Apple's 44 pt minimum touch target (the old zoom stack used 44 too) */
   .portal-globe-zoom svg { width: 16px; height: 16px; }
 }
+/* admins: mark a company as a student club */
+.co-admin { margin-top: calc(18 * var(--u)); }
+.co-club-btn { margin-left: calc(6 * var(--u)); color: var(--color-orange); letter-spacing: calc(1 * var(--u)); }
+@media (max-width: 767px) { .co-admin { margin-top: 14px; } .co-club-btn { margin-left: 4px; letter-spacing: 1px; } }

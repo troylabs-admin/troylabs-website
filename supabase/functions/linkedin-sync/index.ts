@@ -119,7 +119,9 @@ async function worker(svc: SupabaseClient, fixture: Record<string, ScrapedProfil
     // the card's current job follows LinkedIn unless they typed their own
     const { data: pj } = await svc.from('profiles').select('current_title, current_company, current_job_source').eq('id', job.profile_id).single();
     const role = currentRole(rows);
-    if (pj && jobDecision(pj, role) === 'take' && role) await svc.from('profiles').update({ current_title: role.title, current_company: role.company, current_job_source: 'linkedin' }).eq('id', job.profile_id);
+    const jd = pj ? jobDecision(pj, role) : 'keep';
+    if (jd === 'take' && role) await svc.from('profiles').update({ current_title: role.title, current_company: role.company, current_job_source: 'linkedin' }).eq('id', job.profile_id);
+    if (jd === 'clear') await svc.from('profiles').update({ current_title: null, current_company: null }).eq('id', job.profile_id);   // source stays 'linkedin': the next current job fills in
     done++;
   }
   if (urls.length) await svc.from('linkedin_scrapes').insert({ profiles: urls.length, ok: done });
@@ -137,7 +139,7 @@ Deno.serve(async (req) => {
   const isService = bearer === serviceKey || (bearer.split('.').length === 3 && !(await createClient(url, bearer, { auth: { persistSession: false } }).auth.admin.listUsers({ page: 1, perPage: 1 })).error);
   try {
     if (input.mode === 'worker' && (fromCron || isService)) return json(await worker(svc, isService ? input.fixture ?? null : null));
-    if (isService && input.mode === 'request' && input.profile_id) { await svc.from('linkedin_sync_queue').upsert({ profile_id: input.profile_id, reason: 'admin', next_try_at: new Date().toISOString(), claimed_at: null }, { onConflict: 'profile_id' }); return json({ queued: true }); }
+    if (isService && input.mode === 'request' && input.profile_id) { const { data: lp } = await svc.from('profiles').select('linkedin_url').eq('id', input.profile_id).single(); if (!canonicalLinkedIn(lp?.linkedin_url ?? '')) return json({ error: 'not a LinkedIn profile link' }, 400); await svc.from('linkedin_sync_queue').upsert({ profile_id: input.profile_id, reason: 'admin', next_try_at: new Date().toISOString(), claimed_at: null }, { onConflict: 'profile_id' }); return json({ queued: true }); }
 
     const user = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: `Bearer ${bearer}` } }, auth: { persistSession: false } });
     const { data: u } = await user.auth.getUser(); if (!u.user) return json({ error: 'sign in first' }, 401);

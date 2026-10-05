@@ -7,7 +7,7 @@ import { supabase } from '../supabase';
 import { avatarUrl, initialsOf } from './data';
 
 export interface CompanyTile { linkedin_id: string; name: string; logo_path: string | null; people: number; current_people: number }
-export interface Company { linkedin_id: string; name: string; logo_path: string | null; linkedin_url: string | null }
+export interface Company { linkedin_id: string; name: string; logo_path: string | null; linkedin_url: string | null; is_club: boolean }
 export interface CompanyRole { title: string; employment_type: string | null; start_year: number | null; start_month: number | null; end_year: number | null; end_month: number | null }
 export interface CompanyPerson { id: string; full_name: string; status: 'student' | 'alum'; avatar: string | null; initials: string; roles: CompanyRole[]; now: boolean }
 
@@ -22,7 +22,7 @@ const person = (p: ProfileBit): Omit<CompanyPerson, 'roles' | 'now'> => ({ id: p
 /** a company and its people: who's there now first, then who was, each with their roles there */
 export async function getCompany(id: string): Promise<{ company: Company; people: CompanyPerson[] } | null> {
   const sb = supabase();
-  const { data: company } = await sb.from('companies').select('linkedin_id, name, logo_path, linkedin_url').eq('linkedin_id', id).maybeSingle();
+  const { data: company } = await sb.from('companies').select('linkedin_id, name, logo_path, linkedin_url, is_club').eq('linkedin_id', id).maybeSingle();
   if (!company) return null;
   const name = (company.name as string).replace(/[%_\\]/g, (c) => `\\${c}`);   // ilike pattern: the name literally
   const [jobs, typed] = await Promise.all([
@@ -43,4 +43,10 @@ export async function getCompany(id: string): Promise<{ company: Company; people
   const newest = (p: CompanyPerson) => Math.max(0, ...p.roles.map((r) => (r.end_year ?? 9999) * 12 + (r.end_month ?? 12)));
   const people = [...by.values()].sort((a, b) => Number(b.now) - Number(a.now) || newest(b) - newest(a) || a.full_name.localeCompare(b.full_name));
   return { company: company as Company, people };
+}
+
+/** admins: mark a company as a student club (off the Companies list) or back */
+export async function setClub(id: string, club: boolean): Promise<string | null> {
+  const { data, error } = await supabase().from('companies').update({ is_club: club }).eq('linkedin_id', id).select('linkedin_id');
+  return error ? error.message : data?.length ? null : 'Only admins can change this.';
 }

@@ -28,8 +28,10 @@ try {
   // ── a member page ─────────────────────────────────────────────────────────────────────────────
   const { page } = await signInPage(browser, viewer); page.on('pageerror', (e) => errors.push(e.message)); page.on('dialog', (d) => { dialogs.push(d.message()); d.dismiss(); });
   await page.goto(`${base}/alumni-portal/members/?id=${mem.id}`); await page.locator('.wh-rail').waitFor();
-  assert.equal(await page.locator('.wh-group').count(), 13, '14 jobs, the two USC ISI roles under one logo');
-  assert.equal(await page.locator('.wh-role').count(), 14);
+  assert.equal(await page.locator('.wh-group').count(), 12, '14 jobs less TroyLabs (everyone here was in it) = 13, the two USC ISI roles under one logo');
+  assert.equal(await page.locator('.wh-role').count(), 13);
+  assert.equal(await page.locator('.wh-rail').getByText('TroyLabs', { exact: true }).count(), 0, 'TroyLabs isn\'t listed as experience');
+  const lava = page.locator('.wh-group', { hasText: 'LavaLab' }); await expect(lava).toHaveCount(1); assert.equal(await lava.locator('.wh-co-link').count(), 0, 'a student club shows, but has no company page to link to');
   await expect(page.locator('.wh-group').first()).toContainText('Software Engineering Intern'); await expect(page.locator('.wh-group').first().locator('.wh-now')).toHaveText('NOW');
   const isi = page.locator('.wh-group', { hasText: 'USC Information Sciences Institute' });
   await expect(isi.locator('.wh-title').first()).toContainText(/USC Information Sciences Institute · \d+ yrs? ?\d* ?mos?/); assert.equal(await isi.locator('.wh-role.is-sub').count(), 2);
@@ -46,8 +48,8 @@ try {
   // LinkedIn-style trimming: five companies, two bullets, three of each section
   const visible = (sel) => page.locator(sel).evaluateAll((els) => els.filter((e) => e.offsetParent !== null).length);
   assert.equal(await visible('.wh-group'), 5, 'five companies at first');
-  const more = page.locator('.wh-collapse:has(.wh-rail) > [data-wh-all]'); await expect(more).toHaveText('SHOW ALL 14 EXPERIENCES ↓');
-  await more.click(); assert.equal(await visible('.wh-group'), 13); await expect(more).toHaveText('SHOW FEWER ↑');
+  const more = page.locator('.wh-collapse:has(.wh-rail) > [data-wh-all]'); await expect(more).toHaveText('SHOW ALL 13 EXPERIENCES ↓');
+  await more.click(); assert.equal(await visible('.wh-group'), 12); await expect(more).toHaveText('SHOW FEWER ↑');
   await more.click(); assert.equal(await visible('.wh-group'), 5, 'and back to five');
   const edtok = page.locator('.wh-role', { hasText: 'EDTok' }); await more.click();
   assert.equal(await edtok.locator('.wh-bullets li').evaluateAll((els) => els.filter((e) => e.offsetParent !== null).length), 2, 'two bullets at first');
@@ -58,7 +60,7 @@ try {
   assert.equal(await honors.locator('.wh-item').evaluateAll((els) => els.filter((e) => e.offsetParent !== null).length), 7);
   assert.equal(await page.locator('h2:has-text("Publications") + .wh-collapse [data-wh-all]').count(), 0, 'one publication: no button');
   await expect(page.locator('.wh-co-link', { hasText: 'NVIDIA' }).first()).toHaveAttribute('href', '/alumni-portal/companies/?id=tl-qa-3608');
-  console.log('PASS: member page — 13 timeline groups / 14 roles, USC ISI grouped, NOW, bullets, our logos, 7 honors / 1 publication (opens safely) / 1 certification / 3 organizations, no USC school, LinkedIn About as the bio');
+  console.log('PASS: member page — 12 timeline groups / 13 roles (no TroyLabs; LavaLab unlinked as a club), USC ISI grouped, NOW, bullets, our logos, 7 honors / 1 publication (opens safely) / 1 certification / 3 organizations, no USC school, LinkedIn About as the bio');
 
   await page.goto(`${base}/alumni-portal/members/?id=${alum.id}`); await page.locator('.wh-rail').waitFor();
   await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).toContainText('Stanford University'); await expect(page.locator('h2:has-text("Other schools") + .wh-collapse')).not.toContainText('Southern California');
@@ -79,7 +81,7 @@ try {
   const pm = await panel(mem);
   await expect(pm.locator('[data-li-status]')).toContainText('Imported from LinkedIn on');
   await expect(pm.locator('[data-li-sync]')).toBeDisabled(); await expect(pm.locator('[data-li-fb]')).toHaveText('You can sync again tomorrow.');
-  assert.equal(await pm.locator('[data-li-preview] .wh-group').count(), 13, 'their history as members see it');
+  assert.equal(await pm.locator('[data-li-preview] .wh-group').count(), 12, 'their history as members see it');
   await pm.locator('#pf-linkedin').screenshot({ path: 'test-results/portal/linkedin-panel.png' });
 
   const pending = await make('History Pending QA', false, handle());
@@ -101,7 +103,7 @@ try {
   await expect(p3.locator('[data-li-status]')).toHaveText('Importing from LinkedIn… this takes a minute or two.');
   assert.equal((await call({ mode: 'worker', fixture: { [L3]: { ...bryan, originalQuery: { url: L3 } } } })).done, 1);
   await expect(p3.locator('[data-li-status]')).toContainText('Imported from LinkedIn on', { timeout: 20000 });
-  assert.equal(await p3.locator('[data-li-preview] .wh-group').count(), 13, 'the history appears without reloading');
+  assert.equal(await p3.locator('[data-li-preview] .wh-group').count(), 12, 'the history appears without reloading');
   console.log('PASS: profile panel — imported (sync again tomorrow), waiting for approval, a failed import with SYNC NOW, no link → bad link refused → saved in one form → SYNC NOW → importing → imported');
 
   // ── whose current job ─────────────────────────────────────────────────────────────────────────

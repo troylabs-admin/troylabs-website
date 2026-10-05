@@ -2,7 +2,7 @@
 // Also replays ColorStack's own merge rule on the same data, to show the duplicate it produced and that ours doesn't.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { canonicalLinkedIn, isUsc, parseWhen, photoDecision, photoKey, snapshotOf, toItems, toRow, toSkills, toWorkHistory, type ScrapedExperience, type ScrapedFull } from '../../supabase/functions/_shared/work-history.ts';
+import { canonicalLinkedIn, currentRole, isUsc, jobDecision, parseWhen, photoDecision, photoKey, snapshotOf, toItems, toRow, toSkills, toWorkHistory, type ScrapedExperience, type ScrapedFull } from '../../supabase/functions/_shared/work-history.ts';
 
 const fx = JSON.parse(readFileSync(new URL('./fixtures/linkedin-bryanrg22.json', import.meta.url), 'utf8')) as ScrapedFull & { experience: ScrapedExperience[] };
 assert.equal(fx.experience.length, 15, 'the scrape has 15 entries');
@@ -92,3 +92,16 @@ assert.equal(photoDecision({ avatar_path: 'u/linkedin.jpg', avatar_source: 'link
 assert.equal(photoDecision(none, { photo: A, openToWork: true }), 'keep', 'not the #OpenToWork-framed photo (ColorStack\'s rule)');
 assert.equal(photoDecision(none, {}), 'keep', 'no LinkedIn photo → nothing');
 console.log('PASS: photos — LinkedIn\'s only when they have none or still have the synced one; uploads never replaced; #OpenToWork skipped');
+
+// ── whose current job ───────────────────────────────────────────────────────────────────────────
+const cur = currentRole(toWorkHistory(fx.experience));
+assert.deepEqual([cur?.title, cur?.company], ['Software Engineering Intern', 'NVIDIA'], 'LinkedIn\'s current job: the first with no end');
+const noJob = { current_title: null, current_company: null, current_job_source: null };
+assert.equal(jobDecision(noJob, cur), 'take', 'nothing typed → LinkedIn\'s');
+assert.equal(jobDecision({ current_title: 'Founder', current_company: 'Acme', current_job_source: null }, cur), 'keep', 'typed before this existed → theirs');
+assert.equal(jobDecision({ current_title: 'Founder', current_company: 'Acme', current_job_source: 'manual' }, cur), 'keep', 'typed → theirs');
+assert.equal(jobDecision({ current_title: 'Old', current_company: 'Old Co', current_job_source: 'linkedin' }, cur), 'take', 'LinkedIn\'s → follows LinkedIn');
+assert.equal(jobDecision({ current_title: 'Old', current_company: 'Old Co', current_job_source: 'linkedin' }, null), 'clear', 'LinkedIn\'s, and LinkedIn has no current job now → cleared');
+assert.equal(jobDecision({ current_title: 'Founder', current_company: 'Acme', current_job_source: 'manual' }, null), 'keep', 'typed is never cleared');
+assert.equal(jobDecision(noJob, null), 'keep');
+console.log('PASS: current job — take / keep / clear, never touching what they typed');

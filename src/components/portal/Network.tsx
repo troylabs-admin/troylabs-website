@@ -204,7 +204,7 @@ export default function Network() {
               <span key="c"> · <Tick n={searching ? leftCities : cities} /> {(searching ? leftCities : cities) === 1 ? 'CITY' : 'CITIES'}</span>,
             ]}
           </p>
-          <p className="t-fine text-muted m-0 portal-explore-count">Drag to explore. Select a marker to meet members; nearby cities group together.</p>
+          <p className="t-fine text-muted m-0 portal-explore-count">Drag to explore, zoom with + and −. Select a marker to meet members; nearby cities group together.</p>
       </div>
 
       <form className="portal-search" role="search" onSubmit={(e) => { e.preventDefault(); if (typed) toResults(); (document.activeElement as HTMLElement | null)?.blur(); }}>

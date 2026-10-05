@@ -15,6 +15,7 @@ export interface Person {
   current_title: string; current_company: string; industries: string[]; bio: string;
   city: string; region: string; lat: number; lng: number; programs: string[];
   avatar?: string | null;
+  role?: string;   // e-board tag: "CO-PRESIDENT", "FORMER DIRECTOR OF TECH" (roles.ts)
 }
 
 const CITIES: [string, string, number, number, number][] = [

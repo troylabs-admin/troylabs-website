@@ -672,3 +672,10 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 /* inside the profile form an empty message line left visible holes (around the email checkbox, above the location note);
    it takes space only while it says something. The SAVE row keeps its reserved line. */
 .portal-profile .portal-field > .portal-feedback:empty, .portal-profile > .portal-feedback:empty { display: none; }
+/* the e-board tag on a search card: one quiet orange line under the name (2026-10-05) */
+.portal-card-eboard { color: var(--color-orange); letter-spacing: calc(1.2 * var(--u)); }
+@media (max-width: 767px) { .portal-card-eboard { letter-spacing: 1.2px; } }
+/* status pill and e-board role share a line under the name: the pill used to wrap under long names and start indented */
+.portal-card-status { display: flex; flex-wrap: wrap; align-items: center; gap: calc(4 * var(--u)) calc(10 * var(--u)); }
+.portal-card-status .portal-role { margin-left: 0; }
+@media (max-width: 767px) { .portal-card-status { gap: 4px 10px; } }

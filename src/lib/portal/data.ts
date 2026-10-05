@@ -5,6 +5,7 @@
  */
 import { supabase } from '../supabase';
 import type { Person } from './sample-people';
+import { cardRole, type RoleTerm } from './roles';
 
 export interface ClaimedRole { role: string; term: 'FA' | 'SP'; year: number }
 export interface ProfileRow {
@@ -92,9 +93,11 @@ export const cityLabel = (c: CityRow | null | undefined) => c ? `${c.name}${c.re
 
 // ── the network ───────────────────────────────────────────────────────────────────────────────────
 export async function listPeople(): Promise<(Person & { avatar: string | null })[]> {
-  const { data, error } = await supabase().from('profiles').select(SELECT).eq('approved', true).order('full_name');
+  const sb = supabase();
+  const [{ data, error }, { data: roles }] = await Promise.all([sb.from('profiles').select(SELECT).eq('approved', true).order('full_name'), sb.from('eboard_roles').select('profile_id, role, term, year')]);
   if (error) throw error;
-  return ((data ?? []) as ProfileRow[]).map(toPerson);
+  const byPerson = new Map<string, RoleTerm[]>(); for (const r of (roles ?? []) as (RoleTerm & { profile_id: string })[]) byPerson.set(r.profile_id, [...(byPerson.get(r.profile_id) ?? []), r]);
+  return ((data ?? []) as ProfileRow[]).map((r) => ({ ...toPerson(r), role: cardRole(byPerson.get(r.id) ?? []) }));   // the card's e-board tag
 }
 export async function getProfile(id: string): Promise<{ row: ProfileRow; roles: RoleRow[] } | null> {
   const sb = supabase();

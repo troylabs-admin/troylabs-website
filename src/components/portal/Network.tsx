@@ -25,7 +25,7 @@ const filtersFor = (sample: boolean): [string, string, readonly string[]][] => [
 const cohortKey = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
 const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did']);
 const PAGE = 24;
-const haystack = (p: Person) => `${p.full_name} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
+const haystack = (p: Person) => `${p.full_name} ${p.role ?? ''} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
 const upper = (s: string) => s.toUpperCase();
 
 /** a number that ticks to its new value instead of jumping (same ease as the home page stats) */
@@ -236,7 +236,8 @@ export default function Network() {
                       <CardLink sample={sample} href={`/alumni-portal/members/?id=${p.id}`}>
                         <span className="portal-avatar t-sub" aria-hidden="true">{p.avatar ? <img src={p.avatar} alt="" loading="lazy" /> : p.initials}</span>
                         <span className="portal-card-body">
-                          <span className="t-name portal-card-name">{p.full_name} <span className="t-fine portal-role">{p.status}</span></span>
+                          <span className="t-name portal-card-name">{p.full_name}</span>
+                          <span className="portal-card-status"><span className="t-fine portal-role">{p.status}</span>{p.role && <span className="t-fine portal-card-eboard">{p.role}</span>}</span>
                           {(p.current_title || p.current_company) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ')}</span>}
                           <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.cohort ? `TL ${p.cohort}` : '', p.classOf ? (p.status === 'ALUM' ? `Class of ${p.classOf}` : `Expected ${p.classOf}`) : ''].filter(Boolean).join(' · ')}</span>
                           <span className="flex flex-wrap portal-card-tags">{p.industries.map((t) => <span key={t} className="t-fine portal-tag">{t}</span>)}</span>

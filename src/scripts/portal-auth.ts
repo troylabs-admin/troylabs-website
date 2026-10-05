@@ -40,7 +40,7 @@ async function gate() {
     });
   }
   const name = who.full_name || who.email.split('@')[0];
-  document.querySelectorAll<HTMLElement>('.nav-who').forEach((el) => { el.textContent = name.toUpperCase(); });
+  document.querySelectorAll<HTMLElement>('.nav-who').forEach((el) => { el.textContent = name.toUpperCase(); el.dataset.filled = ''; });
   document.dispatchEvent(new CustomEvent('tl:me', { detail: who }));
   void touchLastSeen(who.id);
 }

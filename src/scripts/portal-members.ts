@@ -19,6 +19,7 @@ let lastAction: { kind: 'approved' | 'declined'; ids: string[] } | null = null;
 
 async function load() {
   const got = await adminListProfiles(); rows = got.rows; admins = got.admins; roles = got.roles;
+  if (!document.getElementById('requests-list')) return;   // left the page while it loaded (client-side navigation keeps this script running)
   renderRequests(); renderTable(); renderCohortChips();
 }
 
@@ -175,7 +176,7 @@ function exportCsv() {
 async function init() {
   const table = document.querySelector<HTMLElement>('[data-members]'); if (!table || table.dataset.wired) return; table.dataset.wired = '1';
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
-  const who = await me(); if (!who?.admin) return; myId = who.id;
+  const who = await me(); if (!who?.admin || !table.isConnected) return; myId = who.id;
   // a fresh page each visit: the module outlives client-side navigation, the search box doesn't (a stale search once
   // showed "Nobody matches" under an empty box after VIEW FULL PROFILE → back)
   q.search = ''; q.sort = 'oldest'; q.shown = PAGE; q.picked.clear(); q.open.clear(); lastAction = null;

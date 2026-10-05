@@ -1,6 +1,6 @@
 ---
 /**
- * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15). Just the places.
+ * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15; Resend + OpenAI 2026-10-05). Just the places.
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -9,11 +9,12 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 const PLACES = [
   ['Website hosting', 'Vercel', 'https://vercel.com/troylabs-projects/troylabs-landing-page', 'Deploys itself on every push to main. Domains live here too.'],
   ['Source code', 'GitHub', 'https://github.com/troylabs-admin/troylabs-website', 'Public repo, org-owned. The README explains the layout.'],
-  ['Member roster', 'Notion — TL Fam', 'https://app.notion.com/p/troylabsvc/TL-Fam-242fd750736d8071952afba366474861', 'Actives and Rocket Classes by semester. The source for cohort imports.'],
+  ['Member roster', 'Notion — TL Fam', 'https://app.notion.com/p/troylabsvc/TL-Fam-242fd750736d8071952afba366474861', 'Actives and Rocket Classes by semester.'],
   ['Domains', 'Name.com', 'https://www.name.com', 'usctroylabs.com and troylabs.vc. Auto-renew is on; .vc redirects to .com.'],
   ['Database', 'Supabase', 'https://supabase.com/dashboard/project/ackmhqxyxnceoarbhcrp', 'Project TL_Network in the TroyLabs org: members, sign-in, photos, messages. Free plan.'],
   ['Website analytics', 'Vercel Analytics', 'https://vercel.com/troylabs-projects/troylabs-landing-page/analytics', 'Visitors and page views. Already on.'],
-  ['Email delivery', 'Resend', 'https://resend.com/emails', 'Sends Admin › Message emails through the send-message function. Domain usctroylabs.com must be verified there before group sends; until then, test mode delivers only to the admin.'],
+  ['Email', 'Resend', 'https://resend.com/emails', 'Sends every email from usctroylabs.com: sign-in links (through Supabase), the "you’re in" email when someone is approved, and Admin › Message emails. Anyone with any email address can receive them. Free plan: 100 emails a day, 3,000 a month.'],
+  ['AI search', 'OpenAI', 'https://platform.openai.com/usage', 'Powers searching by meaning ("someone in energy storage"). Only work details are sent, never names, emails or phone numbers. A fraction of a cent per search.'],
   ['Texts', 'Twilio', 'https://console.twilio.com/us1/monitor/logs/sms', 'Sends Admin › Message texts through the send-message function, only to members who opted in. The number must pass toll-free verification before texts reach real phones; until then test with the Virtual Phone in the Twilio console. STOP replies turn texts off on the profile.'],
   ['Product analytics', 'PostHog', 'https://us.posthog.com/project/611704', 'Clicks and searches as counts: Apply clicks, links off the site, the reel, scroll depth, searches, filters, globe taps. No person is ever tracked.'],
 ];
@@ -22,7 +23,7 @@ const PLACES = [
 <BaseLayout nav="portal" current="admin" title="Tech stack — TL Alumni Network Portal" description="Where the TroyLabs site and network live.">
   <PortalShell label="Handoff">
     <AdminNav current="handoff" />
-    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab; you may need to sign in.</p></div></div>
+    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab. Supabase, Resend and OpenAI use the shared troylabs@usc.edu login.</p></div></div>
 
     <ul class="portal-row-list t-caption" style="margin-top:calc(22 * var(--u))">
       {PLACES.map(([what, where, href, note]) => <li style="align-items:flex-start;gap:calc(16 * var(--u))"><span style="flex:1"><span class="text-ink">{what}</span> <span class="text-muted">· {where}</span><br /><span class="t-fine text-muted">{note}</span></span>{href ? <a href={href} target="_blank" rel="noopener noreferrer" class="t-label portal-linklike no-underline" style="color:var(--color-orange);flex:none">OPEN →</a> : <span class="t-fine portal-tag" style="flex:none">NOT YET</span>}</li>)}

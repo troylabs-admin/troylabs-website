@@ -16,6 +16,8 @@ export async function sendMagicLink(email: string): Promise<{ ok: true } | { ok:
   const { error } = await supabase().auth.signInWithOtp({ email: addr, options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}${HOME}` } });
   if (!error) return { ok: true };
   if (/rate limit|too many/i.test(error.message)) return { ok: false, message: 'Too many sign-in emails just now. Wait a few minutes and try again.' };
+  // the mail service refused (e.g. Resend's daily cap on the free plan): say so plainly instead of Supabase's raw text
+  if (/sending|smtp|email.*(failed|error)/i.test(error.message)) return { ok: false, message: 'We couldn’t send the email just now. Try again in a little while, or write to troylabs@usc.edu.' };
   return { ok: false, message: error.message };
 }
 

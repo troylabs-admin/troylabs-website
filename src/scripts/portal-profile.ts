@@ -156,11 +156,12 @@ async function init() {
   document.querySelectorAll<HTMLElement>('.portal-profile [data-action], .portal-profile .portal-save-row').forEach((b) => { b.dataset.wired = '1'; });
   const saveBtn = form.querySelector<HTMLButtonElement>('[data-action="save"]')!;
   saveBtn.disabled = true; form.setAttribute('aria-busy', 'true');
-  who = await me(); if (!who) return;
+  who = await me(); if (!who || !form.isConnected) return;
   const r = await myProfile();
+  if (!form.isConnected) return;   // left the page while it loaded (client-side navigation keeps this script running)
   if (!r) { flash(saveBtn, 'NOT LOADED', 'Could not load your profile. Reload before editing.', false); form.removeAttribute('aria-busy'); return; }
   form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
-  if (r) { fill(r, who.admin); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-tagx">${escapeHtml(t)}</span>`).join(''); } }
+  if (r) { fill(r, who.admin); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-tagx">${escapeHtml(t)}</span>`).join(''); } }
 
   // SAVE: the whole form
   // (the shared script preventDefaults every [data-action] click before it checks `wired`, so the form's

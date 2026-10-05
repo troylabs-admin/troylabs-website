@@ -645,3 +645,6 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 @media (max-width: 767px) { .portal-wait-steps { flex-direction: column; align-items: flex-start; gap: 12px; margin: 22px auto 4px; width: fit-content; } .portal-wait-steps li { font-size: 13px; gap: 10px; } .portal-wait-dot { width: 20px; height: 20px; font-size: 11px; } }
 /* an AI close match on the network page: not the exact words, but about what was asked (2026-10-05) */
 .portal-close-match { color: #8fb4ff; }
+
+/* the header name stays hidden until the gate writes the signed-in person in (it used to flash the placeholder SAMPLE ALUM) */
+.nav-who:not([data-filled]) { visibility: hidden; }

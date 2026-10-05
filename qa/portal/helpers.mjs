@@ -21,7 +21,8 @@ export async function makeUser(admin, name, approved = true, { blank = false } =
   const { data, error } = await admin.auth.admin.generateLink({ type: 'signup', email, password: crypto.randomUUID(), options: { data: blank ? {} : { full_name: name } } });
   if (error) throw error;
   const id = data.user.id;
-  const cleanup = async () => { const { error } = await admin.auth.admin.deleteUser(id); if (error) throw error; };
+  // the account and its photos (an upload or a LinkedIn import puts files under avatars/<id>/; deleting the user doesn't)
+  const cleanup = async () => { const { data: files } = await admin.storage.from('avatars').list(id); if (files?.length) await admin.storage.from('avatars').remove(files.map((f) => `${id}/${f.name}`)); const { error } = await admin.auth.admin.deleteUser(id); if (error) throw error; };
   try {
     const fields = blank ? { approved } : { approved, full_name: name, current_title: 'Founder', current_company: 'Luma Health', status: 'alum', grad_year: 2024, join_year: 2022, join_term: 'FA', divisions: ['TECH'], city_id: 1 };
     const { error: pe } = await admin.from('profiles').update(fields).eq('id', id);

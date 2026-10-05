@@ -35,6 +35,8 @@ import { cleanAudience, inAudience, type Audience, type Member } from '../_share
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret' };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 const SITE = 'https://usctroylabs.com';
+/** the TroyLabs wordmark at the top of every email (a PNG on the site: Gmail and Outlook don't show SVG); the alt text is the fallback */
+const LOGO = `<img src="${SITE}/email/troylabs-wordmark.png" width="200" height="38" alt="TROYLABS" style="display:block;border:0;outline:none;width:200px;height:auto;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:4px;color:#0a0a0a">`;
 
 interface Msg { id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
 interface Person extends Member { full_name: string; personal_email: string | null; usc_email: string | null; email_opt_in: boolean; phone: string | null; phone_opt_in: boolean }
@@ -45,6 +47,8 @@ function currentTerm(d = new Date()): { term: 'FA' | 'SP'; year: number } {
   const la = new Date(d.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
   return { term: la.getMonth() >= 6 ? 'FA' : 'SP', year: la.getFullYear() };
 }
+/** reserved test domains (RFC 2606) never get real mail: the automated tests use them, and bounces cost quota and reputation */
+const deliverable = (to: string) => !/@(example\.(com|org|net)|[^@\s]+\.(test|invalid|example|localhost))$/i.test(to.trim());
 const emailOf = (p: Person) => (p.personal_email || p.usc_email || '').trim().toLowerCase();
 type EmailTo = { id: string; name: string; email: string }; type TextTo = { id: string; name: string; phone: string };
 const channelsOf = (m: Msg) => (m.send_by === 'both' ? ['email', 'text'] : [m.send_by]) as ('email' | 'text')[];
@@ -80,7 +84,7 @@ function render(m: Msg, test: boolean) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3"><tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;border-radius:14px">
 ${test ? `<tr><td style="padding:14px 32px;background:#fff4ec;border-radius:14px 14px 0 0;${font};font-size:12px;color:#b4561a;letter-spacing:1px">TEST SEND · only you received this</td></tr>` : ''}
-<tr><td style="padding:28px 32px 6px;${font};font-size:13px;font-weight:700;letter-spacing:4px;color:#0a0a0a">TROYLABS</td></tr>
+<tr><td style="padding:28px 32px 6px">${LOGO}</td></tr>
 <tr><td style="padding:14px 32px 0;${font};font-size:15px;line-height:1.6;color:#1a1a1a">${para}</td></tr>
 ${ev ? `<tr><td style="padding:22px 32px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #ececec;border-radius:12px"><tr><td style="padding:18px 20px;${font};color:#1a1a1a">
 <div style="font-size:16px;font-weight:700">${esc(ev.name!)}</div>
@@ -111,6 +115,22 @@ async function resendBatch(emails: unknown[], idempotencyKey: string): Promise<{
     return { ok: true, ids: (body?.data ?? []).map((d: { id: string }) => d.id) };
   }
   return { ok: false, error: 'Resend kept rate-limiting the request' };
+}
+/** "You're in": sent when an admin approves someone (Bryan, 2026-10-05: approving told them nothing). Not an announcement, so it ignores the announcements opt-out. */
+function approvedMail(to: string, name: string) {
+  const { from, replyTo } = config(); const font = "font-family:Helvetica,Arial,sans-serif"; const first = esc((name || '').trim().split(/\s+/)[0] || 'there');
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f3f3f3">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="520" cellpadding="0" cellspacing="0" style="width:100%;max-width:520px;background:#ffffff;border-radius:14px">
+<tr><td style="padding:28px 32px 6px">${LOGO}</td></tr>
+<tr><td style="padding:16px 32px 0;${font};font-size:20px;font-weight:700;color:#0a0a0a">You're in, ${first}.</td></tr>
+<tr><td style="padding:10px 32px 0;${font};font-size:15px;line-height:1.6;color:#1a1a1a">TroyLabs leadership approved you for the TL Alumni Network. Search everyone from TroyLabs by name, company, city or division, see them on the globe, and keep your own profile up to date.</td></tr>
+<tr><td style="padding:22px 32px 4px"><a href="${SITE}/alumni-portal/home" style="display:inline-block;background:#ff7d2c;color:#0a0a0a;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1.5px;padding:13px 24px;border-radius:999px;${font}">OPEN THE NETWORK</a></td></tr>
+<tr><td style="padding:16px 32px 0;${font};font-size:13px;line-height:1.5;color:#666">Sign in with this email address. There's no password: we email you a link each time you sign in on a new device.</td></tr>
+<tr><td style="padding:24px 32px 26px;${font};font-size:12px;line-height:1.5;color:#888"><div style="border-top:1px solid #eeeeee;padding-top:16px">You're getting this because you signed up for the TL Alumni Network at usctroylabs.com. Questions? Reply to reach troylabs@usc.edu.</div></td></tr>
+</table></td></tr></table></body></html>`;
+  const text = `You're in, ${(name || '').trim().split(/\s+/)[0] || 'there'}.\n\nTroyLabs leadership approved you for the TL Alumni Network. Search everyone from TroyLabs by name, company, city or division, and keep your own profile up to date.\n\nOpen the network: ${SITE}/alumni-portal/home\n\nSign in with this email address. There's no password: we email you a link each time you sign in on a new device.\n\n—\nQuestions? Reply to reach troylabs@usc.edu.`;
+  return { from, to: [to], reply_to: replyTo, subject: "You're in: the TL Alumni Network", html, text };
 }
 const mail = (to: string, m: Msg, test: boolean) => { const { from, replyTo } = config(); const { html, text } = render(m, test); return { from, to: [to], reply_to: replyTo, subject: test ? `[TEST] ${m.title}` : m.title, html, text }; };
 
@@ -206,7 +226,7 @@ async function deliver(svc: SupabaseClient, id: number, by: string | null, me: {
   const { data: prior } = await svc.from('message_recipients').select('profile_id, channel, delivered_at').eq('message_id', id);
   const reached = new Set((prior ?? []).filter((r) => r.delivered_at).map((r) => `${r.channel}:${r.profile_id}`));
   await svc.from('message_recipients').delete().eq('message_id', id).is('delivered_at', null);
-  const emails = to.email.filter((p) => !reached.has(`email:${p.id}`)), texts = to.text.filter((p) => !reached.has(`text:${p.id}`));
+  const emails = to.email.filter((p) => !reached.has(`email:${p.id}`) && deliverable(p.email)), texts = to.text.filter((p) => !reached.has(`text:${p.id}`));
   const rows = [...emails.map((p) => ({ message_id: id, profile_id: p.id, channel: 'email', email: p.email })), ...texts.map((p) => ({ message_id: id, profile_id: p.id, channel: 'text', phone: p.phone }))];
   if (rows.length) { const { error } = await svc.from('message_recipients').insert(rows); if (error) return fail(`Couldn’t record the recipients: ${error.message}`, 500); }
   let sentNow = 0, failed = 0; const errors: string[] = [];
@@ -269,7 +289,7 @@ Deno.serve(async (req) => {
   const svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
   const fromTw = new URL(req.url).searchParams.get('twilio');
   if (fromTw) return fromTwilio(req, fromTw, svc);
-  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number };
+  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[] };
   const cfg = config(); const tw = twilio();
 
   // the database's five-minute job: send whatever scheduled message is due
@@ -290,6 +310,28 @@ Deno.serve(async (req) => {
   const { data: myRow } = await svc.from('profiles').select('personal_email, usc_email, phone').eq('id', authUser!.id).single();
   const me = { email: (myRow?.personal_email || myRow?.usc_email || authUser?.email || '').toLowerCase() || null, phone: myRow?.phone ?? null };
 
+  // APPROVE pressed on Admin › Members: tell each newly approved person they're in (one call for one person or a hundred)
+  if (input.mode === 'approved') {
+    if (!cfg.key) return json({ configured: false, error: 'Email isn’t connected yet: the Resend key hasn’t been added.' }, 503);
+    const ids = [...new Set((input.ids ?? []).filter((x) => typeof x === 'string'))].slice(0, 500);
+    if (!ids.length) return json({ sent: 0 });
+    const { data: people, error } = await svc.from('profiles').select('id, full_name, personal_email, usc_email, approved').in('id', ids).eq('approved', true);
+    if (error) return json({ error: error.message }, 500);
+    const list: { id: string; to: string; name: string }[] = [];
+    for (const p of people ?? []) {
+      let to = (p.personal_email || p.usc_email || '').trim();
+      if (!to) { const { data: u } = await svc.auth.admin.getUserById(p.id); to = u?.user?.email ?? ''; }
+      if (to && deliverable(to)) list.push({ id: p.id, to, name: p.full_name });
+    }
+    let sent = 0; const errors: string[] = [];
+    for (let i = 0; i < list.length; i += 100) {
+      const chunk = list.slice(i, i + 100);
+      const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(chunk.map((c) => c.id).sort().join(','))))).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const res = await resendBatch(chunk.map((c) => approvedMail(c.to, c.name)), `tl-approved-${digest}`);   // the same approval retried can't email anyone twice
+      if (res.ok) sent += chunk.length; else errors.push(res.error);
+    }
+    return errors.length && !sent ? json({ sent, error: errors[0] }, 502) : json({ sent, skipped: ids.length - list.length, error: errors[0] ?? null });
+  }
   if (input.mode === 'status') {
     const acct = tw.configured ? await twilioAccount() : null;
     return json({

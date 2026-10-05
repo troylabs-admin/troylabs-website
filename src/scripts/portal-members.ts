@@ -4,6 +4,7 @@
  * a CSV export of the current filter. All through the browser client under the admin policies.
  */
 import { me } from '../lib/auth';
+import { supabase } from '../lib/supabase';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { webUrl } from '../lib/portal/safe-html';
 import { adminListProfiles, approveMany, avatarUrl, cityLabel, cohortOf, completeness, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
@@ -96,6 +97,14 @@ function syncPicks(shown = queue().slice(0, q.shown), matching = queue()) {
 }
 const qfb = (html: string, ok = true) => { const el = document.getElementById('q-fb'); if (el) { el.innerHTML = html; el.style.color = ok ? '' : 'var(--color-orange)'; } };
 const people = (n: number) => `${n} ${n === 1 ? 'person' : 'people'}`;
+/** tell the people just approved that they're in (send-message, mode 'approved'); the approval itself never depends on it */
+async function emailApproved(ids: string[]): Promise<{ sent: number; error: string | null }> {
+  const { data: { session } } = await supabase().auth.getSession();
+  try {
+    const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'approved', ids }) });
+    const b = await r.json().catch(() => ({})); return { sent: b.sent ?? 0, error: r.ok ? b.error ?? null : b.error ?? `status ${r.status}` };
+  } catch { return { sent: 0, error: 'couldn’t reach the email service' }; }
+}
 async function decide(kind: 'approved' | 'declined', ids: string[]) {
   if (!ids.length) return;
   const names = ids.length === 1 ? (rows.find((r) => r.id === ids[0])?.full_name || 'them') : people(ids.length);
@@ -103,7 +112,9 @@ async function decide(kind: 'approved' | 'declined', ids: string[]) {
   if (res.error) { qfb(esc(res.error.message), false); return; }
   for (const id of ids) q.picked.delete(id);
   lastAction = { kind, ids };
-  qfb(`${kind === 'approved' ? `Approved ${esc(names)}. ${ids.length === 1 ? "They're" : "They're all"} in the network the next time they open the portal.` : `Declined ${esc(names)}.`} <button type="button" class="t-label portal-linklike" data-q-undo style="color:var(--color-orange)">UNDO</button>`);
+  let mailNote = '';
+  if (kind === 'approved') { const m = await emailApproved(ids); mailNote = m.error ? ` The “you’re in” email didn’t send (${esc(m.error)}), so let them know yourself.` : m.sent ? ` We emailed ${ids.length === 1 ? 'them' : `all ${m.sent}`} that they’re in.` : ''; }
+  qfb(`${kind === 'approved' ? `Approved ${esc(names)}. ${ids.length === 1 ? "They're" : "They're all"} in the network the next time they open the portal.${mailNote}` : `Declined ${esc(names)}.`} <button type="button" class="t-label portal-linklike" data-q-undo style="color:var(--color-orange)">UNDO</button>`, !mailNote.includes('didn’t send'));
   fb('');
   await load();
 }
@@ -179,7 +190,7 @@ async function init() {
     if (b.dataset.approve) await decide('approved', [b.dataset.approve]);
     else if (b.hasAttribute('data-q-approve')) { const ids = [...q.picked]; if (ids.length > 1 && !confirm(`Approve ${people(ids.length)}? They're in the network the next time they open the portal.`)) return; await decide('approved', ids); }
     else if (b.hasAttribute('data-q-decline')) { const ids = [...q.picked]; if (!confirm(`Decline ${people(ids.length)}? They stay outside the network and see that they weren't approved. You can undo this, or restore them from the Declined list.`)) return; await decide('declined', ids); }
-    else if (b.hasAttribute('data-q-undo') && lastAction) { const a = lastAction; lastAction = null; const r = await restoreMany(a.ids); qfb(r.error ? esc(r.error.message) : `Undone: ${people(a.ids.length)} back on the waiting list.`, !r.error); await load(); }
+    else if (b.hasAttribute('data-q-undo') && lastAction) { const a = lastAction; lastAction = null; const r = await restoreMany(a.ids); qfb(r.error ? esc(r.error.message) : `Undone: ${people(a.ids.length)} back on the waiting list.${a.kind === 'approved' ? ' The “you’re in” email had already gone out, so you may want to let them know.' : ''}`, !r.error); await load(); }
     else if (b.hasAttribute('data-q-everyone')) { for (const r of queue()) q.picked.add(r.id); renderRequests(); }
     else if (b.hasAttribute('data-q-more')) { q.shown += PAGE; renderRequests(); }
     else if (b.dataset.qDetails) { const id = b.dataset.qDetails; q.open.has(id) ? q.open.delete(id) : q.open.add(id); const row = b.closest('li')!; const d = row.querySelector<HTMLElement>('.portal-q-details')!; d.hidden = !q.open.has(id); b.textContent = q.open.has(id) ? 'LESS' : 'DETAILS'; b.setAttribute('aria-expanded', String(q.open.has(id))); }

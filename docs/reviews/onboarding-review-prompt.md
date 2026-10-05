@@ -53,7 +53,7 @@ Open each link in its **own** browser profile or private window, so you are the 
 same time. To test approval again, run cleanup and then create for a fresh applicant.
 
 **Rules:**
-- Never touch the two real accounts, bryanram@usc.edu and myyin@usc.edu.
+- Never touch the real accounts: Bryan (bryanram2024@gmail.com), Charlotte (ctnchang@icloud.com), Stasia (stasiaramirez6@gmail.com) and myyin@usc.edu.
 - Never click SEND NOW or SEND A TEST TO ME.
 - Don't send sign-in emails to real addresses. The free mail tier allows about 2 per hour, and the real launch
   needs them.

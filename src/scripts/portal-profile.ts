@@ -4,7 +4,7 @@
  * "City, ST" into a pin (a shared cities row with coordinates) on UPDATE.
  */
 import { escapeHtml } from '../lib/portal/safe-html';
-import { HOME, me, type Me } from '../lib/auth';
+import { HOME, accountEmail, me, type Me } from '../lib/auth';
 import { applicationMissing, listInWords } from '../lib/portal/application';
 import { prettyPhone, toE164 } from '../lib/portal/phone';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
@@ -225,6 +225,17 @@ async function init() {
       if (kind === 'usc' && v && !/@(?:[a-z0-9-]+\.)*usc\.edu$/i.test(v)) { flash(btn, 'NOT SAVED', 'That is not a usc.edu address.', false); return; }
       if (kind === 'personal' && !v) { flash(btn, 'NOT SAVED', 'Keep a personal email on file so members can reach you.', false); return; }
       if (kind === 'personal' && v && !input.checkValidity()) { flash(btn, 'NOT SAVED', 'Enter a valid email address.', false); return; }
+      // email rows go through the account-email function: a new address is confirmed by email before it counts (2026-10-05)
+      if (kind === 'usc' || kind === 'personal') {
+        const col = kind === 'usc' ? 'usc_email' : 'personal_email'; const was = (row?.[col] ?? '') as string;
+        if ((v ?? '') === was.toLowerCase() || (v ?? '') === was) { flash(btn, 'SAVED', 'No change.'); return; }
+        btn.disabled = true;
+        const r = await accountEmail(v ? { mode: 'add', kind, email: v } : { mode: 'remove', kind }).catch(() => ({ status: 0, error: 'Could not reach the server. Check your connection and try again.' } as Awaited<ReturnType<typeof accountEmail>>));
+        if (r.saved || r.removed) { if (row) row = { ...row, [col]: v }; input.value = v ?? ''; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', r.removed ? 'Removed. You can’t sign in with it anymore.' : 'Saved.'); }
+        else if (r.pending) { input.value = was; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SENT', `We sent a confirmation link to ${v}. Click it and the address shows here; after that you can sign in with it too.`); }
+        else { btn.disabled = false; flash(btn, 'NOT SAVED', r.error ?? 'Something went wrong. Try again.', false); }
+        return;
+      }
       const res = await saveMyProfile(patch);
       if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });

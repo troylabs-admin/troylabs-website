@@ -7,12 +7,25 @@
 import { supabase } from './supabase';
 import { applicationMissing } from './portal/application';
 
+const ACCOUNT_EMAIL = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/account-email';
+/** the `account-email` function: sign in with a second address, add / confirm / remove one (supabase/functions/account-email) */
+export async function accountEmail(body: Record<string, unknown>): Promise<{ status: number; error?: string; sent?: boolean; otp?: boolean; saved?: boolean; pending?: boolean; removed?: boolean; ok?: boolean; reason?: string; email?: string; kind?: string }> {
+  const { data: { session } } = await supabase().auth.getSession();
+  const r = await fetch(ACCOUNT_EMAIL, { method: 'POST', headers: { ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}), 'Content-Type': 'application/json' }, body: JSON.stringify({ origin: location.origin, ...body }) });
+  return { status: r.status, ...(await r.json().catch(() => ({ error: `status ${r.status}` }))) };
+}
+
 export const HOME = '/alumni-portal/home';
 export const GATE = '/alumni-portal';
 
 export async function sendMagicLink(email: string): Promise<{ ok: true } | { ok: false; message: string }> {
   const addr = email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) return { ok: false, message: 'That does not look like an email address.' };
+  // a confirmed second address (e.g. your USC one) signs in to the same account: the function emails that address a link
+  // for your account (2026-10-05). If the function is unreachable, fall through to the usual link: sign-in never depends on it.
+  const routed = await accountEmail({ mode: 'sign-in', email: addr }).catch(() => null);
+  if (routed?.sent) return { ok: true };
+  if (routed?.error && routed.status === 429) return { ok: false, message: routed.error };
   const { error } = await supabase().auth.signInWithOtp({ email: addr, options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}${HOME}` } });
   if (!error) return { ok: true };
   if (/rate limit|too many/i.test(error.message)) return { ok: false, message: 'Too many sign-in emails just now. Wait a few minutes and try again.' };

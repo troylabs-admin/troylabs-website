@@ -1,0 +1,42 @@
+---
+/**
+ * Where a "Confirm this email address" link lands (2026-10-05). The token rides in the #fragment, so it never reaches a
+ * server log; the page hands it to the account-email function, which records the address on the profile and lets it
+ * sign in. Works signed out too: people often open the email in another browser.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/portal.css';
+import PortalFrame from '../../components/portal/PortalFrame.astro';
+---
+
+<BaseLayout nav="gate" title="Confirm your email — TL Alumni Network" description="Confirm an email address for your TroyLabs account.">
+  <PortalFrame h={420} label="Confirm your email">
+    <div class="portal-form flex flex-col items-center" id="confirm-email">
+      <span class="t-label text-muted m-center">TL ALUMNI NETWORK</span>
+      <h1 class="m-0 t-title-tight font-normal text-center portal-h" data-confirm-title>CONFIRMING…</h1>
+      <p class="m-0 t-caption text-center portal-gate-lead" data-confirm-text role="status">One moment.</p>
+      <a href="/alumni-portal/profile" class="portal-btn t-title whitespace-nowrap no-underline" data-confirm-go hidden>OPEN YOUR PROFILE</a>
+    </div>
+  </PortalFrame>
+</BaseLayout>
+<script>
+  import { accountEmail } from '../../lib/auth';
+  const COPY: Record<string, [string, string]> = {
+    used: ['ALREADY CONFIRMED', 'This link was already used. If the address shows on your profile, you’re set.'],
+    expired: ['LINK EXPIRED', 'Confirmation links last 24 hours. Add the address again on your profile to get a new one.'],
+    taken: ['ADDRESS TAKEN', 'Another TroyLabs account confirmed this address first. If it’s yours, write to troylabs@usc.edu.'],
+    unknown: ['LINK NOT RECOGNISED', 'This link doesn’t work. Add the address again on your profile to get a new one.'],
+  };
+  async function run() {
+    const box = document.getElementById('confirm-email'); if (!box || box.dataset.wired) return; box.dataset.wired = '1';
+    const title = box.querySelector<HTMLElement>('[data-confirm-title]')!, text = box.querySelector<HTMLElement>('[data-confirm-text]')!, go = box.querySelector<HTMLElement>('[data-confirm-go]')!;
+    const token = new URLSearchParams(location.hash.slice(1)).get('token') ?? '';
+    history.replaceState(null, '', location.pathname);   // the token leaves the address bar (and the history)
+    const r = await accountEmail({ mode: 'confirm', token }).catch(() => null);
+    if (r?.ok) { title.textContent = 'EMAIL CONFIRMED'; text.textContent = `${r.email} is on your profile now, and you can sign in with it too.`; }
+    else if (r) { const [t, m] = COPY[r.reason ?? 'unknown'] ?? COPY.unknown; title.textContent = t; text.textContent = m; }
+    else { title.textContent = 'TRY AGAIN'; text.textContent = 'Could not reach the server. Check your connection and open the link again.'; return; }
+    go.hidden = false;
+  }
+  document.addEventListener('astro:page-load', run); run();
+</script>

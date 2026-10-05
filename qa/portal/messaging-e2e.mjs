@@ -111,7 +111,8 @@ try {
   const last = (await admin.from('messages').select('id').eq('title', 'E2E page e-board current + alumni').single()).data.id;
   const row = page.locator(`[data-msg-list] li[data-id="${last}"]`);
   await row.locator('[data-recipients-for]').click(); await expect(row.locator('.portal-recipients')).toBeVisible();
-  await expect(row.locator('.portal-recipients li')).toHaveText([/E2E [HI] QA/, /E2E [HI] QA/]);
+  // real members can match too (the real e-board does): check our two people are listed, and nobody else of ours
+  await expect(row.locator('.portal-recipients li', { hasText: /E2E .* QA/ })).toHaveText([/E2E [HI] QA/, /E2E [HI] QA/]);
   await row.locator('[data-recipients-for]').click(); await expect(row.locator('.portal-recipients')).toBeHidden();
   await page.locator('[data-action="new-draft"]').click(); await page.locator('#mc-title').fill('E2E nothing ticked'); await page.locator('#mc-body').fill('x');
   await expect(page.locator('[data-aud-summary]')).not.toHaveCSS('color', 'rgb(255, 125, 44)');   // a quiet hint, not a warning, before anyone tries to send
@@ -145,6 +146,9 @@ try {
       await admin.from('profiles').update({ status: 'alum', divisions: ['TECH'], join_term: 'FA', join_year: 2019, city_id: LA, phone: TEST_PHONE, phone_opt_in: true, email_opt_in: false }).eq('id', T.id);
       await admin.from('profiles').update({ phone: null }).eq('id', boss.id);   // so the phone belongs to T alone
       const { data: gm } = await admin.from('messages').insert({ title: 'E2E group text', body: 'TroyLabs portal check: a group text to alumni in TECH from the FA19 cohort. No reply needed.', send_by: 'text', audience: { cells: [{ group: 'TECH', who: 'alumni' }], cohort: ['FA19'] } }).select().single(); msgs.push(gm.id);
+      // hard stop: a real send may only ever reach this test's own accounts (2026-10-05: real members now share groups with test ones)
+      const pre = await call(boss, 'preview', gm.id); const outsiders = [...(pre.body.recipients ?? []), ...(pre.body.textRecipients ?? [])].filter((r) => !users.some((u) => u.id === (r.id ?? r.profile_id)));
+      if (outsiders.length) throw new Error(`refusing to send: ${outsiders.length} real member(s) match this audience`);
       const s = await call(boss, 'send', gm.id); console.log('group send:', s.status, JSON.stringify(s.body));
       assert.equal(s.status, 200, `group send: ${s.body.error}`);
       const rows = (await admin.from('message_recipients').select('profile_id, channel, phone, delivered_at, provider_id, status, error').eq('message_id', gm.id)).data;

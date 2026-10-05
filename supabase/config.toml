@@ -424,3 +424,6 @@ verify_jwt = false
 [functions.semantic]
 # members/admins are checked inside; the database trigger calls it with the shared secret instead of a JWT
 verify_jwt = false
+
+[functions.account-email]
+verify_jwt = false

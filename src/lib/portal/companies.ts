@@ -37,7 +37,7 @@ export async function getCompany(id: string): Promise<{ company: Company; people
     p.now ||= !j.end_year; by.set(p.id, p);
   }
   for (const t of (typed.data ?? []) as (ProfileBit & { current_title: string | null })[]) {
-    if (by.has(t.id)) { by.get(t.id)!.now = true; continue; }   // their LinkedIn already lists it; they say they're there now
+    if (by.has(t.id)) continue;   // their LinkedIn lists this company: its dates decide now vs before (a typed company goes stale)
     by.set(t.id, { ...person(t), roles: t.current_title ? [{ title: t.current_title, employment_type: null, start_year: null, start_month: null, end_year: null, end_month: null }] : [], now: true });
   }
   const newest = (p: CompanyPerson) => Math.max(0, ...p.roles.map((r) => (r.end_year ?? 9999) * 12 + (r.end_month ?? 12)));

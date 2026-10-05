@@ -124,7 +124,8 @@ try {
   await sync(a, LA, { ...bryan, experience: [nvJob] });
   assert.deepEqual((await section()).before, ['Ada Company QA', 'Ben Company QA'], 'a job that ended moves to "Worked here before"');
   await admin.from('profiles').update({ current_title: 'Intern', current_company: 'NVIDIA', current_job_source: 'manual' }).eq('id', a.id);
-  { const s1 = await section(); assert.deepEqual([s1.now, s1.before], [['Ada Company QA'], ['Ben Company QA']], 'typed "NVIDIA" + an ended LinkedIn job → one card, there now'); }
+  { const s1 = await section(); assert.deepEqual([s1.now, s1.before], [[], ['Ada Company QA', 'Ben Company QA']], 'typed "NVIDIA" + an ended LinkedIn job → one card, and LinkedIn\'s dates decide: before'); }
+  await page.goto(`${base}/alumni-portal/companies`); await expect(page.locator(`a.co-tile[href$="id=${NV}"]`)).toContainText(`${2 + R} members${R ? ` · ${R} there now` : ''}`);   // the list agrees
   await admin.from('profiles').update({ current_title: null, current_company: null, current_job_source: null }).eq('id', a.id);
   assert.deepEqual((await section()).before, ['Ada Company QA', 'Ben Company QA'], 'typed company cleared → back to before');
   await sync(b, LB, { ...bScrape, experience: bScrape.experience.filter((e) => e.companyId === NV).map((e) => ({ ...e, companyName: 'NVIDIA Corporation' })) });

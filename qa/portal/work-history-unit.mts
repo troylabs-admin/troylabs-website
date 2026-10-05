@@ -104,4 +104,7 @@ assert.equal(jobDecision({ current_title: 'Old', current_company: 'Old Co', curr
 assert.equal(jobDecision({ current_title: 'Old', current_company: 'Old Co', current_job_source: 'linkedin' }, null), 'clear', 'LinkedIn\'s, and LinkedIn has no current job now → cleared');
 assert.equal(jobDecision({ current_title: 'Founder', current_company: 'Acme', current_job_source: 'manual' }, null), 'keep', 'typed is never cleared');
 assert.equal(jobDecision(noJob, null), 'keep');
+const troy = { title: 'President', company: 'TroyLabs', company_linkedin_id: '18216697', company_logo: null, employment_type: null, workplace_type: null, location: null, description: null, start_year: 2025, start_month: 12, end_year: null, end_month: null };
+assert.equal(currentRole([troy, { ...troy, title: 'APM', company: 'Google', company_linkedin_id: '1441' }])?.company, 'Google', 'TroyLabs is never the current job (Stasia: President @ TroyLabs first on LinkedIn)');
+assert.equal(currentRole([{ ...troy, company: 'LavaLab', company_linkedin_id: '3663395' }]), null, 'nor a club');
 console.log('PASS: current job — take / keep / clear, never touching what they typed');

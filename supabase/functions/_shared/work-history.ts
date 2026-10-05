@@ -137,7 +137,9 @@ export function photoDecision(profile: { avatar_path: string | null; avatar_sour
 }
 
 /** LinkedIn's current job: the first role with no end (LinkedIn lists the main one first) */
-export const currentRole = (rows: WorkRow[]) => rows.find((r) => r.end_year === null) ?? null;
+/** TroyLabs and the known student clubs aren't someone's job here (everyone was in TroyLabs) */
+export const isClubName = (company: string) => /^\s*(troy\s?labs|lava\s?lab|quant\s?sc)\s*$/i.test(company);
+export const currentRole = (rows: WorkRow[]) => rows.find((r) => r.end_year === null && !isClubName(r.company) && r.company_linkedin_id !== '18216697') ?? null;
 /** set the card's current job from LinkedIn? Only when it came from LinkedIn before, or nothing was typed */
 export function jobDecision(p: { current_title: string | null; current_company: string | null; current_job_source: string | null }, role: WorkRow | null): 'take' | 'keep' | 'clear' {
   // LinkedIn no longer shows a current job: one that came from LinkedIn goes too (it kept them on that company's page)

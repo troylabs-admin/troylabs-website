@@ -165,7 +165,7 @@ async function linkedInPanel() {
   if (!box.isConnected) return;
   const preview = $('[data-li-preview]'); if (preview) preview.innerHTML = history ? historyHtml(history) : '';
   // LinkedIn's current job, when it differs from the one on their card
-  const hint = $('[data-li-job]'); const cur = history?.work.find((w) => w.end_year === null);
+  const hint = $('[data-li-job]'); const cur = history?.work.find((w) => w.end_year === null && !w.is_club);   // TroyLabs is already left out; clubs aren't a job either
   const same = (a: string | null | undefined, b: string | null | undefined) => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
   if (hint) {
     const typedTitle = ($('#pf-title') as HTMLInputElement).value, typedCo = ($('#pf-co') as HTMLInputElement).value;

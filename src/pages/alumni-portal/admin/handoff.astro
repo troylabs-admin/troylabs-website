@@ -1,6 +1,6 @@
 ---
 /**
- * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15; Resend + OpenAI + Apify + Figma 2026-10-05). Just the places.
+ * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15; Resend + OpenAI + Apify 2026-10-05). Just the places.
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -9,7 +9,6 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 const PLACES = [
   ['Website hosting', 'Vercel', 'https://vercel.com/troylabs-projects/troylabs-landing-page', 'Deploys itself on every push to main. Domains live here too.'],
   ['Source code', 'GitHub', 'https://github.com/troylabs-admin/troylabs-website', 'Public repo, org-owned. The README explains the layout.'],
-  ['Design', 'Figma', 'https://www.figma.com/design/j8DBdVOGveHEj6OP3JEQwh', 'The "Troylabs 2026" file, page [CURRENT] website redesign (designer Ellie Lin-Stevens). The marketing pages are built 1:1 from it.'],
   ['Member roster', 'Notion — TL Fam', 'https://app.notion.com/p/troylabsvc/TL-Fam-242fd750736d8071952afba366474861', 'Actives and Rocket Classes by semester.'],
   ['Domains', 'Name.com', 'https://www.name.com', 'usctroylabs.com and troylabs.vc. Auto-renew is on; .vc redirects to .com.'],
   ['Database', 'Supabase', 'https://supabase.com/dashboard/project/ackmhqxyxnceoarbhcrp', 'Project TL_Network in the TroyLabs org: members, sign-in, photos, work history, company logos, messages, and the timed jobs (LinkedIn import every minute, scheduled messages every 5 minutes). Free plan.'],
@@ -25,7 +24,7 @@ const PLACES = [
 <BaseLayout nav="portal" current="admin" title="Tech stack — TL Alumni Network Portal" description="Where the TroyLabs site and network live.">
   <PortalShell label="Handoff">
     <AdminNav current="handoff" />
-    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab. Supabase, Resend and OpenAI use the shared troylabs@usc.edu login.</p></div></div>
+    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab. Supabase, Resend, OpenAI and Apify use the shared troylabs@usc.edu login.</p></div></div>
 
     <ul class="portal-row-list t-caption" style="margin-top:calc(22 * var(--u))">
       {PLACES.map(([what, where, href, note]) => <li style="align-items:flex-start;gap:calc(16 * var(--u))"><span style="flex:1"><span class="text-ink">{what}</span> <span class="text-muted">· {where}</span><br /><span class="t-fine text-muted">{note}</span></span>{href ? <a href={href} target="_blank" rel="noopener noreferrer" class="t-label portal-linklike no-underline" style="color:var(--color-orange);flex:none">OPEN →</a> : <span class="t-fine portal-tag" style="flex:none">NOT YET</span>}</li>)}

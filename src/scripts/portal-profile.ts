@@ -32,13 +32,15 @@ const yr = (sel: string) => parseYear(($(sel) as HTMLInputElement).value) ?? nul
 const recount = () => document.querySelector('.portal-profile input')?.dispatchEvent(new Event('input', { bubbles: true }));
 
 let row: ProfileRow | null = null;
-/** ask send-message for the opt-in confirmation text (fire and forget: the save already succeeded, and before the
- *  number's registration is approved Twilio simply refuses it) */
-async function welcomeText(profileId: string | null) {
+/** ask send-message for the confirmation text after texts turn on ('welcome-text') or off on the website ('optout-text').
+ *  The setting is already saved; this only reports back when the carrier blocks us because the phone replied STOP before
+ *  (error 21610): then the member has to text START from that phone, and the page says so. */
+async function confirmText(mode: 'welcome-text' | 'optout-text', profileId: string | null): Promise<{ sent?: boolean; code?: number | null; from?: string } | null> {
   try {
     const { data: { session } } = await supabase().auth.getSession();
-    await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'welcome-text', ...(profileId ? { profileId } : {}) }) });
-  } catch { /* the setting is saved either way */ }
+    const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, ...(profileId ? { profileId } : {}) }) });
+    return await r.json();
+  } catch { return null; }
 }
 /** an admin editing someone else's profile (?id=, 2026-10-06): whose row this page loads and saves; null = your own */
 let other: string | null = null;
@@ -316,8 +318,16 @@ async function init() {
       }
       const before = { on: Boolean(row?.phone_opt_in), phone: row?.phone ?? null };
       const res = await save(patch);
-      // texts just turned on (or the number changed while on): the confirmation text the A2P registration promises
-      if (res.ok && kind === 'phone' && res.row.phone_opt_in && res.row.phone && (!before.on || before.phone !== res.row.phone)) void welcomeText(other);
+      // texts just turned on (or the number changed while on): the confirmation text the A2P registration promises;
+      // turned off here on the website: one text saying so and how to turn them back on (a STOP reply is Twilio's to answer)
+      const turnedOn = res.ok && kind === 'phone' && res.row.phone_opt_in && res.row.phone && (!before.on || before.phone !== res.row.phone);
+      const turnedOff = res.ok && kind === 'phone' && before.on && !res.row.phone_opt_in;
+      if (turnedOn || turnedOff) void confirmText(turnedOn ? 'welcome-text' : 'optout-text', other).then((r) => {
+        if (r?.code !== 21610 || !rowEl.isConnected) return;
+        const note = rowEl.querySelector<HTMLElement>('.portal-feedback'); if (!note) return;
+        note.style.color = 'var(--color-orange)';
+        note.textContent = `Saved, but ${other ? 'their' : 'your'} phone blocked TroyLabs texts earlier by replying STOP. To finish turning them back on, text START to ${prettyPhone(r.from ?? '')} from that phone.`;
+      });
       if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (other ? (textsOn ? 'Saved. They’ll get TroyLabs event texts.' : 'Saved. They won’t get texts.') : textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });
   }

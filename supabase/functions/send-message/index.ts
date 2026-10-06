@@ -29,7 +29,7 @@
  * CRON_SECRET (set with the migration).
  */
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
-import { SMS_MAX, segments, smsBody, straighten } from '../_shared/sms.ts';
+import { GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
 import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret' };
@@ -165,8 +165,6 @@ const TWILIO_ERRORS: Record<number, string> = {
 };
 const twilioError = (code: number | null | undefined, fallback = 'Twilio couldn’t send it') => (code && TWILIO_ERRORS[code]) || (code ? `${fallback} (Twilio error ${code})` : fallback);
 const STATUS: Record<string, string> = { accepted: 'queued', scheduled: 'queued', queued: 'queued', sending: 'sent', sent: 'sent', delivered: 'delivered', read: 'delivered', undelivered: 'undelivered', failed: 'failed', canceled: 'failed' };
-/** the A2P campaign's registered opt-in message, sent when someone turns texts on (keep identical to the registration) */
-const WELCOME_TEXT = straighten('TroyLabs: You\'re signed up for TroyLabs event texts, a few msgs a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.');
 async function twilioSend(to: string, body: string): Promise<{ ok: true; sid: string; status: string } | { ok: false; code: number | null; error: string }> {
   const t = twilio();
   const form = new URLSearchParams({ To: to, From: t.from, Body: body, StatusCallback: `${FN_URL()}?twilio=status` });
@@ -311,24 +309,28 @@ Deno.serve(async (req) => {
 
   // everything else: a signed-in admin
   const user = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } }, auth: { persistSession: false } });
-  // TEXTS TURNED ON (2026-10-06): the confirmation text carriers require after every opt-in, word for word the opt-in
-  // message registered with the A2P campaign. The member themself (or an admin turning texts on for them) asks for it
-  // right after saving; it goes only to that profile's own number, once per number per day, at most 3 tries a day.
-  // Temporary test accounts never get a real text: they get the body back instead.
-  if (input.mode === 'welcome-text') {
+  // CONFIRMATION TEXTS (2026-10-06). 'welcome-text': texts just turned on, so the campaign's registered opt-in message.
+  // 'optout-text': texts just turned off ON THE WEBSITE, so one message saying so and how to turn them back on (a single
+  // confirmation after an opt-out is allowed; a STOP reply gets Twilio's own registered reply, never this). The member
+  // (or an admin for them) asks right after saving; only that profile's own number; once per number per kind per day,
+  // at most 3 a day. Test accounts never get a real text: the body comes back instead.
+  if (input.mode === 'welcome-text' || input.mode === 'optout-text') {
+    const welcome = input.mode === 'welcome-text'; const event = welcome ? 'texts_welcome' : 'texts_goodbye'; const body = straighten(welcome ? WELCOME_TEXT : GOODBYE_TEXT);
     const { data: { user: caller } } = await user.auth.getUser(); if (!caller) return json({ error: 'sign in first' }, 401);
     const target = typeof input.profileId === 'string' && input.profileId !== caller.id ? input.profileId : caller.id;
     if (target !== caller.id) { const { data: adm } = await user.rpc('is_admin'); if (!adm) return json({ error: 'admins only' }, 403); }
     const { data: p } = await svc.from('profiles').select('phone, phone_opt_in, is_test').eq('id', target).maybeSingle();
-    if (!p?.phone_opt_in || !p.phone) return json({ sent: false, reason: 'texts are off' });
-    const { data: recent } = await svc.from('profile_events').select('detail').eq('profile_id', target).eq('event', 'texts_welcome').gte('at', new Date(Date.now() - 24 * 3600_000).toISOString());
-    if ((recent ?? []).some((e) => e.detail?.phone === p.phone && (e.detail?.ok || e.detail?.test))) return json({ sent: false, reason: 'already welcomed this number today' });
+    if (!p?.phone) return json({ sent: false, reason: 'no number' });
+    if (welcome ? !p.phone_opt_in : p.phone_opt_in) return json({ sent: false, reason: welcome ? 'texts are off' : 'texts are on' });
+    const { data: recent } = await svc.from('profile_events').select('detail').eq('profile_id', target).eq('event', event).gte('at', new Date(Date.now() - 24 * 3600_000).toISOString());
+    if ((recent ?? []).some((e) => e.detail?.phone === p.phone && (e.detail?.ok || e.detail?.test))) return json({ sent: false, reason: 'already sent to this number today' });
     if ((recent ?? []).length >= 3) return json({ sent: false, reason: 'too many tries today' });
-    if (p.is_test) { await svc.from('profile_events').insert({ profile_id: target, event: 'texts_welcome', actor: caller.id, detail: { phone: p.phone, test: true } }); return json({ sent: false, test: true, body: WELCOME_TEXT }); }
+    if (p.is_test) { await svc.from('profile_events').insert({ profile_id: target, event, actor: caller.id, detail: { phone: p.phone, test: true } }); return json({ sent: false, test: true, body }); }
     if (!twilio().configured) return json({ sent: false, reason: 'texts aren’t connected yet' });
-    const r = await twilioSend(p.phone, WELCOME_TEXT);
-    await svc.from('profile_events').insert({ profile_id: target, event: 'texts_welcome', actor: caller.id, detail: { phone: p.phone, ok: r.ok, ...(r.ok ? { sid: r.sid } : { error: r.error }) } });
-    return json(r.ok ? { sent: true } : { sent: false, error: r.error });
+    const r = await twilioSend(p.phone, body);
+    await svc.from('profile_events').insert({ profile_id: target, event, actor: caller.id, detail: { phone: p.phone, ok: r.ok, ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
+    // 21610: this phone replied STOP earlier, so the carrier blocks us until it texts START (ticking the box isn't enough)
+    return json(r.ok ? { sent: true } : { sent: false, error: r.error, code: r.code, from: twilio().from });
   }
 
   const { data: isAdmin } = await user.rpc('is_admin');
@@ -336,6 +338,28 @@ Deno.serve(async (req) => {
   const { data: { user: authUser } } = await user.auth.getUser();
   const { data: myRow } = await svc.from('profiles').select('personal_email, usc_email, phone').eq('id', authUser!.id).single();
   const me = { email: (myRow?.personal_email || myRow?.usc_email || authUser?.email || '').toLowerCase() || null, phone: myRow?.phone ?? null };
+
+  // TEXTS TURNED ON BEFORE TEXTS WORKED (2026-10-06): those members never got the welcome. Admin › Messages lists them
+  // (dry) and sends it to each once. Same world rule as group sends (a test admin only reaches test accounts, never
+  // texted for real); group-text hours apply.
+  if (input.mode === 'welcome-backlog') {
+    const { data: meRow } = await svc.from('profiles').select('is_test').eq('id', authUser!.id).maybeSingle(); const testWorld = Boolean(meRow?.is_test);
+    const { data: list } = await svc.from('profiles').select('id, full_name, phone').eq('approved', true).eq('phone_opt_in', true).not('phone', 'is', null).eq('is_test', testWorld);
+    const { data: done } = await svc.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome');
+    const welcomed = new Set((done ?? []).filter((e) => e.detail?.ok || e.detail?.test).map((e) => `${e.profile_id}|${e.detail?.phone}`));
+    const todo = (list ?? []).filter((p) => !welcomed.has(`${p.id}|${p.phone}`));
+    if (input.dry) return json({ people: todo.map((p) => ({ id: p.id, name: p.full_name, phone: p.phone })) });
+    if (!testWorld && !tw.configured) return json({ error: 'Texts aren’t connected yet.' }, 503);
+    if (!testWorld && !textingHours()) return json({ error: 'Group texts only go out between 8 AM and 9 PM Pacific.' }, 400);
+    const body = straighten(WELCOME_TEXT); let sent = 0; const errors: string[] = [];
+    for (const p of todo) {
+      if (testWorld) { await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, test: true, backlog: true } }); sent++; continue; }
+      const r = await twilioSend(p.phone!, body);
+      await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, ok: r.ok, backlog: true, ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
+      if (r.ok) sent++; else errors.push(r.error);
+    }
+    return json({ sent, failed: errors.length, error: errors[0] ?? null, test: testWorld || undefined });
+  }
 
   // APPROVE pressed on Admin › Members: tell each newly approved person they're in (one call for one person or a hundred)
   if (input.mode === 'approved') {

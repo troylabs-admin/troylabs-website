@@ -8,6 +8,13 @@ type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string;
 const MESSAGES: Msg[] = [];
 import { INDUSTRIES } from '../../../lib/portal/options';
 import { GROUPS } from '../../../../supabase/functions/_shared/audience';
+import { GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../../../supabase/functions/_shared/sms';
+const AUTO: [string, string, string][] = [
+  ['Someone turns texts on', 'On their profile (or an admin does it for them), or by replying START. Sent once per number.', WELCOME_TEXT],
+  ['Someone turns texts off on the website', 'On their profile, or an admin does it for them. Sent once. A STOP reply gets the next one instead.', GOODBYE_TEXT],
+  ['Someone replies STOP', 'Twilio answers and blocks texts to that phone until it replies START; their profile box unticks.', STOP_REPLY],
+  ['Someone replies HELP', 'Twilio answers.', HELP_REPLY],
+];
 const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this semester. Alumni: alumni who held one in any semester.', EVERYONE: 'Current: every student. Alumni: every alum.' };
 ---
 
@@ -24,8 +31,10 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
       <form class="portal-panel" novalidate>
         <h2 class="t-sub portal-panel-title">Compose message</h2>
         <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
+        <span class="t-label text-muted">START FROM A TEMPLATE</span><div class="flex flex-wrap portal-chips" data-templates style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"></div>
         <div class="portal-field"><label class="t-label text-muted" for="mc-title">SUBJECT <span style="letter-spacing:0;text-transform:none">· the email's subject line and how it's listed below (texts don't use it)</span></label><input id="mc-title" class="t-caption portal-input is-wide" maxlength="150" /></div>
-        <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea><p id="mc-sms" class="m-0 t-fine text-muted" aria-live="polite" hidden></p></div>
+        <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea><p id="mc-sms" class="m-0 t-fine text-muted" aria-live="polite" hidden></p>
+          <div class="portal-sms-preview" data-sms-preview hidden><span class="t-label text-muted">HOW THE TEXT LOOKS</span><p class="m-0 t-caption portal-sms-bubble" data-sms-bubble></p></div></div>
         <details class="portal-fold" data-fold>
           <summary class="t-label text-muted">EVENT DETAILS (OPTIONAL)</summary>
         <div class="portal-field" style="gap:calc(10 * var(--u))">
@@ -53,6 +62,7 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
           <span class="t-label text-muted">INDUSTRIES</span><div class="flex flex-wrap portal-chips" data-aud-industries style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{INDUSTRIES.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div>
         </details>
         <p class="t-fine portal-feedback" data-aud-summary role="status" style="margin:calc(10 * var(--u)) 0 calc(14 * var(--u))"></p>
+        <details class="portal-fold portal-who" data-who-list open hidden><summary class="t-label text-muted" data-who-head>WHO GETS IT</summary><ul class="portal-row-list t-fine portal-who-items" data-who-items></ul></details>
         <span class="t-label text-muted">WHEN</span>
         <div class="flex flex-wrap portal-chips" data-single data-when style="margin:calc(8 * var(--u)) 0 calc(10 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
         <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input id="mc-when" type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
@@ -66,6 +76,16 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
         </div>
       </div>
     </div>
+
+    <!-- the texts the system sends by itself, word for word (2026-10-06), and the one-time welcome for members who turned
+         texts on before texts were connected -->
+    <h2 class="t-sub portal-section-h">Automatic texts</h2>
+    <p class="portal-section-sub t-fine text-muted">Sent by themselves, word for word. Every text starts with "TroyLabs:" so people know who it's from.</p>
+    <ul class="portal-row-list t-caption portal-auto" data-auto-texts>
+      {AUTO.map(([when, how, text]) => <li><span class="portal-auto-when"><span class="text-ink">{when}</span><br /><span class="t-fine text-muted">{how}</span></span><span class="portal-sms-bubble t-fine">{text}</span></li>)}
+      <li data-backlog hidden><span class="portal-auto-when"><span class="text-ink">Members who turned texts on before texts were connected</span><br /><span class="t-fine text-muted" data-backlog-note></span></span><span class="portal-inline"><button type="button" class="t-label portal-linklike" data-backlog-who>SEE WHO</button><button type="button" class="portal-btn is-small t-label" data-backlog-send disabled>SEND THEM THE WELCOME</button></span></li>
+    </ul>
+    <ul class="portal-row-list t-fine portal-who-items" data-backlog-list hidden></ul>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->
     <h2 class="t-sub portal-section-h">All messages</h2>

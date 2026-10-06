@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { cohortOf, type ProfileRow } from '../lib/portal/data';
 import { prettyPhone } from '../lib/portal/phone';
 import { currentTerm } from '../lib/portal/options';
-import { SMS_MAX, segments, smsBody } from '../../supabase/functions/_shared/sms';
+import { SMS_MAX, placeholderLeft, segments, smsBody } from '../../supabase/functions/_shared/sms';
 import { cleanAudience, describeAudience, inAudience, inCell, type Audience, type Cell, type EboardSets, type Group } from '../../supabase/functions/_shared/audience';
 
 type Msg = { id: number; title: string; body: string; send_by: string; audience: Audience; event: any; state: string; scheduled_for: string | null; sent_at: string | null; updated_at: string; sent_count: number; failed_count: number; last_error: string | null };
@@ -20,15 +20,16 @@ const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
 let people: ProfileRow[] = [], messages: Msg[] = [], rcpts: Rcpt[] = [], editing: number | null = null;
 let delivery: Delivery | null = null;
+let imTest = false;   // a test admin's page counts and sends only within test accounts (send-message does the same)
 let nudged = false;   // the 'tick a box' hint turns orange only after someone tries to send without one
 let eb: EboardSets = { now: new Set(), ever: new Set() };   // e-board this semester / in any semester (the E-BOARD row)
 
 /** call the send-message function as the signed-in admin */
-async function fn(mode: string, messageId?: number): Promise<{ ok: boolean; status: number; body: any }> {
+async function fn(mode: string, messageId?: number, extra: Record<string, unknown> = {}): Promise<{ ok: boolean; status: number; body: any }> {
   const { data: { session } } = await supabase().auth.getSession();
   const url = ((import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || 'https://ackmhqxyxnceoarbhcrp.supabase.co') + '/functions/v1/send-message';
   try {
-    const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, messageId }) });
+    const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, messageId, ...extra }) });
     return { ok: r.ok, status: r.status, body: await r.json().catch(() => ({})) };
   } catch { return { ok: false, status: 0, body: { error: 'Couldn’t reach the sending service. Check your connection.' } }; }
 }
@@ -72,8 +73,11 @@ function smsCount() {
   const out = $('#mc-sms'); if (!out) return;
   const sendBy = $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
   const body = ($('#mc-body') as HTMLTextAreaElement).value;
-  out.hidden = sendBy === 'email' || !body.trim(); if (out.hidden) return;
+  out.hidden = sendBy === 'email' || !body.trim();
+  const prev = $('[data-sms-preview]'); if (prev) prev.hidden = out.hidden;
+  if (out.hidden) return;
   const c = compose(); const sms = smsBody(c.body, c.event); const size = segments(sms);
+  const bubble = $('[data-sms-bubble]'); if (bubble) bubble.textContent = sms;   // exactly what each phone gets: "TroyLabs:", the event line, the STOP line
   out.style.color = sms.length > SMS_MAX ? 'var(--color-orange)' : '';
   out.textContent = sms.length > SMS_MAX ? `Too long for a text: ${sms.length} of ${SMS_MAX} characters.`
     : `As a text: ${size.chars} characters with “TroyLabs:” and the STOP line, ${size.segments === 1 ? 'one text' : `${size.segments} texts joined into one`} per person${size.unicode ? ' (an emoji or special character makes texts shorter)' : ''}.`;
@@ -100,7 +104,42 @@ function summary() {
   out.style.color = !a.aud.cells.length && nudged ? 'var(--color-orange)' : 'var(--color-muted)';
   out.textContent = !a.aud.cells.length ? 'Tick the groups who should get it. Nothing goes to anyone until you do.'
     : `Sending to ${describeAudience(a.aud)}: ${howMany(a.who.length)} (${reachText(a)}). Everyone gets it once, even if they're in several groups.`;
+  renderWho(a);
 }
+/** the people the ticked boxes add up to, by name, with how each is reached; and who in the group won't get it, and why */
+function renderWho(a: ReturnType<typeof audience>) {
+  const box = $('[data-who-list]'), list = $('[data-who-items]'), head = $('[data-who-head]'); if (!box || !list || !head) return;
+  box.hidden = !a.aud.cells.length; if (box.hidden) return;
+  const name = (p: ProfileRow) => p.full_name || '(no name yet)'; const byName = (x: ProfileRow, y: ProfileRow) => name(x).localeCompare(name(y));
+  const inGroup = people.filter((p) => p.approved && inAudience(p, a.aud, eb)); const missed = inGroup.filter((p) => !a.who.includes(p)).sort(byName);
+  const noText = (p: ProfileRow) => (p.phone ? 'texts off' : 'no number'), noMail = (p: ProfileRow) => ((p.personal_email || p.usc_email) ? 'announcements off' : 'no email');
+  const why = (p: ProfileRow) => a.sendBy === 'text' ? noText(p) : a.sendBy === 'email' ? noMail(p) : `${noText(p)}, ${noMail(p)}`;
+  head.textContent = `WHO GETS IT · ${a.who.length.toLocaleString()}`;
+  list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${[a.emails.includes(p) && 'EMAIL', a.texts.includes(p) && 'TEXT'].filter(Boolean).join(' + ')}</span></li>`).join('')
+    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">Won't get it (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
+    + (!a.who.length && !missed.length ? '<li class="text-muted">Nobody is in these groups yet.</li>' : '');
+}
+/* Templates (Bryan, 2026-10-06: "a formatting already for the text messages"): fill the composer; anything in [brackets]
+   is for the admin to replace, and nothing sends while a [placeholder] is left. Each text goes out as "TroyLabs: …",
+   then the event line and RSVP link when event details are filled in, then "Reply STOP to opt out." */
+type Template = { label: string; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience?: Audience; event?: boolean };
+const TEMPLATES: Template[] = [
+  { label: 'EVENT INVITE', title: 'Invite: [Event name]', body: "You're invited to [Event name]! [One line on why to come]. RSVP below.", send_by: 'both', event: true },
+  { label: 'EVENT REMINDER', title: 'Reminder: [Event name] tomorrow', body: 'Reminder: [Event name] is tomorrow at [Time], [Location]. See you there!', send_by: 'both' },
+  { label: 'ANNOUNCEMENT', title: '[Announcement subject]', body: '[Your news in one or two sentences]. More at usctroylabs.com', send_by: 'both' },
+  { label: 'WELCOME TO THE NETWORK', title: 'Welcome to the TL Alumni Network', body: 'Welcome to the TL Alumni Network! Find TroyLabs members and alumni by company, city or industry at usctroylabs.com/alumni-portal', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] } },
+];
+function useTemplate(t: Template) {
+  editing = null;
+  ($('#mc-title') as HTMLInputElement).value = t.title; ($('#mc-body') as HTMLTextAreaElement).value = t.body;
+  for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = '';
+  if (t.event) { ($('#mc-ev-name') as HTMLInputElement).value = '[Event name]'; ($('#mc-ev-where') as HTMLInputElement).value = '[Location]'; const d = document.querySelector<HTMLDetailsElement>('details[data-fold]'); if (d) d.open = true; }
+  document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === t.send_by)));
+  if (t.audience) setPicked(t.audience);
+  smsCount(); summary(); fb(`Loaded the ${t.label.toLowerCase()} template. Replace everything in [brackets], pick who gets it, then send yourself a test.`);
+}
+/** a [placeholder] left from a template: nothing sends (or schedules) until it's filled in */
+const leftover = () => { const c = compose(); return placeholderLeft(c.title, c.body, c.event?.name, c.event?.where, c.event?.rsvp); };
 function renderMessages() {
   const list = $('[data-msg-list]')!; const tab = $('[data-msg-tabs] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'all';
   const rows = messages.filter((m) => m.state !== 'cancelled');
@@ -165,6 +204,7 @@ function setPicked(a: Audience) {
 /** write the composer to the database (new or the one being edited) and return its id */
 async function persist(state: 'draft' | 'scheduled'): Promise<{ id: number; who: number } | { error: string }> {
   const c = compose(); if (!c.body) return { error: 'Write the message first.' };
+  if (state === 'scheduled') { const ph = leftover(); if (ph) return { error: `Fill in ${ph} first. It's still the template's placeholder.` }; }
   const a = audience(); if (state === 'scheduled' && !a.aud.cells.length) { nudged = true; summary(); return { error: 'Pick who gets it first: tick at least one box under Who gets it.' }; }   // a draft can wait for its audience
   const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
   if (state === 'scheduled' && later && !at) return { error: 'Pick a date and time to schedule it.' };
@@ -189,6 +229,7 @@ async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
 async function testSend(btn: HTMLElement) {
   await busy(btn, async () => {
     if (!($('#mc-title') as HTMLInputElement).value.trim()) { fb('Add a subject first.', false); return; }
+    const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
     const r = await persist('draft'); if ('error' in r) { fb(r.error, false); return; }
     fb('Sending you a test…');
     const res = await fn('test', r.id); const got = [res.body.email && `an email to ${res.body.email} (check spam too)`, res.body.text && `a text to ${prettyPhone(res.body.text)}`].filter(Boolean).join(' and ');
@@ -201,6 +242,7 @@ async function sendNow(btn: HTMLElement) {
   if (later) { await save('scheduled', btn); return; }
   await busy(btn, async () => {
     const title = ($('#mc-title') as HTMLInputElement).value.trim(); if (!title) { fb('Add a subject first.', false); return; }
+    const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
     const a = audience();
     if (!a.aud.cells.length) { nudged = true; summary(); fb('Pick who gets it first: tick at least one box under Who gets it.', false); return; }
     if (!a.who.length) { fb(a.sendBy === 'email' ? 'Nobody matches this audience (or everyone in it has turned announcements off).' : 'Nobody in this audience can be reached that way. Texts go only to people who added a number and opted in.', false); return; }
@@ -219,12 +261,23 @@ async function load() {
   const now = currentTerm();
   const [{ data: p }, { data: m }, { data: r }, { data: e }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('messages').select('*').order('updated_at', { ascending: false }), sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'), sb.from('eboard_roles').select('profile_id, term, year')]);
   // the same world send-message uses: a test admin counts only test accounts, a real admin never sees them anyway (RLS)
-  const { data: imTest } = await sb.rpc('viewer_is_test');
-  people = ((p ?? []) as (ProfileRow & { is_test?: boolean })[]).filter((x) => Boolean(x.is_test) === Boolean(imTest)); messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
+  const { data: viewerTest } = await sb.rpc('viewer_is_test'); imTest = Boolean(viewerTest);
+  people = ((p ?? []) as (ProfileRow & { is_test?: boolean })[]).filter((x) => Boolean(x.is_test) === imTest); messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
   eb = { now: new Set(roles.filter((x) => x.term === now.term && x.year === now.year).map((x) => x.profile_id)), ever: new Set(roles.map((x) => x.profile_id)) };
   if (!$('[data-msg-list]')) return;   // left the page while it loaded (a delete or save reloads the list; leaving mid-reload threw 'innerHTML of null')
-  renderCohorts(); renderGrid(); renderMessages(); smsCount();
+  renderCohorts(); renderGrid(); renderMessages(); smsCount(); void backlog();
+}
+/** members who turned texts on before texts were connected never got the welcome: list them, and send it once */
+let backlogPeople: { id: string; name: string; phone: string }[] = [];
+async function backlog() {
+  const row = $('[data-backlog]'); if (!row) return;
+  const res = await fn('welcome-backlog', undefined, { dry: true }); if (!row.isConnected || !res.ok) return;
+  backlogPeople = res.body.people ?? []; row.hidden = !backlogPeople.length;
+  const t = delivery?.text; const ready = imTest || Boolean(t?.configured && !t.trial && !t.error);
+  $('[data-backlog-note]')!.textContent = `${howMany(backlogPeople.length)} ${backlogPeople.length === 1 ? 'hasn’t' : 'haven’t'} had the welcome text yet.${ready ? '' : ' It can go out once texts are connected (the Twilio registration is approved).'}`;
+  ($('[data-backlog-send]') as HTMLButtonElement).disabled = !ready;
+  $('[data-backlog-list]')!.innerHTML = backlogPeople.map((p) => `<li><span class="text-ink">${esc(p.name || '(no name yet)')}</span><span class="text-muted">${esc(prettyPhone(p.phone))}</span></li>`).join('');
 }
 async function init() {
   const list = $('[data-msg-list]'); if (!list || list.dataset.wired) return; list.dataset.wired = '1';
@@ -237,7 +290,8 @@ async function init() {
   actions.forEach((b) => { b.disabled = true; });
   const who = await me(); if (!who?.admin) return; await load();
   actions.forEach((b) => { b.disabled = false; });
-  void fn('status').then((res) => { delivery = res.ok ? res.body : { email: { configured: false, testMode: false, testTo: null }, text: { configured: false, from: null, trial: false, error: res.body?.error ?? 'couldn’t check', testTo: null, hoursOpen: true } }; showDelivery(); });
+  void fn('status').then((res) => { delivery = res.ok ? res.body : { email: { configured: false, testMode: false, testTo: null }, text: { configured: false, from: null, trial: false, error: res.body?.error ?? 'couldn’t check', testTo: null, hoursOpen: true } }; showDelivery(); void backlog(); });
+  const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
   document.querySelector('.portal-panels form')?.addEventListener('input', smsCount);
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
@@ -249,6 +303,13 @@ async function init() {
     else if (b.dataset.action === 'send') { e.preventDefault(); await sendNow(b); }
     else if (b.dataset.action === 'test-send') { e.preventDefault(); await testSend(b); }
     else if (b.dataset.exampleUse) { const x = EXAMPLES[Number(b.dataset.exampleUse)]; editing = null; ($('#mc-title') as HTMLInputElement).value = x.title; ($('#mc-body') as HTMLTextAreaElement).value = x.body; document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === x.send_by))); setPicked(cleanAudience(x.audience)); smsCount(); document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Loaded the example “${x.title}” as a new draft. Change anything, then save, schedule or send.`); }
+    else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); useTemplate(TEMPLATES[Number(b.dataset.template)]); }
+    else if (b.hasAttribute('data-backlog-who')) { const ul = $('[data-backlog-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
+    else if (b.hasAttribute('data-backlog-send')) {
+      if (!confirm(`Text the welcome to ${howMany(backlogPeople.length)} who turned texts on before texts were connected? This can't be unsent.`)) return;
+      (b as HTMLButtonElement).disabled = true; const res = await fn('welcome-backlog');
+      fb(res.ok ? `Welcome sent to ${howMany(res.body.sent)}.${res.body.failed ? ` ${res.body.failed} failed: ${res.body.error}` : ''}` : res.body.error ?? 'It didn’t send.', res.ok && !res.body.failed); await backlog();
+    }
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
     else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }

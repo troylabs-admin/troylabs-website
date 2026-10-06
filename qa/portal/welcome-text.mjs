@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { chromium, expect } from '@playwright/test';
 import { adminClient, makeUser, signInPage } from './helpers.mjs';
+import { GOODBYE_TEXT } from '../../supabase/functions/_shared/sms.ts';
 const base = process.env.PORTAL_URL || 'http://localhost:4399';
 const FN = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message';
 const REGISTERED = "TroyLabs: You're signed up for TroyLabs event texts, a few msgs a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
@@ -21,23 +22,26 @@ try {
 
   // the member ticks "Text me…" and saves: the page asks for the welcome; the reply is the registered text
   let { context, page } = await signInPage(browser, member);
-  const asked = []; page.on('response', async (r) => { if (r.url().startsWith(FN) && r.request().postData()?.includes('welcome-text')) asked.push(await r.json().catch(() => ({}))); });
+  const asked = [], bye = []; page.on('response', async (r) => { if (!r.url().startsWith(FN)) return; const d = r.request().postData() ?? ''; if (d.includes('welcome-text')) asked.push(await r.json().catch(() => ({}))); else if (d.includes('optout-text')) bye.push(await r.json().catch(() => ({}))); });
   await page.goto(`${base}/alumni-portal/profile`); await page.locator('#pf-phone').waitFor(); await page.waitForTimeout(1500);
   await page.locator('label:has(#pf-phone-opt)').click(); await page.locator('[data-contact="phone"] .portal-save-row').click();
   await expect.poll(() => asked.length, { timeout: 10000 }).toBe(1);
   assert.deepEqual([asked[0].test, asked[0].body], [true, REGISTERED]);
   console.log('PASS: ticking texts on and saving sends the registered confirmation (test account: body returned, nothing texted)');
-  assert.equal((await call(member, {})).reason, 'already welcomed this number today');
+  assert.equal((await call(member, {})).reason, 'already sent to this number today');
   // a new number while texts are on gets its own welcome
   await page.locator('#pf-phone').fill('(213) 555-0163'); await page.locator('[data-contact="phone"] .portal-save-row').click();
   await expect.poll(() => asked.length, { timeout: 10000 }).toBe(2); assert.equal(asked[1].test, true);
   // saving again with nothing changed doesn't ask
   await page.locator('#pf-phone').fill('(213) 555-0163'); await expect(page.locator('[data-contact="phone"] .portal-save-row')).toBeDisabled();   // nothing changed: SAVE stays off, so no welcome either
-  // turning texts off doesn't ask
-  await page.locator('label:has(#pf-phone-opt)').click(); await page.locator('[data-contact="phone"] .portal-save-row').click(); await page.waitForTimeout(2500);
-  assert.equal(asked.length, 2, 'no welcome when texts turn off');
+  // turning texts off on the website: no welcome, one "texts are off" text
+  await page.locator('label:has(#pf-phone-opt)').click(); await page.locator('[data-contact="phone"] .portal-save-row').click();
+  await expect.poll(() => bye.length, { timeout: 10000 }).toBe(1); await page.waitForTimeout(1000);
+  assert.equal(asked.length, 2, 'no welcome when texts turn off'); assert.deepEqual([bye[0].test, bye[0].body], [true, GOODBYE_TEXT]);
+  const { data: gone } = await admin.from('profile_events').select('detail').eq('profile_id', member.id).eq('event', 'texts_goodbye'); assert.equal(gone.length, 1);
+  assert.equal((await call(member, {})).reason, 'texts are off');
   const w = await welcomes(member.id); assert.deepEqual(w.map((e) => e.detail.phone).sort(), ['+12135550161', '+12135550163']); assert.ok(w.every((e) => e.actor === member.id));
-  console.log('PASS: once per number per day; a new number gets one; unchanged saves and turning texts off don\'t; each welcome is in the member\'s timeline');
+  console.log('PASS: once per number per day; a new number gets one; unchanged saves don\'t; turning texts off on the website sends one "texts are off" text instead; each is in the member\'s timeline');
   await context.close();
 
   // someone else's: only an admin

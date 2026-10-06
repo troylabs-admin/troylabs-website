@@ -107,11 +107,11 @@ try {
   assert.equal(saved.full_name, 'Jordan Rivera'); assert.equal(saved.status, 'alum'); assert.equal(saved.grad_year, 2023); assert.equal(saved.join_term, 'FA'); assert.equal(saved.join_year, 2021);
   assert.deepEqual([...saved.divisions].sort(), ['DESIGN', 'MARKETING']); assert.equal(saved.city.name, 'San Francisco'); assert.equal(saved.request_note, 'Design division FA21 to SP23; Director of Design FA22.');
   assert.ok(saved.submitted_at, 'submitted'); assert.equal(saved.approved, false); assert.deepEqual(saved.claimed_roles, [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }]);
-  // submitting turned texts on, with the welcome ("thanks for signing up"); a test account is never texted for real
+  // submitting turned texts on, but no text yet: the first one ("you're in") comes with approval
   assert.equal((await admin.from('profiles').select('phone_opt_in').eq('id', fresh.id).single()).data.phone_opt_in, true, 'texts on after sign-up');
-  await expect.poll(async () => ((await admin.from('profile_events').select('detail').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []).filter((e) => e.detail?.test).length, { timeout: 10000 }).toBe(1);
+  await page.waitForTimeout(2000); assert.equal(((await admin.from('profile_events').select('id').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []).length, 0, 'no text at sign-up');
   await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).toBeChecked(); await expect(page.locator('[data-texts-signup]')).toBeHidden();
-  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; texts on with the welcome text, and the box to turn them off appears');
+  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; texts on (no text yet), and the box to turn them off appears');
 
   // the backup
   const backups = ok(await admin.from('profile_submissions').select('id, email, snapshot').eq('profile_id', fresh.id), 'backup');
@@ -150,6 +150,8 @@ try {
   await expect(card.getByRole('link', { name: /VIEW FULL PROFILE/ })).toHaveAttribute('href', `/alumni-portal/members/?id=${fresh.id}&from=approvals`);
   await shot(ap, '09-admin-waiting-list');
   await card.getByRole('button', { name: 'APPROVE' }).click(); await expect(ap.locator('#q-fb')).toContainText('Approved Jordan Rivera');
+  await expect(ap.locator('#q-fb')).toContainText('also got the “you’re in” text');   // the first text comes with approval (test account: recorded, not sent)
+  { const w = ((await admin.from('profile_events').select('detail').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []); assert.equal(w.length, 1); assert.ok(w[0].detail.approved && w[0].detail.test); }
   await shot(ap, '10-admin-approved', false);
   assert.deepEqual(ok(await admin.from('eboard_roles').select('role, term, year').eq('profile_id', fresh.id), 'roles'), [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }], 'their e-board role is now on record');
   console.log('PASS: 6 · admin sees them (answers, roles, details) and nobody who didn’t submit; APPROVE → in, role recorded');

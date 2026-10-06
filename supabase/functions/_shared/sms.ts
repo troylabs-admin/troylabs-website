@@ -62,6 +62,8 @@ export function smsBody(body: string, event: SmsEvent, test = false): string {
    WELCOME_TEXT is word for word the opt-in message registered with the A2P campaign (also Twilio's reply to START).
    GOODBYE_TEXT is the one confirmation after someone turns texts off ON THE WEBSITE (a STOP reply gets STOP_REPLY from
    Twilio instead, never this). STOP_REPLY and HELP_REPLY are what Twilio's opt-out management answers with. */
+/** sent when an admin approves someone (Bryan, 2026-10-06: the first text comes with approval, not with signing up) */
+export const APPROVED_TEXT = "TroyLabs: You're in! Welcome to the TL Alumni Network. A few event texts a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
 export const WELCOME_TEXT = "TroyLabs: You're signed up for TroyLabs event texts, a few msgs a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
 export const GOODBYE_TEXT = "TroyLabs: Texts are now off for this number. To turn them back on, reply START or tick the box on your profile at usctroylabs.com.";
 export const STOP_REPLY = "TroyLabs: You're unsubscribed and won't get more texts from us. Reply START to sign up again.";

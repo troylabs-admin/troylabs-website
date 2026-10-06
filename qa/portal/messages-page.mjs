@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { chromium, expect } from '@playwright/test';
 import { adminClient, makeUser, signInPage } from './helpers.mjs';
-import { GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../supabase/functions/_shared/sms.ts';
+import { APPROVED_TEXT, GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../supabase/functions/_shared/sms.ts';
 const base = process.env.PORTAL_URL || 'http://localhost:4399';
 const admin = adminClient(); const made = [];
 const user = async (name, fields) => { const u = await makeUser(admin, name); made.push(u); const { error } = await admin.from('profiles').update(fields).eq('id', u.id); if (error) throw error; return u; };
@@ -64,8 +64,9 @@ try {
 
     // the automatic texts, word for word
     const auto = await page.locator('[data-auto-texts] .portal-sms-bubble').allTextContents();
-    assert.deepEqual(auto, [WELCOME_TEXT, GOODBYE_TEXT, STOP_REPLY, HELP_REPLY]);
+    assert.deepEqual(auto, [APPROVED_TEXT, WELCOME_TEXT, GOODBYE_TEXT, STOP_REPLY, HELP_REPLY]);
     // the one-time welcome: Pm Alum and Eboard Student turned texts on with no welcome yet
+    await page.locator('details.msg-automatic > summary').click(); await expect(page.locator('details.msg-automatic')).toHaveAttribute('open', '');   // the automatic texts sit in a fold that starts closed
     await expect(page.locator('[data-backlog]')).toBeVisible(); await expect(page.locator('[data-backlog-note]')).toContainText('2 people');
     await page.locator('[data-backlog-who]').click(); assert.deepEqual((await page.locator('[data-backlog-list] .text-ink').allTextContents()).sort(), ['Eboard Student QA', 'Pm Alum QA']);
     page.once('dialog', (d) => d.accept()); await page.locator('[data-backlog-send]').click();

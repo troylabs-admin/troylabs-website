@@ -65,6 +65,8 @@ try {
   console.log('PASS: select the shown page, then all 61 matching; unticking clears; the buttons wake only with a selection');
 
   // bulk approve three, UNDO, approve again
+  for (const id of ids.slice(0, 3)) await admin.from('profiles').update({ phone: `+1213555${String(ids.indexOf(id)).padStart(4, '0')}`, phone_opt_in: true }).eq('id', id);   // texts on, as after sign-up
+  const welcomes = async () => ((await admin.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome').in('profile_id', ids.slice(0, 3))).data ?? []);
   for (const n of ['Queue QA 01', 'Queue QA 02', 'Queue QA 03']) await row(n).locator('label.portal-check').click();
   await expect(page.locator('[data-q-approve]')).toHaveText('APPROVE 3 SELECTED');
   await page.locator('[data-q-approve]').click(); await expect(page.locator('#q-fb')).toContainText('Approved 3 people');
@@ -73,7 +75,13 @@ try {
   await page.locator('[data-q-undo]').click(); await expect(page.locator('#q-fb')).toContainText('3 people back on the waiting list');
   assert.deepEqual(Object.values(await state(ids.slice(0, 3))), ['waiting', 'waiting', 'waiting'], 'UNDO puts them back');
   await expect(row('Queue QA 01')).toHaveCount(1);
-  console.log('PASS: bulk approve 3 → approved in the database; UNDO → back on the list');
+  // approval sent each of them the "you're in" text (test accounts: recorded, nobody texted); approving again doesn't text twice
+  { const w = await welcomes(); assert.equal(w.length, 3, 'one "you\'re in" text each'); assert.ok(w.every((e) => e.detail.approved && e.detail.test)); }
+  for (const n of ['Queue QA 01', 'Queue QA 02', 'Queue QA 03']) await row(n).locator('label.portal-check').click();
+  await page.locator('[data-q-approve]').click(); await expect(page.locator('#q-fb')).toContainText('Approved 3 people');
+  assert.equal((await welcomes()).length, 3, 'approving again after UNDO doesn\'t text twice');
+  await page.locator('[data-q-undo]').click(); await expect(page.locator('#q-fb')).toContainText('3 people back on the waiting list');
+  console.log('PASS: bulk approve 3 → approved in the database, each gets the "you\'re in" text once (not again after UNDO and re-approve); UNDO → back on the list');
 
   // bulk decline two, then one comes back from the Declined list
   for (const n of ['Queue QA 04', 'Queue QA 05']) await row(n).locator('label.portal-check').click();

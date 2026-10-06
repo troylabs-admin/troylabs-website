@@ -9,9 +9,10 @@ type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string;
 const MESSAGES: Msg[] = [];
 import { INDUSTRIES } from '../../../lib/portal/options';
 import { GROUPS } from '../../../../supabase/functions/_shared/audience';
-import { GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../../../supabase/functions/_shared/sms';
+import { APPROVED_TEXT, GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../../../supabase/functions/_shared/sms';
 const AUTO: [string, string, string][] = [
-  ['Someone turns texts on', 'On their profile (or an admin does it for them), or by replying START. Sent once per number.', WELCOME_TEXT],
+  ['Someone is approved', 'Texts switch on when they sign up; this first one goes out when an admin approves them. Once per number.', APPROVED_TEXT],
+  ['Someone turns texts back on', 'On their profile (or an admin does it for them), or by replying START. Sent once per number.', WELCOME_TEXT],
   ['Someone turns texts off on the website', 'On their profile, or an admin does it for them. Sent once. A STOP reply gets the next one instead.', GOODBYE_TEXT],
   ['Someone replies STOP', 'Twilio answers and blocks texts to that phone until it replies START; their profile box unticks.', STOP_REPLY],
   ['Someone replies HELP', 'Twilio answers.', HELP_REPLY],

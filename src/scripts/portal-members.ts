@@ -103,8 +103,8 @@ async function emailApproved(ids: string[]): Promise<{ sent: number; error: stri
   const { data: { session } } = await supabase().auth.getSession();
   try {
     const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'approved', ids }) });
-    const b = await r.json().catch(() => ({})); return { sent: b.sent ?? 0, error: r.ok ? b.error ?? null : b.error ?? `status ${r.status}` };
-  } catch { return { sent: 0, error: 'couldn’t reach the email service' }; }
+    const b = await r.json().catch(() => ({})); return { sent: b.sent ?? 0, texted: b.texted ?? 0, error: r.ok ? b.error ?? null : b.error ?? `status ${r.status}` };
+  } catch { return { sent: 0, texted: 0, error: 'couldn’t reach the email service' }; }
 }
 async function decide(kind: 'approved' | 'declined', ids: string[]) {
   if (!ids.length) return;
@@ -114,7 +114,7 @@ async function decide(kind: 'approved' | 'declined', ids: string[]) {
   for (const id of ids) q.picked.delete(id);
   lastAction = { kind, ids };
   let mailNote = '';
-  if (kind === 'approved') { const m = await emailApproved(ids); mailNote = m.error ? ` The “you’re in” email didn’t send (${esc(m.error)}), so let them know yourself.` : m.sent ? ` We emailed ${ids.length === 1 ? 'them' : `all ${m.sent}`} that they’re in.` : ''; }
+  if (kind === 'approved') { const m = await emailApproved(ids); mailNote = (m.error ? ` The “you’re in” email didn’t send (${esc(m.error)}), so let them know yourself.` : m.sent ? ` We emailed ${ids.length === 1 ? 'them' : `all ${m.sent}`} that they’re in.` : '') + (m.texted ? ` ${m.texted === 1 && ids.length === 1 ? 'They' : `${m.texted.toLocaleString()} of them`} also got the “you’re in” text.` : ''); }
   qfb(`${kind === 'approved' ? `Approved ${esc(names)}. ${ids.length === 1 ? "They're" : "They're all"} in the network the next time they open the portal.${mailNote}` : `Declined ${esc(names)}.`} <button type="button" class="t-label portal-linklike" data-q-undo style="color:var(--color-orange)">UNDO</button>`, !mailNote.includes('didn’t send'));
   fb('');
   await load();

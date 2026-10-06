@@ -29,7 +29,7 @@
  * CRON_SECRET (set with the migration).
  */
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
-import { GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
+import { APPROVED_TEXT, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
 import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret' };
@@ -365,9 +365,22 @@ Deno.serve(async (req) => {
 
   // APPROVE pressed on Admin › Members: tell each newly approved person they're in (one call for one person or a hundred)
   if (input.mode === 'approved') {
-    if (!cfg.key) return json({ configured: false, error: 'Email isn’t connected yet: the Resend key hasn’t been added.' }, 503);
     const ids = [...new Set((input.ids ?? []).filter((x) => typeof x === 'string'))].slice(0, 500);
     if (!ids.length) return json({ sent: 0 });
+    // the "you're in" text (2026-10-06): texts switch on at sign-up, but the first one goes out on approval. Only to
+    // people with texts on; once per number (an UNDO and re-approve doesn't text twice); test accounts never for real.
+    let texted = 0;
+    const { data: textable } = await svc.from('profiles').select('id, phone, is_test').in('id', ids).eq('approved', true).eq('phone_opt_in', true).not('phone', 'is', null);
+    const { data: before } = await svc.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome').in('profile_id', ids);
+    const had = new Set((before ?? []).filter((e) => e.detail?.ok || e.detail?.test).map((e) => `${e.profile_id}|${e.detail?.phone}`));
+    for (const p of (textable ?? []).filter((x) => !had.has(`${x.id}|${x.phone}`))) {
+      if (p.is_test) { await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, test: true, approved: true } }); texted++; continue; }
+      if (!tw.configured) break;
+      const r = await twilioSend(p.phone!, straighten(APPROVED_TEXT));
+      await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, ok: r.ok, approved: true, ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
+      if (r.ok) texted++;
+    }
+    if (!cfg.key) return json({ configured: false, texted, error: 'Email isn’t connected yet: the Resend key hasn’t been added.' }, 503);
     const { data: people, error } = await svc.from('profiles').select('id, full_name, personal_email, usc_email, approved').in('id', ids).eq('approved', true);
     if (error) return json({ error: error.message }, 500);
     const list: { id: string; to: string; name: string }[] = [];
@@ -383,7 +396,7 @@ Deno.serve(async (req) => {
       const res = await resendBatch(chunk.map((c) => approvedMail(c.to, c.name)), `tl-approved-${digest}`);   // the same approval retried can't email anyone twice
       if (res.ok) sent += chunk.length; else errors.push(res.error);
     }
-    return errors.length && !sent ? json({ sent, error: errors[0] }, 502) : json({ sent, skipped: ids.length - list.length, error: errors[0] ?? null });
+    return errors.length && !sent ? json({ sent, texted, error: errors[0] }, 502) : json({ sent, texted, skipped: ids.length - list.length, error: errors[0] ?? null });
   }
   if (input.mode === 'status') {
     const acct = tw.configured ? await twilioAccount() : null;

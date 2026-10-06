@@ -275,7 +275,7 @@ async function init() {
         const sub = await submitApplication();   // marks them submitted (first time) and keeps a backup copy of what they sent
         if (sub.error) { fill(res.row, who!.admin); flash(btn, 'NOT SENT', `Saved, but it couldn't be sent to leadership: ${sub.error.message}`, false); return; }
         res.row.submitted_at = (sub.data as string | null) ?? new Date().toISOString(); who!.submitted = true;
-        if (!wasSubmitted && res.row.phone_opt_in && res.row.phone) void confirmText('welcome-text', null);   // "thanks for signing up" text
+        // texts are on now; the first text ("you're in") goes out when an admin approves them, not here (Bryan, 2026-10-06)
       }
       fill(res.row, who!.admin); label(saveBtn); void linkedInPanel();
       if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }

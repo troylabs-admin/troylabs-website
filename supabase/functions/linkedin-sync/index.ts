@@ -108,8 +108,11 @@ async function worker(svc: SupabaseClient, fixture: Record<string, ScrapedProfil
     if (!item || item.error) { await fail(job, item?.error ? `LinkedIn: ${item.error}` : 'LinkedIn didn’t return this profile. Is it public?', true); failed++; continue; }
     const rows = toWorkHistory(item.experience ?? []);
     if (!rows.length) {
-      const { count } = await svc.from('work_experiences').select('id', { count: 'exact', head: true }).eq('profile_id', job.profile_id);
-      if ((count ?? 0) > 0) { await fail(job, 'LinkedIn showed no jobs this time, so the saved work history was kept.', true); failed++; continue; }
+      const { count, error: countError } = await svc.from('work_experiences').select('id', { count: 'exact', head: true }).eq('profile_id', job.profile_id);
+      // An unavailable count is not proof that this is an empty profile. Never replace
+      // saved jobs with an empty scrape unless the database explicitly confirms zero.
+      if (countError || count == null) { await fail(job, 'Couldn’t check the saved work history, so it was left unchanged.', true); failed++; continue; }
+      if (count > 0) { await fail(job, 'LinkedIn showed no jobs this time, so the saved work history was kept.', true); failed++; continue; }
     }
     const full = item as ScrapedFull;
     const logos = await companyLogos(svc, (full.experience ?? []) as { companyId?: string; companyName?: string; companyLogo?: unknown }[]);

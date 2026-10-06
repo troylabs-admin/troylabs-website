@@ -93,11 +93,11 @@ const FIELD_FOR: Record<string, string> = { 'whether you’re a student or an al
 /** say what's missing under the button, outline every missing answer, and take them to the first one */
 function showMissing(missing: string[], lead: string) {
   const fb = $('.portal-save .portal-feedback'); if (fb) { fb.textContent = `${lead} ${listInWords(missing)}. They're outlined in orange.`; fb.style.color = 'var(--color-orange)'; }
-  document.querySelectorAll('.portal-needs').forEach((e) => e.classList.remove('portal-needs'));
+  document.querySelectorAll('.portal-needs').forEach((e) => { e.classList.remove('portal-needs'); e.removeAttribute('aria-invalid'); });
   let first: HTMLElement | null = null;
   for (const m of missing) {
     const el = [...document.querySelectorAll<HTMLElement>(FIELD_FOR[m] ?? '')].find((x) => x.offsetParent !== null) ?? null; if (!el) continue;
-    (el.matches('input, select') ? el : el).classList.add('portal-needs'); first ??= el;
+    el.classList.add('portal-needs'); el.setAttribute('aria-invalid', 'true'); first ??= el;
   }
   if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.matches('input')) setTimeout(() => (first as HTMLInputElement).focus({ preventScroll: true }), 350); }
 }
@@ -164,20 +164,22 @@ async function linkedInPanel() {
   if (!box.isConnected) return;
   const preview = $('[data-li-preview]'); if (preview) preview.innerHTML = history ? historyHtml(history) : '';
 
-  btn.hidden = true; window.clearTimeout(liPoll);
+  btn.hidden = true; btn.textContent = 'SYNC NOW'; delete btn.dataset.checkStatus; fb.textContent = ''; window.clearTimeout(liPoll);
   const link = canonicalLinkedIn(row.linkedin_url ?? '');
   if (!who.approved) return say(link ? 'Your LinkedIn imports when leadership approves you.' : 'Add your LinkedIn link above. It imports when leadership approves you.');
   if (!link) return say('Add your LinkedIn link above and press SAVE, then sync.');
-  if (st?.queued) { say('Importing from LinkedIn… this takes a minute or two.'); const was = st.synced_at; liPoll = window.setTimeout(async function check() { const s2 = await myLinkedInStatus().catch(() => null); if (!box.isConnected) return; if (s2 && (!s2.queued || s2.synced_at !== was)) void linkedInPanel(); else liPoll = window.setTimeout(check, 10000); }, 10000); return; }
+  if (!st) { say('We couldn’t check your LinkedIn import. Check your connection and try again.', true); btn.hidden = false; btn.disabled = false; btn.textContent = 'CHECK AGAIN'; btn.dataset.checkStatus = '1'; return; }
+  if (st.queued) { say(st.error ? 'The LinkedIn import is delayed. We’ll retry automatically; any saved history is kept.' : 'Importing from LinkedIn… this takes a minute or two.'); const was = st.synced_at; liPoll = window.setTimeout(async function check() { const s2 = await myLinkedInStatus().catch(() => null); if (!box.isConnected) return; if (!s2 || !s2.queued || s2.synced_at !== was || s2.error !== st.error) void linkedInPanel(); else liPoll = window.setTimeout(check, 10000); }, 10000); return; }
   btn.hidden = false; btn.disabled = false; fb.textContent = '';
   const day = st?.synced_at && Date.now() - Date.parse(st.synced_at) < 24 * 3600_000 && !who.admin;
   if (st?.error) say(`The last import didn’t work: ${st.error}`, true);
   else if (st?.synced_at) say(`Imported from LinkedIn on ${new Date(st.synced_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.`);
   else say('Not imported yet.');
-  if (day && !st?.error) { btn.disabled = true; fb.textContent = 'You can sync again tomorrow.'; fb.style.color = 'var(--color-muted)'; }   // information, not an error
+  if (day) { btn.disabled = true; fb.textContent = 'You can sync again tomorrow.'; fb.style.color = 'var(--color-muted)'; }   // matches the server's daily limit, even after a failed attempt
 }
 document.addEventListener('click', async (e) => {
   const btn = (e.target as Element).closest<HTMLButtonElement>('#pf-linkedin [data-li-sync]'); if (!btn || btn.disabled) return;
+  if (btn.dataset.checkStatus) { btn.disabled = true; void linkedInPanel(); return; }
   const fb = document.querySelector<HTMLElement>('#pf-linkedin [data-li-fb]')!; btn.disabled = true; fb.style.color = ''; fb.textContent = '';
   const r: Awaited<ReturnType<typeof requestSync>> = await requestSync().catch(() => ({ status: 0, error: 'Check your connection and try again.' }));
   if (r.queued) { void linkedInPanel(); return; }
@@ -208,7 +210,7 @@ async function init() {
     if (missing.length) { showMissing(missing, applying && !row?.submitted_at ? 'Before you can submit, add' : 'Your profile needs'); return; }
     if (applying) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
     // a LinkedIn link must be a profile link; any spelling is stored in one form
-    if (patch.linkedin_url) { const li = canonicalLinkedIn(patch.linkedin_url); if (!li) { const f = $('#pf-li') as HTMLInputElement; f.classList.add('portal-needs'); f.focus(); flash(btn, 'NOT SAVED', 'That isn’t a LinkedIn profile link. Copy it from your LinkedIn profile; it looks like linkedin.com/in/your-name.', false); return; } patch.linkedin_url = li; }
+    if (patch.linkedin_url) { const li = canonicalLinkedIn(patch.linkedin_url); if (!li) { const f = $('#pf-li') as HTMLInputElement; f.classList.add('portal-needs'); f.setAttribute('aria-invalid', 'true'); f.focus(); flash(btn, 'NOT SAVED', 'That isn’t a LinkedIn profile link. Copy it from your LinkedIn profile; it looks like linkedin.com/in/your-name.', false); return; } patch.linkedin_url = li; }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
     const waiting = !who!.approved, wasSubmitted = Boolean(row?.submitted_at);
@@ -237,7 +239,7 @@ async function init() {
 
   label(saveBtn); saveBtn.disabled = false; form.removeAttribute('aria-busy');
   // an error under the main button goes away as soon as they start fixing things (it read as if the finished profile were still wrong)
-  const clearError = (e?: Event) => { const f = form.querySelector<HTMLElement>('.portal-save .portal-feedback'); if (f && f.style.color) { f.textContent = ''; f.style.color = ''; } (e?.target as Element | null)?.closest('.portal-needs, .portal-chips, input')?.classList.remove('portal-needs'); (e?.target as Element | null)?.closest('[data-field]')?.classList.remove('portal-needs'); };
+  const clearError = (e?: Event) => { const f = form.querySelector<HTMLElement>('.portal-save .portal-feedback'); if (f && f.style.color) { f.textContent = ''; f.style.color = ''; } for (const el of [(e?.target as Element | null)?.closest('.portal-needs, .portal-chips, input'), (e?.target as Element | null)?.closest('[data-field]')]) { el?.classList.remove('portal-needs'); el?.removeAttribute('aria-invalid'); } };
   form.addEventListener('input', clearError); form.addEventListener('click', (e) => { if ((e.target as Element).closest('.portal-chip')) clearError(e); });
 
   // the sign-up panel follows the form as they fill it (chips are toggled by the shared script, hence the tick)

@@ -37,7 +37,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
            : null;
 ---
 
-<header class="section z-10" style="--h:79" data-figma="Nav">
+<header class:list={["section z-10", variant === "portal" && "portal-nav-desktop"]} style="--h:79" data-figma="Nav">
   <a href={home} class="abs nav-mark" style={`${pos(30, 20, 26, 39)};--i:0`} aria-label={homeLabel} set:html={rocket} />
 
   <nav class="abs flex" style={`${pos(0, 32)};left:50%;transform:translateX(-50%);gap:${u(50)}`} aria-label="Primary">
@@ -69,8 +69,6 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
   @media (max-width: 767px) {
     .m-nav { display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px; }
     /* portal variant: SEARCH · PROFILE · ADMIN + SIGN OUT — tighter type so the row fits a 390px phone */
-    .m-nav-portal { gap: 8px; padding-inline: 14px; }
-    .m-nav-portal .m-links { gap: 24px; flex: 1; min-width: 0; justify-content: center; }   /* three links, centred between the mark and SIGN OUT (space-between spread them wall to wall once GLOBE left) */
     /* type sizes for this variant live in styles/mobile.css: SIGN OUT is rendered by the ApplyLink child, which
        this scoped block cannot reach (Astro scoping stops at component boundaries) */
     .m-mark { width: 17px; height: 26px; flex: none; }

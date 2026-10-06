@@ -122,7 +122,7 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
   .portal-filter-label { width: calc(64 * var(--u)); flex: none; letter-spacing: calc(1.4 * var(--u)); }
   .portal-chips { gap: calc(8 * var(--u)); }
   .portal-chip {
-    background: none; border: 0; cursor: pointer; color: var(--color-muted); font: inherit; letter-spacing: calc(1.2 * var(--u));
+    background: none; border: 0; cursor: pointer; color: var(--color-muted); font-family: inherit; font-weight: inherit; letter-spacing: calc(1.2 * var(--u));
     padding: calc(5 * var(--u)) calc(11 * var(--u)); border-radius: 9999px;
     box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.3); transition: color 150ms ease, box-shadow 150ms ease;
   }
@@ -300,7 +300,7 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 .portal-table .portal-tag { text-transform: uppercase; }
 .portal-row-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
 .portal-row-list li { display: flex; align-items: center; justify-content: space-between; padding: calc(10 * var(--u)) calc(14 * var(--u)); border-radius: calc(10 * var(--u)); box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.15); }
-.portal-linklike { background: none; border: 0; padding: 0; color: var(--color-muted); cursor: pointer; font: inherit; letter-spacing: calc(1.4 * var(--u)); }
+.portal-linklike { background: none; border: 0; padding: 0; color: var(--color-muted); cursor: pointer; font-family: inherit; font-weight: inherit; letter-spacing: calc(1.4 * var(--u)); }
 .portal-linklike:hover { color: var(--color-orange); }
 
 /* globe page — Charlotte's 3D globe (components/portal/AlumniGlobe.tsx) */
@@ -742,7 +742,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 .co-role { letter-spacing: calc(0.6 * var(--u)); }
 .wh-logo.is-large { width: calc(76 * var(--u)); height: calc(76 * var(--u)); border-radius: calc(16 * var(--u)); }
 .wh-logo.is-large b { font-size: calc(22 * var(--u)); }
-.co-li { display: inline-flex; align-items: center; margin-top: calc(16 * var(--u)); }
+.portal-btn.co-li { display: inline-flex; align-items: center; margin-top: calc(16 * var(--u)); }
 @media (max-width: 767px) {
   .portal-input.co-search { margin-top: 20px; }
   .co-count { margin-top: 14px; }
@@ -750,7 +750,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .co-role { letter-spacing: 0.4px; }
   .wh-logo.is-large { width: 64px; height: 64px; border-radius: 14px; }
   .wh-logo.is-large b { font-size: 20px; }
-  .co-li { margin-top: 14px; }
+  .portal-btn.co-li { margin-top: 14px; }
 }
 /* ── Admin pages clean-up (2026-10-05, Bryan on Overview: "make sure everything works properly and looks nice") ─────── */
 /* Needs your attention: the sentence and its link never touch ("approval.REVIEW →"), the link never breaks its arrow off
@@ -792,3 +792,55 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 .co-admin { margin-top: calc(18 * var(--u)); }
 .co-club-btn { margin-left: calc(6 * var(--u)); color: var(--color-orange); letter-spacing: calc(1 * var(--u)); }
 @media (max-width: 767px) { .co-admin { margin-top: 14px; } .co-club-btn { margin-left: 4px; letter-spacing: 1px; } }
+
+/* Portal UI: readable text and flowing controls, independent of the marketing artboard. */
+.portal-section .t-fine { font-size: max(12px, calc(8 * var(--u))); line-height: 1.5; }
+.portal-member-head > div { min-width: 0; flex: 1; }
+.portal-member-name, .portal-card-body, .wh-body, .wh-item { overflow-wrap: anywhere; }
+.portal-member-bio { max-width: 65ch; white-space: pre-line; }
+.co-people { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.co-role { line-height: 1.5; }
+.portal-check input:focus-visible + i { outline: 2px solid var(--color-orange); outline-offset: 3px; }
+.portal-section :is(.portal-chip, .portal-linklike, .wh-more-btn, .wh-co-link):focus-visible { outline: 2px solid var(--color-orange); outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .portal-section .portal-btn { height: auto; min-height: 44px; padding-block: 10px; }
+  [data-members] .portal-row-actions .portal-linklike { font-size: 12px; line-height: 18px; }
+}
+@media (max-width: 1023px) {
+  .portal-nav-desktop { display: none; }
+  header.m-nav-portal { display: grid !important; position: relative; z-index: 30; grid-template-columns: 1fr auto; align-items: center; gap: 6px 16px; padding: 12px 24px 8px; }
+  header.m-nav-portal .m-mark { grid-column: 1; grid-row: 1; display: flex; width: 40px; height: 44px; min-height: 44px; margin: 0; padding: 8px; }
+  header.m-nav-portal .m-apply { grid-column: 2; grid-row: 1; display: flex; align-items: center; min-height: 44px; padding: 8px 0; }
+  header.m-nav-portal .m-links { grid-column: 1 / -1; grid-row: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; border-top: 1px solid rgb(255 255 255 / 0.12); }
+  header.m-nav-portal .t-nav, header.m-nav-portal .m-apply { font-size: 11px; line-height: 16px; letter-spacing: 0.7px; }
+  header.m-nav-portal .m-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0; }
+  header.m-nav-portal .m-links a[aria-current="page"] { color: var(--color-orange); box-shadow: inset 0 -1px var(--color-orange); }
+  .portal-section .t-fine { font-size: 12px; line-height: 18px; letter-spacing: 0.4px; }
+  .portal-section .portal-chip { min-height: 36px; }
+  .wh-head { flex-wrap: wrap; justify-content: flex-start; gap: 0 12px; margin-bottom: 12px; }
+  .wh-head .portal-section-h { margin-bottom: 0; }
+  .portal-section .portal-input, .portal-section .portal-btn.is-small { min-height: 44px; }
+  .portal-section .portal-input, .portal-section .portal-textarea { font-size: 16px; } /* native mobile inputs stay readable without focus zoom */
+  .portal-section .portal-linklike, .portal-section .wh-more-btn { min-height: 32px; }
+  .co-people { grid-template-columns: 1fr; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .portal-flow .portal-col { width: calc(100% - 64px); }
+  .portal-section .t-body, .portal-section .t-caption { font-size: 14px; line-height: 21px; }
+  .portal-section .t-fine { font-size: 12px; line-height: 18px; }
+  .portal-section .t-label { font-size: 12px; line-height: 18px; }
+  .portal-section .t-name, .portal-section .t-sub { font-size: 18px; line-height: 24px; }
+  .portal-section .t-title { font-size: 24px; line-height: 30px; }
+  .portal-section .t-tagline { font-size: 17px; line-height: 25px; }
+  .portal-section .portal-btn.is-small { font-size: 12px; }
+  .portal-grid, .co-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portal-section .portal-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portal-section .portal-form-grid { gap: 18px; }
+  .portal-footer { width: calc(100% - 64px); font-size: 11px; line-height: 17px; }
+}
+@media (max-width: 767px) {
+  .portal-member-bio { max-width: none; }
+  .portal-section .portal-member-head { flex-wrap: wrap; }
+  .portal-section .portal-member-head > div { flex-basis: 190px; }
+  .portal-section .portal-card-name { line-height: 1.4; }
+}

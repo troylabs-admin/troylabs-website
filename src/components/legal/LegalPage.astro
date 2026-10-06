@@ -1,0 +1,34 @@
+---
+/**
+ * /privacy and /terms (2026-10-06): plain reading pages in the portal's flowing column, public (no sign-in gate),
+ * written for TroyLabs' A2P 10DLC text registration. They describe only what the site actually does.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Stars from '../space/Stars.astro';
+import '../../styles/portal.css';
+interface Props { title: string; heading: string; description: string; updated: string }
+const { title, heading, description, updated } = Astro.props;
+const stars = [{ x: 176.7, y: 68, s: 8.9 }, { x: 838.6, y: 58.2, s: 8.9 }, { x: 930, y: 176, s: 12.6 }, { x: 700, y: 30, kind: 'dot' }, { x: 204, y: 300, s: 5.2, kind: 'dot' }] as any;
+---
+<BaseLayout title={title} description={description}>
+  <section class="section portal-section portal-flow legal" aria-label={heading}>
+    <Stars items={stars} />
+    <div class="portal-col">
+      <h1 class="t-title portal-page-title legal-h1">{heading}</h1>
+      <p class="t-fine text-muted legal-updated">Last updated {updated}</p>
+      <div class="t-body legal-body"><slot /></div>
+    </div>
+  </section>
+</BaseLayout>
+<style is:global>
+  .legal .legal-h1 { margin: calc(40 * var(--u)) 0 0; }
+  .legal .legal-updated { margin: calc(8 * var(--u)) 0 0; }
+  .legal .legal-body { margin-top: calc(28 * var(--u)); max-width: 68ch; color: var(--color-ink); }
+  .legal .legal-body h2 { font: inherit; font-size: 1.15em; letter-spacing: 0.04em; margin: 2em 0 0.6em; }
+  .legal .legal-body p, .legal .legal-body li { line-height: 1.65; color: rgb(255 255 255 / 0.85); }
+  .legal .legal-body p { margin: 0 0 0.9em; }
+  .legal .legal-body ul { margin: 0 0 1em; padding-left: 1.2em; }
+  .legal .legal-body a { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; }
+  .legal .legal-body strong { color: var(--color-ink); }
+  @media (max-width: 767px) { .legal .legal-h1 { margin-top: 28px; } .legal .legal-body { margin-top: 20px; } }
+</style>

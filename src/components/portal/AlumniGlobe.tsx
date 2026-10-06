@@ -45,7 +45,7 @@ const fitAltitude = (w: number, h: number) => { const k = (0.9 * Math.min(w, h) 
 const starLabel = (c: Cluster) => (c.count === 1 ? c.cities[0].people[0].full_name : `${clusterLabel(c)} · ${c.count}`);
 function decorateStar(el: HTMLElement, c: Cluster) {
   const label = starLabel(c);
-  el.title = label; el.setAttribute('aria-label', label); el.dataset.count = String(c.count); el.dataset.cities = String(c.cities.length); el.dataset.key = c.key; el.dataset.seed = c.seed.key;   // seed: the stable handle (membership can change under a chip)
+  el.setAttribute('aria-label', label); el.dataset.count = String(c.count); el.dataset.cities = String(c.cities.length); el.dataset.key = c.key; el.dataset.seed = c.seed.key;   // seed: the stable handle (membership can change under a chip)
   el.className = `tl-star tl-star-${tier(c.count)}${el.classList.contains('is-selected') ? ' is-selected' : ''}`;
 }
 class GlobeBoundary extends React.Component<{ children: React.ReactNode; onError: () => void }, { failed: boolean }> {
@@ -92,6 +92,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const [failed, setFailed] = useState(false);
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+  const [popSize, setPopSize] = useState({ width: 320, height: 160 });
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [altitude, setAltitude] = useState(ALT.start);
   // the altitude the camera is HEADING to: a zoom step sets it at once (so two quick clicks add up, and a button
@@ -314,8 +316,19 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     if (!ready || failed) { lastSel.current = cluster; reported.current = `${cluster.key}#${cluster.count}`; onPick?.(cluster); }
     setSelected({ seed: city.key, cities: [city.key] }); turnTo(city.lat, city.lng);
   };
-  const popStyle = anchor ? { left: Math.max(Math.min(dimensions.width / 2, 200), Math.min(dimensions.width - Math.min(dimensions.width / 2, 200), anchor.x)), top: Math.min(dimensions.height - 16, Math.max(230, anchor.y)) } : undefined;
+  // Measure the actual card: names, merged cities, and browser zoom change its dimensions.
+  // Keep a small gap to the marker and clamp the complete card inside the frame.
+  const hasPopup = Boolean(current && anchor);
   const person = current?.count === 1 ? current.cities[0].people[0] : null;
+  useEffect(() => {
+    const el = popRef.current; if (!el) return;
+    const observer = new ResizeObserver(() => setPopSize({ width: el.offsetWidth, height: el.offsetHeight }));
+    observer.observe(el); return () => observer.disconnect();
+  }, [hasPopup, Boolean(person)]);
+  const popStyle = anchor ? {
+    left: Math.max(16 + popSize.width / 2, Math.min(dimensions.width - 16 - popSize.width / 2, anchor.x)),
+    top: Math.max(16, Math.min(dimensions.height - 16 - popSize.height, anchor.y - popSize.height - 12)),
+  } : undefined;
 
   return (
     <div className="portal-globe">
@@ -362,7 +375,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
 
       {current && anchor && person && (
         /* pin card (Charlotte, 2026-09-14): name · company + role · location · TL cohort · link to profile · small × */
-        <div className="portal-panel portal-globe-pop" style={popStyle} role="dialog" aria-label={person.full_name}>
+        <div ref={popRef} className="portal-panel portal-globe-pop" style={popStyle} role="dialog" aria-label={person.full_name}>
           <button type="button" className="portal-globe-x" aria-label="Close" onClick={clear}>×</button>
           <h3 className="t-name m-0">{person.full_name}</h3>
           <p className="t-caption text-muted m-0">{person.current_title}{person.current_company ? ` · ${person.current_company}` : ''}</p>
@@ -373,7 +386,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
       )}
       {current && anchor && !person && (
         /* place card: the star you tapped, named — city · how many cities and people · a way to the list */
-        <div className="portal-panel portal-globe-pop portal-globe-place" style={popStyle} role="dialog" aria-label={`${clusterLabel(current)} · ${current.count} people`}>
+        <div ref={popRef} className="portal-panel portal-globe-pop portal-globe-place" style={popStyle} role="dialog" aria-label={`${clusterLabel(current)} · ${current.count} people`}>
           <button type="button" className="portal-globe-x" aria-label="Clear the selection" onClick={clear}>×</button>
           <h3 className="t-name m-0">{upper(current.seed.name)}{current.seed.region ? `, ${upper(current.seed.region)}` : ''}</h3>
           <p className="t-fine text-muted m-0 portal-globe-place-sub">

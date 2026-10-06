@@ -22,7 +22,7 @@ footer .social { color: var(--color-ink); transition: color 200ms var(--ease-out
 footer .social:hover, footer .social:focus-visible { color: var(--color-orange); }
 footer .social svg, footer .social svg * { fill: currentColor; }
 /* nav + footer rocket marks: take the hover colour like every other link */
-header a[aria-label="TroyLabs home"], footer .mark { color: var(--color-ink); transition: color 200ms var(--ease-out-expo); }
+header a[aria-label="TroyLabs home"], header .nav-mark, footer .mark { color: var(--color-ink); transition: color 200ms var(--ease-out-expo); }
 header a[aria-label="TroyLabs home"]:hover, header a[aria-label="TroyLabs home"]:focus-visible, footer .mark:hover { color: var(--color-orange); }
 header a[aria-label="TroyLabs home"] svg, header a[aria-label="TroyLabs home"] svg *, footer .mark svg, footer .mark svg * { fill: currentColor; }
 footer .social .mask { display: block; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
@@ -64,7 +64,11 @@ html.motion .tagline { animation: hero-rise 900ms 650ms var(--ease-out-expo) bac
 html.motion [data-figma$="Hero"] .pill { animation: hero-rise 700ms 850ms var(--ease-out-expo) backwards; }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(calc(16 * var(--u))); } to { opacity: 1; transform: none; } }
 /* 5. nav arrives last, item by item (0.75 s →) */
-html.motion header nav a, html.motion header .apply, html.motion header a[aria-label="TroyLabs home"] { animation: hero-nav 500ms var(--ease-out-expo) backwards; animation-delay: calc(750ms + var(--i, 0) * 50ms); }
+/* the rocket is found by .nav-mark, not its label: renaming the label on portal pages (2026-10-05) silently dropped it from the entrance */
+html.motion header nav a, html.motion header .apply, html.motion header .nav-mark { animation: hero-nav 500ms var(--ease-out-expo) backwards; animation-delay: calc(750ms + var(--i, 0) * 50ms); }
+/* portal pages have no hero to wait for: the header comes in first (logo → links → sign out; the name fades in on its own when it's known, portal.css), then the page
+   rises (portal.css, from 120 ms). Measured before: content at 0.45 s, nav links at 1.05 s, logo and name popping in. */
+html.motion body:has(.portal-section) header nav a, html.motion body:has(.portal-section) header .apply, html.motion body:has(.portal-section) header .nav-mark { animation-delay: calc(40ms + var(--i, 0) * 45ms); }
 @keyframes hero-nav { from { opacity: 0; transform: translateY(calc(-6 * var(--u))); } to { opacity: 1; transform: none; } }
 
 /* ── idle: twinkling star field (frame 0 = designed brightness) ──────────── */

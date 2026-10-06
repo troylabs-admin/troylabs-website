@@ -38,7 +38,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
 ---
 
 <header class="section z-10" style="--h:79" data-figma="Nav">
-  <a href={home} class="abs" style={`${pos(30, 20, 26, 39)};--i:0`} aria-label={homeLabel} set:html={rocket} />
+  <a href={home} class="abs nav-mark" style={`${pos(30, 20, 26, 39)};--i:0`} aria-label={homeLabel} set:html={rocket} />
 
   <nav class="abs flex" style={`${pos(0, 32)};left:50%;transform:translateX(-50%);gap:${u(50)}`} aria-label="Primary">
     {links.map((l, i) => (
@@ -52,7 +52,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
 
 <!-- mobile: one tight row -->
 <header class:list={["m m-nav", variant === "portal" && "m-nav-portal"]} data-m="Nav">
-  <a href={home} class="m-mark" aria-label={homeLabel} set:html={rocket} />
+  <a href={home} class="m-mark nav-mark" aria-label={homeLabel} set:html={rocket} />
   <nav class="m-links" aria-label="Primary">
     {links.map((l) => (
       <a href={l.href} class="t-nav glow-text whitespace-nowrap" aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
@@ -63,7 +63,7 @@ const slot = variant === 'portal' ? { href: '/alumni-portal', label: 'SIGN OUT' 
 
 <style>
   header :global(svg) { width: 100%; height: 100%; }
-  .nav-who { overflow: hidden; text-overflow: ellipsis; transition: color 150ms ease; }
+  .nav-who { overflow: hidden; text-overflow: ellipsis; transition: color 150ms ease, opacity 450ms var(--ease-out-expo), visibility 0s; }   /* opacity: it fades in when the name arrives (portal.css); this rule outranks that one, so it must list it */
   .nav-who:hover { color: var(--color-ink); }
   .m-nav { display: none; }
   @media (max-width: 767px) {

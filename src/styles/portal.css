@@ -844,3 +844,15 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .portal-section .portal-member-head > div { flex-basis: 190px; }
   .portal-section .portal-card-name { line-height: 1.4; }
 }
+
+/* member page: both emails and the phone, written out (2026-10-06) — label above value, side by side, wrapping on a phone */
+.portal-member-contact { display: flex; flex-wrap: wrap; gap: calc(12 * var(--u)) calc(32 * var(--u)); margin: calc(18 * var(--u)) 0 0; }
+.portal-member-contact dt { letter-spacing: calc(1.2 * var(--u)); }
+.portal-member-contact dd { margin: calc(3 * var(--u)) 0 0; }
+.portal-member-contact a { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: rgb(255 255 255 / 0.3); overflow-wrap: anywhere; }
+.portal-member-contact a:hover { color: var(--color-orange); text-decoration-color: currentColor; }
+@media (max-width: 767px) { .portal-member-contact { gap: 12px 24px; margin-top: 16px; } .portal-member-contact dt { letter-spacing: 1px; } .portal-member-contact dd { margin-top: 2px; } }
+/* search cards: every card in a row is as tall as the tallest one (they were content-height, so a short card sat
+   beside a long one — Bryan, 2026-10-06: "makes the sizing look weird") */
+.portal-grid > li { display: flex; }
+.portal-grid > li > .portal-card { flex: 1; min-width: 0; }

@@ -73,7 +73,8 @@ try {
   await page.locator('#search-q').fill('someone working on energy storage');
   const battery = page.locator('.portal-card', { hasText: 'Battery QA' });
   await expect(battery).toBeVisible({ timeout: 15000 }); await expect(battery.locator('.portal-close-match')).toHaveText(/CLOSE MATCH/);
-  await expect(page.locator('.portal-card')).toHaveCount(1);
+  console.log('cards for "energy storage":', await page.locator('.portal-card .portal-card-name').allTextContents());
+  await expect(page.locator('.portal-card', { hasText: /QA/ })).toHaveCount(1);   // only the battery person of our test people; real members (26 since 2026-10-06) may also match
   await page.locator('#search-q').fill('Stripe');
   await expect(page.locator('.portal-card', { hasText: 'Payments QA' }).locator('.portal-match')).toHaveText(/MATCHED STRIPE/);
   await expect(page.locator('.portal-card').first()).toContainText('Payments QA');

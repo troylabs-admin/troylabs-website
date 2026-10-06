@@ -240,7 +240,6 @@ export default function Network() {
                           <span className="portal-card-status"><span className="t-fine portal-role">{p.status}</span>{p.role && <span className="t-fine portal-card-eboard">{p.role}</span>}</span>
                           {(p.current_title || p.current_company) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ')}</span>}
                           <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.status === 'ALUM' && p.classOf ? `Class of ${p.classOf}` : ''].filter(Boolean).join(' · ')}</span>
-                          <span className="flex flex-wrap portal-card-tags">{p.industries.map((t) => <span key={t} className="t-fine portal-tag">{t}</span>)}</span>
                           {closeMatch ? <span className="t-fine portal-match portal-close-match" title="Not the exact words, but their profile is about what you asked">CLOSE MATCH{why.length ? ` · ${[...new Set(why.map(upper))].join(' · ')}` : ''}</span>
                             : why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}
                         </span>

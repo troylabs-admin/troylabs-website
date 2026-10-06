@@ -2,6 +2,7 @@ import { escapeHtml, webUrl } from '../lib/portal/safe-html';
 /** A member's page: the profile behind ?id=, drawn in the same language as the search cards. */
 import { avatarUrl, cityLabel, getProfile, initialsOf, roleLabel } from '../lib/portal/data';
 import { getHistory, historyHtml } from '../lib/portal/work-render';
+import { prettyPhone } from '../lib/portal/phone';
 
 async function init() {
   const head = document.querySelector<HTMLElement>('[data-member-head]'); if (!head || head.dataset.wired) return; head.dataset.wired = '1';
@@ -27,6 +28,11 @@ async function init() {
   $('[data-m-meta]').textContent = meta;
   const li = $('[data-m-linkedin]') as HTMLAnchorElement; if (r.linkedin_url && webUrl(r.linkedin_url)) { li.href = webUrl(r.linkedin_url)!; li.hidden = false; }
   const em = $('[data-m-email]') as HTMLAnchorElement; const addr = r.personal_email || r.usc_email; if (addr) { em.href = `mailto:${addr}`; em.hidden = false; }
+  // both emails and the phone, written out: members are here to reach each other
+  const contact = $('[data-m-contact]');
+  const ways: [string, string | null, string][] = [['PERSONAL EMAIL', r.personal_email, `mailto:${r.personal_email}`], ['USC EMAIL', r.usc_email, `mailto:${r.usc_email}`], ['PHONE', r.phone ? prettyPhone(r.phone) : null, `tel:${r.phone}`]];
+  contact.replaceChildren(...ways.filter(([, v]) => v).map(([label, value, href]) => { const row = document.createElement('div'); const dt = document.createElement('dt'); dt.className = 't-fine text-muted'; dt.textContent = label; const dd = document.createElement('dd'); const a = document.createElement('a'); a.className = 't-caption text-ink'; a.href = href; a.textContent = value!; dd.append(a); row.append(dt, dd); return row; }));
+  contact.hidden = !contact.childElementCount;
   $('[data-m-bio]').textContent = r.bio || r.linkedin_about || 'No bio yet.';   // what they typed wins; else their LinkedIn About
   const sections: [string, string[]][] = [['E-Board roles', roleLabel(roles)], ['Divisions', r.divisions ?? []], ['TL BUILD startups', r.startups ?? []], ['Industries', r.industries ?? []]].filter(([, items]) => items.length) as [string, string[]][];
   $('[data-m-sections]').innerHTML = sections.map(([h, items]) => `<h2 class="t-sub portal-section-h">${h}</h2><div class="flex flex-wrap portal-card-tags" style="margin-top:0">${items.map((t) => `<span class="t-fine portal-tag">${escapeHtml(t)}</span>`).join('')}</div>`).join('');

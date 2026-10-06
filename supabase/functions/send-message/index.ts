@@ -398,6 +398,20 @@ Deno.serve(async (req) => {
     }
     return errors.length && !sent ? json({ sent, texted, error: errors[0] }, 502) : json({ sent, texted, skipped: ids.length - list.length, error: errors[0] ?? null });
   }
+  // READ-ONLY (2026-10-06): the A2P registration as Twilio has it (campaign status, Twilio's rejection reasons, what was
+  // submitted), so a rejection can be fixed from its real reasons. Admins only; nothing is changed or sent.
+  if (input.mode === 'twilio-compliance') {
+    if (!tw.configured) return json({ error: 'texts not connected' }, 503);
+    const get = async (u: string) => { const r = await fetch(u, { headers: { Authorization: `Basic ${btoa(`${tw.sid}:${tw.token}`)}` } }); return r.json().catch(() => ({})); };
+    const services = (await get('https://messaging.twilio.com/v1/Services?PageSize=50')).services ?? [];
+    const out = [];
+    for (const sv of services) {
+      const camps = (await get(`https://messaging.twilio.com/v1/Services/${sv.sid}/Compliance/Usa2p`)).compliance ?? [];
+      out.push({ service: sv.friendly_name, inbound: sv.inbound_request_url, useInboundWebhookOnNumber: sv.use_inbound_webhook_on_number, campaigns: camps.map((c: Record<string, unknown>) => ({ status: c.campaign_status, errors: c.errors, use_case: c.us_app_to_person_usecase, description: c.description, message_flow: c.message_flow, samples: c.message_samples, has_links: c.has_embedded_links, opt_in_message: c.opt_in_message, privacy: c.privacy_policy_url, terms: c.terms_and_conditions_url, created: c.date_created, updated: c.date_updated })) });
+    }
+    const brands = ((await get('https://messaging.twilio.com/v1/a2p/BrandRegistrations')).data ?? []).map((b: Record<string, unknown>) => ({ status: b.status, type: b.brand_type, failure: b.failure_reason, errors: b.errors }));
+    return json({ services: out, brands });
+  }
   if (input.mode === 'status') {
     const acct = tw.configured ? await twilioAccount() : null;
     return json({

@@ -18,6 +18,7 @@ export interface ProfileRow {
   current_job_source?: 'manual' | 'linkedin' | null;
   linkedin_headline?: string | null; linkedin_about?: string | null; linkedin_skills?: string[]; linkedin_synced_at?: string | null; linkedin_sync_error?: string | null; request_note: string | null; created_at: string; updated_at: string; last_seen_at: string | null;
   claimed_roles: ClaimedRole[];
+  approved_at?: string | null; approved_by?: string | null; declined_by?: string | null; email_opt_in_changed_at?: string | null; phone_opt_in_changed_at?: string | null;   // set by the database from what changed (record_keeping migration), never by a page
   submitted_at: string | null;   // SUBMIT FOR APPROVAL pressed (submit_application); only then do admins see them   // e-board roles they say they held, written while they wait; become eboard_roles when approved
   city?: CityRow | null;
 }

@@ -1,0 +1,48 @@
+/* Messages keeps the portal's space artwork and orange accents, with calmer working surfaces. */
+.portal-messaging .portal-panel { background: rgb(10 10 12 / 0.72); }
+.portal-messaging .msg-workspace { align-items: start; }
+.portal-messaging .msg-compose-head { display: flex; align-items: start; justify-content: space-between; gap: calc(16 * var(--u)); margin-bottom: calc(24 * var(--u)); }
+.portal-messaging .msg-compose-head .portal-panel-title { margin-bottom: calc(6 * var(--u)); }
+.portal-messaging .portal-input, .portal-messaging .portal-textarea { background: rgb(0 0 0 / 0.18); }
+.portal-messaging #mc-body { min-height: 220px; line-height: 1.55; resize: vertical; }
+.portal-messaging #mc-subject-hint { margin-top: calc(6 * var(--u)); line-height: 1.5; }
+.portal-messaging .portal-aud-cell { min-height: 40px; }
+.portal-messaging .portal-fold > summary { min-height: 44px; align-content: center; }
+.portal-messaging .msg-preview-btn { margin-bottom: calc(12 * var(--u)); }
+.portal-messaging .msg-delivery-panel { display: grid; grid-template-columns: 1fr 1fr; gap: calc(24 * var(--u)) calc(36 * var(--u)); margin-top: calc(24 * var(--u)); }
+.portal-messaging .msg-self-test, .portal-messaging .msg-send-controls { display: flex; flex-direction: column; align-items: flex-start; gap: calc(12 * var(--u)); min-width: 0; }
+.portal-messaging .msg-self-test { padding-right: calc(28 * var(--u)); border-right: 1px solid rgb(255 255 255 / 0.14); }
+.portal-messaging .msg-delivery-panel .portal-panel-title { margin: 0; }
+.portal-messaging .msg-delivery-panel .portal-btn { margin-top: calc(4 * var(--u)); height: auto; min-height: 44px; padding-block: calc(10 * var(--u)); }
+.portal-messaging .msg-test-target, .portal-messaging .msg-send-summary { margin: 0; overflow-wrap: anywhere; line-height: 1.55; }
+.portal-messaging [data-when-at] { width: 100%; }
+.portal-messaging [data-send-btn] { width: 100%; font-size: max(16px, calc(14 * var(--u))); line-height: 1.4; }
+.portal-messaging #msg-fb { grid-column: 1 / -1; margin: 0; scroll-margin-block: calc(32 * var(--u)); }
+.portal-messaging #msg-fb:empty { display: none; }
+.portal-messaging #msg-fb:not(:empty) { padding-top: calc(16 * var(--u)); border-top: 1px solid rgb(255 255 255 / 0.14); }
+.portal-messaging .msg-automatic { margin-top: calc(24 * var(--u)); }
+.portal-messaging .portal-who-items { max-height: 280px; overscroll-behavior: contain; }
+.portal-messaging [data-msg-list] > li > .flex { flex-wrap: wrap; }
+.portal-messaging [data-msg-list] > li > .flex > .t-fine { overflow-wrap: anywhere; }
+.portal-messaging [data-msg-list] .portal-recipients li { flex-wrap: wrap; overflow-wrap: anywhere; }
+.portal-messaging [data-msg-list] .portal-linklike { min-height: 36px; }
+.portal-messaging button:focus-visible, .portal-messaging summary:focus-visible { outline: 2px solid var(--color-orange); outline-offset: calc(4 * var(--u)); }
+.portal-messaging button:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (max-width: 1100px) {
+  .portal-messaging .msg-workspace { grid-template-columns: 1fr; }
+  .portal-messaging .portal-aud-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+  .portal-messaging .portal-aud-group { overflow-wrap: anywhere; font-size: 12px; line-height: 1.45; letter-spacing: 0.5px; }
+  .portal-messaging .portal-aud-cell { min-width: 0; padding-inline: 6px; min-height: 44px; font-size: 11px; letter-spacing: 0.2px; }
+}
+@media (max-width: 767px) {
+  .portal-messaging .portal-panel { padding: 18px; }
+  .portal-messaging .msg-compose-head { flex-wrap: wrap; margin-bottom: 20px; }
+  .portal-messaging .msg-compose-head > button { min-height: 36px; }
+  .portal-messaging .msg-delivery-panel { grid-template-columns: 1fr; gap: 24px; }
+  .portal-messaging .msg-self-test { padding: 0 0 24px; border-right: 0; border-bottom: 1px solid rgb(255 255 255 / 0.14); }
+  .portal-messaging .msg-delivery-panel .portal-btn { width: 100%; }
+  .portal-messaging .portal-chip { min-height: 40px; }
+  .portal-messaging .portal-aud-cell { min-height: 44px; }
+  .portal-messaging [data-msg-list] > li { padding: 16px; }
+  .portal-messaging [data-msg-list] > li > .flex > .text-ink { flex-basis: 100% !important; }
+}

@@ -17,9 +17,13 @@ type Rcpt = { message_id: number; profile_id: string; channel: 'email' | 'text';
 type Delivery = { email: { configured: boolean; testMode: boolean; testTo: string | null; from?: string }; text: { configured: boolean; from: string | null; trial: boolean; error: string | null; testTo: string | null; hoursOpen: boolean } };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
-const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
+const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; if (!ok) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }); } } };
 let people: ProfileRow[] = [], messages: Msg[] = [], rcpts: Rcpt[] = [], editing: number | null = null;
 let delivery: Delivery | null = null;
+let viewer: { id: string; email: string } | null = null;
+let deliveryUnknown = false;
+let dataReady = false;
+let actionBusy = false;
 let imTest = false;   // a test admin's page counts and sends only within test accounts (send-message does the same)
 let nudged = false;   // the 'tick a box' hint turns orange only after someone tries to send without one
 let eb: EboardSets = { now: new Set(), ever: new Set() };   // e-board this semester / in any semester (the E-BOARD row)
@@ -37,15 +41,15 @@ async function fn(mode: string, messageId?: number, extra: Record<string, unknow
    "remove … Twilio trial"), so a trial or missing keys stay out of the way until someone picks TEXT or BOTH, and only
    then does the line say (in orange) that texts can't go out yet. Connected texts are always mentioned. */
 function showDelivery() {
-  const el = $('#msg-delivery'); if (!el || !delivery) return; const { email: e, text: t } = delivery;
+  const el = $('#msg-delivery'); if (!el) return; if (deliveryUnknown) { el.textContent = 'Delivery status could not be checked. Reload to check again; your draft controls are still available.'; el.classList.add('is-warn'); return; } if (!delivery) return; const { email: e, text: t } = delivery;
   const textsReady = t.configured && !t.trial && !t.error, wantsText = sendByNow() !== 'email';
   el.classList.toggle('is-warn', !e.configured || e.testMode || (wantsText && !textsReady));
-  const mail = !e.configured ? 'Email isn’t connected yet: the Resend key hasn’t been added.'
+  const mail = !e.configured ? 'Email isn’t connected yet. You can prepare a draft.'
     : e.testMode ? `Email is in test mode: until usctroylabs.com is verified in Resend, it can only go to you (${e.testTo}).`
     : `Email is connected: from ${e.from ?? 'TroyLabs'}, replies go to troylabs@usc.edu.`;
   const text = textsReady ? ` Texts are connected: from ${prettyPhone(t.from)}. Group texts go out 8 AM–9 PM Pacific.`
     : wantsText ? ' Texts aren’t switched on yet, so they can’t go out: pick EMAIL to reach people now.' : '';
-  el.textContent = `${mail}${text} Drafts and scheduling always save.`;
+  el.textContent = `${mail}${text}${wantsText && !textsReady ? ' Save a draft while texts are pending.' : ''}`;
 }
 
 /** what the grid and the narrowing chips say right now */
@@ -56,12 +60,14 @@ function picked(): Audience {
 }
 const sendByNow = () => $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
 const audience = () => { const aud = picked(), sendBy = sendByNow(); return { aud, sendBy, ...reach(aud, sendBy) }; };
-const byEmail = (p: ProfileRow) => Boolean((p.personal_email || p.usc_email) && p.email_opt_in !== false);
+const emailOf = (p: ProfileRow) => (p.personal_email || p.usc_email || '').trim().toLowerCase();
+const byEmail = (p: ProfileRow) => Boolean(emailOf(p) && p.email_opt_in !== false);
 const byText = (p: ProfileRow) => Boolean(p.phone && p.phone_opt_in);
 /** who an audience reaches by each channel: the shared rules (_shared/audience.ts), then approval and opt-ins, as the sender does */
 function reach(aud: Audience, sendBy: string) {
   const base = people.filter((p) => p.approved && inAudience(p, aud, eb));
-  const emails = sendBy === 'text' ? [] : base.filter(byEmail), texts = sendBy === 'email' ? [] : base.filter(byText);
+  const once = (rows: ProfileRow[], key: (p: ProfileRow) => string) => { const seen = new Set<string>(); return rows.filter(p => { const value = key(p); if (seen.has(value)) return false; seen.add(value); return true; }); };
+  const emails = sendBy === 'text' ? [] : once(base.filter(byEmail), emailOf), texts = sendBy === 'email' ? [] : once(base.filter(byText), p => p.phone!);
   const who = base.filter((p) => emails.includes(p) || texts.includes(p));
   return { emails, texts, who };
 }
@@ -69,7 +75,7 @@ const howMany = (n: number, what = 'person') => `${n.toLocaleString()} ${n === 1
 const reachText = (a: { sendBy: string; emails: unknown[]; texts: unknown[] }) => a.sendBy === 'email' ? `by email to ${howMany(a.emails.length)}` : a.sendBy === 'text' ? `by text to ${howMany(a.texts.length)}` : `by email to ${howMany(a.emails.length)} and by text to ${howMany(a.texts.length)}`;
 /** the live text counter under the body: what the text will look like in length and cost */
 function smsCount() {
-  showDelivery();   // the delivery line mentions texts only while TEXT or BOTH is picked
+  showDelivery(); showTestTarget();   // the delivery line mentions texts only while TEXT or BOTH is picked
   const out = $('#mc-sms'); if (!out) return;
   const sendBy = $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
   const body = ($('#mc-body') as HTMLTextAreaElement).value;
@@ -86,7 +92,7 @@ function smsCount() {
 /** every cohort an approved member joined in, newest first (FA26, SP26, FA25 …), keeping what was ticked */
 function renderCohorts() {
   const box = $('[data-cohorts]'); if (!box) return;
-  const on = new Set([...box.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.trim()));
+  const on = new Set([...box.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.textContent!.replace(/^✓\s*/, '').trim()));
   const key = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
   const list = [...new Set(people.filter((p) => p.approved).map((p) => cohortOf(p.join_term, p.join_year)).filter(Boolean))].sort((a, b) => key(b) - key(a));
   box.innerHTML = list.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="${on.has(c)}">${esc(c)}</button>`).join('') || '<span class="t-fine text-muted">No cohorts yet: members add the semester they joined on their profile.</span>';
@@ -104,6 +110,7 @@ function summary() {
   out.style.color = !a.aud.cells.length && nudged ? 'var(--color-orange)' : 'var(--color-muted)';
   out.textContent = !a.aud.cells.length ? 'Tick the groups who should get it. Nothing goes to anyone until you do.'
     : `Sending to ${describeAudience(a.aud)}: ${howMany(a.who.length)} (${reachText(a)}). Everyone gets it once, even if they're in several groups.`;
+  const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = a.aud.cells.length ? `${howMany(a.who.length)} selected · ${reachText(a)}.` : 'Choose an audience above.';
   renderWho(a);
 }
 /** the people the ticked boxes add up to, by name, with how each is reached; and who in the group won't get it, and why */
@@ -112,11 +119,12 @@ function renderWho(a: ReturnType<typeof audience>) {
   box.hidden = !a.aud.cells.length; if (box.hidden) return;
   const name = (p: ProfileRow) => p.full_name || '(no name yet)'; const byName = (x: ProfileRow, y: ProfileRow) => name(x).localeCompare(name(y));
   const inGroup = people.filter((p) => p.approved && inAudience(p, a.aud, eb)); const missed = inGroup.filter((p) => !a.who.includes(p)).sort(byName);
-  const noText = (p: ProfileRow) => (p.phone ? 'texts off' : 'no number'), noMail = (p: ProfileRow) => ((p.personal_email || p.usc_email) ? 'announcements off' : 'no email');
+  const noText = (p: ProfileRow) => byText(p) ? 'shared phone; text sent once' : p.phone ? 'texts off' : 'no number';
+  const noMail = (p: ProfileRow) => byEmail(p) ? 'shared email; email sent once' : emailOf(p) ? 'announcements off' : 'no email';
   const why = (p: ProfileRow) => a.sendBy === 'text' ? noText(p) : a.sendBy === 'email' ? noMail(p) : `${noText(p)}, ${noMail(p)}`;
   head.textContent = `WHO GETS IT · ${a.who.length.toLocaleString()}`;
   list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${[a.emails.includes(p) && 'EMAIL', a.texts.includes(p) && 'TEXT'].filter(Boolean).join(' + ')}</span></li>`).join('')
-    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">Won't get it (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
+    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">No separate delivery (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
     + (!a.who.length && !missed.length ? '<li class="text-muted">Nobody is in these groups yet.</li>' : '');
 }
 /* Templates (Bryan, 2026-10-06: "a formatting already for the text messages"): fill the composer; anything in [brackets]
@@ -130,7 +138,7 @@ const TEMPLATES: Template[] = [
   { label: 'WELCOME TO THE NETWORK', title: 'Welcome to the TL Alumni Network', body: 'Welcome to the TL Alumni Network! Find TroyLabs members and alumni by company, city or industry at usctroylabs.com/alumni-portal', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] } },
 ];
 function useTemplate(t: Template) {
-  editing = null;
+  editing = null; setWhen(null); composerState();
   ($('#mc-title') as HTMLInputElement).value = t.title; ($('#mc-body') as HTMLTextAreaElement).value = t.body;
   for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = '';
   if (t.event) { ($('#mc-ev-name') as HTMLInputElement).value = '[Event name]'; ($('#mc-ev-where') as HTMLInputElement).value = '[Location]'; const d = document.querySelector<HTMLDetailsElement>('details[data-fold]'); if (d) d.open = true; }
@@ -142,7 +150,7 @@ function useTemplate(t: Template) {
 const leftover = () => { const c = compose(); return placeholderLeft(c.title, c.body, c.event?.name, c.event?.where, c.event?.rsvp); };
 function renderMessages() {
   const list = $('[data-msg-list]')!; const tab = $('[data-msg-tabs] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'all';
-  const rows = messages.filter((m) => m.state !== 'cancelled');
+  const rows = messages.filter((m) => m.state !== 'cancelled' && (tab === 'all' || tab === m.state));
   list.innerHTML = rows.length ? rows.map((m) => { const r0 = reach(cleanAudience(m.audience), m.send_by); const who = r0.who;
     const sentTo = rcpts.filter((r) => r.message_id === m.id); const named = (r: Rcpt) => people.find((p) => p.id === r.profile_id)?.full_name || '(no name)';
     const ok = (c: string) => sentTo.filter((r) => r.channel === c && r.delivered_at && r.status !== 'undelivered' && r.status !== 'failed').length;
@@ -153,7 +161,7 @@ function renderMessages() {
       <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' || m.state === 'sending' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title || '(untitled)')}</span><span class="t-fine text-muted">${when}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
       <p class="m-0 t-fine text-muted" style="max-width:calc(620 * var(--u))">${esc(m.body.slice(0, 140))}${m.body.length > 140 ? '…' : ''}</p>
       <div class="flex items-center" style="gap:calc(16 * var(--u))"><span class="t-fine text-muted">To: ${esc(describeAudience(cleanAudience(m.audience)))} · ${reached}</span><span style="flex:1"></span>
-        ${m.state !== 'sent' ? `<button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-edit="${m.id}">EDIT</button>` : ''}
+        ${['draft', 'scheduled'].includes(m.state) ? `<button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-edit="${m.id}">EDIT</button>` : ''}
         ${m.state === 'scheduled' ? `<button type="button" class="t-label portal-linklike" data-cancel="${m.id}">CANCEL</button>` : ''}
         <button type="button" class="t-label portal-linklike" data-recipients-for="${m.id}">${m.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT'}</button>
         ${m.state === 'draft' ? `<button type="button" class="t-label portal-linklike" data-del="${m.id}">DELETE</button>` : ''}</div>
@@ -161,7 +169,7 @@ function renderMessages() {
       <ul class="portal-row-list t-fine portal-recipients" hidden>${m.state === 'sent'
         ? sentTo.map((r) => `<li><span>${esc(named(r))} · ${r.channel === 'text' ? `text ${esc(prettyPhone(r.phone))}` : esc(r.email ?? '')}</span><span class="${r.error ? 'portal-msg-error' : 'text-muted'}" title="${esc(r.error ?? '')}">${r.error ? `FAILED: ${esc(r.error)}` : r.status === 'delivered' ? 'DELIVERED' : r.delivered_at ? 'SENT' : '—'}</span></li>`).join('') || '<li class="text-muted">No recipients recorded.</li>'
         : who.map((p) => `<li><span>${esc(p.full_name || '(no name)')} · ${[r0.emails.includes(p) && esc(p.personal_email || p.usc_email || ''), r0.texts.includes(p) && `text ${esc(prettyPhone(p.phone))}`].filter(Boolean).join(' · ')}</span></li>`).join('') || `<li class="text-muted">Nobody matches right now${m.send_by !== 'email' ? ' (texts go only to people who opted in)' : ''}.</li>`}</ul>
-    </li>`; }).join('') : examples(tab);
+    </li>`; }).join('') : messages.some(m => m.state !== 'cancelled') ? '<li class="t-fine text-muted">No messages in this view yet.</li>' : examples(tab);
 }
 /* Examples (Bryan, 2026-10-02: "put some mock ones, I want to see how they look"): shown only while there are no real
    messages, each tagged EXAMPLE, with made-up people. They show every state a real message goes through. */
@@ -185,12 +193,30 @@ function examples(tab: string) {
     </li>`).join('');
 }
 const compose = () => ({ title: ($('#mc-title') as HTMLInputElement).value.trim(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
+function setWhen(iso: string | null) {
+  const input = $<HTMLInputElement>('#mc-when'); if (!input) return;
+  const date = iso ? new Date(iso) : null;
+  input.value = date ? new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16) : '';
+  document.querySelectorAll<HTMLElement>('[data-when] .portal-chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.value === (iso ? 'later' : 'now'))));
+  const at = $('[data-when-at]'), button = $('[data-send-btn]'); if (at) at.hidden = !iso; if (button) button.textContent = iso ? 'SCHEDULE' : 'SEND NOW';
+}
+function composerState() {
+  const state = $('[data-compose-state]'); if (state) state.textContent = editing ? 'Editing saved message' : 'New message';
+}
+function showTestTarget() {
+  const target = $('[data-test-target]'); if (!target || !viewer) return;
+  const own = people.find(p => p.id === viewer!.id); const channel = sendByNow();
+  const parts = [];
+  if (channel !== 'text') parts.push(`Email: ${own?.personal_email || own?.usc_email || viewer.email || 'Add an email on your profile'}`);
+  if (channel !== 'email') parts.push(`Text: ${own?.phone ? prettyPhone(own.phone) : 'Add your phone on your profile'}`);
+  target.textContent = parts.join(' · ');
+}
 function loadIntoComposer(m: Msg) {
   editing = m.id; ($('#mc-title') as HTMLInputElement).value = m.title; ($('#mc-body') as HTMLTextAreaElement).value = m.body;
   ($('#mc-ev-name') as HTMLInputElement).value = m.event?.name ?? ''; ($('#mc-ev-when') as HTMLInputElement).value = m.event?.when ?? ''; ($('#mc-ev-where') as HTMLInputElement).value = m.event?.where ?? ''; ($('#mc-ev-rsvp') as HTMLInputElement).value = m.event?.rsvp ?? '';
   document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === m.send_by)));
   setPicked(cleanAudience(m.audience));
-  if (m.scheduled_for) { ($('#mc-when') as HTMLInputElement).value = m.scheduled_for.slice(0, 16); $('[data-when] .portal-chip[data-value="later"]')?.click(); }
+  setWhen(m.scheduled_for); composerState();
   const a = cleanAudience(m.audience); document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { if ((d.querySelector('#mc-ev-name') && m.event) || (d.classList.contains('portal-or') && (a.cohort?.length || a.industries?.length))) d.open = true; });
   document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Editing “${m.title || '(untitled)'}”. Save as a draft, schedule, or send.`); smsCount();
 }
@@ -204,18 +230,33 @@ function setPicked(a: Audience) {
 /** write the composer to the database (new or the one being edited) and return its id */
 async function persist(state: 'draft' | 'scheduled'): Promise<{ id: number; who: number } | { error: string }> {
   const c = compose(); if (!c.body) return { error: 'Write the message first.' };
-  if (state === 'scheduled') { const ph = leftover(); if (ph) return { error: `Fill in ${ph} first. It's still the template's placeholder.` }; }
+  if (state === 'scheduled') { if (!c.title) return { error: 'Add a subject first.' }; const ph = leftover(); if (ph) return { error: `Fill in ${ph} first. It's still the template's placeholder.` }; }
   const a = audience(); if (state === 'scheduled' && !a.aud.cells.length) { nudged = true; summary(); return { error: 'Pick who gets it first: tick at least one box under Who gets it.' }; }   // a draft can wait for its audience
+  if (state === 'scheduled' && !a.who.length) return { error: 'Nobody in this audience can be reached that way. Check your groups and filters.' };
+  if (state === 'scheduled' && a.sendBy !== 'email' && smsBody(c.body, c.event).length > SMS_MAX) return { error: `Too long for a text. Shorten the message to ${SMS_MAX} characters or send it by email.` };
   const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
   if (state === 'scheduled' && later && !at) return { error: 'Pick a date and time to schedule it.' };
-  if (state === 'scheduled' && at && new Date(at).getTime() < Date.now() - 60_000) return { error: 'That time has already passed. Pick a time in the future, or choose SEND NOW.' };
+  if (state === 'scheduled' && at && (!Number.isFinite(new Date(at).getTime()) || new Date(at).getTime() <= Date.now())) return { error: 'That time has already passed. Pick a time in the future, or choose SEND NOW.' };
   if (state === 'scheduled' && later && at && a.sendBy !== 'email') { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(at))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a time in that window, or send it by email.' }; }
   const row = { ...c, send_by: a.sendBy, audience: a.aud, channel_id: null, filters: {}, state, scheduled_for: state === 'scheduled' ? (later && at ? new Date(at).toISOString() : new Date().toISOString()) : null, last_error: null };
   const sb = supabase(); const res = editing ? await sb.from('messages').update(row).eq('id', editing).in('state', ['draft', 'scheduled']).select().single() : await sb.from('messages').insert(row).select().single();
-  if (res.error) return { error: editing ? 'This message was already sent, so it can’t be changed. Press NEW DRAFT to write another.' : res.error.message };
-  editing = res.data.id; return { id: res.data.id, who: a.who.length };
+  if (res.error) return { error: editing && res.error.code === 'PGRST116' ? 'This message is no longer editable. Reload to see its current status, or press NEW DRAFT.' : res.error.message };
+  editing = res.data.id; composerState(); return { id: res.data.id, who: a.who.length };
 }
-const busy = async (btn: HTMLElement, work: () => Promise<void>) => { if (btn.getAttribute('aria-busy') === 'true') return; btn.setAttribute('aria-busy', 'true'); try { await work(); } finally { btn.removeAttribute('aria-busy'); } };
+const busy = async (btn: HTMLElement, work: () => Promise<void>) => {
+  if (actionBusy || !dataReady) return;
+  actionBusy = true; btn.setAttribute('aria-busy', 'true');
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.portal-messaging button')];
+  const disabled = buttons.map(b => b.disabled); buttons.forEach(b => { b.disabled = true; });
+  try { await work(); } finally {
+    actionBusy = false; btn.removeAttribute('aria-busy');
+    buttons.forEach((b, i) => { if (b.isConnected) b.disabled = disabled[i]; });
+    if (!dataReady) setDataActions(false);
+  }
+};
+function setDataActions(ready: boolean) {
+  document.querySelectorAll<HTMLButtonElement>('[data-action="preview"], [data-action="draft"], [data-action="test-send"], [data-action="send"]').forEach(b => { b.disabled = !ready || actionBusy; });
+}
 const done = (btn: HTMLElement, text: string) => { const o = btn.textContent; btn.classList.add('is-done'); btn.textContent = text; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = o; }, 1600); };
 async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
   await busy(btn, async () => {
@@ -230,10 +271,13 @@ async function testSend(btn: HTMLElement) {
   await busy(btn, async () => {
     if (!($('#mc-title') as HTMLInputElement).value.trim()) { fb('Add a subject first.', false); return; }
     const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
-    const r = await persist('draft'); if ('error' in r) { fb(r.error, false); return; }
+    // Testing a saved schedule must not silently cancel it. Test an independent draft.
+    const scheduled = messages.find(m => m.id === editing && m.state === 'scheduled');
+    if (scheduled) editing = null;
+    const r = await persist('draft'); if ('error' in r) { if (scheduled) editing = scheduled.id; composerState(); fb(r.error, false); return; }
     fb('Sending you a test…');
     const res = await fn('test', r.id); const got = [res.body.email && `an email to ${res.body.email} (check spam too)`, res.body.text && `a text to ${prettyPhone(res.body.text)}`].filter(Boolean).join(' and ');
-    if (res.ok) { done(btn, 'SENT'); fb(`Test sent: ${got}. It's saved as a draft.`); } else fb(`${got ? `Sent ${got}. ` : ''}${res.body.error ?? 'The test didn’t send.'}`, false);
+    if (res.ok) { done(btn, 'SENT'); fb(`Test sent: ${got}. ${scheduled ? 'Test copy saved as a draft; the original schedule is unchanged.' : "It's saved as a draft."}`); } else fb(`${got ? `Sent ${got}. ` : ''}${res.body.error ?? 'The test didn’t send.'}`, false);
     await load();
   });
 }
@@ -257,16 +301,28 @@ async function sendNow(btn: HTMLElement) {
   });
 }
 async function load() {
-  const sb = supabase();
-  const now = currentTerm();
-  const [{ data: p }, { data: m }, { data: r }, { data: e }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('messages').select('*').order('updated_at', { ascending: false }), sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'), sb.from('eboard_roles').select('profile_id, term, year')]);
-  // the same world send-message uses: a test admin counts only test accounts, a real admin never sees them anyway (RLS)
-  const { data: viewerTest } = await sb.rpc('viewer_is_test'); imTest = Boolean(viewerTest);
-  people = ((p ?? []) as (ProfileRow & { is_test?: boolean })[]).filter((x) => Boolean(x.is_test) === imTest); messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
+  const list = $('[data-msg-list]');
+  const sb = supabase(); const now = currentTerm();
+  const results = await Promise.all([
+    sb.from('profiles').select('id, full_name, approved, is_test, status, divisions, join_term, join_year, industries, personal_email, usc_email, phone, phone_opt_in, email_opt_in'),
+    sb.from('messages').select('*').order('updated_at', { ascending: false }),
+    sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'),
+    sb.from('eboard_roles').select('profile_id, term, year'),
+    sb.rpc('viewer_is_test'),
+  ]);
+  if (!list?.isConnected) return false;
+  dataReady = results.every(result => !result.error);
+  setDataActions(dataReady);
+  if (!dataReady) { fb('Couldn’t load the messages and recipients. Reload the page to try again before saving or sending.', false); return false; }
+  const [p, m, r, e, test] = results.map(result => result.data);
+  // Match the sender's isolated test/real audience, only after every required lookup succeeded.
+  imTest = Boolean(test);
+  people = ((p ?? []) as (ProfileRow & { is_test?: boolean })[]).filter(x => Boolean(x.is_test) === imTest);
+  messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
-  eb = { now: new Set(roles.filter((x) => x.term === now.term && x.year === now.year).map((x) => x.profile_id)), ever: new Set(roles.map((x) => x.profile_id)) };
-  if (!$('[data-msg-list]')) return;   // left the page while it loaded (a delete or save reloads the list; leaving mid-reload threw 'innerHTML of null')
+  eb = { now: new Set(roles.filter(x => x.term === now.term && x.year === now.year).map(x => x.profile_id)), ever: new Set(roles.map(x => x.profile_id)) };
   renderCohorts(); renderGrid(); renderMessages(); smsCount(); void backlog();
+  return true;
 }
 /** members who turned texts on before texts were connected never got the welcome: list them, and send it once */
 let backlogPeople: { id: string; name: string; phone: string }[] = [];
@@ -282,27 +338,29 @@ async function backlog() {
 async function init() {
   const list = $('[data-msg-list]'); if (!list || list.dataset.wired) return; list.dataset.wired = '1';
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
-  // on a phone the optional blocks start folded (the page was ~6,500 px of stacked panels); on desktop they are open
-  document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = innerWidth >= 768; });
-  editing = null;
+  // Keep optional details available without burying the sending controls.
+  document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = false; });
+  editing = null; delivery = null; deliveryUnknown = false; dataReady = false; actionBusy = false;
   // the action buttons wake up once the page has its data (a click during loading used to do nothing)
   const actions = [...document.querySelectorAll<HTMLButtonElement>('[data-action="preview"], [data-action="draft"], [data-action="test-send"], [data-action="send"]')];
   actions.forEach((b) => { b.disabled = true; });
-  const who = await me(); if (!who?.admin) return; await load();
-  actions.forEach((b) => { b.disabled = false; });
-  void fn('status').then((res) => { delivery = res.ok ? res.body : { email: { configured: false, testMode: false, testTo: null }, text: { configured: false, from: null, trial: false, error: res.body?.error ?? 'couldn’t check', testTo: null, hoursOpen: true } }; showDelivery(); void backlog(); });
+  const who = await me(); if (!who?.admin || !list.isConnected) return; viewer = { id: who.id, email: who.email }; await load(); if (!list.isConnected) return;
+  const zone = $('[data-timezone]'); if (zone) zone.textContent = `Send date and time (${Intl.DateTimeFormat().resolvedOptions().timeZone.replaceAll('_', ' ')})`;
+  document.querySelector('.msg-compose')?.addEventListener('submit', e => e.preventDefault());
+  setDataActions(dataReady);
+  void fn('status').then((res) => { if (!list.isConnected) return; deliveryUnknown = !res.ok; delivery = res.ok ? res.body : null; showDelivery(); showTestTarget(); void backlog(); });
   const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
   document.querySelector('.portal-panels form')?.addEventListener('input', smsCount);
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
     if (b.closest('[data-single]:not([data-when])')) setTimeout(() => { smsCount(); summary(); }, 0);   // EMAIL / TEXT / BOTH changed
     if (b.closest('[data-aud-grid], [data-aud-industries]')) setTimeout(summary, 0);   // the shared script flips these chips; read them after
-    if (b.dataset.action === 'preview') { e.preventDefault(); const a = audience(); fb(a.aud.cells.length ? `This would go ${reachText(a)} (${describeAudience(a.aud)}).${a.sendBy !== 'email' ? ' Texts go only to people who added a number and opted in.' : ''}` : 'Tick at least one box under Who gets it.', Boolean(a.aud.cells.length)); }
-    else if (b.dataset.action === 'new-draft') { editing = null; for (const el of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#mc-title, #mc-body, #mc-ev-name, #mc-ev-when, #mc-ev-where, #mc-ev-rsvp')) el.value = ''; setPicked({ cells: [] }); smsCount(); fb('New draft.'); $('#mc-title')?.focus(); }
+    if (b.dataset.action === 'preview') { e.preventDefault(); const a = audience(); const details = $<HTMLDetailsElement>('[data-who-list]'); if (details && a.aud.cells.length) { details.open = true; details.scrollIntoView({ block: 'nearest' }); } fb(a.aud.cells.length ? `This would go ${reachText(a)} (${describeAudience(a.aud)}).${a.sendBy !== 'email' ? ' Texts go only to people who added a number and opted in.' : ''}` : 'Tick at least one box under Who gets it.', Boolean(a.aud.cells.length)); }
+    else if (b.dataset.action === 'new-draft') { editing = null; setWhen(null); composerState(); for (const el of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#mc-title, #mc-body, #mc-ev-name, #mc-ev-when, #mc-ev-where, #mc-ev-rsvp')) el.value = ''; setPicked({ cells: [] }); smsCount(); fb('New draft.'); $('#mc-title')?.focus(); }
     else if (b.dataset.action === 'draft') { e.preventDefault(); await save('draft', b); }
     else if (b.dataset.action === 'send') { e.preventDefault(); await sendNow(b); }
     else if (b.dataset.action === 'test-send') { e.preventDefault(); await testSend(b); }
-    else if (b.dataset.exampleUse) { const x = EXAMPLES[Number(b.dataset.exampleUse)]; editing = null; ($('#mc-title') as HTMLInputElement).value = x.title; ($('#mc-body') as HTMLTextAreaElement).value = x.body; document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === x.send_by))); setPicked(cleanAudience(x.audience)); smsCount(); document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Loaded the example “${x.title}” as a new draft. Change anything, then save, schedule or send.`); }
+    else if (b.dataset.exampleUse) { const x = EXAMPLES[Number(b.dataset.exampleUse)]; editing = null; setWhen(null); composerState(); for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = ''; ($('#mc-title') as HTMLInputElement).value = x.title; ($('#mc-body') as HTMLTextAreaElement).value = x.body; document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === x.send_by))); setPicked(cleanAudience(x.audience)); smsCount(); document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Loaded the example “${x.title}” as a new draft. Change anything, then save, schedule or send.`); }
     else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); useTemplate(TEMPLATES[Number(b.dataset.template)]); }
     else if (b.hasAttribute('data-backlog-who')) { const ul = $('[data-backlog-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
     else if (b.hasAttribute('data-backlog-send')) {

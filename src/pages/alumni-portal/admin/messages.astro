@@ -2,6 +2,7 @@
 /** Alumni portal › Admin › Messages: compose, pick who gets it, test, send or schedule by email and/or text (the send-message function: Resend, Twilio), and the list of every message with who got it (scripts/portal-messages.ts). */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
+import '../../../styles/portal-messages.css';
 import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 type Msg = { state: 'draft' | 'scheduled' | 'sent'; title: string; when: string; by: string; preview: string; audience: string; count: number; delivered?: number; people: string[] };
@@ -21,19 +22,20 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
 <BaseLayout nav="portal" current="admin" title="Messages — TL Alumni Network Portal" description="Email or text a group of TroyLabs members.">
   <PortalShell label="Send message blast">
     <AdminNav current="messages" />
+    <div class="portal-messaging">
     <div class="portal-page-head"><div>
       <h1 class="t-title portal-page-title">MESSAGES</h1>
       <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement or a referral ask, pick who gets it, and send it by email, text or both. Send yourself a test first. Texts go only to members who opted in on their profile.</p>
       <p class="m-0 t-fine portal-delivery" id="msg-delivery" role="status">Checking whether email and texts are connected…</p>
     </div></div>
 
-    <div class="portal-panels portal-panels-2">
-      <form class="portal-panel" novalidate>
-        <h2 class="t-sub portal-panel-title">Compose message</h2>
+    <div class="portal-panels portal-panels-2 msg-workspace">
+      <form class="portal-panel msg-compose" novalidate>
+        <div class="msg-compose-head"><div><h2 class="t-sub portal-panel-title">Compose message</h2><p class="t-fine text-muted m-0" data-compose-state>New message</p></div><button type="button" class="t-label portal-linklike" data-action="new-draft">NEW DRAFT</button></div>
         <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
         <span class="t-label text-muted">START FROM A TEMPLATE</span><div class="flex flex-wrap portal-chips" data-templates style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"></div>
-        <div class="portal-field"><label class="t-label text-muted" for="mc-title">SUBJECT <span style="letter-spacing:0;text-transform:none">· the email's subject line and how it's listed below (texts don't use it)</span></label><input id="mc-title" class="t-caption portal-input is-wide" maxlength="150" /></div>
-        <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea"></textarea><p id="mc-sms" class="m-0 t-fine text-muted" aria-live="polite" hidden></p>
+        <div class="portal-field"><label class="t-label text-muted" for="mc-title">SUBJECT</label><input id="mc-title" class="t-caption portal-input is-wide" maxlength="150" aria-describedby="mc-subject-hint" /><p class="m-0 t-fine text-muted" id="mc-subject-hint">The email subject and the name saved in your message history. Texts use only the body.</p></div>
+        <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea" rows="8" placeholder="What would you like the group to know?"></textarea><p id="mc-sms" class="m-0 t-fine text-muted" aria-live="polite" hidden></p>
           <div class="portal-sms-preview" data-sms-preview hidden><span class="t-label text-muted">HOW THE TEXT LOOKS</span><p class="m-0 t-caption portal-sms-bubble" data-sms-bubble></p></div></div>
         <details class="portal-fold" data-fold>
           <summary class="t-label text-muted">EVENT DETAILS (OPTIONAL)</summary>
@@ -44,6 +46,7 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
           <input id="mc-ev-rsvp" class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
         </div>
         </details>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
       </form>
       <div class="portal-panel">
         <h2 class="t-sub portal-panel-title">Who gets it</h2>
@@ -57,35 +60,45 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
         </div>
         <details class="portal-fold portal-or" data-fold>
           <summary class="t-label text-muted">NARROW IT DOWN (OPTIONAL)</summary>
-          <p class="m-0 t-fine text-muted" style="margin:calc(2 * var(--u)) 0 calc(10 * var(--u))">Only people from these cohorts, or in these industries, among the boxes ticked above.</p>
+          <p class="m-0 t-fine text-muted" style="margin:calc(2 * var(--u)) 0 calc(10 * var(--u))">Narrow the groups above by cohort or industry. If you choose both, people must match both filters.</p>
           <span class="t-label text-muted">COHORT</span><div class="flex flex-wrap portal-chips" data-cohorts style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"></div>
           <span class="t-label text-muted">INDUSTRIES</span><div class="flex flex-wrap portal-chips" data-aud-industries style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))">{INDUSTRIES.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div>
         </details>
         <p class="t-fine portal-feedback" data-aud-summary role="status" style="margin:calc(10 * var(--u)) 0 calc(14 * var(--u))"></p>
-        <details class="portal-fold portal-who" data-who-list open hidden><summary class="t-label text-muted" data-who-head>WHO GETS IT</summary><ul class="portal-row-list t-fine portal-who-items" data-who-items></ul></details>
-        <span class="t-label text-muted">WHEN</span>
-        <div class="flex flex-wrap portal-chips" data-single data-when style="margin:calc(8 * var(--u)) 0 calc(10 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
-        <div class="portal-inline" data-when-at hidden style="margin-bottom:calc(14 * var(--u))"><input id="mc-when" type="datetime-local" class="t-caption portal-input" aria-label="Send at" /></div>
-        <div class="portal-actions" style="flex-direction:column;align-items:stretch">
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="preview" data-done="PREVIEWING…">PREVIEW RECIPIENTS</button>
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="new-draft">NEW DRAFT</button>
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
-          <button type="button" class="portal-btn is-small is-quiet t-label" data-action="test-send">SEND A TEST TO ME</button>
-          <button type="button" class="portal-btn t-title" style="margin-top:0" data-action="send" data-send-btn>SEND NOW</button>
-          <p id="msg-fb" class="t-fine portal-feedback" style="margin:0"></p>
-        </div>
+        <button type="button" class="portal-btn is-small is-quiet t-label msg-preview-btn" data-action="preview">PREVIEW RECIPIENTS</button>
+        <details class="portal-fold portal-who" data-who-list hidden><summary class="t-label text-muted" data-who-head>WHO GETS IT</summary><ul class="portal-row-list t-fine portal-who-items" data-who-items></ul></details>
       </div>
     </div>
 
+    <section class="portal-panel msg-delivery-panel" aria-label="Test and send">
+      <div class="msg-self-test">
+        <h2 class="t-sub portal-panel-title">Test it first</h2>
+        <p class="t-fine text-muted m-0">A test goes only to you, even when a group is selected.</p>
+        <p class="t-caption msg-test-target" data-test-target role="status">Loading your test destinations…</p>
+        <a href="/alumni-portal/profile" class="t-fine portal-inline-link">Update your email or phone</a>
+        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="test-send">SEND A TEST TO ME</button>
+      </div>
+      <div class="msg-send-controls">
+        <h2 class="t-sub portal-panel-title">Send to your group</h2>
+        <p class="t-caption msg-send-summary" data-send-summary role="status">Choose an audience above.</p>
+        <span class="t-label text-muted">WHEN</span>
+        <div class="flex flex-wrap portal-chips" data-single data-when><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
+        <div class="portal-field" data-when-at hidden><label for="mc-when" class="t-fine text-muted" data-timezone>Send date and time</label><input id="mc-when" type="datetime-local" class="t-caption portal-input is-wide" aria-label="Send at" /></div>
+        <button type="button" class="portal-btn t-title" data-action="send" data-send-btn>SEND NOW</button>
+      </div>
+      <p id="msg-fb" class="t-caption portal-feedback" role="status" tabindex="-1"></p>
+    </section>
+
     <!-- the texts the system sends by itself, word for word (2026-10-06), and the one-time welcome for members who turned
          texts on before texts were connected -->
-    <h2 class="t-sub portal-section-h">Automatic texts</h2>
+    <details class="portal-fold msg-automatic"><summary class="t-label text-muted">AUTOMATIC TEXTS &amp; OPT-IN REPLIES</summary>
     <p class="portal-section-sub t-fine text-muted">Sent by themselves, word for word. Every text starts with "TroyLabs:" so people know who it's from.</p>
     <ul class="portal-row-list t-caption portal-auto" data-auto-texts>
       {AUTO.map(([when, how, text]) => <li><span class="portal-auto-when"><span class="text-ink">{when}</span><br /><span class="t-fine text-muted">{how}</span></span><span class="portal-sms-bubble t-fine">{text}</span></li>)}
       <li data-backlog hidden><span class="portal-auto-when"><span class="text-ink">Members who turned texts on before texts were connected</span><br /><span class="t-fine text-muted" data-backlog-note></span></span><span class="portal-inline"><button type="button" class="t-label portal-linklike" data-backlog-who>SEE WHO</button><button type="button" class="portal-btn is-small t-label" data-backlog-send disabled>SEND THEM THE WELCOME</button></span></li>
     </ul>
     <ul class="portal-row-list t-fine portal-who-items" data-backlog-list hidden></ul>
+    </details>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->
     <h2 class="t-sub portal-section-h">All messages</h2>
@@ -117,6 +130,7 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
         </li>
       ))}
     </ul>
+    </div>
   </PortalShell>
 </BaseLayout>
 <script src="../../../scripts/portal-messages.ts"></script>

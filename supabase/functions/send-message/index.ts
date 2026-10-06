@@ -113,7 +113,9 @@ const config = () => {
 async function resendBatch(emails: unknown[], idempotencyKey: string): Promise<{ ok: true; ids: string[] } | { ok: false; error: string }> {
   const { key } = config();
   for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await fetch('https://api.resend.com/emails/batch', { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey }, body: JSON.stringify(emails) });
+    let r: Response;
+    try { r = await fetch('https://api.resend.com/emails/batch', { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey }, body: JSON.stringify(emails) }); }
+    catch { return { ok: false, error: 'Couldn’t confirm whether Resend accepted the email. Check your inbox or Resend’s delivery log before trying again.' }; }   // the provider may have accepted it; preserve the other channel's outcome without blindly resending
     if (r.status === 429 && attempt < 2) { await new Promise((ok) => setTimeout(ok, 1100 * (attempt + 1))); continue; }   // rate limit: back off and retry the same batch (same key, so never twice)
     const body = await r.json().catch(() => ({}));
     if (!r.ok) return { ok: false, error: `Resend ${r.status}: ${body?.message ?? body?.error ?? 'request failed'}` };

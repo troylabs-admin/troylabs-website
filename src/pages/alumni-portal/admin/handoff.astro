@@ -16,7 +16,7 @@ const PLACES = [
   ['Email', 'Resend', 'https://resend.com/emails', 'Sends every email from usctroylabs.com: sign-in links (through Supabase), the "you’re in" email when someone is approved, the link that confirms a second email address, and Admin › Message emails. Anyone with any email address can receive them. Pro plan ($20 a month): 50,000 emails a month, no daily limit. Supabase separately caps sign-in links at 100 an hour.'],
   ['AI search', 'OpenAI', 'https://platform.openai.com/usage', 'Powers searching by meaning ("someone in energy storage"). Only work details are sent, never names, emails or phone numbers. A fraction of a cent per search.'],
   ['LinkedIn import', 'Apify', 'https://console.apify.com/actors/runs', 'After someone is approved, reads their public LinkedIn profile (jobs, schools, honors, photo) with the HarvestAPI LinkedIn Profile Scraper, then again when they press SYNC NOW. Never signs in to LinkedIn. About $4 per 1,000 profiles; the site stops at 1,000 a month. The free plan includes $5 a month.'],
-  ['Texts', 'Twilio', 'https://console.twilio.com/us1/monitor/logs/sms', 'Sends Admin › Message texts through the send-message function, only to members who opted in. The number must pass toll-free verification before texts reach real phones; until then test with the Virtual Phone in the Twilio console. STOP replies turn texts off on the profile.'],
+  ['Texts', 'Twilio', 'https://console.twilio.com/us1/monitor/logs/sms', 'Sends Admin › Message texts through the send-message function, only to members who opted in. Carriers only deliver texts from a registered number: the account is registered for A2P 10DLC as a sole proprietor (one number, event and announcement texts). STOP replies turn texts off on the profile.'],
   ['Product analytics', 'PostHog', 'https://us.posthog.com/project/611704', 'Clicks and searches as counts: Apply clicks, links off the site, the reel, scroll depth, searches, filters, globe taps. No person is ever tracked.'],
 ];
 ---
@@ -24,7 +24,7 @@ const PLACES = [
 <BaseLayout nav="portal" current="admin" title="Tech stack — TL Alumni Network Portal" description="Where the TroyLabs site and network live.">
   <PortalShell label="Handoff">
     <AdminNav current="handoff" />
-    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab. Supabase, Resend, OpenAI and Apify use the shared troylabs@usc.edu login.</p></div></div>
+    <div class="portal-page-head"><div><h1 class="t-title portal-page-title">TECH STACK</h1><p class="t-caption text-muted portal-page-sub">Where everything lives. Each opens in a new tab. Supabase, Resend, OpenAI, Apify and Twilio use the shared troylabs@usc.edu login.</p></div></div>
 
     <ul class="portal-row-list t-caption" style="margin-top:calc(22 * var(--u))">
       {PLACES.map(([what, where, href, note]) => <li style="align-items:flex-start;gap:calc(16 * var(--u))"><span style="flex:1"><span class="text-ink">{what}</span> <span class="text-muted">· {where}</span><br /><span class="t-fine text-muted">{note}</span></span>{href ? <a href={href} target="_blank" rel="noopener noreferrer" class="t-label portal-linklike no-underline" style="color:var(--color-orange);flex:none">OPEN →</a> : <span class="t-fine portal-tag" style="flex:none">NOT YET</span>}</li>)}

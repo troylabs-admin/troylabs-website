@@ -51,7 +51,7 @@ function fill(r: ProfileRow, admin: boolean) {
   ($('#pf-classof-year') as HTMLInputElement).value = !student && r.grad_year ? String(r.grad_year) : '';
   ($('#pf-name') as HTMLInputElement).value = r.full_name ?? '';
   ($('#pf-term') as HTMLSelectElement).value = term(r.join_term) || 'Fall'; ($('#pf-year') as HTMLInputElement).value = r.join_year ? String(r.join_year) : '';
-  ($('#pf-title') as HTMLInputElement).value = r.current_title ?? ''; ($('#pf-co') as HTMLInputElement).value = r.current_company ?? '';
+  // current job title and company aren't on the form: LinkedIn's work history sets them (2026-10-05)
   ($('#pf-li') as HTMLInputElement).value = r.linkedin_url ?? ''; ($('#pf-bio') as HTMLTextAreaElement).value = r.bio ?? '';
   const note = $<HTMLTextAreaElement>('#pf-note'); if (note) note.value = r.request_note ?? '';
   setChips('[data-field="divisions"]', r.divisions ?? []);
@@ -113,7 +113,6 @@ function collect(): Partial<ProfileRow> {
     grad_term: student ? termCode(($('#pf-grad-term') as HTMLSelectElement).value) : row?.grad_term ?? null,
     grad_year: student ? num(($('#pf-grad-year') as HTMLInputElement).value) : num(($('#pf-classof-year') as HTMLInputElement).value),
     join_term: ($('#pf-year') as HTMLInputElement).value.trim() ? termCode(($('#pf-term') as HTMLSelectElement).value) : null, join_year: num(($('#pf-year') as HTMLInputElement).value),
-    current_title: ($('#pf-title') as HTMLInputElement).value.trim() || null, current_company: ($('#pf-co') as HTMLInputElement).value.trim() || null,
     linkedin_url: ($('#pf-li') as HTMLInputElement).value.trim() || null, bio: ($('#pf-bio') as HTMLTextAreaElement).value.trim() || null,
     divisions: chipsOn('[data-field="divisions"]'), startups: tags('#pf-startups'),
     ...(who && !who.approved ? { request_note: ($('#pf-note') as HTMLTextAreaElement).value.trim() || null, claimed_roles: claimsFromForm().roles } : {}),
@@ -156,7 +155,7 @@ function onboard(justSaved = false) {
 }
 
 /** the LinkedIn panel: where their import stands, SYNC NOW, and their history as members see it */
-let liPoll = 0; let jobFromLinkedIn = false;   // USE THIS was pressed: the next save marks the job as LinkedIn's
+let liPoll = 0;
 async function linkedInPanel() {
   const box = $('#pf-linkedin'); if (!box || !who || !row) return;
   const status = box.querySelector<HTMLElement>('[data-li-status]')!, btn = box.querySelector<HTMLButtonElement>('[data-li-sync]')!, fb = box.querySelector<HTMLElement>('[data-li-fb]')!;
@@ -164,17 +163,7 @@ async function linkedInPanel() {
   const [st, history] = await Promise.all([myLinkedInStatus().catch(() => null), getHistory(who.id).catch(() => null)]);
   if (!box.isConnected) return;
   const preview = $('[data-li-preview]'); if (preview) preview.innerHTML = history ? historyHtml(history) : '';
-  // LinkedIn's current job, when it differs from the one on their card
-  const hint = $('[data-li-job]'); const cur = history?.work.find((w) => w.end_year === null && !w.is_club);   // TroyLabs is already left out; clubs aren't a job either
-  const same = (a: string | null | undefined, b: string | null | undefined) => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
-  if (hint) {
-    const typedTitle = ($('#pf-title') as HTMLInputElement).value, typedCo = ($('#pf-co') as HTMLInputElement).value;
-    if (cur && !(same(cur.title, typedTitle) && same(cur.company, typedCo))) {
-      hint.innerHTML = `LinkedIn says: ${escapeHtml(cur.title)} at ${escapeHtml(cur.company)}. <button type="button" class="t-fine portal-linklike wh-use-job" data-use-job>USE THIS</button>`;
-      hint.hidden = false;
-      hint.querySelector<HTMLButtonElement>('[data-use-job]')!.onclick = () => { ($('#pf-title') as HTMLInputElement).value = cur.title; ($('#pf-co') as HTMLInputElement).value = cur.company; jobFromLinkedIn = true; hint.textContent = 'Filled in from LinkedIn. Press SAVE to keep it; future syncs keep it current.'; ($('#pf-title') as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true })); };
-    } else hint.hidden = true;
-  }
+
   btn.hidden = true; window.clearTimeout(liPoll);
   const link = canonicalLinkedIn(row.linkedin_url ?? '');
   if (!who.approved) return say(link ? 'Your LinkedIn imports when leadership approves you.' : 'Add your LinkedIn link above. It imports when leadership approves you.');
@@ -187,7 +176,6 @@ async function linkedInPanel() {
   else say('Not imported yet.');
   if (day && !st?.error) { btn.disabled = true; fb.textContent = 'You can sync again tomorrow.'; fb.style.color = 'var(--color-muted)'; }   // information, not an error
 }
-document.addEventListener('input', (e) => { const t = e.target as Element; if (t.matches?.('#pf-title, #pf-co') && (e as InputEvent).inputType) jobFromLinkedIn = false; });   // typed by hand after USE THIS → theirs
 document.addEventListener('click', async (e) => {
   const btn = (e.target as Element).closest<HTMLButtonElement>('#pf-linkedin [data-li-sync]'); if (!btn || btn.disabled) return;
   const fb = document.querySelector<HTMLElement>('#pf-linkedin [data-li-fb]')!; btn.disabled = true; fb.style.color = ''; fb.textContent = '';
@@ -219,8 +207,6 @@ async function init() {
       : patch.full_name ? [] : ['your name'])];
     if (missing.length) { showMissing(missing, applying && !row?.submitted_at ? 'Before you can submit, add' : 'Your profile needs'); return; }
     if (applying) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
-    // whose current job this is: typed → theirs (a sync never overwrites it); USE THIS → LinkedIn's (syncs keep it current)
-    if ((patch.current_title ?? '') !== (row?.current_title ?? '') || (patch.current_company ?? '') !== (row?.current_company ?? '')) patch.current_job_source = jobFromLinkedIn ? 'linkedin' : patch.current_title || patch.current_company ? 'manual' : null;
     // a LinkedIn link must be a profile link; any spelling is stored in one form
     if (patch.linkedin_url) { const li = canonicalLinkedIn(patch.linkedin_url); if (!li) { const f = $('#pf-li') as HTMLInputElement; f.classList.add('portal-needs'); f.focus(); flash(btn, 'NOT SAVED', 'That isn’t a LinkedIn profile link. Copy it from your LinkedIn profile; it looks like linkedin.com/in/your-name.', false); return; } patch.linkedin_url = li; }
     if (saveBtn.disabled) return;
@@ -242,7 +228,7 @@ async function init() {
         if (sub.error) { fill(res.row, who!.admin); flash(btn, 'NOT SENT', `Saved, but it couldn't be sent to leadership: ${sub.error.message}`, false); return; }
         res.row.submitted_at = (sub.data as string | null) ?? new Date().toISOString(); who!.submitted = true;
       }
-      fill(res.row, who!.admin); label(saveBtn); jobFromLinkedIn = false; void linkedInPanel();
+      fill(res.row, who!.admin); label(saveBtn); void linkedInPanel();
       if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
       else flash(btn, 'SAVED', 'Saved. Your card in search and your pin on the globe are up to date.');
     } catch { flash(btn, 'NOT SAVED', 'Check your connection and try again. Your changes are still in the form.', false); }

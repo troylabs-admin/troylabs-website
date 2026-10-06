@@ -107,25 +107,17 @@ try {
   assert.equal(await p3.locator('[data-li-preview] .wh-group').count(), 12, 'the history appears without reloading');
   console.log('PASS: profile panel — imported (sync again tomorrow), waiting for approval, a failed import with SYNC NOW, no link → bad link refused → saved in one form → imports on its own → imported');
 
-  // ── whose current job ─────────────────────────────────────────────────────────────────────────
+  // ── the current job is LinkedIn's (the profile has no job boxes) ───────────────────────────────────
   const job = async (u) => (await admin.from('profiles').select('current_title, current_company, current_job_source').eq('id', u.id).single()).data;
-  const blank = await make('Job Blank QA', true, handle()); await admin.from('profiles').update({ current_title: null, current_company: null }).eq('id', blank.id);
-  const Lb = (await admin.from('profiles').select('linkedin_url').eq('id', blank.id).single()).data.linkedin_url;
-  await call({ mode: 'request', profile_id: blank.id }); await call({ mode: 'worker', fixture: { [Lb]: { ...bryan, originalQuery: { url: Lb } } } });
-  assert.deepEqual(await job(blank), { current_title: 'Software Engineering Intern', current_company: 'NVIDIA', current_job_source: 'linkedin' }, 'no job typed → LinkedIn\'s');
-  const typed = await make('Job Typed QA', true, handle());   // makeUser typed Founder at Luma Health
+  const typed = await make('Job Typed QA', true, handle());   // makeUser typed Founder at Luma Health (as before this change)
   const Lt = (await admin.from('profiles').select('linkedin_url').eq('id', typed.id).single()).data.linkedin_url;
   await call({ mode: 'request', profile_id: typed.id }); await call({ mode: 'worker', fixture: { [Lt]: { ...bryan, originalQuery: { url: Lt } } } });
-  assert.deepEqual(await job(typed), { current_title: 'Founder', current_company: 'Luma Health', current_job_source: null }, 'a typed job is never overwritten');
+  assert.deepEqual(await job(typed), { current_title: 'Software Engineering Intern', current_company: 'NVIDIA', current_job_source: 'linkedin' }, 'an old typed job is replaced by LinkedIn\'s current one');
+  await call({ mode: 'request', profile_id: typed.id }); await call({ mode: 'worker', fixture: { [Lt]: { ...bryan, experience: bryan.experience.filter((e) => e.endDate?.year || /troy\s?labs/i.test(e.companyName)), originalQuery: { url: Lt } } } });
+  assert.deepEqual(await job(typed), { current_title: null, current_company: null, current_job_source: 'linkedin' }, 'no current job on LinkedIn (TroyLabs doesn\'t count) → cleared');
   const pj = await panel(typed);
-  await expect(pj.locator('[data-li-job]')).toHaveText('LinkedIn says: Software Engineering Intern at NVIDIA. USE THIS');
-  await pj.locator('[data-use-job]').click(); await expect(pj.locator('#pf-title')).toHaveValue('Software Engineering Intern'); await expect(pj.locator('#pf-co')).toHaveValue('NVIDIA');
-  await pj.locator('.portal-save [data-action="save"]').click();
-  await expect.poll(async () => (await job(typed)).current_job_source, { timeout: 10000 }).toBe('linkedin');   // USE THIS + SAVE → LinkedIn's, kept current by syncs
-  await expect(pj.locator('[data-li-job]')).toBeHidden();
-  await pj.locator('#pf-title').fill('Chief Builder'); await pj.locator('.portal-save [data-action="save"]').click();
-  await expect.poll(() => job(typed), { timeout: 10000 }).toEqual({ current_title: 'Chief Builder', current_company: 'NVIDIA', current_job_source: 'manual' });   // typing their own → theirs (the "Saved" text was already there from the last save)
-  console.log('PASS: current job — none typed → LinkedIn\'s; typed → kept, with "LinkedIn says … USE THIS"; USE THIS → follows LinkedIn; typing again → theirs');
+  assert.equal(await pj.locator('#pf-title, #pf-co, [data-li-job]').count(), 0, 'the profile has no job boxes and no "LinkedIn says" hint');
+  console.log('PASS: current job — always LinkedIn\'s current one (an old typed job replaced; none → cleared; TroyLabs never); no job boxes on the profile');
 
   // ── applying: a personal email is required (USC addresses expire) ──────────────────────────────
   const uscApplicant = await make('Usc Applicant QA', false); await admin.from('profiles').update({ personal_email: null, usc_email: `tl-qa-${crypto.randomUUID().slice(0, 6)}@usc.edu` }).eq('id', uscApplicant.id);

@@ -87,7 +87,7 @@ try {
   // fill in everything, including e-board roles and a city typed but not placed
   await page.locator('#pf-classof-year').fill('2023'); await page.locator('#pf-term').selectOption('Fall'); await page.locator('#pf-year').fill('2021');
   for (const d of ['DESIGN', 'MARKETING']) await page.locator('[data-field="divisions"] .portal-chip', { hasText: d }).click();
-  await page.locator('#pf-title').fill('Brand Designer'); await page.locator('#pf-co').fill('Figma'); await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');   // any spelling of the link; the phone saves with SUBMIT
+  await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');   // any spelling of the link; the phone saves with SUBMIT
   await page.locator('#pf-claim .portal-chip', { hasText: 'DIRECTOR OF DESIGN' }).click(); const role = page.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF DESIGN"]');
   await role.locator('select').first().selectOption('Fall'); await role.locator('input').first().fill('2022');
   await page.locator('#pf-note').fill('Design division FA21 to SP23; Director of Design FA22.');
@@ -140,7 +140,7 @@ try {
   const card = ap.locator('.portal-request', { hasText: 'Jordan Rivera' }); await expect(card).toBeVisible();
   for (const t of ['Class of 2023', 'joined FA21', 'MARKETING, DESIGN', 'E-board: Director of design (Fall 2022)']) await expect(card).toContainText(t);
   await expect(ap.locator('#approvals')).not.toContainText('Never Submitted QA'); await expect(ap.locator('body')).not.toContainText('STILL FILLING IN');
-  await card.getByRole('button', { name: 'DETAILS' }).click(); await expect(card.locator('.portal-q-details')).toContainText('Brand Designer at Figma');
+  await card.getByRole('button', { name: 'DETAILS' }).click(); await expect(card.locator('.portal-q-details')).toContainText('Design division FA21');   // their note (2026-10-05: no job is typed at sign-up; LinkedIn sets it after approval)
   await expect(card.getByRole('link', { name: /VIEW FULL PROFILE/ })).toHaveAttribute('href', `/alumni-portal/members/?id=${fresh.id}&from=approvals`);
   await shot(ap, '09-admin-waiting-list');
   await card.getByRole('button', { name: 'APPROVE' }).click(); await expect(ap.locator('#q-fb')).toContainText('Approved Jordan Rivera');

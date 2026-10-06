@@ -104,7 +104,8 @@ try {
   while (Date.now() - t0 < 40000) { const r = (await admin.from('profiles').select('embedding_hash').eq('id', ana.id).single()).data; if (r.embedding_hash && r.embedding_hash !== hashBefore) { hash = r.embedding_hash; break; } await new Promise((ok) => setTimeout(ok, 1500)); }
   assert.ok(hash, 'the sync re-embedded the profile');
   const ask = async (q) => (await (await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/semantic', { method: 'POST', headers: { Authorization: `Bearer ${ana.session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'search', q }) })).json()).hits ?? [];
-  for (const q of ['someone who interned at Jane Street', 'who won a hackathon', 'published research on TikTok']) { const hits = await ask(q); assert.equal(hits[0]?.id, ana.id, `"${q}" ranks them first (got ${JSON.stringify(hits.slice(0, 3))})`); }
+  const testIds = new Set(users.map((u) => u.id));   // real members can match too (Bryan's own profile mentions hackathons): rank among this test's people
+  for (const q of ['someone who interned at Jane Street', 'who won a hackathon', 'published research on TikTok']) { const hits = (await ask(q)).filter((h) => testIds.has(h.id)); assert.equal(hits[0]?.id, ana.id, `"${q}" ranks them first (got ${JSON.stringify(hits.slice(0, 3))})`); }
   console.log('PASS: AI search — after a sync, "interned at Jane Street", "won a hackathon" and "published research on TikTok" find them first');
 
   // ── failures keep what's saved (same link; LinkedIn is what fails) ─────────────────────────────

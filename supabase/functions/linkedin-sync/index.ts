@@ -117,12 +117,12 @@ async function worker(svc: SupabaseClient, fixture: Record<string, ScrapedProfil
     photos[await maybePhoto(svc, job.profile_id, full)]++;
     const { error: re } = await svc.rpc('replace_linkedin_profile', { p_profile: job.profile_id, p_url: url, p_snapshot: snapshotOf(full), p_work: work, p_items: toItems(full), p_headline: typeof full.headline === 'string' ? full.headline.trim() || null : null, p_about: typeof full.about === 'string' ? full.about.trim() || null : null, p_skills: toSkills(full) });
     if (re) { await fail(job, `Couldn’t save: ${re.message}`, true); failed++; continue; }
-    // the card's current job follows LinkedIn unless they typed their own
+    // the card's current job is LinkedIn's (the profile has no job boxes)
     const { data: pj } = await svc.from('profiles').select('current_title, current_company, current_job_source').eq('id', job.profile_id).single();
     const role = currentRole(rows);
     const jd = pj ? jobDecision(pj, role) : 'keep';
     if (jd === 'take' && role) await svc.from('profiles').update({ current_title: role.title, current_company: role.company, current_job_source: 'linkedin' }).eq('id', job.profile_id);
-    if (jd === 'clear') await svc.from('profiles').update({ current_title: null, current_company: null }).eq('id', job.profile_id);   // source stays 'linkedin': the next current job fills in
+    if (jd === 'clear') await svc.from('profiles').update({ current_title: null, current_company: null, current_job_source: 'linkedin' }).eq('id', job.profile_id);
     done++;
   }
   if (urls.length) await svc.from('linkedin_scrapes').insert({ profiles: urls.length, ok: done });

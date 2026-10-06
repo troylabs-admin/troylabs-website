@@ -27,9 +27,11 @@ try {
   expect(c.x).toBeGreaterThanOrEqual(w.x-1);expect(c.y).toBeGreaterThanOrEqual(w.y-1);
   expect(c.x+c.width).toBeLessThanOrEqual(w.x+w.width+1);expect(c.y+c.height).toBeLessThanOrEqual(w.y+w.height+1);
   expect(await pop.evaluate(e=>e.scrollWidth-e.clientWidth)).toBe(0);
+  const z=await p.locator('.portal-globe-zoom').count()?await p.locator('.portal-globe-zoom').boundingBox():null;   // zoom controls were removed (Bryan, 2026-10-05); the check stays for if they return
+  if(z && z.x<c.x+c.width && c.x<z.x+z.width && z.y<c.y+c.height && c.y<z.y+z.height){console.log({w,c,z});await p.screenshot({path:`${out}/overlap.png`});throw new Error('zoom controls overlap the card');}
   expect(await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBe(0);
  };
- for(const width of [1440,1001,768,390,320]){
+ for(const width of (process.env.GLOBE_WIDTHS || '1440,1001,768,390,320').split(',').map(Number)){
   await p.setViewportSize({width,height:width>=768?1000:844});await open();
   const star=p.locator('.tl-star');await expect(star).toHaveCount(1);await expect(star).toHaveAttribute('data-count','4');
   await star.hover();const label=await star.locator('.tl-pin-name').evaluate(e=>({height:e.getBoundingClientRect().height,line:parseFloat(getComputedStyle(e).lineHeight),font:parseFloat(getComputedStyle(e).fontSize)}));
@@ -48,8 +50,10 @@ try {
   console.log(`PASS ${width}px: readable label, four-person city, merged cities, single person, contained cards, list action, no page overflow`);
  }
  // Long real-world content wraps, including strings with no spaces. It remains text.
- rows.splice(1);rows[0].full_name='LongName'.repeat(12)+'<img src=x onerror=alert(1)>';rows[0].current_title='A long research and development title';rows[0].city.name='A very long city name with several words';
+ rows.splice(1);rows[0].full_name='Alexandria MontgomeryWorthingtonSutherland van der Meer <img src=x onerror=alert(1)>';rows[0].current_title='A long research and development title';rows[0].city.name='A very long city name with several words';
  await p.setViewportSize({width:320,height:844});await open();await p.locator('.tl-star').click();await settle();await contained();expect(await pop.locator('img').count()).toBe(0);await p.screenshot({path:`${out}/long-person-320.png`});
- await p.setViewportSize({width:1440,height:1000});await settle();await contained();await p.screenshot({path:`${out}/long-person-1440.png`});
+ await p.setViewportSize({width:1440,height:1000});await settle();await contained();
+ const c=await pop.boundingBox(),s=await p.locator('.tl-star.is-selected').boundingBox();expect(Math.abs(c.x+c.width/2-s.x-s.width/2),'resized card stays above its marker').toBeLessThan(1);
+ await p.screenshot({path:`${out}/long-person-1440.png`});
  expect(errors).toEqual([]);console.log('PASS long content, resizing an open card, literal text, no JavaScript errors');
 }finally{await browser.close();}

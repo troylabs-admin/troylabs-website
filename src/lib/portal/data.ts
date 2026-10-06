@@ -137,6 +137,6 @@ export const listRoster = async () => ((await supabase().from('roster').select('
 
 /** how filled-in a profile is, the same fields the profile page scores */
 export function completeness(r: ProfileRow): number {
-  const checks = [r.avatar_path, r.full_name, r.personal_email, r.join_year, r.current_title, r.current_company, r.linkedin_url, r.bio, r.divisions?.length, r.industries?.length, r.city_id, r.status === 'alum' ? r.grad_year : true];
+  const checks = [r.avatar_path, r.full_name, r.personal_email, r.join_year, r.linkedin_url, r.bio, r.divisions?.length, r.industries?.length, r.city_id, r.status === 'alum' ? r.grad_year : true];
   return Math.round((100 * checks.filter(Boolean).length) / checks.length);
 }

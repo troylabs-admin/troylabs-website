@@ -440,7 +440,6 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
      softened into a porthole by a radial mask on the canvas — the buttons and count sit outside the mask */
   .portal-globe-wrap { height: auto; aspect-ratio: 1; min-height: 0; margin-top: 16px; }
 
-  .portal-globe-pop { width: 240px; padding-right: 34px; }
   .portal-globe-place { min-width: 0; }
   .portal-globe-place-sub { margin-top: 6px; letter-spacing: 1.2px; line-height: 16px; }
   .portal-globe-place .portal-globe-view { letter-spacing: 1.4px; }
@@ -521,8 +520,7 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 @media (max-width: 767px) {
   .portal-globe-tools { gap: 12px; margin-bottom: 12px; }
   .portal-globe-tools .portal-input { width: 220px; margin-top: 0; }
-  .portal-globe-pop.portal-panel { left: 16px !important; right: 16px; top: auto !important; bottom: 12px; transform: none; width: auto; padding: 14px 48px 14px 16px; max-width: none; }
-  .portal-globe-pop::after { display: none; }
+  .portal-globe-pop.portal-panel { left: 16px !important; right: 16px; top: auto !important; bottom: 12px; transform: none; width: auto; padding: 14px 48px 14px 16px; max-width: none; max-height: calc(100% - 76px); }
   .portal-globe-x { width: 36px; height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -789,30 +787,6 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   /* message rows: the title takes its own line under the tags (it was squeezed to a word per line beside them) */
   [data-msg-list] > li > .flex:first-child > .text-ink { flex: 1 1 100% !important; order: 1; }   /* !important: the row sets flex:1 inline */
   [data-msg-list] > li > .flex:first-child > .t-fine.text-muted { order: 2; }
-}
-/* ── globe › zoom controls and porthole (2026-10-05, components/portal/AlumniGlobe.tsx) ─────────────────────
-   + / − / reset in the lower-right corner of the frame (Google Maps / Mapbox's control stack), outside the disc
-   at the opening zoom. Round and glassy like .portal-btn and .portal-globe-x; a dark fill so they read over land
-   when zoomed in. While a card sits low in the frame the stack moves to the top corner (.is-top); on phones the
-   card is a bottom sheet, so it always moves up while one is open.
-   The porthole: zoomed in, the disc is bigger than the frame, and a square cut on the night sky is what Bryan
-   rejected on 2026-10-02. The canvas (stars included) is masked to a soft circle: at the opening zoom the disc
-   is ~79 % of the frame's half-width, so only the faint atmosphere reaches the fade. The clip-path keeps the
-   corners from catching clicks or drags (a hidden star in a corner must not be tappable). */
-.portal-globe-canvas { -webkit-mask-image: radial-gradient(circle closest-side, #000 90%, transparent 100%); mask-image: radial-gradient(circle closest-side, #000 90%, transparent 100%); clip-path: circle(closest-side); }
-.portal-globe-zoom { position: absolute; z-index: 6; right: calc(16 * var(--u)); bottom: calc(44 * var(--u)); display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
-.portal-explore-globe .portal-globe-zoom { bottom: calc(16 * var(--u)); }   /* the count line that sits in this corner is hidden here */
-.portal-globe-zoom.is-top { top: calc(16 * var(--u)); bottom: auto; }
-.portal-globe-zoom button { display: grid; place-items: center; width: clamp(36px, calc(30 * var(--u)), 44px); height: clamp(36px, calc(30 * var(--u)), 44px); padding: 0; border: 0; border-radius: 9999px; cursor: pointer; color: var(--color-ink); background: rgb(10 10 10 / 0.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.6), inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.14); transition: box-shadow 150ms ease, opacity 150ms ease; }
-.portal-globe-zoom button:hover:not([aria-disabled="true"]) { box-shadow: inset 0 0 0 var(--hair) #fff, inset 0 0 calc(13.6 * var(--u)) rgb(255 255 255 / 0.4); }
-.portal-globe-zoom button:focus-visible { outline: 2px solid var(--color-orange); outline-offset: 3px; }
-.portal-globe-zoom button[aria-disabled="true"] { opacity: 0.35; cursor: default; }
-.portal-globe-zoom svg { width: calc(14 * var(--u)); height: calc(14 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-@media (max-width: 767px) {
-  .portal-globe-zoom, .portal-explore-globe .portal-globe-zoom { right: 10px; bottom: 10px; gap: 6px; }
-  .portal-globe-zoom.is-top, .portal-globe-wrap[data-open]:not([data-open=""]) .portal-globe-zoom { top: 10px; bottom: auto; }
-  .portal-globe-zoom button { width: 44px; height: 44px; }   /* Apple's 44 pt minimum touch target (the old zoom stack used 44 too) */
-  .portal-globe-zoom svg { width: 16px; height: 16px; }
 }
 /* admins: mark a company as a student club */
 .co-admin { margin-top: calc(18 * var(--u)); }

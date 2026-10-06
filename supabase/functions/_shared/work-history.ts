@@ -140,11 +140,9 @@ export function photoDecision(profile: { avatar_path: string | null; avatar_sour
 /** TroyLabs and the known student clubs aren't someone's job here (everyone was in TroyLabs) */
 export const isClubName = (company: string) => /^\s*(troy\s?labs|lava\s?lab|quant\s?sc)\s*$/i.test(company);
 export const currentRole = (rows: WorkRow[]) => rows.find((r) => r.end_year === null && !isClubName(r.company) && r.company_linkedin_id !== '18216697') ?? null;
-/** set the card's current job from LinkedIn? Only when it came from LinkedIn before, or nothing was typed */
-export function jobDecision(p: { current_title: string | null; current_company: string | null; current_job_source: string | null }, role: WorkRow | null): 'take' | 'keep' | 'clear' {
-  // LinkedIn no longer shows a current job: one that came from LinkedIn goes too (it kept them on that company's page)
-  if (!role) return p.current_job_source === 'linkedin' && (p.current_title || p.current_company) ? 'clear' : 'keep';
-  if (p.current_job_source === 'linkedin') return 'take';
-  if (!p.current_title?.trim() && !p.current_company?.trim()) return 'take';
-  return 'keep';
+/** the card's current job comes from LinkedIn (2026-10-05: the profile no longer has job boxes — "the work history will
+ *  import it"): their current LinkedIn job (TroyLabs and clubs skipped), or nothing when LinkedIn shows none */
+export function jobDecision(p: { current_title: string | null; current_company: string | null; current_job_source?: string | null }, role: WorkRow | null): 'take' | 'keep' | 'clear' {
+  if (role) return 'take';
+  return p.current_title || p.current_company ? 'clear' : 'keep';
 }

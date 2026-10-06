@@ -10,13 +10,9 @@
  * it just says San Francisco +3 cities"). The selection follows the star through zooms and drags, and
  * through the re-clustering they cause: if the tapped city ends up inside a bigger star, that star is
  * selected; if a filter empties it, the selection clears. A star of one shows Charlotte's person card.
- * The globe OPENS with the whole world in view and a tap never zooms (Bryan, 2026-10-02: zoomed in, the globe
- * overflowed its frame and was cut square): a tap turns the globe to the star and opens its card, which lists
- * every city a merged star holds. Zoom is on purpose only (Bryan, 2026-10-05: "there's no button to zoom in"):
- * the + / − / reset stack in the lower right (Google Maps / Mapbox's control), a two-finger pinch on touch, or a
- * trackpad pinch (ctrl + wheel, Google Maps' cooperative gesture). Zoomed in, the disc outgrows the frame, so
- * the frame is a soft round porthole (portal.css), never a square cut. The plain wheel scrolls the PAGE
- * (OrbitControls hijacked it in the MVP).
+ * The whole world is always in view (Bryan, 2026-10-02: zoomed in, the globe overflowed its frame and was cut
+ * square). There is no zoom: a tap turns the globe to the star and opens its card, which lists every city a
+ * merged star holds. The wheel scrolls the page (OrbitControls hijacked it in the MVP).
  * Approved profiles supply live pins. The explicit sample preview supplies a generated roster.
  */
 import React, { useEffect, useMemo, useRef, useState, useCallback, type ComponentType } from 'react';
@@ -32,9 +28,7 @@ export type { Cluster } from '../../lib/portal/cluster';
    where the New York star of 42 splits into New York, Philadelphia, Boston, Washington and Toronto. Closer, the
    4096 px map texture visibly pixelates (looked at 0.15 and 0.10), and cities 50 km apart (San Francisco · Palo
    Alto) would still need ~0.1. */
-const ALT = { start: 1.9, min: 1.9 * 0.6 ** 4, step: 0.6, ms: 600 };
-const OPEN = { lat: 30, lng: -80 };   // the opening view: the Americas, where most alumni are
-const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ALT = { start: 1.9 };
 const tier = (n: number) => (n <= 1 ? 1 : n < 10 ? 2 : n < 50 ? 3 : 4);
 const upper = (s: string) => s.toUpperCase();
 /* the altitude at which the whole disc fits the frame with a 10 % margin. The camera's vertical fov is 50°;
@@ -96,9 +90,6 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const [popSize, setPopSize] = useState({ width: 320, height: 160 });
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [altitude, setAltitude] = useState(ALT.start);
-  // the altitude the camera is HEADING to: a zoom step sets it at once (so two quick clicks add up, and a button
-  // disables at its limit before the flight ends); a settle after a pinch or a drag sets it from the camera
-  const [aim, setAim] = useState(ALT.start); const aimRef = useRef(ALT.start); const flyingUntil = useRef(0);
   const [view, setView] = useState({ kmPerPx: 30, lat: 30, lng: -80, alt: ALT.start, n: 0 });   // the settled camera; n bumps on every settle so clusters re-project
   const [selected, setSelected] = useState<{ seed: string; cities: string[] } | null>(null);   // the tapped star: its anchor city and the cities under it
   const lastSel = useRef<Cluster | null>(null);
@@ -158,7 +149,6 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
     const kmPerPx = (111.32 * Math.cos((pov.lat * Math.PI) / 180)) / px;
     setView((v) => (Math.abs(v.kmPerPx - kmPerPx) / v.kmPerPx < 0.002 && Math.abs(v.lat - pov.lat) < 0.02 && Math.abs(v.lng - pov.lng) < 0.02 ? v : { kmPerPx, lat: pov.lat, lng: pov.lng, alt: pov.altitude, n: v.n + 1 }));
     setAltitude(pov.altitude);
-    if (performance.now() > flyingUntil.current) { aimRef.current = pov.altitude; setAim(pov.altitude); }   // the camera moved itself (pinch)
   }, []);
   // The controls' damping makes the globe coast for ~1.5–2 s after you let go (measured: 89 'change'
   // events, 12° of extra rotation). Re-cluster on a throttle while it coasts — the way Cesium re-clusters
@@ -245,58 +235,32 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const anchorOf = (el: Element) => { const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top }; };
   useEffect(() => {
     if (!current) { setAnchor(null); return; }
-    const el = containerRef.current?.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(current.seed.key)}"]`);
-    // no card while its star is out of sight — turned to the far side (the library hides it: display none, so
-    // its box is all zeros and the card sat at a clamped spot pointing at nothing) or, zoomed in, outside the
-    // round frame. It comes back when the star does. The selection itself stays. (No element yet = the renderer
-    // has not inserted it: keep the card where it was, as before.)
-    if (!el) return;
-    const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect();
-    const inFrame = r.width > 0 && Math.hypot(r.left + r.width / 2 - wrap.left - wrap.width / 2, r.top + r.height / 2 - wrap.top - wrap.height / 2) <= Math.min(wrap.width, wrap.height) / 2;
-    if (inFrame) { const a = anchorOf(el); setAnchor((old) => (old && Math.abs(a.x - old.x) < 0.5 && Math.abs(a.y - old.y) < 0.5 ? old : a)); }
-    else setAnchor(null);
-  }, [current, view, clusters]);
+    const updateAnchor = () => {
+      const el = containerRef.current?.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(current.seed.key)}"]`);
+      // no card while its star is out of sight — turned to the far side (the library hides it: display none, so
+      // its box is all zeros and the card sat at a clamped spot pointing at nothing) or, zoomed in, outside the
+      // round frame. It comes back when the star does. The selection itself stays. (No element yet = the renderer
+      // has not inserted it: keep the card where it was, as before.)
+      if (!el) return;
+      const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect();
+      const inFrame = r.width > 0 && Math.hypot(r.left + r.width / 2 - wrap.left - wrap.width / 2, r.top + r.height / 2 - wrap.top - wrap.height / 2) <= Math.min(wrap.width, wrap.height) / 2;
+      if (inFrame) { const a = anchorOf(el); setAnchor((old) => (old && Math.abs(a.x - old.x) < 0.5 && Math.abs(a.y - old.y) < 0.5 ? old : a)); }
+      else setAnchor(null);
+    };
+    updateAnchor();
+    // HTML markers are projected on the renderer's next frame. A resize doesn't move
+    // the camera, so also measure after that projection rather than keeping the old anchor.
+    let frame = requestAnimationFrame(() => { frame = requestAnimationFrame(updateAnchor); });
+    return () => cancelAnimationFrame(frame);
+  }, [current, view, clusters, dimensions]);
   useEffect(() => { containerRef.current?.querySelectorAll('.tl-star').forEach((el) => el.classList.toggle('is-selected', (el as HTMLElement).dataset.seed === current?.seed.key)); }, [current, clusters]);
 
-  /* the opening height, where the whole world fits the frame, is also the furthest zoom-out */
+  /** turn the globe to a point, always at the height where the whole world fits the frame */
   const fit = fitAltitude(dimensions.width, dimensions.height);
-  const clampAlt = useCallback((a: number) => Math.min(fit, Math.max(ALT.min, a)), [fit]);
-  /** every programmatic camera move: animated (a jump with reduced motion); the stars re-cluster once it lands */
-  const flyTo = useCallback((pov: { lat?: number; lng?: number; altitude: number }, ms: number) => {
-    const g = globeRef.current; if (!g) return;
-    const d = reduceMotion() ? 0 : ms;
-    aimRef.current = pov.altitude; setAim(pov.altitude); flyingUntil.current = performance.now() + d + 50;
-    g.pointOfView(pov, d);   // lat/lng left out = kept (globe.gl merges with the current point of view)
-    window.setTimeout(measure, d + 80);
-  }, [measure]);
-  /** turn the globe to a point at the CURRENT zoom (a tap or a city pick never zooms in or out) */
-  const turnTo = useCallback((lat: number, lng: number, ms = 900) => { flyTo({ lat, lng, altitude: clampAlt(aimRef.current) }, ms); }, [flyTo, clampAlt]);
-  /** + / −: toward the centre of the view, stepping from where the camera is heading */
-  const zoomBy = useCallback((f: number) => {
-    const next = clampAlt(aimRef.current * f);
-    if (Math.abs(next - aimRef.current) > 1e-6) flyTo({ altitude: next }, ALT.ms);
-  }, [flyTo, clampAlt]);
-  const resetView = useCallback(() => flyTo({ ...OPEN, altitude: fit }, 900), [flyTo, fit]);
-  // the frame changed size (window resize, phone rotation): fully zoomed out stays fully zoomed out (the whole
-  // world in view); zoomed in stays zoomed in, within the new limits. The pinch's limits follow.
-  const lastFit = useRef(fit);
-  useEffect(() => {
-    if (!ready) return; const g = globeRef.current; const old = lastFit.current; lastFit.current = fit;
-    const c = g?.controls(); if (c) { c.minDistance = 100 * (1 + ALT.min); c.maxDistance = 100 * (1 + fit) + 0.01; }
-    const pov = g?.pointOfView(); if (!pov) return;
-    const target = aimRef.current >= old - 0.005 ? fit : clampAlt(aimRef.current);
-    if (Math.abs(pov.altitude - target) > 0.005) { aimRef.current = target; setAim(target); g.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: target }, 0); }
-  }, [fit, ready, clampAlt]);
-  // the plain wheel scrolls the PAGE: stop it on the way down, before OrbitControls (on the canvas) sees it.
-  // A trackpad pinch arrives as ctrl + wheel and goes through to zoom the globe, as on Google Maps.
-  useEffect(() => {
-    const wrap = containerRef.current; if (!wrap) return;
-    const onWheel = (e: WheelEvent) => { if (!e.ctrlKey) e.stopPropagation(); };
-    wrap.addEventListener('wheel', onWheel, { capture: true });
-    return () => wrap.removeEventListener('wheel', onWheel, { capture: true });
-  }, []);
-  const atMin = aim <= ALT.min + 0.005, atMax = aim >= fit - 0.005;
-  const atOpening = atMax && Math.abs(view.lat - OPEN.lat) < 0.5 && Math.abs(((view.lng - OPEN.lng + 540) % 360) - 180) < 0.5;
+  const turnTo = useCallback((lat: number, lng: number, ms = 900) => { globeRef.current?.pointOfView({ lat, lng, altitude: fit }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms); }, [fit]);
+  // the frame changed size (window resize, phone rotation): keep the whole world in it
+  // …and re-measure once the camera has moved, so the stars re-cluster and an open card follows its star
+  useEffect(() => { if (!ready) return; const pov = globeRef.current?.pointOfView(); if (pov && Math.abs(pov.altitude - fit) > 0.005) { globeRef.current?.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: fit }, 0); requestAnimationFrame(() => requestAnimationFrame(measure)); } }, [fit, ready, measure]);
 
   const handleClick = useCallback((c: Cluster) => {
     setSelected({ seed: c.seed.key, cities: c.cities.map((x) => x.key) });
@@ -345,11 +309,8 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
         <GlobeBoundary onError={() => setFailed(true)}><Globe
           ref={globeRef}
           onGlobeReady={() => {
-            const open = fitAltitude(dimensions.width, dimensions.height);
-            globeRef.current?.pointOfView({ ...OPEN, altitude: open }, 0); aimRef.current = open; setAim(open);
-            // zoom stays ON for the two-finger pinch (and the trackpad's ctrl + wheel), clamped to the buttons'
-            // limits; the plain wheel never reaches the controls (capture listener above). Distance = R(100)·(1 + alt).
-            const c = globeRef.current?.controls(); if (c) { c.enableZoom = true; c.minDistance = 100 * (1 + ALT.min); c.maxDistance = 100 * (1 + open) + 0.01; c.addEventListener('change', onCameraChange); c.addEventListener('end', measure); }   // re-cluster when a drag, pinch or fly settles
+            globeRef.current?.pointOfView({ lat: 30, lng: -80, altitude: fitAltitude(dimensions.width, dimensions.height) }, 0);   // opened on the Americas where most alumni are
+            const c = globeRef.current?.controls(); if (c) { c.enableZoom = false; c.addEventListener('change', onCameraChange); c.addEventListener('end', measure); }   // wheel scrolls the PAGE; re-cluster when a drag or fly settles
             setReady(true); measure();
           }}
           width={dimensions.width}
@@ -397,22 +358,6 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
         </div>
       )}
 
-      {ready && !failed && (
-        /* zoom (Google Maps / Mapbox: a small stack in a corner). It moves to the top corner while a card sits low
-           in the frame (always on phones, where the card is a bottom sheet). aria-disabled, not disabled: a
-           keyboard user who zooms to a limit keeps focus on the button. */
-        <div className={`portal-globe-zoom${current && anchor && anchor.y > dimensions.height / 2 ? ' is-top' : ''}`} role="group" aria-label="Zoom the globe">
-          <button type="button" aria-label="Zoom in" aria-disabled={atMin} onClick={() => { if (!atMin) zoomBy(ALT.step); }}>
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" /></svg>
-          </button>
-          <button type="button" aria-label="Zoom out" aria-disabled={atMax} onClick={() => { if (!atMax) zoomBy(1 / ALT.step); }}>
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h11" /></svg>
-          </button>
-          <button type="button" aria-label="Reset view" aria-disabled={atOpening} onClick={() => { if (!atOpening) resetView(); }}>
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.3 9.6A5 5 0 1 0 4.2 4.4" /><path d="M4.4 1.6v3h3" /></svg>
-          </button>
-        </div>
-      )}
       <div className="t-label text-muted portal-globe-count">{pins.length} ALUMNI · {cities.length} {cities.length === 1 ? 'CITY' : 'CITIES'}</div>
     </div>
     </div>

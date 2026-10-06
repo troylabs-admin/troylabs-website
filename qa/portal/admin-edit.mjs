@@ -33,7 +33,7 @@ try {
   // emails: saved at once by an admin (no confirmation), and they become sign-in addresses
   const newPersonal = `tl-qa-${member.id.slice(0, 8)}-new@example.com`;
   await page.locator('#pf-personal').fill(newPersonal); await page.locator('[data-contact="personal"] .portal-save-row').click();
-  await expect(page.locator('[data-contact="personal"] .portal-feedback')).toContainText('Saved');
+  await expect(page.locator('[data-contact="personal"] .portal-feedback')).toContainText('Saved', { timeout: 15000 });   // the email function's first call after a quiet spell can take a few seconds
   assert.equal((await row(member.id)).personal_email, newPersonal);
   const { data: link } = await admin.from('account_emails').select('user_id, kind').eq('email', newPersonal).single(); assert.deepEqual(link, { user_id: member.id, kind: 'personal' });
   const signIn = await (await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/account-email', { method: 'POST', headers: { Authorization: `Bearer ${admin.supabaseKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'sign-in', email: newPersonal, dry: true }) })).json();

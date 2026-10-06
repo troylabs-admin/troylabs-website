@@ -856,3 +856,9 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
    beside a long one — Bryan, 2026-10-06: "makes the sizing look weird") */
 .portal-grid > li { display: flex; }
 .portal-grid > li > .portal-card { flex: 1; min-width: 0; }
+
+/* profile page, an admin editing someone else (2026-10-06) */
+.portal-admin-edit { margin-top: calc(22 * var(--u)); display: flex; flex-direction: column; align-items: flex-start; gap: calc(8 * var(--u)); box-shadow: inset 0 0 0 var(--hair) rgb(255 125 44 / 0.55); }
+.portal-admin-edit-back { margin-top: calc(4 * var(--u)); color: var(--color-orange); }
+.portal-admin-edit > .portal-role { margin-left: 0; }
+@media (max-width: 767px) { .portal-admin-edit { margin-top: 18px; gap: 8px; } .portal-admin-edit-back { margin-top: 4px; } }

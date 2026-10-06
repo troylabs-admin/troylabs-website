@@ -21,12 +21,20 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
           <input id="pf-photo" type="file" accept="image/*" hidden />
         </label>
         <div>
-          <h1 class="t-title portal-page-title">YOUR PROFILE</h1>
+          <h1 class="t-title portal-page-title" id="pf-heading">YOUR PROFILE</h1>
           <p class="t-caption text-muted portal-page-sub"><span id="pf-head-name"></span> <span class="t-fine portal-role" id="pf-head-role" hidden>ADMIN</span></p>
-          <p class="t-fine text-muted" style="margin:calc(8 * var(--u)) 0 0">Your photo shows on your card in search, on your member page and on the globe.</p>
+          <p class="t-fine text-muted" style="margin:calc(8 * var(--u)) 0 0" id="pf-photo-note">Your photo shows on your card in search, on your member page and on the globe.</p>
         </div>
       </div>
     </div>
+
+    <!-- an admin editing someone else (?id=, Bryan 2026-10-06): says whose profile this is and what stays theirs -->
+    <section class="portal-panel portal-admin-edit" id="pf-admin-edit" hidden>
+      <span class="t-fine portal-role">ADMIN</span>
+      <p class="m-0 t-caption text-ink">You’re editing <span data-edit-name></span>’s profile.</p>
+      <p class="m-0 t-fine text-muted">Their sign-in emails and whether they get TroyLabs emails or texts stay theirs to change. Every edit is recorded with your name.</p>
+      <a class="t-label portal-linklike no-underline portal-admin-edit-back" data-edit-back href="/alumni-portal/members/">← BACK TO THEIR PAGE</a>
+    </section>
 
     <!-- sign-up (Bryan, 2026-09-30): until an admin approves them, this panel tells a new member what
          leadership needs to recognise them and where they stand. Filled by scripts/portal-profile.ts. -->

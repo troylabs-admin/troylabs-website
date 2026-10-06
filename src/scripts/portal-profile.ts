@@ -10,6 +10,7 @@ import { prettyPhone, toE164 } from '../lib/portal/phone';
 import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/portal/work-render';
 import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
+import { parseYear } from '../lib/portal/years';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
@@ -26,15 +27,26 @@ const chipsOn = (sel: string) => [...document.querySelectorAll<HTMLElement>(`${s
 const setChips = (sel: string, on: string[]) => document.querySelectorAll<HTMLElement>(`${sel} .portal-chip`).forEach((c) => c.setAttribute('aria-pressed', String(on.includes(c.textContent!.replace(/^✓\s*/, '').trim()))));
 const tags = (sel: string) => [...document.querySelectorAll<HTMLElement>(`${sel} .portal-tagx`)].map((t) => t.firstChild?.textContent?.trim() ?? '').filter(Boolean);
 const setTags = (sel: string, items: string[]) => { const box = $(sel); if (!box) return; box.innerHTML = items.map((t) => `<span class="t-fine portal-tagx">${escapeHtml(t)} <button type="button" aria-label="Remove ${escapeHtml(t)}">×</button></span>`).join(''); };
-const num = (v: string) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
+const yr = (sel: string) => parseYear(($(sel) as HTMLInputElement).value) ?? null;   // "26" is 2026; a non-year is caught before saving (badYears)
 const recount = () => document.querySelector('.portal-profile input')?.dispatchEvent(new Event('input', { bubbles: true }));
 
 let row: ProfileRow | null = null;
+/** an admin editing someone else's profile (?id=, 2026-10-06): whose row this page loads and saves; null = your own */
+let other: string | null = null;
+const save = (patch: Partial<ProfileRow>) => saveMyProfile(patch, other ?? undefined);
+const reload = () => (other ? getProfile(other).then((g) => g?.row ?? null) : myProfile());
+/** year boxes holding something that isn't a year ("6", "20266", "Spring"): outlined, and the save stops */
+function badYears(): boolean {
+  const boxes = ['#pf-year', '#pf-grad-year', '#pf-classof-year'].map((s) => $<HTMLInputElement>(s)!).filter((i) => i && i.offsetParent !== null && parseYear(i.value) === undefined);
+  boxes.forEach((i) => { i.classList.add('portal-needs'); i.setAttribute('aria-invalid', 'true'); });
+  if (boxes[0]) { boxes[0].focus(); flash($('[data-action="save"]'), 'NOT SAVED', 'Enter years as four digits, like 2026. They’re outlined in orange.', false); }
+  return boxes.length > 0;
+}
 
 function fill(r: ProfileRow, admin: boolean) {
   row = r;
   ($('#pf-head-name') as HTMLElement).textContent = r.full_name || r.personal_email || r.usc_email || '';
-  ($('#pf-head-role') as HTMLElement).hidden = !admin;
+  ($('#pf-head-role') as HTMLElement).hidden = !admin || Boolean(other);
   const initials = $('#pf-initials')!; initials.textContent = initialsOf(r.full_name || '?');
   const img = $<HTMLImageElement>('#pf-photo-preview')!; const url = avatarUrl(r);
   if (url) { img.src = url; img.hidden = false; initials.dataset.hasPhoto = '1'; } else { img.hidden = true; delete initials.dataset.hasPhoto; }
@@ -111,8 +123,8 @@ function collect(): Partial<ProfileRow> {
   return {
     full_name: ($('#pf-name') as HTMLInputElement).value.trim(), status,
     grad_term: student ? termCode(($('#pf-grad-term') as HTMLSelectElement).value) : row?.grad_term ?? null,
-    grad_year: student ? num(($('#pf-grad-year') as HTMLInputElement).value) : num(($('#pf-classof-year') as HTMLInputElement).value),
-    join_term: ($('#pf-year') as HTMLInputElement).value.trim() ? termCode(($('#pf-term') as HTMLSelectElement).value) : null, join_year: num(($('#pf-year') as HTMLInputElement).value),
+    grad_year: student ? yr('#pf-grad-year') : yr('#pf-classof-year'),
+    join_term: ($('#pf-year') as HTMLInputElement).value.trim() ? termCode(($('#pf-term') as HTMLSelectElement).value) : null, join_year: yr('#pf-year'),
     linkedin_url: ($('#pf-li') as HTMLInputElement).value.trim() || null, bio: ($('#pf-bio') as HTMLTextAreaElement).value.trim() || null,
     divisions: chipsOn('[data-field="divisions"]'), startups: tags('#pf-startups'),
     ...(who && !who.approved ? { request_note: ($('#pf-note') as HTMLTextAreaElement).value.trim() || null, claimed_roles: claimsFromForm().roles } : {}),
@@ -122,7 +134,7 @@ function collect(): Partial<ProfileRow> {
 
 let who: Me | null = null;
 /** the main button says what it does: SUBMIT FOR APPROVAL before someone has applied, SAVE CHANGES while they wait, SAVE once they're in */
-function label(btn: HTMLElement) { const t = who?.approved ? 'SAVE' : row?.submitted_at ? 'SAVE CHANGES' : 'SUBMIT FOR APPROVAL'; btn.dataset.label = t; if (!btn.classList.contains('is-done')) btn.textContent = t; }
+function label(btn: HTMLElement) { const t = who?.approved || other ? 'SAVE' : row?.submitted_at ? 'SAVE CHANGES' : 'SUBMIT FOR APPROVAL'; btn.dataset.label = t; if (!btn.classList.contains('is-done')) btn.textContent = t; }
 
 /** the sign-up panel: what is still missing (live, from the form), or that they are on the list, or declined */
 function onboard(justSaved = false) {
@@ -160,12 +172,13 @@ async function linkedInPanel() {
   const box = $('#pf-linkedin'); if (!box || !who || !row) return;
   const status = box.querySelector<HTMLElement>('[data-li-status]')!, btn = box.querySelector<HTMLButtonElement>('[data-li-sync]')!, fb = box.querySelector<HTMLElement>('[data-li-fb]')!;
   const say = (text: string, error = false) => { status.textContent = text; status.classList.toggle('is-error', error); };
-  const [st, history] = await Promise.all([myLinkedInStatus().catch(() => null), getHistory(who.id).catch(() => null)]);
+  const [st, history] = await Promise.all([other ? Promise.resolve({ queued: false, synced_at: row.linkedin_synced_at ?? null, error: row.linkedin_sync_error ?? null }) : myLinkedInStatus().catch(() => null), getHistory(other ?? who.id).catch(() => null)]);
   if (!box.isConnected) return;
   const preview = $('[data-li-preview]'); if (preview) preview.innerHTML = history ? historyHtml(history) : '';
 
   btn.hidden = true; btn.textContent = 'SYNC NOW'; delete btn.dataset.checkStatus; fb.textContent = ''; window.clearTimeout(liPoll);
   const link = canonicalLinkedIn(row.linkedin_url ?? '');
+  if (other && !row.approved) return say(link ? 'Their LinkedIn imports when they’re approved.' : 'No LinkedIn link yet. It imports when they’re approved.');
   if (!who.approved) return say(link ? 'Your LinkedIn imports when leadership approves you.' : 'Add your LinkedIn link above. It imports when leadership approves you.');
   if (!link) return say('Add your LinkedIn link above and press SAVE, then sync.');
   if (!st) { say('We couldn’t check your LinkedIn import. Check your connection and try again.', true); btn.hidden = false; btn.disabled = false; btn.textContent = 'CHECK AGAIN'; btn.dataset.checkStatus = '1'; return; }
@@ -181,7 +194,8 @@ document.addEventListener('click', async (e) => {
   const btn = (e.target as Element).closest<HTMLButtonElement>('#pf-linkedin [data-li-sync]'); if (!btn || btn.disabled) return;
   if (btn.dataset.checkStatus) { btn.disabled = true; void linkedInPanel(); return; }
   const fb = document.querySelector<HTMLElement>('#pf-linkedin [data-li-fb]')!; btn.disabled = true; fb.style.color = ''; fb.textContent = '';
-  const r: Awaited<ReturnType<typeof requestSync>> = await requestSync().catch(() => ({ status: 0, error: 'Check your connection and try again.' }));
+  const r: Awaited<ReturnType<typeof requestSync>> = await requestSync(other ?? undefined).catch(() => ({ status: 0, error: 'Check your connection and try again.' }));
+  if (r.queued && other) { const s = document.querySelector<HTMLElement>('#pf-linkedin [data-li-status]'); if (s) { s.textContent = 'Importing from LinkedIn… reload this page in a minute or two.'; s.classList.remove('is-error'); } return; }
   if (r.queued) { void linkedInPanel(); return; }
   btn.disabled = r.status === 429; fb.style.color = 'var(--color-orange)'; fb.textContent = r.error ?? 'Something went wrong. Try again.';
 });
@@ -192,18 +206,30 @@ async function init() {
   const saveBtn = form.querySelector<HTMLButtonElement>('[data-action="save"]')!;
   saveBtn.disabled = true; form.setAttribute('aria-busy', 'true');
   who = await me(); if (!who || !form.isConnected) return;
-  const r = await myProfile();
+  const asked = new URLSearchParams(location.search).get('id');
+  other = asked && who.admin && asked !== who.id ? asked : null;   // only admins; anyone else just gets their own profile
+  const r = await reload();
   if (!form.isConnected) return;   // left the page while it loaded (client-side navigation keeps this script running)
-  if (!r) { flash(saveBtn, 'NOT LOADED', 'Could not load your profile. Reload before editing.', false); form.removeAttribute('aria-busy'); return; }
+  if (!r) { flash(saveBtn, 'NOT LOADED', other ? 'Could not load that profile. Go back and try again.' : 'Could not load your profile. Reload before editing.', false); form.removeAttribute('aria-busy'); return; }
+  if (other) {
+    const box = $('#pf-admin-edit')!; box.hidden = false; box.querySelector('[data-edit-name]')!.textContent = r.full_name || 'this member';
+    box.querySelector<HTMLAnchorElement>('[data-edit-back]')!.href = `/alumni-portal/members/?id=${encodeURIComponent(other)}`;
+    $('#pf-heading')!.textContent = 'EDIT PROFILE'; $('#pf-photo-note')!.textContent = 'Their photo shows on their card in search, on their member page and on the globe.';
+    // the member's own: sign-in emails (identity) and consent to emails and texts (the database refuses them too)
+    for (const sel of ['#pf-usc', '#pf-personal', '#pf-email-opt', '#pf-phone-opt']) { const el = $<HTMLInputElement>(sel); if (el) el.disabled = true; }
+    form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-save-row, [data-contact="personal"] .portal-save-row').forEach((b) => { b.hidden = true; });
+    form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-help, [data-contact="personal"] .portal-help').forEach((p) => { p.textContent = 'Only they can change this.'; });
+  }
   form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
-  if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
+  if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved && !other) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
 
   // SAVE: the whole form
   // (the shared script preventDefaults every [data-action] click before it checks `wired`, so the form's
   // submit event never fires — listen on the button itself)
   saveBtn.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = saveBtn;
-    const patch = collect(); const applying = !who!.approved; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
+    if (badYears()) return;
+    const patch = collect(); const applying = !who!.approved && !other; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
     const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...(applying
       ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: patch.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })
       : patch.full_name ? [] : ['your name'])];
@@ -213,17 +239,17 @@ async function init() {
     if (patch.linkedin_url) { const li = canonicalLinkedIn(patch.linkedin_url); if (!li) { const f = $('#pf-li') as HTMLInputElement; f.classList.add('portal-needs'); f.setAttribute('aria-invalid', 'true'); f.focus(); flash(btn, 'NOT SAVED', 'That isn’t a LinkedIn profile link. Copy it from your LinkedIn profile; it looks like linkedin.com/in/your-name.', false); return; } patch.linkedin_url = li; }
     if (saveBtn.disabled) return;
     saveBtn.disabled = true;
-    const waiting = !who!.approved, wasSubmitted = Boolean(row?.submitted_at);
+    const waiting = !who!.approved && !other, wasSubmitted = Boolean(row?.submitted_at);
     try {
       // someone applying: a city typed but not yet placed is placed now, so SUBMIT doesn't say "your city" is missing
       if (waiting) {
-        const ph = typedPhone(); if (ph && ph !== row?.phone) { const saved = await saveMyProfile({ phone: ph }); if (saved.ok) row = saved.row; }
+        const ph = typedPhone(); if (ph && ph !== row?.phone) { const saved = await save({ phone: ph }); if (saved.ok) row = saved.row; }
         const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
         if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
         const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
-      const res = await saveMyProfile(patch);
+      const res = await save(patch);
       if (!res.ok) { flash(btn, 'NOT SAVED', res.message, false); return; }
       if (waiting) {
         const sub = await submitApplication();   // marks them submitted (first time) and keeps a backup copy of what they sent
@@ -232,7 +258,7 @@ async function init() {
       }
       fill(res.row, who!.admin); label(saveBtn); void linkedInPanel();
       if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-      else flash(btn, 'SAVED', 'Saved. Your card in search and your pin on the globe are up to date.');
+      else flash(btn, 'SAVED', other ? 'Saved. Their card in search and their pin on the globe are up to date.' : 'Saved. Your card in search and your pin on the globe are up to date.');
     } catch { flash(btn, 'NOT SAVED', 'Check your connection and try again. Your changes are still in the form.', false); }
     finally { saveBtn.disabled = false; }
   });
@@ -274,7 +300,7 @@ async function init() {
         else { btn.disabled = false; flash(btn, 'NOT SAVED', r.error ?? 'Something went wrong. Try again.', false); }
         return;
       }
-      const res = await saveMyProfile(patch);
+      const res = await save(patch);
       if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });
   }
@@ -289,8 +315,8 @@ async function init() {
   const photo = $<HTMLInputElement>('#pf-photo');
   photo?.addEventListener('change', async () => {
     const f = photo.files?.[0]; if (!f) return; const note = $('#pf-head-name')!; const was = note.textContent; note.textContent = 'Uploading photo…';
-    const res = await uploadAvatar(f); note.textContent = was;
-    if (res.ok) { const fresh = await myProfile(); if (fresh) { row = fresh; const img = $<HTMLImageElement>('#pf-photo-preview')!; img.src = avatarUrl(fresh)!; img.hidden = false; $('#pf-initials')!.dataset.hasPhoto = '1'; recount(); } } else alert(res.message);
+    const res = await uploadAvatar(f, other ?? undefined); note.textContent = was;
+    if (res.ok) { const fresh = await reload(); if (fresh) { row = fresh; const img = $<HTMLImageElement>('#pf-photo-preview')!; img.src = avatarUrl(fresh)!; img.hidden = false; $('#pf-initials')!.dataset.hasPhoto = '1'; recount(); } } else alert(res.message);
   }, { capture: true });
 
   // location → pin
@@ -298,7 +324,7 @@ async function init() {
     e.preventDefault(); const btn = e.currentTarget as HTMLElement; const text = ($('#pf-loc') as HTMLInputElement).value;
     if (!text.trim()) { flash(btn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
     const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
-    const res = await saveMyProfile({ city_id: c.city.id });
+    const res = await save({ city_id: c.city.id });
     if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
   });
 }

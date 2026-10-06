@@ -52,16 +52,17 @@ export async function myProfile(): Promise<ProfileRow | null> {
   const { data } = await sb.from('profiles').select(SELECT).eq('id', session.user.id).maybeSingle();
   return data as ProfileRow | null;
 }
-export async function saveMyProfile(patch: Partial<ProfileRow>): Promise<{ ok: true; row: ProfileRow } | { ok: false; message: string }> {
+export async function saveMyProfile(patch: Partial<ProfileRow>, id?: string): Promise<{ ok: true; row: ProfileRow } | { ok: false; message: string }> {
   const sb = supabase(); const { data: { session } } = await sb.auth.getSession(); if (!session) return { ok: false, message: 'You are signed out.' };
   const { city, ...fields } = patch as any;
-  const { data, error } = await sb.from('profiles').update(fields).eq('id', session.user.id).select(SELECT).single();
+  // id: an admin editing someone else (2026-10-06); the profiles_admin policy and the profiles_admin_edit trigger decide what's allowed
+  const { data, error } = await sb.from('profiles').update(fields).eq('id', id ?? session.user.id).select(SELECT).single();
   if (error) return { ok: false, message: /unique/i.test(error.message) ? 'That email is already on another profile.' : error.message };
   return { ok: true, row: data as ProfileRow };
 }
 
 /** square-crop and shrink a photo in the browser (phone photos are 3–8 MB; the bucket takes 1 MB), then upload */
-export async function uploadAvatar(file: File): Promise<{ ok: true; path: string } | { ok: false; message: string }> {
+export async function uploadAvatar(file: File, id?: string): Promise<{ ok: true; path: string } | { ok: false; message: string }> {
   const sb = supabase(); const { data: { session } } = await sb.auth.getSession(); if (!session) return { ok: false, message: 'You are signed out.' };
   if (!file.type.startsWith('image/')) return { ok: false, message: 'Choose an image file.' };
   const bitmap = await createImageBitmap(file).catch(() => null); if (!bitmap) return { ok: false, message: 'That image could not be read.' };
@@ -69,10 +70,10 @@ export async function uploadAvatar(file: File): Promise<{ ok: true; path: string
   const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
   canvas.getContext('2d')!.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, size, size);
   const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/webp', 0.84)); if (!blob) return { ok: false, message: 'Could not prepare the photo.' };
-  const path = `${session.user.id}/avatar.webp`;
+  const path = `${id ?? session.user.id}/avatar.webp`;   // id: an admin setting someone's photo (avatars_admin_write policy)
   const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/webp', cacheControl: '3600' });
   if (error) return { ok: false, message: error.message };
-  const saved = await saveMyProfile({ avatar_path: path, avatar_source: 'upload' }); if (!saved.ok) return saved;   // their own photo: a LinkedIn sync never replaces it
+  const saved = await saveMyProfile({ avatar_path: path, avatar_source: 'upload' }, id); if (!saved.ok) return saved;   // their own photo: a LinkedIn sync never replaces it
   return { ok: true, path };
 }
 

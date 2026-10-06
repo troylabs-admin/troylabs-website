@@ -223,11 +223,11 @@ export default function Network() {
       </div>
 
         <section ref={resultsRef} className="portal-results" aria-live="polite">
-          {searching || browsing ? (
+          {searching || browsing || (loaded && PEOPLE.length > 0) ? (   /* the whole directory shows until you search (Bryan, 2026-10-06: an empty space under the filters read as nobody being here) */
             <>
               <div className="portal-results-head">
                 <p className="t-label text-muted m-0 portal-results-count">{results.length ? <><Tick n={results.length} /> {results.length === 1 ? 'person' : 'people'}</> : ''}</p>
-                <button type="button" className="t-fine portal-linklike" onClick={clearAll}>CLEAR ALL</button>
+                {(searching || browsing) && <button type="button" className="t-fine portal-linklike" onClick={clearAll}>CLEAR ALL</button>}
               </div>
               {results.length > 0 ? (
                 <ul className="m-0 p-0 list-none portal-grid">

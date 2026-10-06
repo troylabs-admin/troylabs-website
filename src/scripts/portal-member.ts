@@ -3,6 +3,7 @@ import { escapeHtml, webUrl } from '../lib/portal/safe-html';
 import { avatarUrl, cityLabel, getProfile, initialsOf, roleLabel } from '../lib/portal/data';
 import { getHistory, historyHtml } from '../lib/portal/work-render';
 import { prettyPhone } from '../lib/portal/phone';
+import { me } from '../lib/auth';
 
 async function init() {
   const head = document.querySelector<HTMLElement>('[data-member-head]'); if (!head || head.dataset.wired) return; head.dataset.wired = '1';
@@ -15,7 +16,7 @@ async function init() {
   if (back && from === 'company' && co) { back.href = `/alumni-portal/companies/?id=${encodeURIComponent(co)}`; back.textContent = '← BACK TO COMPANY'; }
   if (back && (from === 'approvals' || from === 'members')) { back.href = `/alumni-portal/admin/users${from === 'approvals' ? '#approvals' : '#members'}`; back.textContent = from === 'approvals' ? '← BACK TO WAITING FOR APPROVAL' : '← BACK TO MEMBERS'; }
   if (!id) { empty.textContent = 'No member chosen. Go back to search and pick someone.'; return; }
-  const [got, history] = await Promise.all([getProfile(id).catch(() => null), getHistory(id).catch(() => null)]);
+  const [got, history, viewer] = await Promise.all([getProfile(id).catch(() => null), getHistory(id).catch(() => null), me().catch(() => null)]);
   if (!head.isConnected) return;   // left the page while it loaded (client-side navigation keeps this script running)
   if (!got) { empty.textContent = 'This member is not in the network, or you are not signed in as an approved member.'; return; }
   const { row: r, roles } = got;
@@ -28,6 +29,8 @@ async function init() {
   $('[data-m-meta]').textContent = meta;
   const li = $('[data-m-linkedin]') as HTMLAnchorElement; if (r.linkedin_url && webUrl(r.linkedin_url)) { li.href = webUrl(r.linkedin_url)!; li.hidden = false; }
   const em = $('[data-m-email]') as HTMLAnchorElement; const addr = r.personal_email || r.usc_email; if (addr) { em.href = `mailto:${addr}`; em.hidden = false; }
+  // admins can edit anyone's profile (2026-10-06); your own page's button goes to your own profile
+  const edit = $('[data-m-edit]') as HTMLAnchorElement; if (viewer?.admin) { edit.href = viewer.id === r.id ? '/alumni-portal/profile' : `/alumni-portal/profile?id=${encodeURIComponent(r.id)}`; edit.hidden = false; }
   // both emails and the phone, written out: members are here to reach each other
   const contact = $('[data-m-contact]');
   const ways: [string, string | null, string][] = [['PERSONAL EMAIL', r.personal_email, `mailto:${r.personal_email}`], ['USC EMAIL', r.usc_email, `mailto:${r.usc_email}`], ['PHONE', r.phone ? prettyPhone(r.phone) : null, `tel:${r.phone}`]];

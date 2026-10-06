@@ -221,6 +221,7 @@ async function load() {
   people = (p ?? []) as ProfileRow[]; messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
   eb = { now: new Set(roles.filter((x) => x.term === now.term && x.year === now.year).map((x) => x.profile_id)), ever: new Set(roles.map((x) => x.profile_id)) };
+  if (!$('[data-msg-list]')) return;   // left the page while it loaded (a delete or save reloads the list; leaving mid-reload threw 'innerHTML of null')
   renderCohorts(); renderGrid(); renderMessages(); smsCount();
 }
 async function init() {

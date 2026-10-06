@@ -25,7 +25,7 @@ const filtersFor = (sample: boolean): [string, string, readonly string[]][] => [
 const cohortKey = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
 const FILLER = new Set(['in', 'at', 'the', 'a', 'an', 'who', 'and', 'or', 'of', 'for', 'with', 'someone', 'works', 'on', 'does', 'did']);
 const PAGE = 24;
-const haystack = (p: Person) => `${p.full_name} ${p.role ?? ''} ${p.current_title} ${p.current_company} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
+const haystack = (p: Person) => `${p.full_name} ${p.role ?? ''} ${p.current_title} ${p.current_company} ${p.headline ?? ''} ${p.city} ${p.region} ${p.industries.join(' ')} ${(p.divisions ?? [p.division]).join(' ')} ${p.bio}`.toLowerCase();
 const upper = (s: string) => s.toUpperCase();
 
 /** a number that ticks to its new value instead of jumping (same ease as the home page stats) */
@@ -238,7 +238,7 @@ export default function Network() {
                         <span className="portal-card-body">
                           <span className="t-name portal-card-name">{p.full_name}</span>
                           <span className="portal-card-status"><span className="t-fine portal-role">{p.status}</span>{p.role && <span className="t-fine portal-card-eboard">{p.role}</span>}</span>
-                          {(p.current_title || p.current_company) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ')}</span>}
+                          {(p.current_title || p.current_company || p.headline) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ') || p.headline}</span>}
                           <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.status === 'ALUM' && p.classOf ? `Class of ${p.classOf}` : ''].filter(Boolean).join(' · ')}</span>
                           {closeMatch ? <span className="t-fine portal-match portal-close-match" title="Not the exact words, but their profile is about what you asked">CLOSE MATCH{why.length ? ` · ${[...new Set(why.map(upper))].join(' · ')}` : ''}</span>
                             : why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}

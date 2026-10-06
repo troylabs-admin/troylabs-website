@@ -12,6 +12,9 @@
  *                              ({ pending: true }). Taken by another account → 409.
  *   confirm { token }          anyone holding the link (it may open in another browser): records the address.
  *   remove  { kind }           signed in: takes the address off the profile and off sign-in.
+ *   add / remove with { user_id } by an ADMIN (2026-10-06, Bryan: "let the admin be able to edit anything"): acts on
+ *                              that member, saved straight away (no confirmation email), and recorded in their timeline
+ *                              (profile_events 'admin_edit', actor = the admin). An address on another account is still refused.
  * With the service-role key as the bearer (tests only), `dry: true` returns the link instead of emailing it.
  *
  * Mail goes through Resend like every other TroyLabs email; test domains (example.com, .test) are never mailed.
@@ -90,9 +93,17 @@ Deno.serve(async (req) => {
     }
 
     // ── the rest is for the signed-in member (or a test acting for one) ────────────────────────
-    let userId: string, authEmail: string;
+    let userId: string, authEmail: string, actingAdmin: string | null = null;
     if (dry && input.user_id) { const { data: u } = await svc.auth.admin.getUserById(input.user_id); if (!u.user) return json({ error: 'no such user' }, 404); userId = u.user.id; authEmail = u.user.email ?? ''; }
-    else { const { data: u } = await svc.auth.getUser(bearer); if (!u.user) return json({ error: 'sign in first' }, 401); userId = u.user.id; authEmail = u.user.email ?? ''; }
+    else {
+      const { data: u } = await svc.auth.getUser(bearer); if (!u.user) return json({ error: 'sign in first' }, 401); userId = u.user.id; authEmail = u.user.email ?? '';
+      if (input.user_id && input.user_id !== userId) {   // an admin editing someone else
+        const { data: isAdmin } = await svc.from('admins').select('user_id').eq('user_id', userId).maybeSingle(); if (!isAdmin) return json({ error: 'admins only' }, 403);
+        const { data: t } = await svc.auth.admin.getUserById(input.user_id); if (!t.user) return json({ error: 'no such member' }, 404);
+        actingAdmin = userId; userId = t.user.id; authEmail = t.user.email ?? '';
+      }
+    }
+    const logAdmin = async (field: string, removed = false) => { if (actingAdmin) await svc.from('profile_events').insert({ profile_id: userId, event: 'admin_edit', actor: actingAdmin, detail: { fields: [field], ...(removed ? { removed: true } : {}) } }); };
     const kind = input.kind === 'usc' ? 'usc' : input.kind === 'personal' ? 'personal' : null;
     if (!kind) return json({ error: 'kind must be usc or personal' }, 400);
     const column = kind === 'usc' ? 'usc_email' : 'personal_email';
@@ -100,6 +111,7 @@ Deno.serve(async (req) => {
     if (input.mode === 'remove') {
       await svc.from('account_emails').delete().eq('user_id', userId).eq('kind', kind);
       const { error } = await svc.from('profiles').update({ [column]: null }).eq('id', userId); if (error) throw error;
+      await logAdmin(column, true);
       return json({ removed: true });
     }
 
@@ -110,9 +122,14 @@ Deno.serve(async (req) => {
       if (taken) return json({ error: 'That address is already on another TroyLabs account. If it’s yours, sign in with it, or write to troylabs@usc.edu.' }, 409);
       // already proven: your sign-in address, or one you confirmed before → save straight away
       const { data: mine } = await svc.from('account_emails').select('kind').eq('user_id', userId).eq('email', email).maybeSingle();
-      if (email === authEmail.toLowerCase() || mine) {
+      if (email === authEmail.toLowerCase() || mine || actingAdmin) {
         if (mine && mine.kind !== kind) await svc.from('account_emails').update({ kind }).eq('user_id', userId).eq('email', email);
-        await svc.from('profiles').update({ [column]: email }).eq('id', userId);
+        else if (!mine && actingAdmin && email !== authEmail.toLowerCase()) {   // an admin's word stands for the confirmation: it becomes a sign-in address now
+          await svc.from('account_emails').delete().eq('user_id', userId).eq('kind', kind);
+          const { error: ae } = await svc.from('account_emails').insert({ email, user_id: userId, kind }); if (ae) throw ae;
+        }
+        const { error: pe } = await svc.from('profiles').update({ [column]: email }).eq('id', userId); if (pe) throw pe;
+        await logAdmin(column);
         return json({ saved: true });
       }
       if (!dry && (await recent('user_id', userId, 'confirm', 60)) >= 5) return json({ error: 'Too many confirmation emails in the last hour. Try again later.' }, 429);

@@ -15,6 +15,7 @@ export interface Person {
   current_title: string; current_company: string; industries: string[]; bio: string;
   city: string; region: string; lat: number; lng: number; programs: string[];
   avatar?: string | null;
+  headline?: string;   // their LinkedIn headline: the card's line when they have no current job (2026-10-06: Mark's card was empty)
   role?: string;   // e-board tag: "CO-PRESIDENT", "FORMER DIRECTOR OF TECH" (roles.ts)
 }
 

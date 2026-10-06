@@ -32,7 +32,7 @@ export const cohortOf = (term: string | null, year: number | null) => (term && y
 const SELECT = '*, city:cities(*)';
 /** what a search card needs, nothing else (2026-10-05: `*` also sent each profile's 1,536-number embedding, ~19 KB a person,
  *  so 1,000 members would have been ~20 MB per visit to search) */
-const CARD_SELECT = 'id, full_name, status, grad_year, join_term, join_year, divisions, current_title, current_company, industries, bio, avatar_path, updated_at, city:cities(name, region, lat, lng)';
+const CARD_SELECT = 'id, full_name, status, grad_year, join_term, join_year, divisions, current_title, current_company, linkedin_headline, industries, bio, avatar_path, updated_at, city:cities(name, region, lat, lng)';
 
 /** the shape the search page, the globe and the cards draw */
 export function toPerson(r: ProfileRow): Person & { avatar: string | null } {
@@ -40,7 +40,7 @@ export function toPerson(r: ProfileRow): Person & { avatar: string | null } {
     id: r.id, full_name: r.full_name || 'Unnamed member', initials: initialsOf(r.full_name || '?'),
     status: r.status === 'student' ? 'STUDENT' : 'ALUM', cohort: cohortOf(r.join_term, r.join_year), classOf: r.grad_year ? String(r.grad_year) : '',
     divisions: (r.divisions ?? []).map(d => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')),
-    division: (r.divisions?.[0] ?? '').replace('PRODUCT MANAGEMENT', 'PRODUCT'), current_title: r.current_title ?? '', current_company: r.current_company ?? '',
+    division: (r.divisions?.[0] ?? '').replace('PRODUCT MANAGEMENT', 'PRODUCT'), current_title: r.current_title ?? '', current_company: r.current_company ?? '', headline: r.linkedin_headline ?? '',
     industries: r.industries ?? [], bio: r.bio ?? '', city: r.city?.name ?? '', region: r.city?.region ?? '', lat: r.city?.lat ?? 0, lng: r.city?.lng ?? 0, programs: [],
     avatar: avatarUrl(r),
   };

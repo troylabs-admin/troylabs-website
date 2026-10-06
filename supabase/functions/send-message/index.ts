@@ -38,7 +38,7 @@ const SITE = 'https://usctroylabs.com';
 /** the TroyLabs wordmark at the top of every email (a PNG on the site: Gmail and Outlook don't show SVG); the alt text is the fallback */
 const LOGO = `<img src="${SITE}/email/troylabs-wordmark.png" width="200" height="38" alt="TROYLABS" style="display:block;border:0;outline:none;width:200px;height:auto;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:4px;color:#0a0a0a">`;
 
-interface Msg { id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
+interface Msg { created_by?: string | null; id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
 interface Person extends Member { full_name: string; personal_email: string | null; usc_email: string | null; email_opt_in: boolean; phone: string | null; phone_opt_in: boolean }
 
 // ── who gets it: the shared audience rules (_shared/audience.ts), the same code the Message page counts with ──
@@ -52,9 +52,14 @@ const deliverable = (to: string) => !/@(example\.(com|org|net)|[^@\s]+\.(test|in
 const emailOf = (p: Person) => (p.personal_email || p.usc_email || '').trim().toLowerCase();
 type EmailTo = { id: string; name: string; email: string }; type TextTo = { id: string; name: string; phone: string };
 const channelsOf = (m: Msg) => (m.send_by === 'both' ? ['email', 'text'] : [m.send_by]) as ('email' | 'text')[];
-async function recipientsFor(svc: SupabaseClient, m: Msg): Promise<{ email: EmailTo[]; text: TextTo[] }> {
+async function recipientsFor(svc: SupabaseClient, m: Msg, actor: string | null): Promise<{ email: EmailTo[]; text: TextTo[] }> {
   const a = cleanAudience(m.audience);
-  const { data, error } = await svc.from('profiles').select('id, full_name, status, join_term, join_year, divisions, industries, personal_email, usc_email, email_opt_in, phone, phone_opt_in').eq('approved', true);
+  // temporary test accounts (profiles.is_test) and real people never mix (2026-10-06): whoever is acting (the admin
+  // previewing or sending; for a scheduled send, whoever wrote it) decides — a test admin only ever reaches test
+  // accounts, anyone else never does
+  const who = actor ?? m.created_by ?? null;
+  const { data: author } = who ? await svc.from('profiles').select('is_test').eq('id', who).maybeSingle() : { data: null };
+  const { data, error } = await svc.from('profiles').select('id, full_name, status, join_term, join_year, divisions, industries, personal_email, usc_email, email_opt_in, phone, phone_opt_in').eq('approved', true).eq('is_test', Boolean(author?.is_test));
   if (error) throw error;
   const t = currentTerm(); const { data: roles, error: re } = await svc.from('eboard_roles').select('profile_id, term, year');
   if (re) throw re;
@@ -217,7 +222,7 @@ async function deliver(svc: SupabaseClient, id: number, by: string | null, me: {
   if (want.includes('text') && !tw.configured) return fail('Texts aren’t connected yet: the Twilio keys haven’t been added.' + (want.includes('email') ? ' Choose EMAIL to send only the email.' : ''), 503);
   const sms = smsBody(m.body, m.event);
   if (want.includes('text') && sms.length > SMS_MAX) return fail(`Too long for a text: ${sms.length} characters with the TroyLabs name and STOP line, and the limit is ${SMS_MAX}. Shorten it, or send it by email.`);
-  const to = await recipientsFor(svc, m);
+  const to = await recipientsFor(svc, m, by);
   if (!to.email.length && !to.text.length) return fail(`Nobody matches this audience${want.includes('text') ? ' who has opted in to texts' : ''} (or everyone in it has turned announcements off).`);
   if (to.email.length && testMode && to.email.some((p) => p.email !== me.email)) return fail(`Email is still in Resend's test mode, so it can only go to you. ${to.email.length} ${to.email.length === 1 ? 'person' : 'people'} match this audience. Group sends start once usctroylabs.com is verified in Resend; until then use SEND A TEST TO ME.`);
   if (to.text.length && to.text.some((p) => p.phone !== me.phone) && !textingHours()) return fail('Group texts only go out between 8 AM and 9 PM Pacific. Schedule it for the morning, or send it by email.');
@@ -344,7 +349,7 @@ Deno.serve(async (req) => {
   if (!msg) return json({ error: 'Message not found. Save it first.' }, 404);
   const m = msg as Msg; const want = channelsOf(m);
 
-  if (input.mode === 'preview') { const to = await recipientsFor(svc, m); const sms = smsBody(m.body, m.event); return json({ recipients: to.email, textRecipients: to.text, ...render(m, false), sms, smsSize: segments(sms) }); }
+  if (input.mode === 'preview') { const to = await recipientsFor(svc, m, authUser!.id); const sms = smsBody(m.body, m.event); return json({ recipients: to.email, textRecipients: to.text, ...render(m, false), sms, smsSize: segments(sms) }); }
 
   if (input.mode === 'test') {
     if (!m.title?.trim() || !m.body?.trim()) return json({ error: 'Add a subject and a message first.' }, 400);

@@ -15,8 +15,10 @@ try {
  await page.locator('#globe-city').selectOption('mexico city|mx');await expect(page.locator('.portal-globe-pop')).toContainText('Sample Alum 463');await expect(page.locator('.portal-results-count')).toContainText('1 person');
  await page.locator('[data-filter="division"] [data-value="TECH"]').click();await expect(page.locator('.portal-explore-stats')).toContainText('0 LEFT');await expect(page.getByRole('button',{name:'Remove the place'})).toBeVisible();
  await page.getByRole('button',{name:'Remove the place'}).click();await expect(page.locator('.portal-card').first()).toBeVisible();await page.getByRole('button',{name:'CLEAR ALL',exact:true}).click();
- await page.getByRole('button',{name:'BROWSE ALL MEMBERS'}).click();await expect(page.locator('.portal-card')).toHaveCount(24);await page.getByRole('button',{name:/SHOW 24 MORE/}).click();await expect(page.locator('.portal-card')).toHaveCount(48);
- await page.getByRole('button',{name:'CLEAR ALL',exact:true}).click();await page.locator('.portal-globe-wrap').scrollIntoViewIfNeeded();
+ await expect(page.locator('.portal-card')).toHaveCount(24);   // the directory shows without a BROWSE button (2026-10-06)
+ await page.getByRole('button',{name:/SHOW 24 MORE/}).click();await expect(page.locator('.portal-card')).toHaveCount(48);
+ await expect(page.getByRole('button',{name:'CLEAR ALL',exact:true})).toHaveCount(0);   // nothing to clear: the plain directory (2026-10-06)
+ await page.locator('.portal-globe-wrap').scrollIntoViewIfNeeded();
  // the whole world stays in view (Bryan, 2026-10-02): no zoom, and the disc never outgrows its frame — after load, a star tap, a city pick and a drag
  expect(await page.getByRole('button',{name:/Zoom (in|out)/}).count()).toBe(0);
  const discFits=async(label)=>{await page.waitForTimeout(1300);const r=await page.evaluate(()=>{const w=document.querySelector('.portal-globe-wrap');const alt=Number(/alt ([\d.]+)/.exec(w.dataset.view)[1]);const {width,height}=w.getBoundingClientRect();const px=(height/2)*Math.tan(Math.asin(1/(1+alt)))/Math.tan(25*Math.PI/180);return {alt,radius:px,half:Math.min(width,height)/2};});expect(r.radius,`${label}: disc ${r.radius.toFixed(0)}px radius vs frame half ${r.half.toFixed(0)}px`).toBeLessThanOrEqual(r.half);return r.alt;};

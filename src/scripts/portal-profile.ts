@@ -10,7 +10,7 @@ import { prettyPhone, toE164 } from '../lib/portal/phone';
 import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/portal/work-render';
 import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
-import { parseYear } from '../lib/portal/years';
+import { parseYear, yearProblems } from '../lib/portal/years';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
@@ -215,10 +215,8 @@ async function init() {
     const box = $('#pf-admin-edit')!; box.hidden = false; box.querySelector('[data-edit-name]')!.textContent = r.full_name || 'this member';
     box.querySelector<HTMLAnchorElement>('[data-edit-back]')!.href = `/alumni-portal/members/?id=${encodeURIComponent(other)}`;
     $('#pf-heading')!.textContent = 'EDIT PROFILE'; $('#pf-photo-note')!.textContent = 'Their photo shows on their card in search, on their member page and on the globe.';
-    // the member's own: sign-in emails (identity) and consent to emails and texts (the database refuses them too)
-    for (const sel of ['#pf-usc', '#pf-personal', '#pf-email-opt', '#pf-phone-opt']) { const el = $<HTMLInputElement>(sel); if (el) el.disabled = true; }
-    form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-save-row, [data-contact="personal"] .portal-save-row').forEach((b) => { b.hidden = true; });
-    form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-help, [data-contact="personal"] .portal-help').forEach((p) => { p.textContent = 'Only they can change this.'; });
+    // admins can change anything (Bryan, 2026-10-06); an email an admin saves counts at once (no confirmation email) and is a sign-in address for them
+    form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-help, [data-contact="personal"] .portal-help').forEach((p) => { p.textContent = 'Saved straight away (no confirmation email), and they can sign in with it.'; });
   }
   form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
   if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved && !other) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
@@ -229,7 +227,14 @@ async function init() {
   saveBtn.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = saveBtn;
     if (badYears()) return;
-    const patch = collect(); const applying = !who!.approved && !other; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
+    const patch = collect();
+    // years that are real but don't fit together (joined in the future, graduated before joining, …): say which and stop
+    const yp = yearProblems({ status: statusPicked() ? (patch.status ?? null) : null, grad_year: patch.grad_year ?? null, join_term: patch.join_term ?? null, join_year: patch.join_year ?? null });
+    if (yp.length) {
+      const boxes = yp.map((p) => (p.field === 'join' ? $<HTMLInputElement>('#pf-year') : [...document.querySelectorAll<HTMLInputElement>('#pf-grad-year, #pf-classof-year')].find((i) => i.offsetParent !== null) ?? null)).filter((b): b is HTMLInputElement => Boolean(b));
+      boxes.forEach((b) => { b.classList.add('portal-needs'); b.setAttribute('aria-invalid', 'true'); }); boxes[0]?.focus();
+      flash(btn, 'NOT SAVED', yp.map((p) => p.message).join(' '), false); return;
+    } const applying = !who!.approved && !other; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
     const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...(applying
       ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: patch.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })
       : patch.full_name ? [] : ['your name'])];
@@ -294,20 +299,20 @@ async function init() {
         const col = kind === 'usc' ? 'usc_email' : 'personal_email'; const was = (row?.[col] ?? '') as string;
         if ((v ?? '') === was.toLowerCase() || (v ?? '') === was) { flash(btn, 'SAVED', 'No change.'); return; }
         btn.disabled = true;
-        const r = await accountEmail(v ? { mode: 'add', kind, email: v } : { mode: 'remove', kind }).catch(() => ({ status: 0, error: 'Could not reach the server. Check your connection and try again.' } as Awaited<ReturnType<typeof accountEmail>>));
-        if (r.saved || r.removed) { if (row) row = { ...row, [col]: v }; input.value = v ?? ''; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', r.removed ? 'Removed. You can’t sign in with it anymore.' : 'Saved.'); }
+        const r = await accountEmail({ ...(v ? { mode: 'add', kind, email: v } : { mode: 'remove', kind }), ...(other ? { user_id: other } : {}) }).catch(() => ({ status: 0, error: 'Could not reach the server. Check your connection and try again.' } as Awaited<ReturnType<typeof accountEmail>>));
+        if (r.saved || r.removed) { if (row) row = { ...row, [col]: v }; input.value = v ?? ''; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', r.removed ? (other ? 'Removed. They can’t sign in with it anymore.' : 'Removed. You can’t sign in with it anymore.') : 'Saved.'); }
         else if (r.pending) { input.value = was; rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SENT', `We sent a confirmation link to ${v}. Click it and the address shows here; after that you can sign in with it too.`); }
         else { btn.disabled = false; flash(btn, 'NOT SAVED', r.error ?? 'Something went wrong. Try again.', false); }
         return;
       }
       const res = await save(patch);
-      if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
+      if (res.ok) { row = res.row; if (kind === 'phone') input.value = prettyPhone(res.row.phone); rowEl.dispatchEvent(new Event('tl:saved')); flash(btn, 'SAVED', kind === 'personal' ? 'Saved as your contact email. Your sign-in address has not changed.' : kind === 'phone' ? (other ? (textsOn ? 'Saved. They’ll get TroyLabs event texts.' : 'Saved. They won’t get texts.') : textsOn ? 'Saved. You’ll get TroyLabs event texts; reply STOP to any of them to stop.' : 'Saved. You won’t get texts.') : 'Saved.'); } else flash(btn, 'NOT SAVED', res.message, false);
     });
   }
   // announcements on/off saves the moment it's ticked
   $<HTMLInputElement>('#pf-email-opt')?.addEventListener('change', async (e) => {
-    const box = e.currentTarget as HTMLInputElement; const out = $('#pf-email-opt-fb')!; const res = await saveMyProfile({ email_opt_in: box.checked });
-    if (res.ok) { row = res.row; out.style.color = ''; out.textContent = box.checked ? 'Saved. You’ll get TroyLabs announcements by email.' : 'Saved. You won’t get announcement emails.'; } else { box.checked = !box.checked; out.style.color = 'var(--color-orange)'; out.textContent = res.message; }
+    const box = e.currentTarget as HTMLInputElement; const out = $('#pf-email-opt-fb')!; const res = await save({ email_opt_in: box.checked });
+    if (res.ok) { row = res.row; out.style.color = ''; out.textContent = box.checked ? (other ? 'Saved. They’ll get TroyLabs announcements by email.' : 'Saved. You’ll get TroyLabs announcements by email.') : (other ? 'Saved. They won’t get announcement emails.' : 'Saved. You won’t get announcement emails.'); } else { box.checked = !box.checked; out.style.color = 'var(--color-orange)'; out.textContent = res.message; }
   });
   $('#pf-phone-opt')?.addEventListener('change', () => { const b = document.querySelector<HTMLButtonElement>('[data-contact="phone"] .portal-save-row'); if (b) b.disabled = false; });
 

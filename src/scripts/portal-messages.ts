@@ -218,7 +218,9 @@ async function load() {
   const sb = supabase();
   const now = currentTerm();
   const [{ data: p }, { data: m }, { data: r }, { data: e }] = await Promise.all([sb.from('profiles').select('*, city:cities(*)'), sb.from('messages').select('*').order('updated_at', { ascending: false }), sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'), sb.from('eboard_roles').select('profile_id, term, year')]);
-  people = (p ?? []) as ProfileRow[]; messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
+  // the same world send-message uses: a test admin counts only test accounts, a real admin never sees them anyway (RLS)
+  const { data: imTest } = await sb.rpc('viewer_is_test');
+  people = ((p ?? []) as (ProfileRow & { is_test?: boolean })[]).filter((x) => Boolean(x.is_test) === Boolean(imTest)); messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
   eb = { now: new Set(roles.filter((x) => x.term === now.term && x.year === now.year).map((x) => x.profile_id)), ever: new Set(roles.map((x) => x.profile_id)) };
   if (!$('[data-msg-list]')) return;   // left the page while it loaded (a delete or save reloads the list; leaving mid-reload threw 'innerHTML of null')

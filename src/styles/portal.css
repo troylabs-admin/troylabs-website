@@ -862,3 +862,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 .portal-admin-edit-back { margin-top: calc(4 * var(--u)); color: var(--color-orange); }
 .portal-admin-edit > .portal-role { margin-left: 0; }
 @media (max-width: 767px) { .portal-admin-edit { margin-top: 18px; gap: 8px; } .portal-admin-edit-back { margin-top: 4px; } }
+/* SHOW MORE under the search results: clear of the last row of cards (2026-10-06: it touched them — `.portal-btn.is-small`
+   sets margin-top 0 and outranked the one-class rule above, so this needs both classes) */
+.portal-results > .portal-btn.portal-globe-more { margin-top: calc(24 * var(--u)); }
+@media (max-width: 767px) { .portal-results > .portal-btn.portal-globe-more { margin-top: 18px; } }

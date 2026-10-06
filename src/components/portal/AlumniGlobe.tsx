@@ -339,7 +339,7 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
         <div ref={popRef} className="portal-panel portal-globe-pop" style={popStyle} role="dialog" aria-label={person.full_name}>
           <button type="button" className="portal-globe-x" aria-label="Close" onClick={clear}>×</button>
           <h3 className="t-name m-0">{person.full_name}</h3>
-          <p className="t-caption text-muted m-0">{person.current_title}{person.current_company ? ` · ${person.current_company}` : ''}</p>
+          <p className="t-caption text-muted m-0">{[person.current_title, person.current_company].filter(Boolean).join(' · ') || person.headline}</p>
           {person.city && <p className="t-fine text-muted m-0">{person.city}{person.region ? `, ${person.region}` : ''}</p>}
           {person.cohort && <p className="t-fine m-0 portal-globe-cohort">TL {person.cohort}</p>}
           <a href={profileHref(person)} className="t-label portal-linklike portal-globe-view">VIEW PROFILE →</a>

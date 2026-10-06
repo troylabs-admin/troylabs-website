@@ -1,6 +1,6 @@
 ---
 /**
- * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15; Resend + OpenAI 2026-10-05). Just the places.
+ * Admin › Tech stack. Where everything lives, with a link to each (Bryan, 2026-09-15; Resend + OpenAI + Apify + Figma 2026-10-05). Just the places.
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/portal.css';
@@ -9,12 +9,14 @@ import AdminNav from '../../../components/portal/AdminNav.astro';
 const PLACES = [
   ['Website hosting', 'Vercel', 'https://vercel.com/troylabs-projects/troylabs-landing-page', 'Deploys itself on every push to main. Domains live here too.'],
   ['Source code', 'GitHub', 'https://github.com/troylabs-admin/troylabs-website', 'Public repo, org-owned. The README explains the layout.'],
+  ['Design', 'Figma', 'https://www.figma.com/design/j8DBdVOGveHEj6OP3JEQwh', 'The "Troylabs 2026" file, page [CURRENT] website redesign (designer Ellie Lin-Stevens). The marketing pages are built 1:1 from it.'],
   ['Member roster', 'Notion — TL Fam', 'https://app.notion.com/p/troylabsvc/TL-Fam-242fd750736d8071952afba366474861', 'Actives and Rocket Classes by semester.'],
   ['Domains', 'Name.com', 'https://www.name.com', 'usctroylabs.com and troylabs.vc. Auto-renew is on; .vc redirects to .com.'],
-  ['Database', 'Supabase', 'https://supabase.com/dashboard/project/ackmhqxyxnceoarbhcrp', 'Project TL_Network in the TroyLabs org: members, sign-in, photos, messages. Free plan.'],
+  ['Database', 'Supabase', 'https://supabase.com/dashboard/project/ackmhqxyxnceoarbhcrp', 'Project TL_Network in the TroyLabs org: members, sign-in, photos, work history, company logos, messages, and the timed jobs (LinkedIn import every minute, scheduled messages every 5 minutes). Free plan.'],
   ['Website analytics', 'Vercel Analytics', 'https://vercel.com/troylabs-projects/troylabs-landing-page/analytics', 'Visitors and page views. Already on.'],
-  ['Email', 'Resend', 'https://resend.com/emails', 'Sends every email from usctroylabs.com: sign-in links (through Supabase), the "you’re in" email when someone is approved, and Admin › Message emails. Anyone with any email address can receive them. Free plan: 100 emails a day, 3,000 a month.'],
+  ['Email', 'Resend', 'https://resend.com/emails', 'Sends every email from usctroylabs.com: sign-in links (through Supabase), the "you’re in" email when someone is approved, the link that confirms a second email address, and Admin › Message emails. Anyone with any email address can receive them. Pro plan ($20 a month): 50,000 emails a month, no daily limit. Supabase separately caps sign-in links at 100 an hour.'],
   ['AI search', 'OpenAI', 'https://platform.openai.com/usage', 'Powers searching by meaning ("someone in energy storage"). Only work details are sent, never names, emails or phone numbers. A fraction of a cent per search.'],
+  ['LinkedIn import', 'Apify', 'https://console.apify.com/actors/runs', 'After someone is approved, reads their public LinkedIn profile (jobs, schools, honors, photo) with the HarvestAPI LinkedIn Profile Scraper, then again when they press SYNC NOW. Never signs in to LinkedIn. About $4 per 1,000 profiles; the site stops at 1,000 a month. The free plan includes $5 a month.'],
   ['Texts', 'Twilio', 'https://console.twilio.com/us1/monitor/logs/sms', 'Sends Admin › Message texts through the send-message function, only to members who opted in. The number must pass toll-free verification before texts reach real phones; until then test with the Virtual Phone in the Twilio console. STOP replies turn texts off on the profile.'],
   ['Product analytics', 'PostHog', 'https://us.posthog.com/project/611704', 'Clicks and searches as counts: Apply clicks, links off the site, the reel, scroll depth, searches, filters, globe taps. No person is ever tracked.'],
 ];

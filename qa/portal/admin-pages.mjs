@@ -35,7 +35,7 @@ try {
   const layout = async () => page.evaluate(() => {
     const r = (el) => el.getBoundingClientRect();
     const tops = [...document.querySelectorAll('.portal-tiles .t-stat')].map((n) => Math.round(r(n).top));
-    const links = [...document.querySelectorAll('.portal-attention-go')].map((a) => { const t = r(a.previousElementSibling), l = r(a); return { lines: Math.round(l.height / parseFloat(getComputedStyle(a).lineHeight)), gapX: Math.round(l.left - t.right), gapY: Math.round(l.top - t.bottom) }; });
+    const links = [...document.querySelectorAll('.portal-attention-go')].map((a) => { const t = r(a.previousElementSibling), l = r(a); const rg = document.createRange(); rg.selectNodeContents(a); const lines = new Set([...rg.getClientRects()].map((q) => Math.round(q.top))).size; return { lines, gapX: Math.round(l.left - t.right), gapY: Math.round(l.top - t.bottom) }; });   // lines of text, not box height: on touch screens the link's box is 32px tall for the finger
     return { tops, links };
   });
   let lay = await layout();
@@ -90,7 +90,7 @@ try {
     await page.setViewportSize({ width: w, height: h }); await page.locator('#declined-fold').evaluate((d) => { d.open = true; });
     await expect(page.locator(`#declined-list li[data-id="${declined.id}"]`)).toBeVisible();
     const m = await page.evaluate((id) => { const r = (el) => el.getBoundingClientRect(); const n = document.querySelector('#declined-n'), label = n.closest('summary'); const back = document.querySelector(`[data-restore="${id}"]`);
-      return { countFromLabel: Math.round(r(n).left - r(label).left), labelWidth: Math.round(r(label).width), backLines: Math.round(r(back).height / parseFloat(getComputedStyle(back).lineHeight)), spill: r(back).right > r(back.closest('li')).right + 1 }; }, declined.id);
+      return { countFromLabel: Math.round(r(n).left - r(label).left), labelWidth: Math.round(r(label).width), backLines: (() => { const rg = document.createRange(); rg.selectNodeContents(back); return new Set([...rg.getClientRects()].map((q) => Math.round(q.top))).size; })(), spill: r(back).right > r(back.closest('li')).right + 1 }; }, declined.id);
     assert.ok(m.countFromLabel < 160 && m.countFromLabel < m.labelWidth / 2, `the declined count sits beside its label at ${w}: ${JSON.stringify(m)}`);
     assert.deepEqual([m.backLines, m.spill], [1, false], `BACK TO WAITING LIST stays on one line inside its row at ${w}: ${JSON.stringify(m)}`);
   }

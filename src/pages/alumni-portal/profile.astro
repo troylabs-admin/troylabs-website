@@ -79,9 +79,13 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
         </div>
         <div class="portal-field portal-contact-row" data-contact="phone">
           <label class="t-label text-muted" for="pf-phone">PHONE <span class="portal-req" title="Required">REQUIRED</span></label>
-          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="e.g. +1 213 555 0123" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">How members reach you. TroyLabs only texts you if you turn that on below.</p>
+          <div class="portal-inline"><input id="pf-phone" type="tel" class="t-caption portal-input" placeholder="e.g. +1 213 555 0123" inputmode="tel" autocomplete="tel" data-optional /><button type="button" class="portal-btn is-small t-label portal-save-row" data-action="save-row" data-done="SAVED" disabled>SAVE</button></div><p class="portal-help t-fine text-muted">How members reach you, and where TroyLabs texts you about events.</p>
+          <!-- sign-up (Bryan, 2026-10-06): texts come with joining, no choice here; after sign-up the box below turns them off -->
+          <p class="portal-help t-fine text-muted" data-texts-signup hidden>Members get TroyLabs texts: event invitations and club announcements, a few a month at most. By adding your number and submitting, you agree to get them. Message and data rates may apply. Reply STOP to any text to stop, HELP for help. You can turn texts off on your profile anytime. <a href="/terms" target="_blank" class="portal-inline-link">Terms</a> · <a href="/privacy" target="_blank" class="portal-inline-link">Privacy Policy</a></p>
+          <div data-texts-choice>
           <label class="portal-check t-caption"><input id="pf-phone-opt" type="checkbox" /><i></i>Text me TroyLabs event invitations</label>
           <p class="portal-help t-fine text-muted">TroyLabs event invitations and club announcements, a few texts a month at most. Message and data rates may apply. Reply STOP to any text to stop, HELP for help. <a href="/terms" target="_blank" class="portal-inline-link">Terms</a> · <a href="/privacy" target="_blank" class="portal-inline-link">Privacy Policy</a></p>
+          </div>
           <p class="t-fine portal-feedback" role="status"></p>
         </div>
       </div>

@@ -58,6 +58,8 @@ const socials = [
   <p class="abs t-fine glow-text m-0" style={pos(771, 142, 135)}>Empowering USC's next generation of entrepreneurs</p>
 
   <p class="abs t-fine m-0 text-center whitespace-nowrap" style={pos(423, 214, 155)}>© 2026 TroyLabs. All rights reserved.</p>
+  <!-- legal links (2026-10-06): carriers' reviewers look for the privacy policy from the site itself (Twilio error 30908) -->
+  <p class="abs t-fine m-0 text-center whitespace-nowrap legal" style={pos(300, 229, 401)}><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms &amp; Conditions</a> · <a href="/texts">TroyLabs Texts</a></p>
 </footer>
 
 
@@ -83,11 +85,13 @@ const socials = [
   </ul>
   <a href="/" class="m-rocket" aria-label="TroyLabs home" set:html={rocket} />
   <p class="t-fine glow-text m-0 m-center">Empowering USC's next generation of entrepreneurs</p>
-  <p class="t-fine m-0 m-center" style="opacity:.75;margin-top:14px;padding-bottom:26px">© 2026 TroyLabs. All rights reserved.</p>
+  <p class="t-fine m-0 m-center" style="opacity:.75;margin-top:14px">© 2026 TroyLabs. All rights reserved.</p>
+  <p class="t-fine m-0 m-center legal" style="opacity:.75;margin-top:8px;padding-bottom:26px"><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms &amp; Conditions</a> · <a href="/texts">TroyLabs Texts</a></p>
 </footer>
 
 <style>
   footer :global(svg) { width: 100%; height: 100%; display: block; }
+  .legal { opacity: 0.6; } .legal a { color: inherit; text-decoration: none; } .legal a:hover { text-decoration: underline; }
   .icon { display: block; }
   @media (max-width: 767px) {
     .m-footer { padding-top: 8px; }

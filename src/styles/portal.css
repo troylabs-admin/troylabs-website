@@ -883,3 +883,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
   .portal-who { margin-bottom: 12px; } .portal-who-items { max-height: 220px; margin-top: 8px; } .portal-who-items li { padding: 6px 10px; gap: 10px; }
   .portal-auto li { flex-direction: column; gap: 8px; } .portal-auto .portal-sms-bubble { flex: none; }
 }
+
+/* footer legal links (2026-10-06, for the A2P text registration) */
+.portal-footer-legal { margin-left: calc(10 * var(--u)); white-space: nowrap; } .portal-footer-legal a { text-decoration: none; } .portal-footer-legal a:hover { text-decoration: underline; }
+@media (max-width: 767px) { .portal-footer-legal { display: block; margin: 6px 0 0; white-space: normal; } }

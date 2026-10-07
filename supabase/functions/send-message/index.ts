@@ -402,7 +402,8 @@ Deno.serve(async (req) => {
   // submitted), so a rejection can be fixed from its real reasons. Admins only; nothing is changed or sent.
   if (input.mode === 'twilio-compliance') {
     if (!tw.configured) return json({ error: 'texts not connected' }, 503);
-    const get = async (u: string) => { const r = await fetch(u, { headers: { Authorization: `Basic ${btoa(`${tw.sid}:${tw.token}`)}` } }); return r.json().catch(() => ({})); };
+    // X-Twilio-Api-Version v1.2: without it Twilio leaves privacy_policy_url / terms_and_conditions_url out of the response
+    const get = async (u: string) => { const r = await fetch(u, { headers: { Authorization: `Basic ${btoa(`${tw.sid}:${tw.token}`)}`, 'X-Twilio-Api-Version': 'v1.2' } }); return r.json().catch(() => ({})); };
     const services = (await get('https://messaging.twilio.com/v1/Services?PageSize=50')).services ?? [];
     const out = [];
     for (const sv of services) {

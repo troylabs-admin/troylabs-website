@@ -87,9 +87,10 @@ try {
   // fill in everything, including e-board roles and a city typed but not placed
   await page.locator('#pf-classof-year').fill('2023'); await page.locator('#pf-term').selectOption('Fall'); await page.locator('#pf-year').fill('2021');
   for (const d of ['DESIGN', 'MARKETING']) await page.locator('[data-field="divisions"] .portal-chip', { hasText: d }).click();
-  // texts come with signing up (2026-10-06): the notice is there, the on/off box isn't
-  await expect(page.locator('[data-texts-signup]')).toBeVisible(); await expect(page.locator('[data-texts-signup]')).toContainText('By adding your number and submitting, you agree'); await expect(page.locator('[data-texts-choice]')).toBeHidden();
-  await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');   // any spelling of the link; the phone saves with SUBMIT
+  // texts are a choice (A2P: consent can't be part of joining): an optional box under the phone, unticked; they tick it
+  await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).not.toBeChecked(); await expect(page.locator('[data-texts-choice]')).toContainText('(optional)');
+  await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');
+  await page.locator('label:has(#pf-phone-opt)').click();   // any spelling of the link; the phone saves with SUBMIT
   await page.locator('#pf-claim .portal-chip', { hasText: 'DIRECTOR OF DESIGN' }).click(); const role = page.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF DESIGN"]');
   await role.locator('select').first().selectOption('Fall'); await role.locator('input').first().fill('2022');
   await page.locator('#pf-note').fill('Design division FA21 to SP23; Director of Design FA22.');
@@ -107,11 +108,11 @@ try {
   assert.equal(saved.full_name, 'Jordan Rivera'); assert.equal(saved.status, 'alum'); assert.equal(saved.grad_year, 2023); assert.equal(saved.join_term, 'FA'); assert.equal(saved.join_year, 2021);
   assert.deepEqual([...saved.divisions].sort(), ['DESIGN', 'MARKETING']); assert.equal(saved.city.name, 'San Francisco'); assert.equal(saved.request_note, 'Design division FA21 to SP23; Director of Design FA22.');
   assert.ok(saved.submitted_at, 'submitted'); assert.equal(saved.approved, false); assert.deepEqual(saved.claimed_roles, [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }]);
-  // submitting turned texts on, but no text yet: the first one ("you're in") comes with approval
+  // they ticked texts: on after submitting, but no text yet: the first one ("you're in") comes with approval
   assert.equal((await admin.from('profiles').select('phone_opt_in').eq('id', fresh.id).single()).data.phone_opt_in, true, 'texts on after sign-up');
   await page.waitForTimeout(2000); assert.equal(((await admin.from('profile_events').select('id').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []).length, 0, 'no text at sign-up');
-  await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).toBeChecked(); await expect(page.locator('[data-texts-signup]')).toBeHidden();
-  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; texts on (no text yet), and the box to turn them off appears');
+  await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).toBeChecked();
+  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; the texts box they ticked is on (no text yet)');
 
   // the backup
   const backups = ok(await admin.from('profile_submissions').select('id, email, snapshot').eq('profile_id', fresh.id), 'backup');

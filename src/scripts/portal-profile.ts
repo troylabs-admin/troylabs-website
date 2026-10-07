@@ -82,9 +82,6 @@ function fill(r: ProfileRow, admin: boolean) {
   const known = [...document.querySelectorAll<HTMLElement>('[data-field="industries"] .portal-chip')].map((c) => c.textContent!.replace(/^✓\s*/, '').trim());
   setChips('[data-field="industries"]', r.industries ?? []); setTags('#pf-industries-extra', (r.industries ?? []).filter((i) => !known.includes(i)));
   ($('#pf-loc') as HTMLInputElement).value = cityLabel(r.city); ($('#pf-loc-note') as HTMLElement).textContent = r.city ? `${cityLabel(r.city)} · pin on the globe` : 'No pin on the globe yet. Add your city so alumni can find you on the map.';
-  // texts come with signing up (Bryan, 2026-10-06): no choice before the application is submitted, the off switch after
-  const signingUp = !other && !r.approved && !r.submitted_at;
-  ($('[data-texts-signup]') as HTMLElement).hidden = !signingUp; ($('[data-texts-choice]') as HTMLElement).hidden = signingUp;
   document.querySelectorAll('.portal-contact-row').forEach((el) => el.dispatchEvent(new Event('tl:loaded')));
   recount();
 }
@@ -268,14 +265,14 @@ async function init() {
         const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
-      if (waiting && !wasSubmitted) patch.phone_opt_in = true;   // texts come with signing up (the form says so above the phone box)
+      if (waiting && !wasSubmitted) patch.phone_opt_in = ($('#pf-phone-opt') as HTMLInputElement).checked;   // the optional, unticked box under the phone (A2P: consent must be a choice, not part of joining)
       const res = await save(patch);
       if (!res.ok) { flash(btn, 'NOT SAVED', res.message, false); return; }
       if (waiting) {
         const sub = await submitApplication();   // marks them submitted (first time) and keeps a backup copy of what they sent
         if (sub.error) { fill(res.row, who!.admin); flash(btn, 'NOT SENT', `Saved, but it couldn't be sent to leadership: ${sub.error.message}`, false); return; }
         res.row.submitted_at = (sub.data as string | null) ?? new Date().toISOString(); who!.submitted = true;
-        // texts are on now; the first text ("you're in") goes out when an admin approves them, not here (Bryan, 2026-10-06)
+        // if they ticked texts, the first one ("you're in") goes out when an admin approves them, not here
       }
       fill(res.row, who!.admin); label(saveBtn); void linkedInPanel();
       if (waiting) { who!.missing = []; onboard(!wasSubmitted); flash(btn, wasSubmitted ? 'SAVED' : 'SUBMITTED', wasSubmitted ? 'Saved. Leadership sees your latest answers.' : 'Submitted. Your profile is with TroyLabs leadership.'); if (!wasSubmitted) $('#pf-onboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
@@ -306,8 +303,7 @@ async function init() {
       if (kind === 'phone' && v && !phone) { flash(btn, 'NOT SAVED', 'Enter a number that can get texts, like (310) 555-0101, or +44 20 7946 0958 outside the US.', false); return; }
       const textsOn = ($('#pf-phone-opt') as HTMLInputElement).checked;
       if (kind === 'phone' && textsOn && !phone) { flash(btn, 'NOT SAVED', 'Add your number to get texts.', false); return; }
-      const choosing = !($('[data-texts-choice]') as HTMLElement).hidden;   // during sign-up there's no choice to save
-      const patch: Partial<ProfileRow> = kind === 'usc' ? { usc_email: v } : kind === 'personal' ? { personal_email: v } : choosing ? { phone, phone_opt_in: textsOn } : { phone };
+      const patch: Partial<ProfileRow> = kind === 'usc' ? { usc_email: v } : kind === 'personal' ? { personal_email: v } : { phone, phone_opt_in: textsOn };
       if (kind === 'usc' && v && !/@(?:[a-z0-9-]+\.)*usc\.edu$/i.test(v)) { flash(btn, 'NOT SAVED', 'That is not a usc.edu address.', false); return; }
       if (kind === 'personal' && !v) { flash(btn, 'NOT SAVED', 'Keep a personal email on file so members can reach you.', false); return; }
       if (kind === 'personal' && v && !input.checkValidity()) { flash(btn, 'NOT SAVED', 'Enter a valid email address.', false); return; }

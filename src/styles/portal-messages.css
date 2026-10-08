@@ -46,3 +46,39 @@
   .portal-messaging [data-msg-list] > li { padding: 16px; }
   .portal-messaging [data-msg-list] > li > .flex > .text-ink { flex-basis: 100% !important; }
 }
+/* SMS workspace: a clear authoring surface, one audience review, and compact actual history. */
+.portal-messaging .msg-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: calc(24 * var(--u)); }
+.portal-messaging .msg-audience-modes { display: flex; gap: calc(10 * var(--u)); margin-bottom: calc(18 * var(--u)); flex-wrap: wrap; }
+.portal-messaging .msg-audience .msg-compose-head { margin-bottom: calc(14 * var(--u)); align-items: center; }
+.portal-messaging .msg-audience .portal-panel-title { margin: 0; }
+.portal-messaging .msg-audience-total { border-top: 1px solid rgb(255 255 255 / .14); margin-top: calc(20 * var(--u)); padding-top: calc(18 * var(--u)); display: grid; gap: calc(6 * var(--u)); line-height: 1.55; }
+.portal-messaging .portal-aud-group { font-size: max(12px, calc(10 * var(--u))); letter-spacing: .06em; }
+.portal-messaging .portal-aud-cell { font-size: max(11px, calc(9 * var(--u))); }
+.portal-messaging [data-people-panel] > label { display: block; margin-bottom: calc(8 * var(--u)); }
+.portal-messaging .msg-people-tools { display: flex; justify-content: space-between; gap: calc(10 * var(--u)); align-items: center; margin: calc(12 * var(--u)) 0; flex-wrap: wrap; }
+.portal-messaging .msg-people-tools button, .portal-messaging .msg-compose-head button { min-height: 44px; }
+.portal-messaging .msg-people-list { max-height: 350px; overflow-y: auto; overscroll-behavior: contain; }
+.portal-messaging .msg-person { display: flex; align-items: center; gap: calc(12 * var(--u)); padding: calc(12 * var(--u)); border-bottom: 1px solid rgb(255 255 255 / .1); min-height: 60px; cursor: pointer; }
+.portal-messaging .msg-person:hover { background: rgb(255 255 255 / .04); }
+.portal-messaging .msg-person:has(:checked) { background: rgb(255 125 44 / .07); }
+.portal-messaging .msg-person input { accent-color: var(--color-orange); flex-shrink: 0; width: 20px; height: 20px; }
+.portal-messaging .msg-person > span { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.portal-messaging .portal-who-items li { gap: calc(12 * var(--u)); flex-wrap: wrap; line-height: 1.5; }
+.portal-messaging [data-msg-list] > li { background: rgb(10 10 12 / .72); padding: calc(20 * var(--u)); gap: calc(14 * var(--u)) !important; }
+.portal-messaging [data-msg-list] > li > .flex:first-child > .text-ink { font-size: max(18px, calc(15 * var(--u))); line-height: 1.4; flex-basis: 40% !important; }
+.portal-messaging [data-msg-list] > li > .flex:last-of-type { border-top: 1px solid rgb(255 255 255 / .1); padding-top: calc(10 * var(--u)); }
+.portal-messaging [data-msg-list] .portal-linklike { letter-spacing: .06em; font-size: max(12px, calc(10 * var(--u))); min-height: 44px; }
+.portal-messaging [data-msg-list] .portal-tag { font-size: max(10px, calc(9 * var(--u))); }
+.portal-messaging .msg-empty { min-height: 100px; justify-content: center; text-align: center; }
+.portal-messaging .portal-sms-bubble { line-height: 1.6; }
+.portal-messaging .msg-automatic { padding: calc(16 * var(--u)) calc(20 * var(--u)); background: rgb(10 10 12 / .72); border-radius: calc(16 * var(--u)); }
+@media (max-width: 1100px) { .portal-messaging .msg-workspace { grid-template-columns: 1fr; } }
+@media (max-width: 767px) {
+ .portal-messaging [data-msg-list] > li > .flex:first-child > .text-ink { flex-basis: 100% !important; }
+ .portal-messaging [data-msg-list] > li > .flex:last-of-type > .t-fine { flex-basis: 100%; }
+ .portal-messaging .msg-audience-modes > button { flex: 1; }
+ .portal-messaging .msg-people-list { max-height: 300px; }
+ .portal-messaging .msg-person { padding: 12px 8px; gap: 12px; }
+ .portal-messaging .msg-automatic { padding: 12px; }
+ .portal-messaging .msg-automatic > summary { font-size: 12px; line-height: 1.5; }
+}

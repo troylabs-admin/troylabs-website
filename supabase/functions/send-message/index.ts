@@ -13,8 +13,8 @@
  *   ?twilio=status         → the delivery outcome of each text (carriers can still drop an accepted text)
  *   ?twilio=inbound        → replies to the TroyLabs number; STOP turns texts off on the profile, START back on
  *
- * Recipients: approved members in the message's audience (any ticked group × CURRENT/ALUMNI cell, narrowed by
- * cohort/industry when set; _shared/audience.ts, the same code the page counts with). Email: an address on file and
+ * Recipients: approved members in the message's audience (explicit people, or ticked group × CURRENT/ALUMNI
+ * cells narrowed by cohort/industry; _shared/audience.ts, the same code the page counts with). Email: an address on file and
  * announcements not turned off. Text: a number on file and "Text me TroyLabs event invitations" ticked. One per
  * address/number. A send that fails half way can be sent again: people already reached are skipped.
  *
@@ -219,7 +219,8 @@ async function deliver(svc: SupabaseClient, id: number, by: string | null, me: {
   const fail = async (error: string, status = 400) => { await svc.from('messages').update({ state: back === 'scheduled' && by === null ? 'draft' : back, last_error: error }).eq('id', id); return { status, body: { error } }; };
   if (!m.title?.trim()) return fail('Add a subject before sending.');
   if (!m.body?.trim()) return fail('The message is empty.');
-  if (!cleanAudience(m.audience).cells.length) return fail('Pick who gets it first: tick at least one group.');
+  const audience = cleanAudience(m.audience);
+  if (audience.mode === 'people' ? !audience.profile_ids?.length : !audience.cells.length) return fail(audience.mode === 'people' ? 'Pick who gets it first: choose at least one person.' : 'Pick who gets it first: tick at least one group.');
   if (want.includes('email') && !config().key) return fail('Email isn’t connected yet: the Resend key hasn’t been added.' + (want.includes('text') ? ' Choose TEXT to send only the text.' : ''), 503);
   if (want.includes('text') && !tw.configured) return fail('Texts aren’t connected yet: the Twilio keys haven’t been added.' + (want.includes('email') ? ' Choose EMAIL to send only the email.' : ''), 503);
   const sms = smsBody(m.body, m.event);

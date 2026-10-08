@@ -1,5 +1,5 @@
 /**
- * Admin › Messages: who gets it as a grid of groups × CURRENT / ALUMNI (any mix, with live counts), PREVIEW RECIPIENTS, SAVE DRAFT, SEND A TEST TO ME,
+ * Admin › Messages: SMS composer, group filters or explicit people, live eligible counts, drafts and self-tests.
  * SEND NOW and SCHEDULE, EDIT / CANCEL / DELETE, and for sent messages exactly who it went to. Sending is the
  * `send-message` edge function (Resend email, Twilio texts; it holds the keys and decides recipients itself).
  * Scheduled messages are sent by the database's five-minute job.
@@ -17,13 +17,14 @@ type Rcpt = { message_id: number; profile_id: string; channel: 'email' | 'text';
 type Delivery = { email: { configured: boolean; testMode: boolean; testTo: string | null; from?: string }; text: { configured: boolean; from: string | null; trial: boolean; error: string | null; testTo: string | null; hoursOpen: boolean } };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
-const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; if (!ok) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }); } } };
+const fb = (text: string, ok = true) => { const el = $('#msg-fb'); if (el) { el.textContent = text; el.style.color = ok ? 'var(--color-muted)' : 'var(--color-orange)'; if (!ok) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }); } } };
 let people: ProfileRow[] = [], messages: Msg[] = [], rcpts: Rcpt[] = [], editing: number | null = null;
 let delivery: Delivery | null = null;
 let viewer: { id: string; email: string } | null = null;
 let deliveryUnknown = false;
 let dataReady = false;
 let actionBusy = false;
+let pageGeneration = 0;
 let imTest = false;   // a test admin's page counts and sends only within test accounts (send-message does the same)
 let nudged = false;   // the 'tick a box' hint turns orange only after someone tries to send without one
 let eb: EboardSets = { now: new Set(), ever: new Set() };   // e-board this semester / in any semester (the E-BOARD row)
@@ -37,28 +38,42 @@ async function fn(mode: string, messageId?: number, extra: Record<string, unknow
     return { ok: r.ok, status: r.status, body: await r.json().catch(() => ({})) };
   } catch { return { ok: false, status: 0, body: { error: 'Couldn’t reach the sending service. Check your connection.' } }; }
 }
-/* The delivery line under the title. Email always; texts only when they matter: they're deferred (2026-10-05, Bryan:
-   "remove … Twilio trial"), so a trial or missing keys stay out of the way until someone picks TEXT or BOTH, and only
-   then does the line say (in orange) that texts can't go out yet. Connected texts are always mentioned. */
+/** Delivery readiness comes from the sending service; never infer carrier approval from credentials. */
 function showDelivery() {
-  const el = $('#msg-delivery'); if (!el) return; if (deliveryUnknown) { el.textContent = 'Delivery status could not be checked. Reload to check again; your draft controls are still available.'; el.classList.add('is-warn'); return; } if (!delivery) return; const { email: e, text: t } = delivery;
-  const textsReady = t.configured && !t.trial && !t.error, wantsText = sendByNow() !== 'email';
-  el.classList.toggle('is-warn', !e.configured || e.testMode || (wantsText && !textsReady));
-  const mail = !e.configured ? 'Email isn’t connected yet. You can prepare a draft.'
-    : e.testMode ? `Email is in test mode: until usctroylabs.com is verified in Resend, it can only go to you (${e.testTo}).`
-    : `Email is connected: from ${e.from ?? 'TroyLabs'}, replies go to troylabs@usc.edu.`;
-  const text = textsReady ? ` Texts are connected: from ${prettyPhone(t.from)}. Group texts go out 8 AM–9 PM Pacific.`
-    : wantsText ? ' Texts aren’t switched on yet, so they can’t go out: pick EMAIL to reach people now.' : '';
-  el.textContent = `${mail}${text}${wantsText && !textsReady ? ' Save a draft while texts are pending.' : ''}`;
+  const el = $('#msg-delivery'); if (!el) return;
+  if (deliveryUnknown) { el.textContent = 'Text delivery status could not be checked. You can still prepare and save drafts.'; el.classList.add('is-warn'); return; }
+  if (!delivery) return;
+  const t = delivery.text, ready = t.configured && !t.trial && !t.error;
+  el.classList.toggle('is-warn', !ready);
+  el.textContent = ready ? `Texts use ${prettyPhone(t.from)}. Audience sends go out 8 AM–9 PM Pacific.` : 'Text delivery is not ready yet. Prepare your message and save a draft while setup is pending.';
+}
+let audienceMode: 'groups' | 'people' = 'groups';
+let selectedPeople = new Set<string>();
+const hasSelection = (a: Audience) => a.mode === 'people' ? Boolean(a.profile_ids?.length) : Boolean(a.cells.length);
+function setAudienceMode(mode: 'groups' | 'people') {
+  audienceMode = mode;
+  document.querySelectorAll<HTMLElement>('[data-audience-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.audienceMode === mode)));
+  $('[data-groups-panel]')!.hidden = mode !== 'groups'; $('[data-people-panel]')!.hidden = mode !== 'people';
+  renderPeople(); summary();
+}
+function matchingPeople() {
+  const q = ($<HTMLInputElement>('#mc-person-search')?.value ?? '').trim().toLowerCase();
+  return people.filter(p => p.approved && (!q || `${p.full_name} ${p.phone ?? ''} ${prettyPhone(p.phone)}`.toLowerCase().includes(q))).sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''));
+}
+function renderPeople() {
+  const list = $('[data-people-list]'); if (!list) return;
+  const rows = matchingPeople(); $('[data-people-count]')!.textContent = `${rows.length} members · ${selectedPeople.size} selected`;
+  list.innerHTML = rows.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}><span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
 }
 
 /** what the grid and the narrowing chips say right now */
 function picked(): Audience {
+  if (audienceMode === 'people') return cleanAudience({ mode: 'people', profile_ids: [...selectedPeople], cells: [] });
   const cells = [...document.querySelectorAll<HTMLElement>('[data-aud-grid] .portal-chip[aria-pressed="true"]')].map((c) => ({ group: c.dataset.group as Group, who: c.dataset.who as Cell['who'] }));
   const chips = (sel: string) => [...document.querySelectorAll<HTMLElement>(`${sel} .portal-chip[aria-pressed="true"]`)].map((c) => c.dataset.value ?? c.textContent!.replace(/^✓\s*/, '').trim());
   return cleanAudience({ cells, cohort: chips('[data-cohorts]'), industries: chips('[data-aud-industries]') });
 }
-const sendByNow = () => $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
+const sendByNow = () => 'text';
 const audience = () => { const aud = picked(), sendBy = sendByNow(); return { aud, sendBy, ...reach(aud, sendBy) }; };
 const emailOf = (p: ProfileRow) => (p.personal_email || p.usc_email || '').trim().toLowerCase();
 const byEmail = (p: ProfileRow) => Boolean(emailOf(p) && p.email_opt_in !== false);
@@ -75,10 +90,9 @@ const howMany = (n: number, what = 'person') => `${n.toLocaleString()} ${n === 1
 const reachText = (a: { sendBy: string; emails: unknown[]; texts: unknown[] }) => a.sendBy === 'email' ? `by email to ${howMany(a.emails.length)}` : a.sendBy === 'text' ? `by text to ${howMany(a.texts.length)}` : `by email to ${howMany(a.emails.length)} and by text to ${howMany(a.texts.length)}`;
 /** the live text counter under the body: what the text will look like in length and cost */
 function smsCount() {
-  showDelivery(); showTestTarget();   // the delivery line mentions texts only while TEXT or BOTH is picked
-  const subj = $('[data-subject-field]'); if (subj) subj.hidden = sendByNow() === 'text';   // texts have no subject
+  showDelivery(); showTestTarget();
   const out = $('#mc-sms'); if (!out) return;
-  const sendBy = $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
+  const sendBy = sendByNow();
   const body = ($('#mc-body') as HTMLTextAreaElement).value;
   out.hidden = sendBy === 'email' || !body.trim();
   const prev = $('[data-sms-preview]'); if (prev) prev.hidden = out.hidden;
@@ -108,42 +122,42 @@ function renderGrid() {
 }
 function summary() {
   const out = $('[data-aud-summary]'); if (!out) return; const a = audience();
-  out.style.color = !a.aud.cells.length && nudged ? 'var(--color-orange)' : 'var(--color-muted)';
-  out.textContent = !a.aud.cells.length ? 'Tick the groups who should get it. Nothing goes to anyone until you do.'
-    : `Sending to ${describeAudience(a.aud)}: ${howMany(a.who.length)} (${reachText(a)}). Everyone gets it once, even if they're in several groups.`;
-  const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = a.aud.cells.length ? `${howMany(a.who.length)} selected · ${reachText(a)}.` : 'Choose an audience above.';
+  const base = people.filter(p => p.approved && inAudience(p, a.aud, eb));
+  out.textContent = hasSelection(a.aud) ? `${base.length} members selected · ${a.texts.length} text recipients` : 'Choose groups or specific people.';
+  const desc = $('[data-aud-description]'); if (desc) desc.textContent = hasSelection(a.aud) ? `${describeAudience(a.aud)}. ${base.length - a.texts.length ? `${base.length - a.texts.length} without a separate text; see the list below.` : 'Each phone receives one text.'}` : 'Only members with texts turned on will receive.';
+  const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = hasSelection(a.aud) ? `${a.texts.length} texts to ${describeAudience(a.aud)}. Review the recipient list above before sending.` : 'Choose recipients above.';
   renderWho(a);
 }
 /** the people the ticked boxes add up to, by name, with how each is reached; and who in the group won't get it, and why */
 function renderWho(a: ReturnType<typeof audience>) {
   const box = $('[data-who-list]'), list = $('[data-who-items]'), head = $('[data-who-head]'); if (!box || !list || !head) return;
-  box.hidden = !a.aud.cells.length; if (box.hidden) return;
+  box.hidden = !hasSelection(a.aud); if (box.hidden) return;
   const name = (p: ProfileRow) => p.full_name || '(no name yet)'; const byName = (x: ProfileRow, y: ProfileRow) => name(x).localeCompare(name(y));
   const inGroup = people.filter((p) => p.approved && inAudience(p, a.aud, eb)); const missed = inGroup.filter((p) => !a.who.includes(p)).sort(byName);
   const noText = (p: ProfileRow) => byText(p) ? 'shared phone; text sent once' : p.phone ? 'texts off' : 'no number';
   const noMail = (p: ProfileRow) => byEmail(p) ? 'shared email; email sent once' : emailOf(p) ? 'announcements off' : 'no email';
   const why = (p: ProfileRow) => a.sendBy === 'text' ? noText(p) : a.sendBy === 'email' ? noMail(p) : `${noText(p)}, ${noMail(p)}`;
-  head.textContent = `WHO GETS IT · ${a.who.length.toLocaleString()}`;
-  list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${[a.emails.includes(p) && 'EMAIL', a.texts.includes(p) && 'TEXT'].filter(Boolean).join(' + ')}</span></li>`).join('')
-    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">No separate delivery (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
+  head.textContent = `REVIEW RECIPIENTS · ${a.who.length.toLocaleString()} texts`;
+  list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${esc(prettyPhone(p.phone))}</span></li>`).join('')
+    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">Excluded or shared numbers (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
     + (!a.who.length && !missed.length ? '<li class="text-muted">Nobody is in these groups yet.</li>' : '');
 }
 /* Templates (Bryan, 2026-10-06: "a formatting already for the text messages"): fill the composer; anything in [brackets]
    is for the admin to replace, and nothing sends while a [placeholder] is left. Each text goes out as "TroyLabs: …",
    then the event line and RSVP link when event details are filled in, then "Reply STOP to opt out." */
-type Template = { label: string; title: string; body: string; audience?: Audience; event?: boolean };   // a template keeps whichever of EMAIL / TEXT is picked (no BOTH since 2026-10-08, Bryan: one channel per message)
+type Template = { label: string; body: string; event?: boolean };
 const TEMPLATES: Template[] = [
-  { label: 'EVENT INVITE', title: 'Invite: [Event name]', body: "You're invited to [Event name]! [One line on why to come]. RSVP below.", event: true },
-  { label: 'EVENT REMINDER', title: 'Reminder: [Event name] tomorrow', body: 'Reminder: [Event name] is tomorrow at [Time], [Location]. See you there!' },
-  { label: 'ANNOUNCEMENT', title: '[Announcement subject]', body: '[Your news in one or two sentences]. More at usctroylabs.com' },
-  { label: 'WELCOME TO THE NETWORK', title: 'Welcome to the TL Alumni Network', body: 'Welcome to the TL Alumni Network! Find TroyLabs members and alumni by company, city or industry at usctroylabs.com/alumni-portal', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] } },
+  { label: 'EVENT INVITE', body: "You're invited to [Event name]! [One line on why to come]. RSVP below.", event: true },
+  { label: 'EVENT REMINDER', body: 'Reminder: [Event name] is tomorrow at [Time], [Location]. See you there!' },
+  { label: 'ANNOUNCEMENT', body: '[Your news in one or two sentences]. More at usctroylabs.com' },
+
 ];
 function useTemplate(t: Template) {
   editing = null; setWhen(null); composerState();
-  ($('#mc-title') as HTMLInputElement).value = t.title; ($('#mc-body') as HTMLTextAreaElement).value = t.body;
+  document.querySelectorAll<HTMLElement>('[data-template]').forEach(b => b.setAttribute('aria-pressed', String(TEMPLATES[Number(b.dataset.template)] === t)));
+  ($('#mc-body') as HTMLTextAreaElement).value = t.body;
   for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = '';
   if (t.event) { ($('#mc-ev-name') as HTMLInputElement).value = '[Event name]'; ($('#mc-ev-where') as HTMLInputElement).value = '[Location]'; const d = document.querySelector<HTMLDetailsElement>('details[data-fold]'); if (d) d.open = true; }
-  if (t.audience) setPicked(t.audience);
   smsCount(); summary(); fb(`Loaded the ${t.label.toLowerCase()} template. Replace everything in [brackets], pick who gets it, then send yourself a test.`);
 }
 /** a [placeholder] left from a template: nothing sends (or schedules) until it's filled in */
@@ -155,48 +169,27 @@ function renderMessages() {
     const sentTo = rcpts.filter((r) => r.message_id === m.id); const named = (r: Rcpt) => people.find((p) => p.id === r.profile_id)?.full_name || '(no name)';
     const ok = (c: string) => sentTo.filter((r) => r.channel === c && r.delivered_at && r.status !== 'undelivered' && r.status !== 'failed').length;
     const lost = sentTo.filter((r) => r.error).length;
-    const reached = m.state === 'sent' ? [ok('email') && howMany(ok('email'), 'email'), ok('text') && howMany(ok('text'), 'text')].filter(Boolean).join(' + ') + ` sent${lost ? ` · ${lost.toLocaleString()} failed` : ''}` : `${who.length.toLocaleString()} will receive`;
+    const reached = m.state === 'sent' ? `${ok('email') + ok('text')} sent · ${sentTo.filter(r => r.status === 'delivered').length} confirmed delivered${lost ? ` · ${lost} failed` : ''}` : `${who.length.toLocaleString()} eligible now`;
     const when = m.state === 'sent' && m.sent_at ? `Sent ${new Date(m.sent_at).toLocaleString()}` : m.state === 'scheduled' && m.scheduled_for ? `Sends ${new Date(m.scheduled_for).toLocaleString()}` : `Edited ${new Date(m.updated_at).toLocaleDateString()}`;
     return `<li data-state="${m.state}" data-id="${m.id}" style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))"${tab !== 'all' && tab !== m.state ? ' hidden' : ''}>
-      <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' || m.state === 'sending' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title || '(untitled)')}</span><span class="t-fine text-muted">${when}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
+      <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' || m.state === 'sending' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title || '(untitled)')}</span><span class="t-fine text-muted">${when}${m.send_by !== 'text' ? ' · Older email record' : ''}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
       <p class="m-0 t-fine text-muted" style="max-width:calc(620 * var(--u))">${esc(m.body.slice(0, 140))}${m.body.length > 140 ? '…' : ''}</p>
       <div class="flex items-center" style="gap:calc(16 * var(--u))"><span class="t-fine text-muted">To: ${esc(describeAudience(cleanAudience(m.audience)))} · ${reached}</span><span style="flex:1"></span>
-        ${['draft', 'scheduled'].includes(m.state) ? `<button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-edit="${m.id}">EDIT</button>` : ''}
+        ${['draft', 'scheduled'].includes(m.state) && m.send_by === 'text' ? `<button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-edit="${m.id}">EDIT</button>` : ''}
         ${m.state === 'scheduled' ? `<button type="button" class="t-label portal-linklike" data-cancel="${m.id}">CANCEL</button>` : ''}
-        <button type="button" class="t-label portal-linklike" data-recipients-for="${m.id}">${m.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT'}</button>
+        <button type="button" class="t-label portal-linklike" data-recipients-for="${m.id}">${m.state === 'sent' ? 'RECIPIENTS & STATUS' : 'REVIEW RECIPIENTS'}</button>
         ${m.state === 'draft' ? `<button type="button" class="t-label portal-linklike" data-del="${m.id}">DELETE</button>` : ''}</div>
       ${m.last_error && m.state !== 'sent' ? `<p class="m-0 t-fine portal-msg-error">Not sent: ${esc(m.last_error)}</p>` : m.last_error ? `<p class="m-0 t-fine portal-msg-error">${esc(m.last_error)}</p>` : ''}
       <ul class="portal-row-list t-fine portal-recipients" hidden>${m.state === 'sent'
-        ? sentTo.map((r) => `<li><span>${esc(named(r))} · ${r.channel === 'text' ? `text ${esc(prettyPhone(r.phone))}` : esc(r.email ?? '')}</span><span class="${r.error ? 'portal-msg-error' : 'text-muted'}" title="${esc(r.error ?? '')}">${r.error ? `FAILED: ${esc(r.error)}` : r.status === 'delivered' ? 'DELIVERED' : r.delivered_at ? 'SENT' : '—'}</span></li>`).join('') || '<li class="text-muted">No recipients recorded.</li>'
+        ? sentTo.map((r) => `<li><span>${esc(named(r))} · ${r.channel === 'text' ? `text ${esc(prettyPhone(r.phone))}` : esc(r.email ?? '')}</span><span class="${r.error ? 'portal-msg-error' : 'text-muted'}" title="${esc(r.error ?? '')}">${r.error ? `FAILED: ${esc(r.error)}` : r.status === 'delivered' ? 'DELIVERED' : (r.status || (r.delivered_at ? 'SENT' : 'PENDING')).toUpperCase()}</span></li>`).join('') || '<li class="text-muted">No recipients recorded.</li>'
         : who.map((p) => `<li><span>${esc(p.full_name || '(no name)')} · ${[r0.emails.includes(p) && esc(p.personal_email || p.usc_email || ''), r0.texts.includes(p) && `text ${esc(prettyPhone(p.phone))}`].filter(Boolean).join(' · ')}</span></li>`).join('') || `<li class="text-muted">Nobody matches right now${m.send_by !== 'email' ? ' (texts go only to people who opted in)' : ''}.</li>`}</ul>
-    </li>`; }).join('') : messages.some(m => m.state !== 'cancelled') ? '<li class="t-fine text-muted">No messages in this view yet.</li>' : examples(tab);
-}
-/* Examples (Bryan, 2026-10-02: "put some mock ones, I want to see how they look"): shown only while there are no real
-   messages, each tagged EXAMPLE, with made-up people. They show every state a real message goes through. */
-type Example = { state: 'sent' | 'scheduled' | 'draft'; title: string; body: string; send_by: string; audience: Audience; days: number; reach: string; people: [string, string, string][] };
-const EXAMPLES: Example[] = [
-  { state: 'scheduled', title: 'One week until DEMO 2026', body: 'DEMO is a week from today at Bovard. Alumni get in free and we save you a seat up front. RSVP so we know how many to expect.', send_by: 'email', audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] }, days: 11, reach: '186 will receive', people: [] },
-  { state: 'sent', title: 'DEMO 2026: save the date', body: 'Mark your calendars: DEMO, SoCal’s largest student-run entrepreneurship conference, is on October 20. Founders, investors, and every TroyLabs cohort in one room.', send_by: 'text', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, days: -3, reach: '158 texts sent · 2 failed',
-    people: [['Maya Chen', 'maya.chen@example.com', 'DELIVERED'], ['Jordan Park', 'text (310) 555-0142', 'DELIVERED'], ['Sam Rivera', 'sam@example.com', 'SENT'], ['Alex Kim', 'text (213) 555-0199', 'FAILED: the carrier filtered it as spam'], ['Priya Patel', 'priya@example.com', 'FAILED: the address bounced']] },
-  { state: 'draft', title: 'Looking for BUILD mentors', body: 'This semester’s BUILD teams are looking for alumni mentors in product and engineering. An hour every two weeks, on your schedule. Reply if you’re in.', send_by: 'email', audience: { cells: [{ group: 'BUILD', who: 'alumni' }, { group: 'TECH', who: 'alumni' }, { group: 'PRODUCT MANAGEMENT', who: 'alumni' }] }, days: -1, reach: '64 will receive', people: [] },
-  { state: 'sent', title: 'Welcome to the Fall 2026 e-board', body: 'Welcome aboard! Our first e-board meeting is Thursday at 7 PM in the Iovine and Young Hall commons.', send_by: 'email', audience: { cells: [{ group: 'E-BOARD', who: 'current' }] }, days: -12, reach: '14 emails sent', people: [['Taylor Brooks', 'taylor@example.com', 'DELIVERED'], ['Chris Nguyen', 'chris@example.com', 'DELIVERED']] },
-];
-function examples(tab: string) {
-  const day = (d: number) => { const t = new Date(); t.setDate(t.getDate() + d); t.setHours(10, 0, 0, 0); return t.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
-  return `<li class="t-fine text-muted portal-msg-examples" data-msg-empty>No messages yet. These four are <span class="text-ink">examples</span>, so you can see how drafts, scheduled and sent messages look here. They go away once you save your first message.</li>` + EXAMPLES.map((m, i) => `<li data-state="${m.state}" data-example="${i}" class="portal-msg-example" style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))"${tab !== 'all' && tab !== m.state ? ' hidden' : ''}>
-      <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag portal-tag-example">EXAMPLE</span><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title)}</span><span class="t-fine text-muted">${m.state === 'sent' ? `Sent ${day(m.days)}` : m.state === 'scheduled' ? `Sends ${day(m.days)}` : `Edited ${day(m.days)}`}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
-      <p class="m-0 t-fine text-muted" style="max-width:calc(620 * var(--u))">${esc(m.body.slice(0, 140))}${m.body.length > 140 ? '…' : ''}</p>
-      <div class="flex items-center" style="gap:calc(16 * var(--u))"><span class="t-fine text-muted">To: ${esc(describeAudience(m.audience))} · ${esc(m.reach)}</span><span style="flex:1"></span>
-        <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-example-use="${i}">USE AS A STARTING POINT</button>
-        ${m.people.length ? `<button type="button" class="t-label portal-linklike" data-recipients-for="ex${i}">WHO GOT IT</button>` : ''}</div>
-      ${m.people.length ? `<ul class="portal-row-list t-fine portal-recipients" hidden>${m.people.map(([n, to, st]) => `<li><span>${esc(n)} · ${esc(to)}</span><span class="${st.startsWith('FAILED') ? 'portal-msg-error' : 'text-muted'}">${esc(st)}</span></li>`).join('')}<li class="text-muted">…and the rest of the list, each with what happened.</li></ul>` : ''}
-    </li>`).join('');
+    </li>`; }).join('') : messages.some(m => m.state !== 'cancelled') ? '<li class="t-fine text-muted">No messages in this view yet.</li>' : '<li class="msg-empty t-caption text-muted" data-msg-empty>No messages yet. Saved drafts, scheduled texts and sent messages will appear here.</li>';
 }
 /** texts have no subject (Bryan, 2026-10-08): a TEXT-only message is named in the history by the start of its body */
 const nameFromBody = (body: string) => { const b = body.replace(/\s+/g, ' ').trim(); if (b.length <= 60) return b; const cut = b.slice(0, 60); return `${cut.slice(0, cut.lastIndexOf(' ') > 30 ? cut.lastIndexOf(' ') : 60)}…`; };
-const subjectOf = () => sendByNow() === 'text' ? nameFromBody(($('#mc-body') as HTMLTextAreaElement).value) : ($('#mc-title') as HTMLInputElement).value.trim();
-/** what's missing before a send or a schedule: a subject for email, just the message for a text */
-const needsFirst = () => sendByNow() === 'text' ? (($('#mc-body') as HTMLTextAreaElement).value.trim() ? null : 'Write the message first.') : (subjectOf() ? null : 'Add a subject first.');
+const subjectOf = () => nameFromBody(($('#mc-body') as HTMLTextAreaElement).value);
+const needsFirst = () => ($('#mc-body') as HTMLTextAreaElement).value.trim() ? null : 'Write the message first.';
+
 const compose = () => ({ title: subjectOf(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
 function setWhen(iso: string | null) {
   const input = $<HTMLInputElement>('#mc-when'); if (!input) return;
@@ -205,21 +198,26 @@ function setWhen(iso: string | null) {
   document.querySelectorAll<HTMLElement>('[data-when] .portal-chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.value === (iso ? 'later' : 'now'))));
   const at = $('[data-when-at]'), button = $('[data-send-btn]'); if (at) at.hidden = !iso; if (button) button.textContent = iso ? 'SCHEDULE' : 'SEND NOW';
 }
+function resetComposer() {
+  editing = null; setWhen(null); composerState();
+  for (const el of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#mc-body, #mc-ev-name, #mc-ev-when, #mc-ev-where, #mc-ev-rsvp, #mc-person-search')) el.value = '';
+  document.querySelectorAll<HTMLElement>('[data-template]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach(d => { d.open = false; });
+  setPicked({cells:[]}); smsCount();
+}
 function composerState() {
   const state = $('[data-compose-state]'); if (state) state.textContent = editing ? 'Editing saved message' : 'New message';
 }
 function showTestTarget() {
   const target = $('[data-test-target]'); if (!target || !viewer) return;
-  const own = people.find(p => p.id === viewer!.id); const channel = sendByNow();
-  const parts = [];
-  if (channel !== 'text') parts.push(`Email: ${own?.personal_email || own?.usc_email || viewer.email || 'Add an email on your profile'}`);
-  if (channel !== 'email') parts.push(`Text: ${own?.phone ? prettyPhone(own.phone) : 'Add your phone on your profile'}`);
-  target.textContent = parts.join(' · ');
+  const own = people.find(p => p.id === viewer!.id);
+  target.textContent = `Text: ${own?.phone ? prettyPhone(own.phone) : 'Add your phone on your profile'}`;
 }
 function loadIntoComposer(m: Msg) {
-  editing = m.id; ($('#mc-title') as HTMLInputElement).value = m.title; ($('#mc-body') as HTMLTextAreaElement).value = m.body;
+  if (m.send_by !== 'text') { fb('This is an older email record. New messages are text-only.', false); return; }
+  editing = m.id; ($('#mc-body') as HTMLTextAreaElement).value = m.body;
   ($('#mc-ev-name') as HTMLInputElement).value = m.event?.name ?? ''; ($('#mc-ev-when') as HTMLInputElement).value = m.event?.when ?? ''; ($('#mc-ev-where') as HTMLInputElement).value = m.event?.where ?? ''; ($('#mc-ev-rsvp') as HTMLInputElement).value = m.event?.rsvp ?? '';
-  document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === (m.send_by === 'text' ? 'text' : 'email'))));   // an old BOTH message opens as email
+
   setPicked(cleanAudience(m.audience));
   setWhen(m.scheduled_for); composerState();
   const a = cleanAudience(m.audience); document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { if ((d.querySelector('#mc-ev-name') && m.event) || (d.classList.contains('portal-or') && (a.cohort?.length || a.industries?.length))) d.open = true; });
@@ -227,6 +225,8 @@ function loadIntoComposer(m: Msg) {
 }
 /** put an audience back on the grid (EDIT, NEW DRAFT) */
 function setPicked(a: Audience) {
+  selectedPeople = new Set(a.profile_ids ?? []);
+  setAudienceMode(a.mode === 'people' ? 'people' : 'groups');
   for (const c of document.querySelectorAll<HTMLElement>('[data-aud-grid] .portal-chip')) c.setAttribute('aria-pressed', String(a.cells.some((x) => x.group === c.dataset.group && x.who === c.dataset.who)));
   for (const c of document.querySelectorAll<HTMLElement>('[data-cohorts] .portal-chip')) c.setAttribute('aria-pressed', String((a.cohort ?? []).includes(c.textContent!.replace(/^✓\s*/, '').trim())));
   for (const c of document.querySelectorAll<HTMLElement>('[data-aud-industries] .portal-chip')) c.setAttribute('aria-pressed', String((a.industries ?? []).includes(c.textContent!.replace(/^✓\s*/, '').trim())));
@@ -234,26 +234,29 @@ function setPicked(a: Audience) {
 }
 /** write the composer to the database (new or the one being edited) and return its id */
 async function persist(state: 'draft' | 'scheduled'): Promise<{ id: number; who: number } | { error: string }> {
+  const form = document.querySelector('.msg-compose');
   const c = compose(); if (!c.body) return { error: 'Write the message first.' };
   if (state === 'scheduled') { if (!c.title) return { error: 'Add a subject first.' }; const ph = leftover(); if (ph) return { error: `Fill in ${ph} first. It's still the template's placeholder.` }; }
-  const a = audience(); if (state === 'scheduled' && !a.aud.cells.length) { nudged = true; summary(); return { error: 'Pick who gets it first: tick at least one box under Who gets it.' }; }   // a draft can wait for its audience
+  const a = audience(); if (state === 'scheduled' && !hasSelection(a.aud)) { nudged = true; summary(); return { error: 'Choose at least one group or specific person first.' }; }   // a draft can wait for its audience
   if (state === 'scheduled' && !a.who.length) return { error: 'Nobody in this audience can be reached that way. Check your groups and filters.' };
-  if (state === 'scheduled' && a.sendBy !== 'email' && smsBody(c.body, c.event).length > SMS_MAX) return { error: `Too long for a text. Shorten the message to ${SMS_MAX} characters or send it by email.` };
+  if (state === 'scheduled' && a.sendBy !== 'email' && smsBody(c.body, c.event).length > SMS_MAX) return { error: `Too long for a text. Shorten the message to ${SMS_MAX} characters and try again.` };
   const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
   if (state === 'scheduled' && later && !at) return { error: 'Pick a date and time to schedule it.' };
   if (state === 'scheduled' && at && (!Number.isFinite(new Date(at).getTime()) || new Date(at).getTime() <= Date.now())) return { error: 'That time has already passed. Pick a time in the future, or choose SEND NOW.' };
-  if (state === 'scheduled' && later && at && a.sendBy !== 'email') { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(at))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a time in that window, or send it by email.' }; }
+  if (state === 'scheduled' && later && at && a.sendBy !== 'email') { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(at))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a time in that window, and try again.' }; }
   const row = { ...c, send_by: a.sendBy, audience: a.aud, channel_id: null, filters: {}, state, scheduled_for: state === 'scheduled' ? (later && at ? new Date(at).toISOString() : new Date().toISOString()) : null, last_error: null };
   const sb = supabase(); const res = editing ? await sb.from('messages').update(row).eq('id', editing).in('state', ['draft', 'scheduled']).select().single() : await sb.from('messages').insert(row).select().single();
   if (res.error) return { error: editing && res.error.code === 'PGRST116' ? 'This message is no longer editable. Reload to see its current status, or press NEW DRAFT.' : res.error.message };
-  editing = res.data.id; composerState(); return { id: res.data.id, who: a.who.length };
+  if (form?.isConnected) { editing = res.data.id; composerState(); } return { id: res.data.id, who: a.who.length };
 }
 const busy = async (btn: HTMLElement, work: () => Promise<void>) => {
   if (actionBusy || !dataReady) return;
+  const generation = pageGeneration;
   actionBusy = true; btn.setAttribute('aria-busy', 'true');
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.portal-messaging button')];
+  const buttons = [...document.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement>('.portal-messaging button, .portal-messaging input, .portal-messaging textarea')];
   const disabled = buttons.map(b => b.disabled); buttons.forEach(b => { b.disabled = true; });
   try { await work(); } finally {
+    if (generation !== pageGeneration) return;
     actionBusy = false; btn.removeAttribute('aria-busy');
     buttons.forEach((b, i) => { if (b.isConnected) b.disabled = disabled[i]; });
     if (!dataReady) setDataActions(false);
@@ -265,10 +268,10 @@ function setDataActions(ready: boolean) {
 const done = (btn: HTMLElement, text: string) => { const o = btn.textContent; btn.classList.add('is-done'); btn.textContent = text; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = o; }, 1600); };
 async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
   await busy(btn, async () => {
-    const r = await persist(state); if ('error' in r) { fb(r.error, false); return; }
+    const r = await persist(state); if (!btn.isConnected) return; if ('error' in r) { fb(r.error, false); return; }
     const at = ($('#mc-when') as HTMLInputElement).value;
-    done(btn, state === 'draft' ? 'SAVED' : 'SCHEDULED');
     fb(state === 'draft' ? 'Saved as a draft. It’s in the list below.' : `Scheduled for ${new Date(at).toLocaleString()} to ${howMany(r.who)}. It sends by itself within five minutes of that time.`);
+    resetComposer();
     await load();
   });
 }
@@ -279,9 +282,9 @@ async function testSend(btn: HTMLElement) {
     // Testing a saved schedule must not silently cancel it. Test an independent draft.
     const scheduled = messages.find(m => m.id === editing && m.state === 'scheduled');
     if (scheduled) editing = null;
-    const r = await persist('draft'); if ('error' in r) { if (scheduled) editing = scheduled.id; composerState(); fb(r.error, false); return; }
+    const r = await persist('draft'); if (!btn.isConnected) return; if ('error' in r) { if (scheduled) editing = scheduled.id; composerState(); fb(r.error, false); return; }
     fb('Sending you a test…');
-    const res = await fn('test', r.id); const got = [res.body.email && `an email to ${res.body.email} (check spam too)`, res.body.text && `a text to ${prettyPhone(res.body.text)}`].filter(Boolean).join(' and ');
+    const res = await fn('test', r.id); if (!btn.isConnected) return; const got = [res.body.email && `an email to ${res.body.email} (check spam too)`, res.body.text && `a text to ${prettyPhone(res.body.text)}`].filter(Boolean).join(' and ');
     if (res.ok) { done(btn, 'SENT'); fb(`Test sent: ${got}. ${scheduled ? 'Test copy saved as a draft; the original schedule is unchanged.' : "It's saved as a draft."}`); } else fb(`${got ? `Sent ${got}. ` : ''}${res.body.error ?? 'The test didn’t send.'}`, false);
     await load();
   });
@@ -293,14 +296,14 @@ async function sendNow(btn: HTMLElement) {
     { const need = needsFirst(); if (need) { fb(need, false); return; } } const title = subjectOf();
     const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
     const a = audience();
-    if (!a.aud.cells.length) { nudged = true; summary(); fb('Pick who gets it first: tick at least one box under Who gets it.', false); return; }
+    if (!hasSelection(a.aud)) { nudged = true; summary(); fb('Choose at least one group or specific person first.', false); return; }
     if (!a.who.length) { fb(a.sendBy === 'email' ? 'Nobody matches this audience (or everyone in it has turned announcements off).' : 'Nobody in this audience can be reached that way. Texts go only to people who added a number and opted in.', false); return; }
-    if (a.sendBy !== 'email') { const sms = smsBody(compose().body, compose().event); if (sms.length > SMS_MAX) { fb(`Too long for a text: ${sms.length} of ${SMS_MAX} characters. Shorten it, or send it by email.`, false); return; } }
+    if (a.sendBy !== 'email') { const sms = smsBody(compose().body, compose().event); if (sms.length > SMS_MAX) { fb(`Too long for a text: ${sms.length} of ${SMS_MAX} characters. Shorten it, and try again.`, false); return; } }
     if (!confirm(`Send “${title}” ${reachText(a)} now? This can’t be unsent.`)) return;
-    const r = await persist('draft'); if ('error' in r) { fb(r.error, false); return; }
+    const r = await persist('draft'); if (!btn.isConnected) return; if ('error' in r) { fb(r.error, false); return; }
     fb('Sending…');
-    const res = await fn('send', r.id);
-    if (res.ok) { done(btn, 'SENT'); editing = null; fb(`Sent ${howMany(res.body.sent, 'message')}.${res.body.failed ? ` ${res.body.failed} failed: ${res.body.error}` : ''} It’s in the list below with who got it.`); }
+    const res = await fn('send', r.id); if (!btn.isConnected) return;
+    if (res.ok) { done(btn, 'SENT'); resetComposer(); fb(`Sent ${howMany(res.body.sent, 'message')}.${res.body.failed ? ` ${res.body.failed} failed: ${res.body.error}` : ''} It’s in the list below with who got it.`); }
     else fb(res.body.error ?? 'It didn’t send.', false);
     await load();
   });
@@ -326,7 +329,7 @@ async function load() {
   messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
   eb = { now: new Set(roles.filter(x => x.term === now.term && x.year === now.year).map(x => x.profile_id)), ever: new Set(roles.map(x => x.profile_id)) };
-  renderCohorts(); renderGrid(); renderMessages(); smsCount(); void backlog();
+  renderCohorts(); renderPeople(); renderGrid(); renderMessages(); smsCount(); void backlog();
   return true;
 }
 /** members who turned texts on before texts were connected never got the welcome: list them, and send it once */
@@ -342,10 +345,12 @@ async function backlog() {
 }
 async function init() {
   const list = $('[data-msg-list]'); if (!list || list.dataset.wired) return; list.dataset.wired = '1';
+  pageGeneration++;
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
   // Keep optional details available without burying the sending controls.
   document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = false; });
-  editing = null; delivery = null; deliveryUnknown = false; dataReady = false; actionBusy = false;
+  audienceMode = 'groups'; selectedPeople.clear();
+  editing = null; delivery = null; deliveryUnknown = false; dataReady = false; actionBusy = false; nudged = false;
   // the action buttons wake up once the page has its data (a click during loading used to do nothing)
   const actions = [...document.querySelectorAll<HTMLButtonElement>('[data-action="preview"], [data-action="draft"], [data-action="test-send"], [data-action="send"]')];
   actions.forEach((b) => { b.disabled = true; });
@@ -355,17 +360,19 @@ async function init() {
   setDataActions(dataReady);
   void fn('status').then((res) => { if (!list.isConnected) return; deliveryUnknown = !res.ok; delivery = res.ok ? res.body : null; showDelivery(); showTestTarget(); void backlog(); });
   const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
-  document.querySelector('.portal-panels form')?.addEventListener('input', smsCount);
+  document.querySelector('.portal-panels form')?.addEventListener('input', () => { smsCount(); const note = $('#msg-fb'); if (note?.textContent?.startsWith('Loaded the ')) note.textContent = ''; });
+  $('#mc-person-search')?.addEventListener('input', renderPeople);
+  $('[data-people-list]')?.addEventListener('change', e => { const input = e.target as HTMLInputElement; const id = input.dataset.personId; if (!id || actionBusy) return; input.checked ? selectedPeople.add(id) : selectedPeople.delete(id); $('[data-people-count]')!.textContent = `${matchingPeople().length} members · ${selectedPeople.size} selected`; summary(); });
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
-    if (b.closest('[data-single]:not([data-when])')) setTimeout(() => { smsCount(); summary(); }, 0);   // EMAIL / TEXT / BOTH changed
+    if (b.dataset.audienceMode) { setAudienceMode(b.dataset.audienceMode as 'groups' | 'people'); return; }
+    if (b.dataset.action === 'clear-audience') { setPicked({cells:[], ...(audienceMode === 'people' ? {mode:'people' as const,profile_ids:[]} : {})}); return; }
+    if (b.dataset.action === 'select-people') { matchingPeople().forEach(p => selectedPeople.add(p.id)); renderPeople(); summary(); return; }
     if (b.closest('[data-aud-grid], [data-aud-industries]')) setTimeout(summary, 0);   // the shared script flips these chips; read them after
-    if (b.dataset.action === 'preview') { e.preventDefault(); const a = audience(); const details = $<HTMLDetailsElement>('[data-who-list]'); if (details && a.aud.cells.length) { details.open = true; details.scrollIntoView({ block: 'nearest' }); } fb(a.aud.cells.length ? `This would go ${reachText(a)} (${describeAudience(a.aud)}).${a.sendBy !== 'email' ? ' Texts go only to people who added a number and opted in.' : ''}` : 'Tick at least one box under Who gets it.', Boolean(a.aud.cells.length)); }
-    else if (b.dataset.action === 'new-draft') { editing = null; setWhen(null); composerState(); for (const el of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#mc-title, #mc-body, #mc-ev-name, #mc-ev-when, #mc-ev-where, #mc-ev-rsvp')) el.value = ''; setPicked({ cells: [] }); smsCount(); fb('New draft.'); $('#mc-title')?.focus(); }
+    if (b.dataset.action === 'new-draft') { resetComposer(); fb('New draft.'); $('#mc-body')?.focus(); }
     else if (b.dataset.action === 'draft') { e.preventDefault(); await save('draft', b); }
     else if (b.dataset.action === 'send') { e.preventDefault(); await sendNow(b); }
     else if (b.dataset.action === 'test-send') { e.preventDefault(); await testSend(b); }
-    else if (b.dataset.exampleUse) { const x = EXAMPLES[Number(b.dataset.exampleUse)]; editing = null; setWhen(null); composerState(); for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = ''; ($('#mc-title') as HTMLInputElement).value = x.title; ($('#mc-body') as HTMLTextAreaElement).value = x.body; document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === x.send_by))); setPicked(cleanAudience(x.audience)); smsCount(); document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Loaded the example “${x.title}” as a new draft. Change anything, then save, schedule or send.`); }
     else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); useTemplate(TEMPLATES[Number(b.dataset.template)]); }
     else if (b.hasAttribute('data-backlog-who')) { const ul = $('[data-backlog-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
     else if (b.hasAttribute('data-backlog-send')) {
@@ -376,7 +383,7 @@ async function init() {
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
     else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }
-    else if (b.dataset.recipientsFor) { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'WHO GOT IT' : 'WHO WILL GET IT') : 'HIDE'; }
+    else if (b.dataset.recipientsFor) { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'RECIPIENTS & STATUS' : 'REVIEW RECIPIENTS') : 'HIDE'; }
     else if (b.closest('[data-msg-tabs]')) setTimeout(renderMessages, 0);
     else if (b.closest('[data-cohorts]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); summary(); }   // filled in after load, so not bound by the shared script
   }, { capture: true });

@@ -67,3 +67,20 @@ assert.deepEqual(cleanAudience({ cells: [C('TECH', 'current'), C('TECH', 'curren
 assert.deepEqual(cleanAudience(undefined), { cells: [], cohort: [], industries: [] });
 assert.equal(describeAudience({ cells: [C('DESIGN', 'current'), C('DESIGN', 'alumni'), C('TECH', 'alumni'), C('E-BOARD', 'current')], cohort: ['FA21'] }), 'Current e-board; Tech alumni; Design (current + alumni) · only cohort FA21');
 console.log('PASS: saved audiences are cleaned; descriptions read plainly');
+
+const chosenId = 'abcdef00-0000-4000-8000-000000000001';
+const otherId = 'abcdef00-0000-4000-8000-000000000002';
+const chosen = m(chosenId, 'student', ['DESIGN']);
+const explicit = cleanAudience({ mode: 'people', profile_ids: [` ${chosenId.toUpperCase()} `, chosenId, otherId, null, 7, {}, 'not-an-id', `${chosenId},${otherId}`], cells: [C('EVERYONE', 'alumni')], cohort: ['SP19'], industries: ['AI'] });
+assert.deepEqual(explicit, { mode: 'people', profile_ids: [chosenId, otherId], cells: [] }, 'people mode normalizes UUIDs and discards stale group filters');
+assert.equal(inAudience(chosen, explicit, eb), true, 'explicit person does not need to match stale group filters');
+assert.equal(inAudience(m('abcdef00-0000-4000-8000-000000000003', 'alum', ['TECH']), explicit, eb), false, 'unselected person cannot match through a group');
+assert.equal(inAudience(chosen, cleanAudience({ mode: 'people', profile_ids: [], cells: [C('EVERYONE', 'current')] }), eb), false, 'empty selection never falls back to groups');
+for (const invalid of [undefined, null, chosenId, {}, [false, 'spoofed']]) assert.deepEqual(cleanAudience({ mode: 'people', profile_ids: invalid }), { mode: 'people', profile_ids: [], cells: [] });
+assert.equal(describeAudience(explicit), '2 selected people');
+assert.equal(describeAudience({ mode: 'people', profile_ids: [chosenId, chosenId], cells: [] }), '1 selected person');
+assert.equal(describeAudience({ mode: 'people', cells: [] }), 'nobody yet');
+assert.equal(run(cleanAudience({ mode: 'groups', profile_ids: [chosenId], cells: [C('TECH', 'current')] })), want(single.TECH[0]), 'explicit group mode remains compatible');
+assert.equal(run(cleanAudience({ profile_ids: [chosenId], cells: [] })), '', 'profile IDs never opt into people mode implicitly');
+assert.equal(run(cleanAudience({ mode: 'unknown', cells: [C('EVERYONE', 'current')] })), '', 'unknown mode fails closed');
+console.log('PASS: exclusive people mode, sanitized/deduplicated UUIDs, empty/malformed selections, plain descriptions, saved group compatibility');

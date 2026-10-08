@@ -11,14 +11,15 @@
  *   CURRENT   students (status student); for E-BOARD: holds an e-board role this semester
  *   ALUMNI    alumni (status alum);      for E-BOARD: an alum who held an e-board role in any semester
  *
- * No cells ticked means nobody (never "everyone by accident"). Approval, opt-outs and contact details are
+ * People mode selects only the supplied profile IDs; group cells and narrowing never expand that list.
+ * No cells ticked (or no people selected) means nobody. Approval, opt-outs and contact details are
  * applied after this, by channel (email / text), in the function and the page alike.
  */
 export const GROUPS = ['EVERYONE', 'E-BOARD', 'BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', 'TECH', 'MARKETING', 'DESIGN'] as const;
 export type Group = (typeof GROUPS)[number];
 export type Who = 'current' | 'alumni';
 export interface Cell { group: Group; who: Who }
-export interface Audience { cells: Cell[]; cohort?: string[]; industries?: string[] }
+export interface Audience { mode?: 'groups' | 'people'; profile_ids?: string[]; cells: Cell[]; cohort?: string[]; industries?: string[] }
 export interface Member { id: string; status: 'student' | 'alum' | string; join_term: string | null; join_year: number | null; divisions: string[] | null; industries: string[] | null }
 export interface EboardSets { now: Set<string>; ever: Set<string> }
 
@@ -32,6 +33,8 @@ export function inCell(p: Member, c: Cell, eb: EboardSets): boolean {
 }
 
 export function inAudience(p: Member, a: Audience | null | undefined, eb: EboardSets): boolean {
+  if (a?.mode === 'people') return (a.profile_ids ?? []).includes(p.id);
+  if (a?.mode && a.mode !== 'groups') return false;
   if (!a?.cells?.length) return false;
   if (!a.cells.some((c) => inCell(p, c, eb))) return false;
   if (a.cohort?.length && !a.cohort.includes(cohortOf(p.join_term, p.join_year))) return false;
@@ -39,9 +42,17 @@ export function inAudience(p: Member, a: Audience | null | undefined, eb: Eboard
   return true;
 }
 
-/** only well-formed cells, each once — what gets saved, whatever the page or a stale draft sends */
+/** Only well-formed selections, each once; absent mode preserves saved group audiences. */
 export function cleanAudience(a: unknown): Audience {
   const x = (a ?? {}) as Partial<Audience>; const seen = new Set<string>();
+  if (x.mode === 'people') {
+    const ids = (Array.isArray(x.profile_ids) ? x.profile_ids : [])
+      .filter((id): id is string => typeof id === 'string').map((id) => id.trim().toLowerCase())
+      .filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id));
+    return { mode: 'people', profile_ids: [...new Set(ids)], cells: [] };
+  }
+  // An unknown mode cannot silently turn a stale group selection into a broadcast.
+  if (x.mode && x.mode !== 'groups') return { cells: [], cohort: [], industries: [] };
   const cells = (Array.isArray(x.cells) ? x.cells : []).filter((c): c is Cell => Boolean(c) && (GROUPS as readonly string[]).includes(c.group) && (c.who === 'current' || c.who === 'alumni'))
     .filter((c) => { const k = `${c.group}|${c.who}`; if (seen.has(k)) return false; seen.add(k); return true; });
   const list = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter((s) => typeof s === 'string' && s))] : []);
@@ -50,6 +61,11 @@ export function cleanAudience(a: unknown): Audience {
 
 /** the audience in words: "Design (current + alumni), Tech alumni · cohort FA21" */
 export function describeAudience(a: Audience | null | undefined): string {
+  if (a?.mode === 'people') {
+    const count = cleanAudience(a).profile_ids!.length;
+    return count ? `${count} selected ${count === 1 ? 'person' : 'people'}` : 'nobody yet';
+  }
+  if (a?.mode && a.mode !== 'groups') return 'nobody yet';
   if (!a?.cells?.length) return 'nobody yet';
   const label = (g: Group) => (g === 'EVERYONE' ? 'Everyone' : g === 'E-BOARD' ? 'E-board' : g === 'PRODUCT MANAGEMENT' ? 'Product Management' : g === 'VC/FINANCE' ? 'VC/Finance' : g[0] + g.slice(1).toLowerCase());
   const parts = GROUPS.filter((g) => a.cells.some((c) => c.group === g)).map((g) => {

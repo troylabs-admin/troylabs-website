@@ -76,3 +76,46 @@ assert.equal(failedDelivery.status, 502); assert.equal(tables.messages[0].state,
 assert.match(tables.messages[0].last_error, /confirm whether Resend accepted/);
 assert.ok(tables.message_recipients.every(r => !r.delivered_at && r.error), 'failed recipients retain actionable error without claiming delivery');
 console.log('PASS: email transport failure returns scheduled message to draft with error; no stranded sending lock or false delivery');
+
+// People audiences use real UUID-shaped fixture IDs; no supplied address or stale group can add a recipient.
+emailNetworkFailure = false; sent.length = 0;
+const uuid = n => `abcdef00-0000-4000-8000-${String(n).padStart(12, '0')}`;
+const selected = (profile_ids, extra = {}) => msg([], { audience: { mode: 'people', profile_ids, cells: [], ...extra } });
+tables.profiles.push(
+  person(uuid(1), 'student', ['DESIGN'], { personal_email: 'chosen@unit-fixture.org', phone: '+12135553001' }),
+  person(uuid(2), 'alum', ['TECH'], { approved: false }),
+  person(uuid(3), 'alum', ['TECH'], { is_test: true, phone: '+12135553003' }),
+  person(uuid(4), 'alum', ['TECH'], { email_opt_in: false, phone_opt_in: false }),
+  person(uuid(5), 'alum', ['TECH'], { personal_email: ' CHOSEN@unit-fixture.org ', phone: '+12135553001' }),
+  person(uuid(6), 'alum', ['TECH'], { personal_email: null, usc_email: null, phone: null }),
+  person(uuid(7), 'alum', ['TECH'], { phone: '+12135553007' }),
+);
+const selectedIds = [uuid(1), ` ${uuid(1).toUpperCase()} `, uuid(2), uuid(3), uuid(4), uuid(5), uuid(6), uuid(99), 'spoofed', { id: uuid(7) }];
+const chosenDraft = selected(selectedIds, { cells: [{ group: 'EVERYONE', who: 'alumni' }], cohort: ['SP19'], industries: ['unrelated'] });
+r = await module.namespace.recipientsFor(svc, chosenDraft, 'real-admin');
+assert.equal(ids(r.email), uuid(1)); assert.equal(ids(r.text), uuid(1));
+assert.equal(ids((await module.namespace.recipientsFor(svc, { ...chosenDraft, created_by: 'test-admin' }, null)).email), uuid(3), 'scheduled explicit people preserve author test isolation');
+assert.equal(ids((await module.namespace.recipientsFor(svc, chosenDraft, 'test-admin')).text), uuid(3), 'manual explicit people preserve actor test isolation');
+for (const empty of [[], ['spoofed'], null]) {
+  tables.messages = [selected(empty, { cells: tech })]; tables.message_recipients = [];
+  const emptyDelivery = await module.namespace.deliver(svc, 1, 'real-admin', { email: null, phone: null });
+  assert.equal(emptyDelivery.status, 400); assert.match(emptyDelivery.body.error, /choose at least one person/);
+  assert.equal(tables.messages[0].state, 'scheduled'); assert.equal(sent.length, 0, 'empty people selection never reaches provider');
+}
+// A newly added matching group member never joins an explicit scheduled selection. Re-read current opt-ins and contacts.
+tables.messages = [chosenDraft]; tables.message_recipients = [];
+tables.profiles.find(p => p.id === uuid(1)).phone_opt_in = false;
+tables.profiles.find(p => p.id === uuid(5)).phone_opt_in = false;
+tables.profiles.find(p => p.id === uuid(1)).personal_email = 'updated@unit-fixture.org';
+tables.profiles.find(p => p.id === uuid(5)).email_opt_in = false;
+const chosenDelivery = await module.namespace.deliver(svc, 1, null, { email: null, phone: null });
+assert.equal(chosenDelivery.status, 200); assert.equal(tables.messages[0].state, 'sent'); assert.equal(sent.length, 1);
+assert.deepEqual(JSON.parse(sent[0].body).map(m => m.to), [['updated@unit-fixture.org']], 'explicit scheduled send resolves only selected, currently eligible contacts');
+assert.equal(tables.message_recipients.length, 1); assert.equal(tables.message_recipients[0].profile_id, uuid(1));
+sent.length = 0;
+for (const excluded of [[uuid(2)], [uuid(3)], [uuid(4)], [uuid(6)], [uuid(99)]]) {
+  tables.messages = [selected(excluded)]; tables.message_recipients = [];
+  const nobody = await module.namespace.deliver(svc, 1, 'real-admin', { email: null, phone: null });
+  assert.equal(nobody.status, 400); assert.match(nobody.body.error, /Nobody matches/); assert.equal(sent.length, 0);
+}
+console.log('PASS: explicit approved people only, UUID sanitization, unapproved/unknown/spoofed/test IDs excluded, opted-out/missing contacts excluded, contact dedup, empty selection guard, scheduled current contacts/consent without group expansion');

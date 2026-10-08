@@ -85,7 +85,7 @@ try {
 
   // bulk decline two, then one comes back from the Declined list
   for (const n of ['Queue QA 04', 'Queue QA 05']) await row(n).locator('label.portal-check').click();
-  await page.locator('[data-q-decline]').click(); await expect(page.locator('#q-fb')).toContainText('Declined 2 people');
+  await page.locator('[data-q-decline]').click(); await page.locator('[data-q-confirm-decline]').click(); await expect(page.locator('#q-fb')).toContainText('Declined 2 people');
   assert.deepEqual(Object.values(await state(ids.slice(3, 5))), ['declined', 'declined']);
   await page.locator('#declined-fold summary').click(); await expect(page.locator('#declined-list')).toContainText('Queue QA 04'); await expect(page.locator('#declined-list')).toContainText('Already Declined QA');
   await page.locator('#declined-list li', { hasText: 'Queue QA 04' }).getByRole('button', { name: 'BACK TO WAITING LIST' }).click();

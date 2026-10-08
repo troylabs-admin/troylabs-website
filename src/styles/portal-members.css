@@ -1,0 +1,67 @@
+/* Admin review: retain the portal palette; use orange for actions, not routine information. */
+.portal-member-admin .portal-panel { background: rgb(10 10 12 / .76); }
+.portal-member-admin #approvals { padding: calc(24 * var(--u)); }
+.portal-member-admin #requests-n { color: var(--color-muted); box-shadow: none; background: rgb(255 255 255 / .07); }
+.portal-member-admin .portal-q-tools { margin-top: calc(20 * var(--u)); }
+.portal-member-admin .portal-q-bar { gap: calc(12 * var(--u)); padding: calc(12 * var(--u)); border-radius: calc(10 * var(--u)); background: #171615; border: 1px solid rgb(255 255 255 / .12); }
+.portal-member-admin .portal-q-bar .portal-check { min-height: 44px; }
+.portal-member-admin .portal-q-bar .portal-btn { min-height: 44px; height: auto; padding-block: calc(8 * var(--u)); }
+.portal-member-admin [data-q-everyone] { order: -1; }
+.portal-member-admin [data-q-selected] { white-space: nowrap; }
+.portal-member-admin [data-q-clear] { min-height: 44px; }
+.portal-member-admin .portal-q-row.portal-request { padding: calc(18 * var(--u)) calc(10 * var(--u)); transition: background-color 150ms ease; }
+.portal-member-admin .portal-q-row.is-selected { background: rgb(255 255 255 / .045); }
+.portal-member-admin .portal-q-main { gap: calc(6 * var(--u)); line-height: 1.5; }
+.portal-member-admin .portal-q-pick { min-width: 32px; min-height: 44px; justify-content: center; }
+.portal-member-admin .portal-q-claim { color: var(--color-muted); }
+.portal-member-admin .portal-q-actions.portal-request-actions { gap: calc(14 * var(--u)); }
+.portal-member-admin .portal-q-actions button { min-height: 44px; }
+.portal-member-admin .portal-q-details { padding-top: calc(12 * var(--u)); line-height: 1.6; }
+.portal-member-admin .portal-queue-feedback { margin-top: calc(16 * var(--u)); padding: calc(16 * var(--u)); border: 1px solid rgb(255 255 255 / .18); border-radius: calc(10 * var(--u)); background: rgb(255 255 255 / .035); color: var(--color-ink); line-height: 1.5; overflow-wrap: anywhere; scroll-margin-block: calc(110 * var(--u)); }
+.portal-member-admin .portal-queue-feedback.is-error { border-color: var(--color-orange); }
+.portal-member-admin .portal-queue-result { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: calc(12 * var(--u)); }
+.portal-member-admin .portal-queue-result strong { font-weight: 400; }
+.portal-member-admin .portal-queue-result button { margin: 0; min-height: 44px; }
+.portal-member-admin .portal-queue-notice { color: var(--color-muted); margin-top: calc(8 * var(--u)); font-size: .9em; }
+.portal-member-admin .portal-queue-notice summary { cursor: pointer; padding-block: calc(6 * var(--u)); }
+.portal-member-admin .portal-queue-notice p { margin-block: calc(8 * var(--u)); }
+.portal-member-admin [data-members-count] { color: var(--color-muted); }
+.portal-member-admin #members-fb:empty { display: none; }
+.portal-member-admin button:disabled { opacity: .45; cursor: not-allowed; }
+.portal-member-admin button:focus-visible, .portal-member-admin summary:focus-visible { outline: 2px solid var(--color-orange); outline-offset: 4px; }
+@media (max-width: 1100px) {
+  .portal-member-admin .portal-q-row.portal-request { grid-template-columns: auto auto minmax(0, 1fr); }
+  .portal-member-admin .portal-q-actions.portal-request-actions { grid-column: 3; justify-content: flex-start; flex-wrap: wrap; }
+  .portal-member-admin .portal-q-details { grid-column: 3; }
+}
+@media (max-width: 767px) {
+  .portal-member-admin #approvals { padding: 18px; }
+  .portal-member-admin .portal-q-bar { position: static; gap: 8px; padding: 12px; }
+  .portal-member-admin .portal-q-bar > span[style] { display: none; }
+  .portal-member-admin .portal-q-bar .portal-check { flex: 1 1 100%; font-size: 12px; }
+  .portal-member-admin [data-q-everyone] { flex-basis: 100% !important; }
+  .portal-member-admin [data-q-selected] { flex: 1; }
+  .portal-member-admin [data-q-clear] { font-size: 11px; }
+  .portal-member-admin .portal-q-bar [data-q-approve], .portal-member-admin .portal-q-bar [data-q-decline] { flex: 1 1 100%; font-size: 11px; }
+  .portal-member-admin .portal-q-row.portal-request { grid-template-columns: 32px minmax(0, 1fr); padding: 16px 0; gap: 8px; }
+  .portal-member-admin .portal-q-actions.portal-request-actions, .portal-member-admin .portal-q-details { grid-column: 2; }
+  .portal-member-admin .portal-q-actions.portal-request-actions { gap: 8px 16px; }
+  .portal-member-admin .portal-q-actions button { font-size: 11px; }
+  .portal-member-admin .portal-queue-feedback { padding: 14px; scroll-margin-block: 20px; }
+  .portal-member-admin .portal-queue-result { align-items: flex-start; }
+}
+/* Keep batch actions together at every width; selection controls never split them apart. */
+.portal-member-admin .portal-q-bulk { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: calc(10 * var(--u)); flex: 1 1 100%; }
+.portal-member-admin .portal-q-bulk .portal-btn { font-size: calc(11 * var(--u)); }
+.portal-member-admin .portal-q-row [data-approve] { color: var(--color-ink) !important; }
+.portal-member-admin .portal-q-row [data-approve]:hover { color: var(--color-orange) !important; }
+.portal-member-admin .portal-q-row .portal-avatar { box-shadow: none; color: var(--color-muted); background: rgb(255 255 255 / .06); }
+.portal-member-admin .portal-check i { border-radius: 4px; display: grid; place-items: center; font-size: 12px; font-style: normal; }
+.portal-member-admin .portal-check input:checked + i { background: var(--color-ink); color: #141414; box-shadow: none; }
+.portal-member-admin .portal-check input:checked + i::after { content: '✓'; }
+.portal-member-admin .portal-check input:indeterminate + i { background: var(--color-ink); color: #141414; }
+.portal-member-admin .portal-check input:indeterminate + i::after { content: '−'; }
+@media (max-width: 767px) {
+  .portal-member-admin .portal-q-bulk { gap: 8px; }
+  .portal-member-admin .portal-q-bulk .portal-btn { font-size: 11px; }
+}

@@ -5,9 +5,8 @@
  */
 import { me } from '../lib/auth';
 import { supabase } from '../lib/supabase';
-import { applicationMissing, listInWords } from '../lib/portal/application';
 import { webUrl } from '../lib/portal/safe-html';
-import { adminListProfiles, approveMany, avatarUrl, cityLabel, cohortOf, completeness, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
+import { adminListProfiles, approveMany, avatarUrl, cityLabel, cohortOf, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const fb = (text: string, ok = true) => { const el = document.getElementById('members-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
@@ -15,10 +14,15 @@ const flash = (btn: HTMLElement, text: string) => { const o = btn.textContent; b
 let rows: ProfileRow[] = [], admins = new Set<string>(), roles: RoleRow[] = [], myId = '';
 const PAGE = 25;
 const q = { search: '', sort: 'oldest', shown: PAGE, picked: new Set<string>(), open: new Set<string>() };
+let qBusy = false;
+let pendingDecline: string[] = [];
 let lastAction: { kind: 'approved' | 'declined'; ids: string[] } | null = null;
 
 async function load() {
-  const got = await adminListProfiles(); rows = got.rows; admins = got.admins; roles = got.roles;
+  const root = document.getElementById('requests-list');
+  const got = await adminListProfiles();
+  if (!root?.isConnected) return;
+  rows = got.rows; admins = got.admins; roles = got.roles;
   if (!document.getElementById('requests-list')) return;   // left the page while it loaded (client-side navigation keeps this script running)
   renderRequests(); renderTable(); renderCohortChips();
 }
@@ -49,15 +53,14 @@ function renderRequests() {
     const facts = [year, cohortOf(r.join_term, r.join_year) ? `joined ${cohortOf(r.join_term, r.join_year)}` : '', (r.divisions ?? []).join(', ')].filter(Boolean).map(esc).join(' · ');
     const emails = [r.personal_email, r.usc_email].filter(Boolean).map((e) => esc(e!)).join(' · ');
     const open = q.open.has(r.id);
-    return `<li class="portal-request portal-q-row" data-id="${r.id}">
+    return `<li class="portal-request portal-q-row${q.picked.has(r.id) ? ' is-selected' : ''}" data-id="${r.id}">
       <label class="portal-check portal-q-pick" aria-label="Select ${esc(r.full_name)}"><input type="checkbox" data-q-pick="${r.id}"${q.picked.has(r.id) ? ' checked' : ''} /><i></i></label>
       <span class="portal-avatar t-fine" aria-hidden="true">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initialsOf(r.full_name))}</span>
       <div class="portal-q-main">
         <p class="m-0"><span class="text-ink portal-q-name">${esc(r.full_name)}</span> <span class="t-fine portal-tag">${r.status === 'student' ? 'STUDENT' : 'ALUM'}</span></p>
         <p class="m-0 t-fine text-muted">${facts}</p>
         ${claimed ? `<p class="m-0 t-fine portal-q-claim">E-board: ${esc(claimed)}</p>` : ''}
-        ${r.request_note ? `<p class="m-0 t-fine portal-request-note portal-q-note">“${esc(r.request_note)}”</p>` : ''}
-        <p class="m-0 t-fine text-muted">${emails} · signed up ${ago(r.created_at)}</p>
+        <p class="m-0 t-fine text-muted">${emails} · submitted ${ago(r.submitted_at || r.created_at)}</p>
       </div>
       <div class="portal-request-actions portal-q-actions">
         <button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-approve="${r.id}">APPROVE</button>
@@ -90,46 +93,77 @@ function syncPicks(shown = queue().slice(0, q.shown), matching = queue()) {
   const n = q.picked.size; const allBox = document.getElementById('q-all') as HTMLInputElement | null; if (!allBox) return;
   const shownPicked = shown.filter((r) => q.picked.has(r.id)).length;
   allBox.checked = shown.length > 0 && shownPicked === shown.length; allBox.indeterminate = shownPicked > 0 && shownPicked < shown.length;
-  document.querySelector<HTMLElement>('[data-q-all-label]')!.textContent = shown.length < matching.length ? `Select the ${shown.length} shown` : 'Select all';
+  document.querySelector<HTMLElement>('[data-q-all-label]')!.textContent = `Select ${shown.length} shown`;
   const every = document.querySelector<HTMLButtonElement>('[data-q-everyone]')!;
-  every.hidden = !(allBox.checked && matching.length > shown.length && n < matching.length); every.textContent = `SELECT ALL ${matching.length}`;
+  every.hidden = !matching.length; every.disabled = qBusy || matching.every(r => q.picked.has(r.id)); every.textContent = `SELECT ALL ${matching.length}`;
+  document.querySelector<HTMLElement>('[data-q-clear]')!.hidden = !n;
   document.querySelector<HTMLElement>('[data-q-selected]')!.textContent = `${n} selected`;
-  for (const sel of ['[data-q-approve]', '[data-q-decline]']) { const b = document.querySelector<HTMLButtonElement>(sel)!; b.disabled = !n; b.textContent = `${sel.includes('approve') ? 'APPROVE' : 'DECLINE'} ${n ? `${n} ` : ''}SELECTED`; }
+  for (const sel of ['[data-q-approve]', '[data-q-decline]']) { const b = document.querySelector<HTMLButtonElement>(sel)!; b.disabled = qBusy || !n; b.textContent = `${sel.includes('approve') ? 'APPROVE' : 'DECLINE'} ${n ? `${n} ` : ''}SELECTED`; }
 }
-const qfb = (html: string, ok = true) => { const el = document.getElementById('q-fb'); if (el) { el.innerHTML = html; el.style.color = ok ? '' : 'var(--color-orange)'; } };
+const qfb = (html: string, ok = true) => {
+  const el = document.getElementById('q-fb'); if (!el) return;
+  el.innerHTML = html; el.hidden = !html; el.classList.toggle('is-error', !ok);
+  if (html) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }); }
+};
+function queueBusy(on: boolean) {
+  qBusy = on;
+  document.getElementById('approvals')?.setAttribute('aria-busy', String(on));
+  document.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement>('#approvals button, #approvals input, #approvals select').forEach(el => { el.disabled = on; });
+  if (!on) syncPicks();
+}
+function cancelPendingDecline() { if (pendingDecline.length) { pendingDecline = []; qfb(''); } }
+function askDecline(ids: string[]) {
+  if (!ids.length) return; pendingDecline = ids;
+  qfb(`<div class="portal-queue-result"><span>Decline ${people(ids.length)}? They will stay outside the network.</span><span class="portal-inline"><button type="button" class="portal-btn is-small is-quiet t-label" data-q-confirm-decline>DECLINE ${ids.length}</button><button type="button" class="t-label portal-linklike" data-q-dismiss>CANCEL</button></span></div>`);
+}
 const people = (n: number) => `${n.toLocaleString()} ${n === 1 ? 'person' : 'people'}`;
 /** tell the people just approved that they're in (send-message, mode 'approved'); the approval itself never depends on it */
-async function emailApproved(ids: string[]): Promise<{ sent: number; error: string | null }> {
-  const { data: { session } } = await supabase().auth.getSession();
+async function emailApproved(ids: string[]): Promise<{ sent: number; texted: number; error: string | null }> {
   try {
+    const { data: { session } } = await supabase().auth.getSession();
     const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'approved', ids }) });
     const b = await r.json().catch(() => ({})); return { sent: b.sent ?? 0, texted: b.texted ?? 0, error: r.ok ? b.error ?? null : b.error ?? `status ${r.status}` };
   } catch { return { sent: 0, texted: 0, error: 'couldn’t reach the email service' }; }
 }
 async function decide(kind: 'approved' | 'declined', ids: string[]) {
-  if (!ids.length) return;
-  const names = ids.length === 1 ? (rows.find((r) => r.id === ids[0])?.full_name || 'them') : people(ids.length);
-  const res = kind === 'approved' ? await approveMany(ids) : await declineMany(ids);
-  if (res.error) { qfb(esc(res.error.message), false); return; }
-  for (const id of ids) q.picked.delete(id);
-  lastAction = { kind, ids };
-  let mailNote = '';
-  if (kind === 'approved') { const m = await emailApproved(ids); mailNote = (m.error ? ` The “you’re in” email didn’t send (${esc(m.error)}), so let them know yourself.` : m.sent ? ` We emailed ${ids.length === 1 ? 'them' : `all ${m.sent}`} that they’re in.` : '') + (m.texted ? ` ${m.texted === 1 && ids.length === 1 ? 'They' : `${m.texted.toLocaleString()} of them`} also got the “you’re in” text.` : ''); }
-  qfb(`${kind === 'approved' ? `Approved ${esc(names)}. ${ids.length === 1 ? "They're" : "They're all"} in the network the next time they open the portal.${mailNote}` : `Declined ${esc(names)}.`} <button type="button" class="t-label portal-linklike" data-q-undo style="color:var(--color-orange)">UNDO</button>`, !mailNote.includes('didn’t send'));
-  fb('');
-  await load();
+  if (!ids.length || qBusy) return;
+  const root = document.getElementById('approvals'); queueBusy(true); pendingDecline = [];
+  const names = ids.length === 1 ? (rows.find(r => r.id === ids[0])?.full_name || '1 person') : people(ids.length);
+  qfb(`${kind === 'approved' ? 'Approving' : 'Declining'} ${esc(names)}…`);
+  try {
+    const res = kind === 'approved' ? await approveMany(ids) : await declineMany(ids);
+    const notification = kind === 'approved' && !res.error && res.data !== 0 ? emailApproved(ids) : null;
+    if (!root?.isConnected) { await notification; return; }
+    if (res.error) { qfb(`Couldn’t ${kind === 'approved' ? 'approve' : 'decline'} the selection. ${esc(res.error.message)}`, false); return; }
+    for (const id of ids) q.picked.delete(id);
+    const changed = typeof res.data === 'number' ? res.data : ids.length;
+    const allChanged = changed === ids.length;
+    lastAction = allChanged ? { kind, ids } : null;
+    const result = `<div class="portal-queue-result"><strong>${kind === 'approved' ? 'Approved' : 'Declined'} ${allChanged ? esc(names) : people(changed)}.</strong>${allChanged ? '<button type="button" class="t-label portal-linklike" data-q-undo>UNDO</button>' : ''}</div>${!allChanged ? '<p class="t-fine text-muted m-0">Some applications had already changed. The list is refreshed.</p>' : ''}`;
+    await load(); if (!root.isConnected) return; queueBusy(true);
+    qfb(result + (notification ? '<p class="t-fine text-muted m-0">Sending notification…</p>' : '')); queueBusy(true); fb('');
+    if (notification) {
+      const mail = await notification!; if (!root.isConnected) return;
+      const note = mail.error
+        ? `<details class="portal-queue-notice"><summary>Access granted. There was a problem with the notification.</summary><p>${esc(mail.error)}</p><p>Approval is saved. Do not approve again to retry a notification.</p></details>`
+        : mail.sent || mail.texted ? `<p class="t-fine text-muted m-0">${[mail.sent && `${mail.sent} email${mail.sent === 1 ? '' : 's'}`, mail.texted && `${mail.texted} text${mail.texted === 1 ? '' : 's'}`].filter(Boolean).join(' and ')} sent.</p>` : '';
+      qfb(result + note);
+    }
+  } catch { if (root?.isConnected) qfb('Couldn’t confirm the result. Refresh the page before trying again.', false); }
+  finally { if (root?.isConnected) queueBusy(false); }
 }
+
 function renderTable() {
   const tbody = document.querySelector<HTMLElement>('[data-members] tbody')!;
-  const members = rows.filter((r) => r.approved);
+  const members = rows.filter(r => r.approved).sort((a, b) => Number(admins.has(b.id)) - Number(admins.has(a.id)) || (a.full_name || '').localeCompare(b.full_name || ''));
   tbody.innerHTML = members.map((r) => {
     const status = r.status === 'student' ? 'STUDENT' : 'ALUM'; const division = (r.divisions ?? []).join(', ').replace('PRODUCT MANAGEMENT', 'PRODUCT'); const city = cityLabel(r.city); const email = r.personal_email || r.usc_email || '';
     return `<tr data-id="${r.id}" data-status="${status}" data-cohort="${cohortOf(r.join_term, r.join_year)}" data-division="${esc((r.divisions ?? []).map((d) => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')).join('|'))}" data-text="${esc(`${r.full_name} ${r.usc_email ?? ''} ${r.personal_email ?? ''} ${r.current_company ?? ''} ${city} ${division}`.toLowerCase())}">
-      <td class="m-name"><a class="text-ink no-underline portal-name-link" href="/alumni-portal/members/?id=${r.id}&from=members">${esc(r.full_name || '(no name yet)')}</a>${admins.has(r.id) ? ' <span class="t-fine portal-role">ADMIN</span>' : ''}<span class="t-fine text-muted m-email">${esc(email)}</span></td><td class="m-status"><span class="t-fine portal-tag">${status}</span></td><td class="text-muted m-col">${cohortOf(r.join_term, r.join_year) || '—'}</td><td class="text-muted m-col">${esc(division) || '—'}</td><td class="text-muted m-col m-city">${esc(city) || '—'}</td><td class="m-col">${completeness(r)}%</td>
-      <td class="t-fine text-muted m-meta">${[cohortOf(r.join_term, r.join_year), esc(division), esc(city), `${completeness(r)}% complete`].filter(Boolean).join(' · ')}</td>
+      <td class="m-name"><a class="text-ink no-underline portal-name-link" href="/alumni-portal/members/?id=${r.id}&from=members">${esc(r.full_name || '(no name yet)')}</a>${admins.has(r.id) ? ' <span class="t-fine portal-role">ADMIN</span>' : ''}<span class="t-fine text-muted m-email">${esc(email)}</span></td><td class="m-status"><span class="t-fine portal-tag">${status}</span></td><td class="text-muted m-col">${cohortOf(r.join_term, r.join_year) || '—'}</td><td class="text-muted m-col">${esc(division) || '—'}</td><td class="text-muted m-col m-city">${esc(city) || '—'}</td>
+      <td class="t-fine text-muted m-meta">${[cohortOf(r.join_term, r.join_year), esc(division), esc(city)].filter(Boolean).join(' · ')}</td>
       <td class="m-actions"><span class="portal-row-actions"><a class="t-fine portal-linklike no-underline" href="/alumni-portal/profile?id=${r.id}">EDIT</a><button type="button" class="t-fine portal-linklike" data-roles-for="${r.id}">ROLES</button><button type="button" class="t-fine portal-linklike" data-admin-toggle="${r.id}"${r.id === myId ? ' disabled title="You cannot change your own admin access"' : ''}>${admins.has(r.id) ? 'REMOVE ADMIN' : 'MAKE ADMIN'}</button><button type="button" class="t-fine portal-linklike" data-remove="${r.id}"${r.id === myId ? ' disabled title="You cannot remove your own access"' : ''}>REMOVE ACCESS</button></span></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" class="text-muted">No approved members yet.</td></tr>';
+  }).join('') || '<tr><td colspan="7" class="text-muted">No approved members yet.</td></tr>';
   document.getElementById('members-q')?.dispatchEvent(new Event('input'));   // the shared filter recounts
 }
 
@@ -179,25 +213,35 @@ async function init() {
   const who = await me(); if (!who?.admin || !table.isConnected) return; myId = who.id;
   // a fresh page each visit: the module outlives client-side navigation, the search box doesn't (a stale search once
   // showed "Nobody matches" under an empty box after VIEW FULL PROFILE → back)
-  q.search = ''; q.sort = 'oldest'; q.shown = PAGE; q.picked.clear(); q.open.clear(); lastAction = null;
-  await load();
+  q.search = ''; q.sort = 'oldest'; q.shown = PAGE; q.picked.clear(); q.open.clear(); lastAction = null; qBusy = false; pendingDecline = [];
+  await load(); if (!table.isConnected) return;
   // the waiting list's own controls
-  document.getElementById('q-search')?.addEventListener('input', (e) => { q.search = (e.target as HTMLInputElement).value; q.shown = PAGE; renderRequests(); });
+  document.getElementById('q-search')?.addEventListener('input', (e) => { q.search = (e.target as HTMLInputElement).value; q.shown = PAGE; q.picked.clear(); cancelPendingDecline(); renderRequests(); });
   document.getElementById('q-sort')?.addEventListener('change', (e) => { q.sort = (e.target as HTMLSelectElement).value; renderRequests(); });
-  document.getElementById('q-all')?.addEventListener('change', (e) => { const on = (e.target as HTMLInputElement).checked; for (const r of queue().slice(0, q.shown)) on ? q.picked.add(r.id) : q.picked.delete(r.id); if (!on) q.picked.clear(); renderRequests(); });
-  document.getElementById('requests-list')?.addEventListener('change', (e) => { const box = (e.target as HTMLElement).closest<HTMLInputElement>('[data-q-pick]'); if (!box) return; box.checked ? q.picked.add(box.dataset.qPick!) : q.picked.delete(box.dataset.qPick!); syncPicks(); });
+  document.getElementById('q-all')?.addEventListener('change', (e) => { cancelPendingDecline(); const on = (e.target as HTMLInputElement).checked; for (const r of queue().slice(0, q.shown)) on ? q.picked.add(r.id) : q.picked.delete(r.id); if (!on) q.picked.clear(); renderRequests(); });
+  document.getElementById('requests-list')?.addEventListener('change', (e) => { const box = (e.target as HTMLElement).closest<HTMLInputElement>('[data-q-pick]'); if (!box) return; cancelPendingDecline(); box.checked ? q.picked.add(box.dataset.qPick!) : q.picked.delete(box.dataset.qPick!); box.closest('li')?.classList.toggle('is-selected', box.checked); syncPicks(); });
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
-    const t = e.target as HTMLElement; const b = t.closest<HTMLElement>('button'); if (!b) return;
+    const t = e.target as HTMLElement; const b = t.closest<HTMLElement>('button'); if (!b || (b as HTMLButtonElement).disabled || (qBusy && b.closest('#approvals'))) return;
     if (b.dataset.approve) await decide('approved', [b.dataset.approve]);
-    else if (b.hasAttribute('data-q-approve')) { const ids = [...q.picked]; if (ids.length > 1 && !confirm(`Approve ${people(ids.length)}? They're in the network the next time they open the portal.`)) return; await decide('approved', ids); }
-    else if (b.hasAttribute('data-q-decline')) { const ids = [...q.picked]; if (!confirm(`Decline ${people(ids.length)}? They stay outside the network and see that they weren't approved. You can undo this, or restore them from the Declined list.`)) return; await decide('declined', ids); }
-    else if (b.hasAttribute('data-q-undo') && lastAction) { const a = lastAction; lastAction = null; const r = await restoreMany(a.ids); qfb(r.error ? esc(r.error.message) : `Undone: ${people(a.ids.length)} back on the waiting list.${a.kind === 'approved' ? ' The “you’re in” email had already gone out, so you may want to let them know.' : ''}`, !r.error); await load(); }
-    else if (b.hasAttribute('data-q-everyone')) { for (const r of queue()) q.picked.add(r.id); renderRequests(); }
+    else if (b.hasAttribute('data-q-approve')) { await decide('approved', [...q.picked]); }
+    else if (b.hasAttribute('data-q-decline')) { askDecline([...q.picked]); }
+    else if (b.hasAttribute('data-q-undo') && lastAction) {
+      const a = lastAction, root = document.getElementById('approvals'); queueBusy(true);
+      try {
+        const r = await restoreMany(a.ids); if (!root?.isConnected) return;
+        if (r.error) qfb(`Couldn’t undo. ${esc(r.error.message)} <button type="button" class="t-label portal-linklike" data-q-undo>TRY AGAIN</button>`, false);
+        else { lastAction = null; await load(); if (root.isConnected) qfb(`Undone: ${people(a.ids.length)} back on the waiting list.${a.kind === 'approved' ? '<p class="t-fine text-muted m-0">Notifications already sent cannot be recalled.</p>' : ''}`); }
+      } finally { if (root?.isConnected) queueBusy(false); }
+    }
+    else if (b.hasAttribute('data-q-confirm-decline')) await decide('declined', [...pendingDecline]);
+    else if (b.hasAttribute('data-q-dismiss')) { pendingDecline = []; qfb(''); }
+    else if (b.hasAttribute('data-q-clear')) { q.picked.clear(); cancelPendingDecline(); renderRequests(); }
+    else if (b.hasAttribute('data-q-everyone')) { cancelPendingDecline(); for (const r of queue()) q.picked.add(r.id); renderRequests(); }
     else if (b.hasAttribute('data-q-more')) { q.shown += PAGE; renderRequests(); }
     else if (b.dataset.qDetails) { const id = b.dataset.qDetails; q.open.has(id) ? q.open.delete(id) : q.open.add(id); const row = b.closest('li')!; const d = row.querySelector<HTMLElement>('.portal-q-details')!; d.hidden = !q.open.has(id); b.textContent = q.open.has(id) ? 'LESS' : 'DETAILS'; b.setAttribute('aria-expanded', String(q.open.has(id))); }
     else if (b.closest('[data-filter="cohort"]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); document.getElementById('members-q')?.dispatchEvent(new Event('input')); }   // built after load, so the shared script didn't bind them
     else if (b.dataset.restore) { const r = await setRestored(b.dataset.restore); fb(r.error ? r.error.message : 'Back on the waiting list.', !r.error); await load(); }
-    else if (b.dataset.decline) { const p = rows.find((x) => x.id === b.dataset.decline); if (!confirm(`Decline ${p?.full_name || 'this person'}? They stay outside the network and see that they weren't approved. You can undo this, or restore them from the Declined list.`)) return; await decide('declined', [b.dataset.decline]); }
+    else if (b.dataset.decline) { askDecline([b.dataset.decline]); }
     else if (b.dataset.adminToggle) {   // one change at a time, and the list knows the answer before the next click (a quick second click used to grant again)
       if (b.getAttribute('aria-busy') === 'true') return; b.setAttribute('aria-busy', 'true'); (b as HTMLButtonElement).disabled = true;
       const id = b.dataset.adminToggle; const on = !admins.has(id); const r = await setAdmin(id, on);

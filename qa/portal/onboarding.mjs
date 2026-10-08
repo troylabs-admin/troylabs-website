@@ -87,10 +87,11 @@ try {
   // fill in everything, including e-board roles and a city typed but not placed
   await page.locator('#pf-classof-year').fill('2023'); await page.locator('#pf-term').selectOption('Fall'); await page.locator('#pf-year').fill('2021');
   for (const d of ['DESIGN', 'MARKETING']) await page.locator('[data-field="divisions"] .portal-chip', { hasText: d }).click();
-  // texts are a choice (A2P: consent can't be part of joining): an optional box under the phone, unticked; they tick it
-  await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).not.toBeChecked(); await expect(page.locator('[data-texts-choice]')).toContainText('(optional)');
+  // texts start ON at sign-up (Bryan, 2026-10-08): the box under the phone is already ticked; unticking works, and they leave it on
+  await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).toBeChecked();
+  await page.locator('label:has(#pf-phone-opt)').click(); await expect(page.locator('#pf-phone-opt')).not.toBeChecked();
+  await page.locator('label:has(#pf-phone-opt)').click(); await expect(page.locator('#pf-phone-opt')).toBeChecked();
   await page.locator('#pf-li').fill('linkedin.com/in/Example-Person/'); await page.locator('#pf-phone').fill('(213) 555-0142');
-  await page.locator('label:has(#pf-phone-opt)').click();   // any spelling of the link; the phone saves with SUBMIT
   await page.locator('#pf-claim .portal-chip', { hasText: 'DIRECTOR OF DESIGN' }).click(); const role = page.locator('#pf-claim .portal-role-year[data-role="DIRECTOR OF DESIGN"]');
   await role.locator('select').first().selectOption('Fall'); await role.locator('input').first().fill('2022');
   await page.locator('#pf-note').fill('Design division FA21 to SP23; Director of Design FA22.');
@@ -108,11 +109,11 @@ try {
   assert.equal(saved.full_name, 'Jordan Rivera'); assert.equal(saved.status, 'alum'); assert.equal(saved.grad_year, 2023); assert.equal(saved.join_term, 'FA'); assert.equal(saved.join_year, 2021);
   assert.deepEqual([...saved.divisions].sort(), ['DESIGN', 'MARKETING']); assert.equal(saved.city.name, 'San Francisco'); assert.equal(saved.request_note, 'Design division FA21 to SP23; Director of Design FA22.');
   assert.ok(saved.submitted_at, 'submitted'); assert.equal(saved.approved, false); assert.deepEqual(saved.claimed_roles, [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }]);
-  // they ticked texts: on after submitting, but no text yet: the first one ("you're in") comes with approval
+  // texts left ticked: on after submitting, but no text yet: the first one ("you're in") comes with approval
   assert.equal((await admin.from('profiles').select('phone_opt_in').eq('id', fresh.id).single()).data.phone_opt_in, true, 'texts on after sign-up');
   await page.waitForTimeout(2000); assert.equal(((await admin.from('profile_events').select('id').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []).length, 0, 'no text at sign-up');
   await expect(page.locator('[data-texts-choice]')).toBeVisible(); await expect(page.locator('#pf-phone-opt')).toBeChecked();
-  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; the texts box they ticked is on (no text yet)');
+  console.log('PASS: 3 · whole profile filled (typed city placed automatically) → SUBMIT → "Submitted. Waiting for approval."; the database matches; texts are on by default (no text yet)');
 
   // the backup
   const backups = ok(await admin.from('profile_submissions').select('id, email, snapshot').eq('profile_id', fresh.id), 'backup');
@@ -151,7 +152,7 @@ try {
   await expect(card.getByRole('link', { name: /VIEW FULL PROFILE/ })).toHaveAttribute('href', `/alumni-portal/members/?id=${fresh.id}&from=approvals`);
   await shot(ap, '09-admin-waiting-list');
   await card.getByRole('button', { name: 'APPROVE' }).click(); await expect(ap.locator('#q-fb')).toContainText('Approved Jordan Rivera');
-  await expect(ap.locator('#q-fb')).toContainText('also got the “you’re in” text');   // the first text comes with approval (test account: recorded, not sent)
+  await expect(ap.locator('#q-fb')).toContainText('1 text sent.');   // the first text comes with approval (test account: recorded, not sent)
   { const w = ((await admin.from('profile_events').select('detail').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []); assert.equal(w.length, 1); assert.ok(w[0].detail.approved && w[0].detail.test); }
   await shot(ap, '10-admin-approved', false);
   assert.deepEqual(ok(await admin.from('eboard_roles').select('role, term, year').eq('profile_id', fresh.id), 'roles'), [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }], 'their e-board role is now on record');
@@ -181,7 +182,7 @@ try {
   await ap.goto(`${base}/alumni-portal/admin/users`);
   const card2 = ap.locator('.portal-request', { hasText: 'Riley Decline QA' });
   await expect(card2).toContainText(html); assert.equal(await ap.evaluate(() => window.__injected), undefined, 'a note is shown as text, never run');
-  await card2.getByRole('button', { name: 'DECLINE' }).click(); await expect(card2).toHaveCount(0);
+  await card2.getByRole('button', { name: 'DECLINE' }).click(); await ap.locator('[data-q-confirm-decline]').click(); await expect(card2).toHaveCount(0);   // declining asks first
   await ap.locator('#declined-fold summary').click(); await expect(ap.locator('#declined-list')).toContainText('Riley Decline QA');
   const { page: dp } = await signInPage(browser, second); dp.on('pageerror', (e) => errors.push(e.message));
   await dp.goto(`${base}/alumni-portal/home`); await expect(dp.getByRole('heading', { name: 'NOT APPROVED' })).toBeVisible(); await shot(dp, '15-declined-sees', false);

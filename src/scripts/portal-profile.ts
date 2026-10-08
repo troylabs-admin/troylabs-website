@@ -62,7 +62,7 @@ function fill(r: ProfileRow, admin: boolean) {
   const img = $<HTMLImageElement>('#pf-photo-preview')!; const url = avatarUrl(r);
   if (url) { img.src = url; img.hidden = false; initials.dataset.hasPhoto = '1'; } else { img.hidden = true; delete initials.dataset.hasPhoto; }
   ($('#pf-usc') as HTMLInputElement).value = r.usc_email ?? ''; ($('#pf-personal') as HTMLInputElement).value = r.personal_email ?? '';
-  ($('#pf-phone') as HTMLInputElement).value = prettyPhone(r.phone); ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in;
+  ($('#pf-phone') as HTMLInputElement).value = prettyPhone(r.phone); ($('#pf-phone-opt') as HTMLInputElement).checked = r.phone_opt_in || (!r.submitted_at && !r.approved);   // texts start ticked for someone signing up (Bryan, 2026-10-08); they can untick before submitting, or later
   const eo = $<HTMLInputElement>('#pf-email-opt'); if (eo) eo.checked = r.email_opt_in !== false;
   // a profile nobody has filled in yet shows neither STUDENT nor ALUM: the person has to say which (audit 2026-10-02:
   // a preselected status let alumni save as students without noticing)
@@ -265,7 +265,7 @@ async function init() {
         const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
-      if (waiting && !wasSubmitted) patch.phone_opt_in = ($('#pf-phone-opt') as HTMLInputElement).checked;   // the optional, unticked box under the phone (A2P: consent must be a choice, not part of joining)
+      if (waiting && !wasSubmitted) patch.phone_opt_in = ($('#pf-phone-opt') as HTMLInputElement).checked;   // the box under the phone, ticked by default at sign-up
       const res = await save(patch);
       if (!res.ok) { flash(btn, 'NOT SAVED', res.message, false); return; }
       if (waiting) {

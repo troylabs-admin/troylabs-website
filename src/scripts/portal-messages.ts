@@ -62,7 +62,7 @@ function matchingPeople() {
 }
 function renderPeople() {
   const list = $('[data-people-list]'); if (!list) return;
-  const rows = matchingPeople(); $('[data-people-count]')!.textContent = `${rows.length} members · ${selectedPeople.size} selected`;
+  const rows = matchingPeople(); $('[data-people-count]')!.textContent = `${howMany(rows.length, 'member')} · ${selectedPeople.size} selected`;
   list.innerHTML = rows.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}><span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
 }
 
@@ -123,9 +123,9 @@ function renderGrid() {
 function summary() {
   const out = $('[data-aud-summary]'); if (!out) return; const a = audience();
   const base = people.filter(p => p.approved && inAudience(p, a.aud, eb));
-  out.textContent = hasSelection(a.aud) ? `${base.length} members selected · ${a.texts.length} text recipients` : 'Choose groups or specific people.';
+  out.textContent = hasSelection(a.aud) ? `${howMany(base.length, 'member')} selected · ${howMany(a.texts.length, 'text recipient')}` : 'Choose groups or specific people.';
   const desc = $('[data-aud-description]'); if (desc) desc.textContent = hasSelection(a.aud) ? `${describeAudience(a.aud)}. ${base.length - a.texts.length ? `${base.length - a.texts.length} without a separate text; see the list below.` : 'Each phone receives one text.'}` : 'Only members with texts turned on will receive.';
-  const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = hasSelection(a.aud) ? `${a.texts.length} texts to ${describeAudience(a.aud)}. Review the recipient list above before sending.` : 'Choose recipients above.';
+  const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = hasSelection(a.aud) ? `${howMany(a.texts.length, 'text')} to ${describeAudience(a.aud)}. Review the recipient list above before sending.` : 'Choose recipients above.';
   renderWho(a);
 }
 /** the people the ticked boxes add up to, by name, with how each is reached; and who in the group won't get it, and why */
@@ -137,7 +137,7 @@ function renderWho(a: ReturnType<typeof audience>) {
   const noText = (p: ProfileRow) => byText(p) ? 'shared phone; text sent once' : p.phone ? 'texts off' : 'no number';
   const noMail = (p: ProfileRow) => byEmail(p) ? 'shared email; email sent once' : emailOf(p) ? 'announcements off' : 'no email';
   const why = (p: ProfileRow) => a.sendBy === 'text' ? noText(p) : a.sendBy === 'email' ? noMail(p) : `${noText(p)}, ${noMail(p)}`;
-  head.textContent = `REVIEW RECIPIENTS · ${a.who.length.toLocaleString()} texts`;
+  head.textContent = `REVIEW RECIPIENTS · ${howMany(a.who.length, 'text')}`;
   list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${esc(prettyPhone(p.phone))}</span></li>`).join('')
     + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">Excluded or shared numbers (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
     + (!a.who.length && !missed.length ? '<li class="text-muted">Nobody is in these groups yet.</li>' : '');
@@ -362,7 +362,7 @@ async function init() {
   const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
   document.querySelector('.portal-panels form')?.addEventListener('input', () => { smsCount(); const note = $('#msg-fb'); if (note?.textContent?.startsWith('Loaded the ')) note.textContent = ''; });
   $('#mc-person-search')?.addEventListener('input', renderPeople);
-  $('[data-people-list]')?.addEventListener('change', e => { const input = e.target as HTMLInputElement; const id = input.dataset.personId; if (!id || actionBusy) return; input.checked ? selectedPeople.add(id) : selectedPeople.delete(id); $('[data-people-count]')!.textContent = `${matchingPeople().length} members · ${selectedPeople.size} selected`; summary(); });
+  $('[data-people-list]')?.addEventListener('change', e => { const input = e.target as HTMLInputElement; const id = input.dataset.personId; if (!id || actionBusy) return; input.checked ? selectedPeople.add(id) : selectedPeople.delete(id); $('[data-people-count]')!.textContent = `${howMany(matchingPeople().length, 'member')} · ${selectedPeople.size} selected`; summary(); });
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
     if (b.dataset.audienceMode) { setAudienceMode(b.dataset.audienceMode as 'groups' | 'people'); return; }

@@ -85,8 +85,8 @@ try {
   await page.locator('[data-action="preview"]').click();
   await expect(page.locator('#msg-fb')).toContainText('by text to'); await expect(page.locator('#msg-fb')).toContainText('opted in');
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"]').click(); await expect(counter).toBeHidden();
-  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').click(); await expect(counter).toBeVisible();
-  await page.locator('[data-action="preview"]').click(); await expect(page.locator('#msg-fb')).toContainText(/by email to \d+ (person|people) and by text to \d+ (person|people)/);
+  await expect(page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]')).toHaveCount(0);   // one channel per message: no BOTH (2026-10-08)
+  await page.locator('[data-action="preview"]').click(); await expect(page.locator('#msg-fb')).toContainText(/by email to \d+ (person|people)/);
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="text"]').click();
   if (!connected) {
     await page.locator('[data-action="test-send"]').click(); await expect(page.locator('#msg-fb')).toContainText('Texts aren’t connected yet');

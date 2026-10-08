@@ -79,7 +79,7 @@ try {
   await page.goto(`${base}/alumni-portal/admin/messages`); const line = page.locator('#msg-delivery');
   await expect(line).toContainText('Email is connected'); await expect(line).not.toContainText(/Twilio|Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="text"]').click(); await expect(line).toContainText('Texts aren’t switched on yet'); await expect(line).toHaveClass(/is-warn/); await expect(line).not.toContainText('Twilio');
-  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').click(); await expect(line).toContainText('Texts aren’t switched on yet');
+  await expect(page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]')).toHaveCount(0);   // one channel per message: no BOTH (2026-10-08)
   await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"]').click(); await expect(line).not.toContainText(/Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
   await page.unroute('**/functions/v1/send-message');
   console.log('PASS: Message — no text alarm while EMAIL is picked; TEXT or BOTH says plainly that texts can’t go out yet (no Twilio jargon)');

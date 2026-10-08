@@ -26,14 +26,14 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
     <div class="portal-messaging">
     <div class="portal-page-head"><div>
       <h1 class="t-title portal-page-title">MESSAGES</h1>
-      <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement or a referral ask, pick who gets it, and send it by email, text or both. Send yourself a test first. Texts go only to members who opted in on their profile.</p>
+      <p class="t-caption text-muted portal-page-sub">Write an event invite, an announcement or a referral ask, pick who gets it, and send it by email or by text. Send yourself a test first. Texts go only to members who opted in on their profile.</p>
       <p class="m-0 t-fine portal-delivery" id="msg-delivery" role="status">Checking whether email and texts are connected…</p>
     </div></div>
 
     <div class="portal-panels portal-panels-2 msg-workspace">
       <form class="portal-panel msg-compose" novalidate>
         <div class="msg-compose-head"><div><h2 class="t-sub portal-panel-title">Compose message</h2><p class="t-fine text-muted m-0" data-compose-state>New message</p></div><button type="button" class="t-label portal-linklike" data-action="new-draft">NEW DRAFT</button></div>
-        <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="both">BOTH</button></div>
+        <span class="t-label text-muted">SEND BY</span><div class="flex flex-wrap portal-chips" data-single style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="email">EMAIL</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="text">TEXT</button></div>
         <span class="t-label text-muted">START FROM A TEMPLATE</span><div class="flex flex-wrap portal-chips" data-templates style="margin:calc(8 * var(--u)) 0 calc(14 * var(--u))"></div>
         <div class="portal-field" data-subject-field><label class="t-label text-muted" for="mc-title">SUBJECT</label><input id="mc-title" class="t-caption portal-input is-wide" maxlength="150" aria-describedby="mc-subject-hint" /><p class="m-0 t-fine text-muted" id="mc-subject-hint">The email subject, also the name saved in your message history. Texts don’t have one.</p></div>
         <div class="portal-field" style="margin-top:calc(14 * var(--u))"><label class="t-label text-muted" for="mc-body">MESSAGE BODY</label><textarea id="mc-body" class="t-caption portal-textarea" rows="8" placeholder="What would you like the group to know?"></textarea><p id="mc-sms" class="m-0 t-fine text-muted" aria-live="polite" hidden></p>

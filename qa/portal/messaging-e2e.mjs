@@ -86,21 +86,28 @@ try {
   const { page } = await signInPage(browser, boss); page.on('pageerror', (e) => errors.push(e.message)); page.on('dialog', (d) => d.accept());
   await page.goto(`${base}/alumni-portal/admin/messages`); await expect(page.locator('[data-action="preview"]')).toBeEnabled();
   await expect(page.locator('[data-aud-grid] .portal-aud-group')).toHaveText(['EVERYONE', 'E-BOARD', 'BUILD', 'DEMO', 'PRODUCT MANAGEMENT', 'VC/FINANCE', 'TECH', 'MARKETING', 'DESIGN']);
-  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').click();
+  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"]').click();
   const box = (g, w) => page.locator(`[data-aud-grid] .portal-chip[data-group="${g}"][data-who="${w}"]`);
-  const summaryCounts = async () => { const t = await page.locator('[data-aud-summary]').innerText(); const m = /by email to (\d+) \w+ and by text to (\d+)/.exec(t); assert.ok(m, `summary: ${t}`); return [Number(m[1]), Number(m[2])]; };
+  const sendBy = (v) => page.locator(`[data-single]:not([data-when]) .portal-chip[data-value="${v}"]`).click();
+  const count = async (re) => { await page.waitForTimeout(150); const t = await page.locator('[data-aud-summary]').innerText(); const m = re.exec(t); assert.ok(m, `summary: ${t}`); return Number(m[1]); };
+  // one channel per message: read the email count, then the text count, and go back to email (the subject box is email-only)
+  const summaryCounts = async () => { const e = await count(/by email to (\d+)/); await sendBy('text'); const t = await count(/by text to (\d+)/); await sendBy('email'); return [e, t]; };
   for (const label of ['tech + tech alumni + design + design alumni', 'current e-board + all alumni', 'e-board current + alumni', 'tech alumni, only cohort FA19']) {
     const [, audience] = cases.find(([l]) => l === label);
     await page.locator('[data-action="new-draft"]').click();
     for (const c of audience.cells) await box(c.group, c.who).click();
+    if (audience.cohort?.length) await page.locator('details.portal-or').evaluate((d) => { d.open = true; });   // cohorts sit in the NARROW IT DOWN fold
     for (const c of audience.cohort ?? []) await page.locator('[data-cohorts] .portal-chip', { hasText: new RegExp(`^(✓\\s*)?${c}$`) }).click();
     await page.locator('#mc-title').fill(`E2E page ${label}`); await page.locator('#mc-body').fill('Page routing check');
     await page.locator('[data-action="draft"]').click(); await expect(page.locator('#msg-fb')).toContainText('Saved as a draft');
     const saved = (await admin.from('messages').select('id, audience').eq('title', `E2E page ${label}`).single()).data; msgs.push(saved.id);
     const key = (a) => JSON.stringify({ cells: [...a.cells].map((c) => `${c.group}|${c.who}`).sort(), cohort: [...(a.cohort ?? [])].sort(), industries: [...(a.industries ?? [])].sort() });
     assert.equal(key(saved.audience), key(audience), `the page saved exactly the ticked boxes for ${label}`);
-    const p = await call(boss, 'preview', saved.id);
-    assert.deepEqual(await summaryCounts(), [p.body.recipients.length, p.body.textRecipients.length], `the page's count is the sender's for ${label}`);
+    // one channel per message: the email count against the sender as an email, the text count against it as a text
+    const pe = await call(boss, 'preview', saved.id);
+    { const { error } = await admin.from('messages').update({ send_by: 'text' }).eq('id', saved.id); if (error) throw error; } const pt = await call(boss, 'preview', saved.id);
+    { const { error } = await admin.from('messages').update({ send_by: 'email' }).eq('id', saved.id); if (error) throw error; }
+    assert.deepEqual(await summaryCounts(), [pe.body.recipients.length, pt.body.textRecipients.length], `the page's count is the sender's for ${label}`);
     // EDIT brings the same boxes back
     await page.locator('[data-action="new-draft"]').click(); assert.equal(await page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]').count(), 0, 'NEW DRAFT clears the boxes');
     await page.locator(`[data-msg-list] li[data-id="${saved.id}"] [data-edit]`).click();

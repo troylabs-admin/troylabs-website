@@ -131,19 +131,18 @@ function renderWho(a: ReturnType<typeof audience>) {
 /* Templates (Bryan, 2026-10-06: "a formatting already for the text messages"): fill the composer; anything in [brackets]
    is for the admin to replace, and nothing sends while a [placeholder] is left. Each text goes out as "TroyLabs: …",
    then the event line and RSVP link when event details are filled in, then "Reply STOP to opt out." */
-type Template = { label: string; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience?: Audience; event?: boolean };
+type Template = { label: string; title: string; body: string; audience?: Audience; event?: boolean };   // a template keeps whichever of EMAIL / TEXT is picked (no BOTH since 2026-10-08, Bryan: one channel per message)
 const TEMPLATES: Template[] = [
-  { label: 'EVENT INVITE', title: 'Invite: [Event name]', body: "You're invited to [Event name]! [One line on why to come]. RSVP below.", send_by: 'both', event: true },
-  { label: 'EVENT REMINDER', title: 'Reminder: [Event name] tomorrow', body: 'Reminder: [Event name] is tomorrow at [Time], [Location]. See you there!', send_by: 'both' },
-  { label: 'ANNOUNCEMENT', title: '[Announcement subject]', body: '[Your news in one or two sentences]. More at usctroylabs.com', send_by: 'both' },
-  { label: 'WELCOME TO THE NETWORK', title: 'Welcome to the TL Alumni Network', body: 'Welcome to the TL Alumni Network! Find TroyLabs members and alumni by company, city or industry at usctroylabs.com/alumni-portal', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] } },
+  { label: 'EVENT INVITE', title: 'Invite: [Event name]', body: "You're invited to [Event name]! [One line on why to come]. RSVP below.", event: true },
+  { label: 'EVENT REMINDER', title: 'Reminder: [Event name] tomorrow', body: 'Reminder: [Event name] is tomorrow at [Time], [Location]. See you there!' },
+  { label: 'ANNOUNCEMENT', title: '[Announcement subject]', body: '[Your news in one or two sentences]. More at usctroylabs.com' },
+  { label: 'WELCOME TO THE NETWORK', title: 'Welcome to the TL Alumni Network', body: 'Welcome to the TL Alumni Network! Find TroyLabs members and alumni by company, city or industry at usctroylabs.com/alumni-portal', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] } },
 ];
 function useTemplate(t: Template) {
   editing = null; setWhen(null); composerState();
   ($('#mc-title') as HTMLInputElement).value = t.title; ($('#mc-body') as HTMLTextAreaElement).value = t.body;
   for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = '';
   if (t.event) { ($('#mc-ev-name') as HTMLInputElement).value = '[Event name]'; ($('#mc-ev-where') as HTMLInputElement).value = '[Location]'; const d = document.querySelector<HTMLDetailsElement>('details[data-fold]'); if (d) d.open = true; }
-  document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === t.send_by)));
   if (t.audience) setPicked(t.audience);
   smsCount(); summary(); fb(`Loaded the ${t.label.toLowerCase()} template. Replace everything in [brackets], pick who gets it, then send yourself a test.`);
 }
@@ -176,8 +175,8 @@ function renderMessages() {
    messages, each tagged EXAMPLE, with made-up people. They show every state a real message goes through. */
 type Example = { state: 'sent' | 'scheduled' | 'draft'; title: string; body: string; send_by: string; audience: Audience; days: number; reach: string; people: [string, string, string][] };
 const EXAMPLES: Example[] = [
-  { state: 'scheduled', title: 'One week until DEMO 2026', body: 'DEMO is a week from today at Bovard. Alumni get in free and we save you a seat up front. RSVP so we know how many to expect.', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] }, days: 11, reach: '186 will receive', people: [] },
-  { state: 'sent', title: 'DEMO 2026: save the date', body: 'Mark your calendars: DEMO, SoCal’s largest student-run entrepreneurship conference, is on October 20. Founders, investors, and every TroyLabs cohort in one room.', send_by: 'both', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, days: -3, reach: '412 emails + 158 texts sent · 6 failed',
+  { state: 'scheduled', title: 'One week until DEMO 2026', body: 'DEMO is a week from today at Bovard. Alumni get in free and we save you a seat up front. RSVP so we know how many to expect.', send_by: 'email', audience: { cells: [{ group: 'EVERYONE', who: 'alumni' }] }, days: 11, reach: '186 will receive', people: [] },
+  { state: 'sent', title: 'DEMO 2026: save the date', body: 'Mark your calendars: DEMO, SoCal’s largest student-run entrepreneurship conference, is on October 20. Founders, investors, and every TroyLabs cohort in one room.', send_by: 'text', audience: { cells: [{ group: 'EVERYONE', who: 'current' }, { group: 'EVERYONE', who: 'alumni' }] }, days: -3, reach: '158 texts sent · 2 failed',
     people: [['Maya Chen', 'maya.chen@example.com', 'DELIVERED'], ['Jordan Park', 'text (310) 555-0142', 'DELIVERED'], ['Sam Rivera', 'sam@example.com', 'SENT'], ['Alex Kim', 'text (213) 555-0199', 'FAILED: the carrier filtered it as spam'], ['Priya Patel', 'priya@example.com', 'FAILED: the address bounced']] },
   { state: 'draft', title: 'Looking for BUILD mentors', body: 'This semester’s BUILD teams are looking for alumni mentors in product and engineering. An hour every two weeks, on your schedule. Reply if you’re in.', send_by: 'email', audience: { cells: [{ group: 'BUILD', who: 'alumni' }, { group: 'TECH', who: 'alumni' }, { group: 'PRODUCT MANAGEMENT', who: 'alumni' }] }, days: -1, reach: '64 will receive', people: [] },
   { state: 'sent', title: 'Welcome to the Fall 2026 e-board', body: 'Welcome aboard! Our first e-board meeting is Thursday at 7 PM in the Iovine and Young Hall commons.', send_by: 'email', audience: { cells: [{ group: 'E-BOARD', who: 'current' }] }, days: -12, reach: '14 emails sent', people: [['Taylor Brooks', 'taylor@example.com', 'DELIVERED'], ['Chris Nguyen', 'chris@example.com', 'DELIVERED']] },
@@ -220,7 +219,7 @@ function showTestTarget() {
 function loadIntoComposer(m: Msg) {
   editing = m.id; ($('#mc-title') as HTMLInputElement).value = m.title; ($('#mc-body') as HTMLTextAreaElement).value = m.body;
   ($('#mc-ev-name') as HTMLInputElement).value = m.event?.name ?? ''; ($('#mc-ev-when') as HTMLInputElement).value = m.event?.when ?? ''; ($('#mc-ev-where') as HTMLInputElement).value = m.event?.where ?? ''; ($('#mc-ev-rsvp') as HTMLInputElement).value = m.event?.rsvp ?? '';
-  document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === m.send_by)));
+  document.querySelectorAll<HTMLElement>('[data-single]:not([data-when]) .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === (m.send_by === 'text' ? 'text' : 'email'))));   // an old BOTH message opens as email
   setPicked(cleanAudience(m.audience));
   setWhen(m.scheduled_for); composerState();
   const a = cleanAudience(m.audience); document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { if ((d.querySelector('#mc-ev-name') && m.event) || (d.classList.contains('portal-or') && (a.cohort?.length || a.industries?.length))) d.open = true; });

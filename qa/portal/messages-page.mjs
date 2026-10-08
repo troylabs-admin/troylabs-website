@@ -30,9 +30,10 @@ try {
     const clear = async () => { const on = page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]'); while (await on.count()) { await on.first().click(); await page.waitForTimeout(50); } };
 
     await expect(page.locator('[data-who-list]')).toBeHidden();   // nothing ticked: no list
-    // alumni in PM, by email + text
-    await sendBy('both'); await cell('PRODUCT MANAGEMENT', 'alumni').click();
-    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(no number, announcements off\)/); assert.match(w.head, /WHO GETS IT · 1/);
+    // alumni in PM, by email (there is no BOTH: one channel per message)
+    assert.equal(await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').count(), 0);
+    await sendBy('email'); await cell('PRODUCT MANAGEMENT', 'alumni').click();
+    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(announcements off\)/); assert.match(w.head, /WHO GETS IT · 1/);
     // only texts: who has texts on
     await sendBy('text'); w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(no number\)/);
     // everyone (students + alumni), by email
@@ -50,12 +51,13 @@ try {
     // templates: placeholders can't go out; the text preview is exactly what phones get
     await page.locator('[data-templates] .portal-chip', { hasText: 'EVENT INVITE' }).click();
     await expect(page.locator('#mc-title')).toHaveValue('Invite: [Event name]');
-    await expect(page.locator('[data-sms-bubble]')).toBeVisible();
+    await sendBy('text');   // a template keeps the channel picked; as a text there's no subject, and the preview shows
+    await expect(page.locator('[data-subject-field]')).toBeHidden(); await expect(page.locator('[data-sms-bubble]')).toBeVisible();
     const bubble = await page.locator('[data-sms-bubble]').textContent();
     assert.ok(bubble.startsWith("TroyLabs: You're invited to [Event name]!") && bubble.trimEnd().endsWith('Reply STOP to opt out.'), bubble);
     await page.locator('[data-action="test-send"]').click(); await expect(page.locator('#msg-fb')).toContainText("Fill in [Event name] first");
     await page.locator('[data-action="send"]').click(); await expect(page.locator('#msg-fb')).toContainText("Fill in [Event name] first");
-    await page.locator('#mc-title').fill('Invite: Demo Night'); await page.locator('#mc-body').fill("You're invited to Demo Night! Founders show what they built."); await page.locator('#mc-ev-name').fill('Demo Night'); await page.locator('#mc-ev-where').fill('[Location]');
+    await page.locator('#mc-body').fill("You're invited to Demo Night! Founders show what they built."); await page.locator('#mc-ev-name').fill('Demo Night'); await page.locator('#mc-ev-where').fill('[Location]');
     await page.locator('[data-action="send"]').click(); await expect(page.locator('#msg-fb')).toContainText('Fill in [Location] first');
     await sendBy('email'); await expect(page.locator('[data-sms-preview]')).toBeHidden();
     await page.locator('[data-templates] .portal-chip', { hasText: 'WELCOME TO THE NETWORK' }).click();

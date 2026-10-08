@@ -76,6 +76,7 @@ const reachText = (a: { sendBy: string; emails: unknown[]; texts: unknown[] }) =
 /** the live text counter under the body: what the text will look like in length and cost */
 function smsCount() {
   showDelivery(); showTestTarget();   // the delivery line mentions texts only while TEXT or BOTH is picked
+  const subj = $('[data-subject-field]'); if (subj) subj.hidden = sendByNow() === 'text';   // texts have no subject
   const out = $('#mc-sms'); if (!out) return;
   const sendBy = $('[data-single]:not([data-when]) .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'email';
   const body = ($('#mc-body') as HTMLTextAreaElement).value;
@@ -192,7 +193,12 @@ function examples(tab: string) {
       ${m.people.length ? `<ul class="portal-row-list t-fine portal-recipients" hidden>${m.people.map(([n, to, st]) => `<li><span>${esc(n)} · ${esc(to)}</span><span class="${st.startsWith('FAILED') ? 'portal-msg-error' : 'text-muted'}">${esc(st)}</span></li>`).join('')}<li class="text-muted">…and the rest of the list, each with what happened.</li></ul>` : ''}
     </li>`).join('');
 }
-const compose = () => ({ title: ($('#mc-title') as HTMLInputElement).value.trim(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
+/** texts have no subject (Bryan, 2026-10-08): a TEXT-only message is named in the history by the start of its body */
+const nameFromBody = (body: string) => { const b = body.replace(/\s+/g, ' ').trim(); if (b.length <= 60) return b; const cut = b.slice(0, 60); return `${cut.slice(0, cut.lastIndexOf(' ') > 30 ? cut.lastIndexOf(' ') : 60)}…`; };
+const subjectOf = () => sendByNow() === 'text' ? nameFromBody(($('#mc-body') as HTMLTextAreaElement).value) : ($('#mc-title') as HTMLInputElement).value.trim();
+/** what's missing before a send or a schedule: a subject for email, just the message for a text */
+const needsFirst = () => sendByNow() === 'text' ? (($('#mc-body') as HTMLTextAreaElement).value.trim() ? null : 'Write the message first.') : (subjectOf() ? null : 'Add a subject first.');
+const compose = () => ({ title: subjectOf(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
 function setWhen(iso: string | null) {
   const input = $<HTMLInputElement>('#mc-when'); if (!input) return;
   const date = iso ? new Date(iso) : null;
@@ -269,7 +275,7 @@ async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
 }
 async function testSend(btn: HTMLElement) {
   await busy(btn, async () => {
-    if (!($('#mc-title') as HTMLInputElement).value.trim()) { fb('Add a subject first.', false); return; }
+    { const need = needsFirst(); if (need) { fb(need, false); return; } }
     const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
     // Testing a saved schedule must not silently cancel it. Test an independent draft.
     const scheduled = messages.find(m => m.id === editing && m.state === 'scheduled');
@@ -285,7 +291,7 @@ async function sendNow(btn: HTMLElement) {
   const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later';
   if (later) { await save('scheduled', btn); return; }
   await busy(btn, async () => {
-    const title = ($('#mc-title') as HTMLInputElement).value.trim(); if (!title) { fb('Add a subject first.', false); return; }
+    { const need = needsFirst(); if (need) { fb(need, false); return; } } const title = subjectOf();
     const ph = leftover(); if (ph) { fb(`Fill in ${ph} first. It's still the template's placeholder.`, false); return; }
     const a = audience();
     if (!a.aud.cells.length) { nudged = true; summary(); fb('Pick who gets it first: tick at least one box under Who gets it.', false); return; }

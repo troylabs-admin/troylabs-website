@@ -251,6 +251,8 @@ html.motion .portal-network .portal-results, html.motion .portal-network .portal
 .portal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(14 * var(--u)) calc(18 * var(--u)); }
 .portal-field { display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
 .portal-field.is-full { grid-column: 1 / -1; }
+.portal-field[hidden] { display: none; }
+[data-subject-field][hidden] + .portal-field { margin-top: 0 !important; }   /* TEXT only: no subject box, the body moves up */
 .portal-field > label { letter-spacing: calc(1.4 * var(--u)); }
 .portal-input.is-wide, .portal-textarea { width: 100%; margin-top: 0; }
 .portal-textarea {

@@ -6,7 +6,7 @@ const user = { id, email: 'messages-admin@example.com', aud: 'authenticated', ro
 const token = [Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url'),Buffer.from(JSON.stringify({sub:id,role:'authenticated',aud:'authenticated',exp:4102444800})).toString('base64url'),'fixture-signature'].join('.');
 const session = { access_token:token,refresh_token:'fixture-refresh',expires_in:3600000,expires_at:4102444800,token_type:'bearer',user };
 const person = (n,name,patch={}) => ({id:`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,full_name:name,approved:true,is_test:true,status:'alum',grad_year:2024,join_year:2022,join_term:'FA',divisions:['TECH'],industries:['AI'],city_id:1,city:{id:1,name:'Los Angeles',region:'CA',country:'US',lat:34,lng:-118},linkedin_url:'https://www.linkedin.com/in/fixture',phone:`+121355501${String(70+n).padStart(2,'0')}`,phone_opt_in:true,personal_email:`person${n}@example.com`,email_opt_in:true,created_at:'2026-01-01T00:00:00Z',...patch});
-export async function createMessagesFixture(browser, { base=process.env.PORTAL_URL||'http://localhost:4399', viewport={width:390,height:844}, failLoads=false }={}) {
+export async function createMessagesFixture(browser, { base=process.env.PORTAL_URL||'http://localhost:4399', viewport={width:390,height:844}, failLoads=false, rosterSize=0 }={}) {
  const context=await browser.newContext({viewport,reducedMotion:'reduce',timezoneId:'America/Los_Angeles'});
  await context.addInitScript(({key,session})=>localStorage.setItem(key,JSON.stringify(session)),{key:`sb-${REF}-auth-token`,session});
  const profile=person(1,'Morgan Admin',{personal_email:user.email,phone_opt_in:false});
@@ -20,12 +20,14 @@ export async function createMessagesFixture(browser, { base=process.env.PORTAL_U
   person(8,'Production Member',{is_test:false}),
   person(9,'Riley Build Alum',{divisions:['BUILD'],industries:['Climate']}),
  ];
- const shape={send_by:'text',audience:{mode:'groups',profile_ids:[],cells:[{group:'TECH',who:'alumni'}]},event:null,state:'draft',scheduled_for:null,sent_at:null,updated_at:'2026-10-06T10:00:00Z',sent_count:0,failed_count:0,last_error:null};
- const state={people,calls:[],writes:[],errors:[],dialogs:[],failLoads,functionError:null,writeError:null,writeDelay:0,functionDelay:0,textConfigured:true,nextId:900004,messages:[{...shape,id:900001,title:'Ordinary saved draft',body:'An announcement for our alumni.'},{...shape,id:900002,title:'Tomorrow invitation',body:'Come to Demo Night.',state:'scheduled',scheduled_for:'2030-10-08T17:00:00Z'},{...shape,id:900003,title:'Past text',body:'Thanks for coming.',state:'sent',sent_count:1,sent_at:'2026-10-06T10:00:00Z'}]};
+ if(rosterSize) people.splice(0,people.length,...Array.from({length:rosterSize},(_,i)=>person(i+1,i===rosterSize-1?'Zoe Last Member':`Member ${String(i+1).padStart(2,'0')}`,{avatar_path:i%2?`${person(i+1,'').id}/photo.jpg`:null})));
+ const shape={send_by:'text',audience:{mode:'groups',profile_ids:[],cells:[{group:'TECH',who:'alumni'}]},event:null,state:'draft',scheduled_for:null,recurrence:null,series_id:null,sent_at:null,updated_at:'2026-10-06T10:00:00Z',sent_count:0,failed_count:0,last_error:null};
+ const state={people,calls:[],writes:[],errors:[],dialogs:[],acceptDialogs:true,failLoads,functionError:null,writeError:null,writeDelay:0,functionDelay:0,textConfigured:true,nextId:900004,messages:[{...shape,id:900001,title:'Ordinary saved draft',body:'An announcement for our alumni.'},{...shape,id:900002,title:'Tomorrow invitation',body:'Come to Demo Night.',state:'scheduled',scheduled_for:'2030-10-08T17:00:00Z'},{...shape,id:900003,title:'Past text',body:'Thanks for coming.',state:'sent',sent_count:1,sent_at:'2026-10-06T10:00:00Z'}]};
  await context.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url());if(url.origin===new URL(base).origin)return route.continue();
   const json=(body,status=200,extra={})=>route.fulfill({status,json:body,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',...extra}});
   if(req.method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS'}});
+  if(url.pathname.includes('/storage/v1/object/public/avatars/'))return route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#334355"/><circle cx="40" cy="28" r="15" fill="#a4b8c9"/><ellipse cx="40" cy="73" rx="29" ry="25" fill="#a4b8c9"/></svg>'});
   if(url.pathname.startsWith('/auth/v1'))return json(url.pathname.endsWith('/user')?user:session);
   if(url.pathname.endsWith('/functions/v1/send-message')){
    const body=req.postDataJSON();state.calls.push(body);
@@ -57,6 +59,6 @@ export async function createMessagesFixture(browser, { base=process.env.PORTAL_U
   if(url.pathname.endsWith('/rest/v1/eboard_roles'))return json([]);
   return json({});
  });
- const page=await context.newPage();page.on('pageerror',e=>state.errors.push(e.message));page.on('dialog',d=>{state.dialogs.push(d.message());return d.accept();});
+ const page=await context.newPage();page.on('pageerror',e=>state.errors.push(e.message));page.on('dialog',d=>{state.dialogs.push(d.message());return state.acceptDialogs?d.accept():d.dismiss();});
  return {page,context,state,base};
 }

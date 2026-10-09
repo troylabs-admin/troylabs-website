@@ -9,10 +9,12 @@ import { supabase } from '../lib/supabase';
 import { avatarUrl, cohortOf, initialsOf, type ProfileRow } from '../lib/portal/data';
 import { prettyPhone } from '../lib/portal/phone';
 import { currentTerm } from '../lib/portal/options';
+import { cleanRecurrence, recurrenceStart, type Recurrence } from '../../supabase/functions/_shared/recurrence';
+import { describeRepeat, fillSchedule, formatScheduleDate, localDateTime, readSchedule, wireSchedule } from './portal-message-schedule';
 import { SMS_MAX, placeholderLeft, segments, smsBody } from '../../supabase/functions/_shared/sms';
 import { cleanAudience, describeAudience, inAudience, inCell, type Audience, type Cell, type EboardSets, type Group } from '../../supabase/functions/_shared/audience';
 
-type Msg = { id: number; title: string; body: string; send_by: string; audience: Audience; event: any; state: string; scheduled_for: string | null; sent_at: string | null; updated_at: string; sent_count: number; failed_count: number; last_error: string | null };
+type Msg = { id: number; title: string; body: string; send_by: string; audience: Audience; event: any; state: string; scheduled_for: string | null; sent_at: string | null; updated_at: string; sent_count: number; failed_count: number; last_error: string | null; recurrence?: Recurrence | null; parent_series_id?: number | null; occurrence_at?: string | null; recurrence_index?: number; recurrence_skipped?: number };
 type Rcpt = { message_id: number; profile_id: string; channel: 'email' | 'text'; email: string | null; phone: string | null; delivered_at: string | null; status: string | null; error: string | null };
 type Delivery = { email: { configured: boolean; testMode: boolean; testTo: string | null; from?: string }; text: { configured: boolean; from: string | null; trial: boolean; error: string | null; testTo: string | null; hoursOpen: boolean } };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -49,23 +51,29 @@ function showDelivery() {
 }
 let audienceMode: 'groups' | 'people' = 'groups';
 let selectedPeople = new Set<string>();
+let peopleLimit = 6, reviewLimit = 6;
+const matchesPerson = (p: ProfileRow, q: string) => !q || `${p.full_name ?? ''} ${p.phone ?? ''} ${prettyPhone(p.phone)}`.toLowerCase().includes(q);
 const hasSelection = (a: Audience) => a.mode === 'people' ? Boolean(a.profile_ids?.length) : Boolean(a.cells.length);
 function setAudienceMode(mode: 'groups' | 'people') {
-  audienceMode = mode;
+  audienceMode = mode; peopleLimit = 6; reviewLimit = 6;
+  const search = $<HTMLInputElement>('#mc-review-search'); if (search) search.value = '';
   document.querySelectorAll<HTMLElement>('[data-audience-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.audienceMode === mode)));
   $('[data-groups-panel]')!.hidden = mode !== 'groups'; $('[data-people-panel]')!.hidden = mode !== 'people';
   renderPeople(); summary();
 }
 function matchingPeople() {
   const q = ($<HTMLInputElement>('#mc-person-search')?.value ?? '').trim().toLowerCase();
-  return people.filter(p => p.approved && (!q || `${p.full_name} ${p.phone ?? ''} ${prettyPhone(p.phone)}`.toLowerCase().includes(q))).sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''));
+  return people.filter(p => p.approved && matchesPerson(p, q)).sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''));
 }
 /** their profile photo (or initials) beside the name, so the right person is easy to pick (Bryan, 2026-10-08) */
 const personPhoto = (p: ProfileRow) => { const url = p.avatar_path ? avatarUrl(p) : null; return `<span class="portal-avatar t-fine msg-person-photo" aria-hidden="true">${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : esc(initialsOf(p.full_name || '?'))}</span>`; };
 function renderPeople() {
   const list = $('[data-people-list]'); if (!list) return;
   const rows = matchingPeople(); $('[data-people-count]')!.textContent = `${howMany(rows.length, 'member')} · ${selectedPeople.size} selected`;
-  list.innerHTML = rows.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}>${personPhoto(p)}<span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
+  const shown = rows.slice(0, peopleLimit);
+  const visible = $('[data-people-visible]'); if (visible) visible.textContent = `Showing ${shown.length} of ${rows.length} matching members`;
+  const more = $('[data-action="more-people"]'); if (more) { more.hidden = shown.length >= rows.length; more.textContent = `SEE MORE (${Math.min(6, rows.length - shown.length)})`; }
+  list.innerHTML = shown.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}>${personPhoto(p)}<span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
 }
 
 /** what the grid and the narrowing chips say right now */
@@ -126,7 +134,7 @@ function summary() {
   const out = $('[data-aud-summary]'); if (!out) return; const a = audience();
   const base = people.filter(p => p.approved && inAudience(p, a.aud, eb));
   out.textContent = hasSelection(a.aud) ? `${howMany(base.length, 'member')} selected · ${howMany(a.texts.length, 'text recipient')}` : 'Choose groups or specific people.';
-  const desc = $('[data-aud-description]'); if (desc) desc.textContent = hasSelection(a.aud) ? `${describeAudience(a.aud)}. ${base.length - a.texts.length ? `${base.length - a.texts.length} without a separate text; see the list below.` : 'Each phone receives one text.'}` : 'Only members with texts turned on will receive.';
+  const desc = $('[data-aud-description]'); if (desc) desc.textContent = hasSelection(a.aud) ? `${describeAudience(a.aud)}. ${base.length - a.texts.length ? `${base.length - a.texts.length} excluded or sharing a phone number; reasons below.` : 'Each phone receives one text.'}` : 'Choose a group or select people to review their phone numbers before sending.';
   const sendSummary = $('[data-send-summary]'); if (sendSummary) sendSummary.textContent = hasSelection(a.aud) ? `${howMany(a.texts.length, 'text')} to ${describeAudience(a.aud)}. Review the recipient list above before sending.` : 'Choose recipients above.';
   renderWho(a);
 }
@@ -134,15 +142,16 @@ function summary() {
 function renderWho(a: ReturnType<typeof audience>) {
   const box = $('[data-who-list]'), list = $('[data-who-items]'), head = $('[data-who-head]'); if (!box || !list || !head) return;
   box.hidden = !hasSelection(a.aud); if (box.hidden) return;
-  const name = (p: ProfileRow) => p.full_name || '(no name yet)'; const byName = (x: ProfileRow, y: ProfileRow) => name(x).localeCompare(name(y));
-  const inGroup = people.filter((p) => p.approved && inAudience(p, a.aud, eb)); const missed = inGroup.filter((p) => !a.who.includes(p)).sort(byName);
-  const noText = (p: ProfileRow) => byText(p) ? 'shared phone; text sent once' : p.phone ? 'texts off' : 'no number';
-  const noMail = (p: ProfileRow) => byEmail(p) ? 'shared email; email sent once' : emailOf(p) ? 'announcements off' : 'no email';
-  const why = (p: ProfileRow) => a.sendBy === 'text' ? noText(p) : a.sendBy === 'email' ? noMail(p) : `${noText(p)}, ${noMail(p)}`;
-  head.textContent = `REVIEW RECIPIENTS · ${howMany(a.who.length, 'text')}`;
-  list.innerHTML = [...a.who].sort(byName).map((p) => `<li><span class="text-ink">${esc(name(p))}</span><span class="text-muted">${esc(prettyPhone(p.phone))}</span></li>`).join('')
-    + (missed.length ? `<li class="portal-who-missed"><span class="text-muted">Excluded or shared numbers (${missed.length}): ${missed.map((p) => `${esc(name(p))} (${why(p)})`).join(', ')}</span></li>` : '')
-    + (!a.who.length && !missed.length ? '<li class="text-muted">Nobody is in these groups yet.</li>' : '');
+  const q = ($<HTMLInputElement>('#mc-review-search')?.value ?? '').trim().toLowerCase();
+  const byName = (x: ProfileRow, y: ProfileRow) => (x.full_name || '').localeCompare(y.full_name || '');
+  const rows = [...a.who].filter(p => matchesPerson(p,q)).sort(byName), shown = rows.slice(0, reviewLimit);
+  head.textContent = `Review recipients (${a.who.length})`;
+  list.innerHTML = shown.map(p => `<li class="msg-recipient-card">${personPhoto(p)}<span class="msg-recipient-identity"><span class="text-ink">${esc(p.full_name || '(no name yet)')}</span><span class="t-fine text-muted">${esc(prettyPhone(p.phone))}</span></span><span class="msg-recipient-check" aria-label="Included">✓</span></li>`).join('') || '<li class="text-muted">No selected recipients match your search.</li>';
+  const visible = $('[data-review-visible]'); if (visible) visible.textContent = `Showing ${shown.length} of ${rows.length} matching recipients`;
+  const more = $('[data-action="more-recipients"]'); if (more) { more.hidden = shown.length >= rows.length; more.textContent = `SEE MORE (${Math.min(6, rows.length - shown.length)})`; }
+  const missed = people.filter(p => p.approved && inAudience(p,a.aud,eb) && !a.who.includes(p)).sort(byName);
+  const why = (p: ProfileRow) => !p.phone ? 'No phone number' : !p.phone_opt_in ? 'Opted out of SMS' : 'Shares a phone number; one text per number';
+  const excluded = $('[data-who-excluded]'); if (excluded) excluded.innerHTML = missed.length ? `<details class="msg-exclusions portal-fold"><summary class="t-fine text-muted">Not receiving a separate text (${missed.length})</summary><ul class="portal-row-list">${missed.map(p => `<li class="msg-recipient-card">${personPhoto(p)}<span class="msg-recipient-identity"><span>${esc(p.full_name || '(no name yet)')}</span><span class="t-fine text-muted">${why(p)}</span></span></li>`).join('')}</ul></details>` : '';
 }
 /* Templates (Bryan, 2026-10-06: "a formatting already for the text messages"): fill the composer; anything in [brackets]
    is for the admin to replace, and nothing sends while a [placeholder] is left. Each text goes out as "TroyLabs: …",
@@ -173,39 +182,71 @@ function dropTemplate(t: Template) {
 }
 /** a [placeholder] left from a template: nothing sends (or schedules) until it's filled in */
 const leftover = () => { const c = compose(); return placeholderLeft(c.title, c.body, c.event?.name, c.event?.where, c.event?.rsvp); };
+const recordLimits = new Map<number, number>();
+const recordQueries = new Map<number, string>();
+function recordRecipientRows(m: Msg) {
+  const actual = rcpts.filter(r => r.message_id === m.id);
+  if (m.state === 'sent' || m.state === 'sending') return actual.map(r => {
+    const p = people.find(p => p.id === r.profile_id);
+    return { p, name: p?.full_name || '(no name)', contact: r.channel === 'text' ? prettyPhone(r.phone) : r.email || '', status: r.error ? `Failed: ${r.error}` : r.status === 'delivered' ? 'Delivered' : r.status || (r.delivered_at ? 'Sent' : 'Pending') };
+  });
+  return reach(cleanAudience(m.audience), m.send_by).who.map(p => ({ p, name: p.full_name || '(no name)', contact: m.send_by === 'email' ? emailOf(p) : prettyPhone(p.phone), status: '' }));
+}
+function renderRecordRecipients(m: Msg) {
+  const root = document.querySelector<HTMLElement>(`[data-record-recipients="${m.id}"]`); if (!root) return;
+  const all = recordRecipientRows(m), query = (recordQueries.get(m.id) || '').toLowerCase();
+  const matches = all.filter(r => `${r.name} ${r.contact} ${r.p?.phone || ''} ${r.contact.replace(/\D/g, '')} ${r.status}`.toLowerCase().includes(query));
+  const limit = recordLimits.get(m.id) || 6;
+  const list = root.querySelector<HTMLElement>('[data-record-recipient-list]')!;
+  list.innerHTML = matches.slice(0, limit).map(r => `<li class="msg-person msg-recipient-card">${m.state !== 'sent' && m.state !== 'sending' ? '<span class="msg-recipient-check" aria-hidden="true">✓</span>' : ''}${r.p ? personPhoto(r.p) : '<span class="portal-avatar msg-person-photo" aria-hidden="true">?</span>'}<span class="msg-recipient-identity"><span class="text-ink">${esc(r.name)}</span><span class="t-fine text-muted">${esc(r.contact)}${r.status ? ` · ${esc(r.status)}` : ''}</span></span></li>`).join('') || '<li class="t-fine text-muted">No matching recipients.</li>';
+  const more = root.querySelector<HTMLButtonElement>('[data-record-more]')!;
+  more.hidden = matches.length <= limit;
+  more.textContent = `See more (${Math.max(0, matches.length - limit)} remaining)`;
+  root.querySelector<HTMLElement>('[data-record-recipient-count]')!.textContent = `Showing ${Math.min(limit, matches.length)} of ${matches.length}${query ? ` matching · ${all.length} total` : ' recipients'}`;
+}
 function renderMessages() {
-  const list = $('[data-msg-list]')!; const tab = $('[data-msg-tabs] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'all';
-  const rows = messages.filter((m) => m.state !== 'cancelled' && (tab === 'all' || tab === m.state));
-  list.innerHTML = rows.length ? rows.map((m) => { const r0 = reach(cleanAudience(m.audience), m.send_by); const who = r0.who;
-    const sentTo = rcpts.filter((r) => r.message_id === m.id); const named = (r: Rcpt) => people.find((p) => p.id === r.profile_id)?.full_name || '(no name)';
-    const ok = (c: string) => sentTo.filter((r) => r.channel === c && r.delivered_at && r.status !== 'undelivered' && r.status !== 'failed').length;
-    const lost = sentTo.filter((r) => r.error).length;
-    const reached = m.state === 'sent' ? `${ok('email') + ok('text')} sent · ${sentTo.filter(r => r.status === 'delivered').length} confirmed delivered${lost ? ` · ${lost} failed` : ''}` : `${who.length.toLocaleString()} eligible now`;
-    const when = m.state === 'sent' && m.sent_at ? `Sent ${new Date(m.sent_at).toLocaleString()}` : m.state === 'scheduled' && m.scheduled_for ? `Sends ${new Date(m.scheduled_for).toLocaleString()}` : `Edited ${new Date(m.updated_at).toLocaleDateString()}`;
-    return `<li data-state="${m.state}" data-id="${m.id}" style="flex-direction:column;align-items:stretch;gap:calc(8 * var(--u))"${tab !== 'all' && tab !== m.state ? ' hidden' : ''}>
-      <div class="flex items-center" style="gap:calc(12 * var(--u))"><span class="t-fine portal-tag" style="${m.state === 'sent' ? 'color:var(--color-ink)' : m.state === 'scheduled' || m.state === 'sending' ? 'color:var(--color-orange)' : ''}">${m.state.toUpperCase()}</span><span class="text-ink" style="flex:1">${esc(m.title || '(untitled)')}</span><span class="t-fine text-muted">${when}${m.send_by !== 'text' ? ' · Older email record' : ''}</span><span class="t-fine text-muted">${m.send_by === 'both' ? 'EMAIL + TEXT' : m.send_by.toUpperCase()}</span></div>
-      <p class="m-0 t-fine text-muted" style="max-width:calc(620 * var(--u))">${esc(m.body.slice(0, 140))}${m.body.length > 140 ? '…' : ''}</p>
-      <div class="flex items-center" style="gap:calc(16 * var(--u))"><span class="t-fine text-muted">To: ${esc(describeAudience(cleanAudience(m.audience)))} · ${reached}</span><span style="flex:1"></span>
-        ${['draft', 'scheduled'].includes(m.state) && m.send_by === 'text' ? `<button type="button" class="t-label portal-linklike" style="color:var(--color-orange)" data-edit="${m.id}">EDIT</button>` : ''}
-        ${m.state === 'scheduled' ? `<button type="button" class="t-label portal-linklike" data-cancel="${m.id}">CANCEL</button>` : ''}
-        <button type="button" class="t-label portal-linklike" data-recipients-for="${m.id}">${m.state === 'sent' ? 'RECIPIENTS & STATUS' : 'REVIEW RECIPIENTS'}</button>
-        ${m.state === 'draft' ? `<button type="button" class="t-label portal-linklike" data-del="${m.id}">DELETE</button>` : ''}</div>
-      ${m.last_error && m.state !== 'sent' ? `<p class="m-0 t-fine portal-msg-error">Not sent: ${esc(m.last_error)}</p>` : m.last_error ? `<p class="m-0 t-fine portal-msg-error">${esc(m.last_error)}</p>` : ''}
-      <ul class="portal-row-list t-fine portal-recipients" hidden>${m.state === 'sent'
-        ? sentTo.map((r) => `<li><span>${esc(named(r))} · ${r.channel === 'text' ? `text ${esc(prettyPhone(r.phone))}` : esc(r.email ?? '')}</span><span class="${r.error ? 'portal-msg-error' : 'text-muted'}" title="${esc(r.error ?? '')}">${r.error ? `FAILED: ${esc(r.error)}` : r.status === 'delivered' ? 'DELIVERED' : (r.status || (r.delivered_at ? 'SENT' : 'PENDING')).toUpperCase()}</span></li>`).join('') || '<li class="text-muted">No recipients recorded.</li>'
-        : who.map((p) => `<li><span>${esc(p.full_name || '(no name)')} · ${[r0.emails.includes(p) && esc(p.personal_email || p.usc_email || ''), r0.texts.includes(p) && `text ${esc(prettyPhone(p.phone))}`].filter(Boolean).join(' · ')}</span></li>`).join('') || `<li class="text-muted">Nobody matches right now${m.send_by !== 'email' ? ' (texts go only to people who opted in)' : ''}.</li>`}</ul>
-    </li>`; }).join('') : messages.some(m => m.state !== 'cancelled') ? '<li class="t-fine text-muted">No messages in this view yet.</li>' : '<li class="msg-empty t-caption text-muted" data-msg-empty>No messages yet. Saved drafts, scheduled texts and sent messages will appear here.</li>';
+  const date = (iso: string) => formatScheduleDate(iso);
+  const eventDetails = (m: Msg) => m.event ? `<div class="msg-record-event"><span class="t-label text-ink">${esc(m.event.name || 'Event')}</span>${m.event.when ? `<span class="t-fine text-muted">${esc(Number.isFinite(Date.parse(m.event.when)) ? date(m.event.when) : m.event.when)}</span>` : ''}${m.event.where ? `<span class="t-fine text-muted">${esc(m.event.where)}</span>` : ''}${m.event.rsvp ? `<span class="t-fine text-muted">RSVP: ${esc(m.event.rsvp)}</span>` : ''}</div>` : '';
+  const card = (m: Msg) => {
+    const rule = m.recurrence ? cleanRecurrence(m.recurrence) : null;
+    const sentTo = rcpts.filter(r => r.message_id === m.id);
+    const accepted = sentTo.filter(r => r.delivered_at && !['failed', 'undelivered'].includes(r.status || '')).length;
+    const delivered = sentTo.filter(r => r.status === 'delivered').length;
+    const failed = sentTo.filter(r => r.error || ['failed', 'undelivered'].includes(r.status || '')).length;
+    const rows = recordRecipientRows(m);
+    const when = m.state === 'draft' && m.parent_series_id && m.occurrence_at ? `Occurrence ${date(m.occurrence_at)}` : m.state === 'sent' && m.sent_at ? `Sent ${date(m.sent_at)}` : m.state === 'scheduled' && m.scheduled_for ? `Next send ${formatScheduleDate(m.scheduled_for, rule?.timezone)}` : m.state === 'sending' ? 'Sending in progress' : `Saved ${date(m.updated_at)}`;
+    const stats = m.state === 'sent' ? `${accepted} sent · ${delivered} confirmed delivered${failed ? ` · ${failed} failed` : ''}` : `${rows.length} text recipients`;
+    return `<li class="msg-record" data-state="${m.state}" data-id="${m.id}">
+      <div class="msg-record-header"><span class="t-fine portal-tag">${m.parent_series_id ? `${m.state === 'draft' ? 'FAILED' : m.state.toUpperCase()} OCCURRENCE` : m.state === 'scheduled' && rule ? 'REPEATING' : m.state.toUpperCase()}</span><span class="t-label text-muted">${esc(when)}</span></div>
+      ${rule ? `<p class="msg-record-schedule t-caption text-ink">${esc(describeRepeat(rule))}</p><p class="t-fine text-muted">${m.recurrence_index || 0} scheduled dates have passed${m.recurrence_skipped ? ` · ${m.recurrence_skipped} missed during downtime` : ''}. ${m.recurrence_index ? 'Editing replaces this repeating schedule with a new one.' : ''}</p>` : ''}
+      <p class="msg-record-body text-ink">${esc(m.send_by === 'text' ? smsBody(m.body, m.event) : m.body)}</p>
+      ${eventDetails(m)}
+      <p class="msg-record-audience t-fine text-muted">${esc(describeAudience(cleanAudience(m.audience)))} · ${esc(stats)}${m.send_by !== 'text' ? ' · Older email record' : ''}</p>
+      <div class="msg-record-actions">${['draft', 'scheduled'].includes(m.state) && m.send_by === 'text' ? `<button type="button" class="t-label portal-linklike" data-edit="${m.id}">${m.parent_series_id && m.state === 'draft' ? 'EDIT / RETRY' : `EDIT ${m.state === 'draft' ? 'DRAFT' : 'SCHEDULE'}`}</button>` : ''}${m.state === 'scheduled' || (m.state === 'draft' && rule && m.recurrence_index) ? `<button type="button" class="t-label portal-linklike" data-cancel="${m.id}">${rule ? 'STOP REPEATING' : 'CANCEL SCHEDULE'}</button>` : ''}<button type="button" class="t-label portal-linklike" data-recipients-for="${m.id}">${m.state === 'sent' ? 'RECIPIENTS & STATUS' : 'REVIEW RECIPIENTS'}</button>${m.state === 'draft' && !m.recurrence_index && !m.parent_series_id ? `<button type="button" class="t-label portal-linklike" data-del="${m.id}">DELETE DRAFT</button>` : ''}</div>
+      ${m.last_error ? `<p class="t-fine portal-msg-error">${esc(m.last_error)}</p>` : ''}
+      <div class="portal-recipients msg-record-recipients" data-record-recipients="${m.id}" hidden><label class="t-fine text-muted" for="record-recipient-search-${m.id}">Find a recipient</label><input class="portal-input t-caption is-wide" id="record-recipient-search-${m.id}" type="search" data-record-search="${m.id}" placeholder="Search by name or phone" value="${esc(recordQueries.get(m.id) || '')}"><p class="t-fine text-muted" data-record-recipient-count></p><ul class="msg-person-list" data-record-recipient-list></ul><button type="button" class="t-label portal-linklike" data-record-more="${m.id}">SEE MORE</button></div>
+    </li>`;
+  };
+  const collections = [
+    { selector: '[data-draft-list]', rows: messages.filter(m => m.state === 'draft'), empty: 'No saved drafts. Save a message here when you want to finish it later.' },
+    { selector: '[data-scheduled-list]', rows: messages.filter(m => ['scheduled', 'sending'].includes(m.state)), empty: 'No scheduled messages. Choose Schedule to set a one-time or repeating send.' },
+    { selector: '[data-msg-list]', rows: messages.filter(m => m.state === 'sent' && (!m.recurrence || m.parent_series_id)), empty: 'No sent messages yet. Delivered messages and recipient status will appear here.' },
+  ];
+  for (const group of collections) {
+    const list = $(group.selector); if (!list) continue;
+    list.innerHTML = group.rows.map(card).join('') || `<li class="msg-empty t-caption text-muted" data-msg-empty>${group.empty}</li>`;
+    const counter = document.querySelector<HTMLElement>(`${group.selector.replace('-list]', '-count]')}`); if (counter) counter.textContent = String(group.rows.length);
+    group.rows.forEach(renderRecordRecipients);
+  }
 }
 /** texts have no subject (Bryan, 2026-10-08): a TEXT-only message is named in the history by the start of its body */
 const nameFromBody = (body: string) => { const b = body.replace(/\s+/g, ' ').trim(); if (b.length <= 60) return b; const cut = b.slice(0, 60); return `${cut.slice(0, cut.lastIndexOf(' ') > 30 ? cut.lastIndexOf(' ') : 60)}…`; };
 const subjectOf = () => nameFromBody(($('#mc-body') as HTMLTextAreaElement).value);
 const needsFirst = () => ($('#mc-body') as HTMLTextAreaElement).value.trim() ? null : 'Write the message first.';
 
-const compose = () => ({ title: subjectOf(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value || null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
-function setWhen(iso: string | null) {
-  const input = $<HTMLInputElement>('#mc-when'); if (!input) return;
-  const date = iso ? new Date(iso) : null;
-  input.value = date ? new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16) : '';
+const compose = () => ({ title: subjectOf(), body: ($('#mc-body') as HTMLTextAreaElement).value.trim(), event: ($('#mc-ev-name') as HTMLInputElement).value.trim() ? { name: ($('#mc-ev-name') as HTMLInputElement).value.trim(), when: ($('#mc-ev-when') as HTMLInputElement).value ? new Date(($('#mc-ev-when') as HTMLInputElement).value).toISOString() : null, where: ($('#mc-ev-where') as HTMLInputElement).value.trim() || null, rsvp: ($('#mc-ev-rsvp') as HTMLInputElement).value.trim() || null } : null });
+function setWhen(iso: string | null, recurrence: Recurrence | null = null) {
+  fillSchedule(iso, recurrence);
   document.querySelectorAll<HTMLElement>('[data-when] .portal-chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.value === (iso ? 'later' : 'now'))));
   const at = $('[data-when-at]'), button = $('[data-send-btn]'); if (at) at.hidden = !iso; if (button) button.textContent = iso ? 'SCHEDULE' : 'SEND NOW';
 }
@@ -227,10 +268,10 @@ function showTestTarget() {
 function loadIntoComposer(m: Msg) {
   if (m.send_by !== 'text') { fb('This is an older email record. New messages are text-only.', false); return; }
   editing = m.id; ($('#mc-body') as HTMLTextAreaElement).value = m.body;
-  ($('#mc-ev-name') as HTMLInputElement).value = m.event?.name ?? ''; ($('#mc-ev-when') as HTMLInputElement).value = m.event?.when ?? ''; ($('#mc-ev-where') as HTMLInputElement).value = m.event?.where ?? ''; ($('#mc-ev-rsvp') as HTMLInputElement).value = m.event?.rsvp ?? '';
+  ($('#mc-ev-name') as HTMLInputElement).value = m.event?.name ?? ''; ($('#mc-ev-when') as HTMLInputElement).value = m.event?.when ? localDateTime(m.event.when, Intl.DateTimeFormat().resolvedOptions().timeZone) : ''; ($('#mc-ev-where') as HTMLInputElement).value = m.event?.where ?? ''; ($('#mc-ev-rsvp') as HTMLInputElement).value = m.event?.rsvp ?? '';
 
   setPicked(cleanAudience(m.audience));
-  setWhen(m.scheduled_for); composerState();
+  setWhen(m.scheduled_for || (m.recurrence ? recurrenceStart(m.recurrence) : null), m.recurrence || null); composerState();
   const a = cleanAudience(m.audience); document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { if ((d.querySelector('#mc-ev-name') && m.event) || (d.classList.contains('portal-or') && (a.cohort?.length || a.industries?.length))) d.open = true; });
   document.querySelector('.portal-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); fb(`Editing “${m.title || '(untitled)'}”. Save as a draft, schedule, or send.`); smsCount();
 }
@@ -251,20 +292,27 @@ async function persist(state: 'draft' | 'scheduled'): Promise<{ id: number; who:
   const a = audience(); if (state === 'scheduled' && !hasSelection(a.aud)) { nudged = true; summary(); return { error: 'Choose at least one group or specific person first.' }; }   // a draft can wait for its audience
   if (state === 'scheduled' && !a.who.length) return { error: 'Nobody in this audience can be reached that way. Check your groups and filters.' };
   if (state === 'scheduled' && a.sendBy !== 'email' && smsBody(c.body, c.event).length > SMS_MAX) return { error: `Too long for a text. Shorten the message to ${SMS_MAX} characters and try again.` };
-  const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later'; const at = ($('#mc-when') as HTMLInputElement).value;
-  if (state === 'scheduled' && later && !at) return { error: 'Pick a date and time to schedule it.' };
-  if (state === 'scheduled' && at && (!Number.isFinite(new Date(at).getTime()) || new Date(at).getTime() <= Date.now())) return { error: 'That time has already passed. Pick a time in the future, or choose SEND NOW.' };
-  if (state === 'scheduled' && later && at && a.sendBy !== 'email') { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(at))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a time in that window, and try again.' }; }
-  const row = { ...c, send_by: a.sendBy, audience: a.aud, channel_id: null, filters: {}, state, scheduled_for: state === 'scheduled' ? (later && at ? new Date(at).toISOString() : new Date().toISOString()) : null, last_error: null };
-  const sb = supabase(); const res = editing ? await sb.from('messages').update(row).eq('id', editing).in('state', ['draft', 'scheduled']).select().single() : await sb.from('messages').insert(row).select().single();
+  const later = $('[data-when] .portal-chip[aria-pressed="true"]')?.dataset.value === 'later';
+  let plan: { recurrence: Recurrence | null; scheduled_for: string } | null = null;
+  if (later && ($('#mc-when') as HTMLInputElement).value) { try { plan = readSchedule(); } catch (error) { return { error: error instanceof Error ? error.message : 'Check your repeat schedule.' }; } }
+  if (state === 'scheduled' && !plan) return { error: 'Choose the first send date and time.' };
+  if (state === 'scheduled' && plan && Date.parse(plan.scheduled_for) <= Date.now()) return { error: 'That time has already passed. Pick a first send in the future.' };
+  if (state === 'scheduled' && plan) { const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(plan.scheduled_for))); if (h < 8 || h >= 21) return { error: 'Texts only go out between 8 AM and 9 PM Pacific. Pick a first send in that window.' }; }
+  if (c.event?.rsvp) { try { const url = new URL(c.event.rsvp); if (!['http:', 'https:'].includes(url.protocol)) throw new Error(); } catch { return { error: 'Use a complete RSVP link starting with https:// or http://.' }; } }
+  const row = { ...c, send_by: a.sendBy, audience: a.aud, channel_id: null, filters: {}, state, scheduled_for: state === 'scheduled' ? plan!.scheduled_for : null, recurrence: plan?.recurrence || null, last_error: null };
+  const sb = supabase();
+  const saved = messages.find(m => m.id === editing);
+  if (saved?.parent_series_id && row.recurrence) return { error: 'This is one occurrence of a repeating message. Choose Does not repeat to retry it, or New draft to create a new repeating schedule.' };
+  const started = Boolean(saved?.recurrence && saved.recurrence_index);
+  const res = started ? await sb.rpc('replace_message_series', { p_series_id: editing, p_expected_updated_at: saved!.updated_at, p_message: row }) : editing ? await sb.from('messages').update(row).eq('id', editing).in('state', ['draft', 'scheduled']).eq('updated_at', saved!.updated_at).select().single() : await sb.from('messages').insert(row).select().single();
   if (res.error) return { error: editing && res.error.code === 'PGRST116' ? 'This message is no longer editable. Reload to see its current status, or press NEW DRAFT.' : res.error.message };
-  if (form?.isConnected) { editing = res.data.id; composerState(); } return { id: res.data.id, who: a.who.length };
+  if (form?.isConnected) { editing = (Array.isArray(res.data) ? res.data[0] : res.data).id; composerState(); } return { id: (Array.isArray(res.data) ? res.data[0] : res.data).id, who: a.who.length };
 }
 const busy = async (btn: HTMLElement, work: () => Promise<void>) => {
   if (actionBusy || !dataReady) return;
   const generation = pageGeneration;
   actionBusy = true; btn.setAttribute('aria-busy', 'true');
-  const buttons = [...document.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement>('.portal-messaging button, .portal-messaging input, .portal-messaging textarea')];
+  const buttons = [...document.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('.portal-messaging button, .portal-messaging input, .portal-messaging textarea, .portal-messaging select')];
   const disabled = buttons.map(b => b.disabled); buttons.forEach(b => { b.disabled = true; });
   try { await work(); } finally {
     if (generation !== pageGeneration) return;
@@ -280,8 +328,8 @@ const done = (btn: HTMLElement, text: string) => { const o = btn.textContent; bt
 async function save(state: 'draft' | 'scheduled', btn: HTMLElement) {
   await busy(btn, async () => {
     const r = await persist(state); if (!btn.isConnected) return; if ('error' in r) { fb(r.error, false); return; }
-    const at = ($('#mc-when') as HTMLInputElement).value;
-    fb(state === 'draft' ? 'Saved as a draft. It’s in the list below.' : `Scheduled for ${new Date(at).toLocaleString()} to ${howMany(r.who)}. It sends by itself within five minutes of that time.`);
+    const plan = state === 'scheduled' ? readSchedule() : null;
+    fb(state === 'draft' ? 'Draft saved. Open Saved drafts above the composer to finish or send it.' : `Scheduled: ${describeRepeat(plan!.recurrence)}. First send ${formatScheduleDate(plan!.scheduled_for, plan!.recurrence?.timezone)} to ${howMany(r.who)}. See Scheduled messages below.`);
     resetComposer();
     await load();
   });
@@ -360,22 +408,26 @@ async function init() {
   document.querySelectorAll<HTMLElement>('[data-action]').forEach((b) => { b.dataset.wired = '1'; });
   // Keep optional details available without burying the sending controls.
   document.querySelectorAll<HTMLDetailsElement>('details[data-fold]').forEach((d) => { d.open = false; });
-  audienceMode = 'groups'; selectedPeople.clear();
+  audienceMode = 'groups'; selectedPeople.clear(); recordLimits.clear(); recordQueries.clear();
   editing = null; delivery = null; deliveryUnknown = false; dataReady = false; actionBusy = false; nudged = false;
   // the action buttons wake up once the page has its data (a click during loading used to do nothing)
   const actions = [...document.querySelectorAll<HTMLButtonElement>('[data-action="preview"], [data-action="draft"], [data-action="test-send"], [data-action="send"]')];
   actions.forEach((b) => { b.disabled = true; });
   const who = await me(); if (!who?.admin || !list.isConnected) return; viewer = { id: who.id, email: who.email }; await load(); if (!list.isConnected) return;
-  const zone = $('[data-timezone]'); if (zone) zone.textContent = `Send date and time (${Intl.DateTimeFormat().resolvedOptions().timeZone.replaceAll('_', ' ')})`;
+  wireSchedule();
   document.querySelector('.msg-compose')?.addEventListener('submit', e => e.preventDefault());
   setDataActions(dataReady);
   void fn('status').then((res) => { if (!list.isConnected) return; deliveryUnknown = !res.ok; delivery = res.ok ? res.body : null; showDelivery(); showTestTarget(); });
   const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
   document.querySelector('.portal-panels form')?.addEventListener('input', () => { smsCount(); const note = $('#msg-fb'); if (note?.textContent?.startsWith('Loaded the ')) note.textContent = ''; });
-  $('#mc-person-search')?.addEventListener('input', renderPeople);
+  $('#mc-person-search')?.addEventListener('input', () => { peopleLimit = 6; renderPeople(); });
+  $('#mc-review-search')?.addEventListener('input', () => { reviewLimit = 6; renderWho(audience()); });
+  document.querySelector('.portal-messaging')?.addEventListener('input', e => { const el = e.target as HTMLInputElement; if (!el.dataset.recordSearch) return; const id = Number(el.dataset.recordSearch), m = messages.find(x => x.id === id); recordQueries.set(id, el.value); recordLimits.set(id, 6); if (m) renderRecordRecipients(m); });
   $('[data-people-list]')?.addEventListener('change', e => { const input = e.target as HTMLInputElement; const id = input.dataset.personId; if (!id || actionBusy) return; input.checked ? selectedPeople.add(id) : selectedPeople.delete(id); $('[data-people-count]')!.textContent = `${howMany(matchingPeople().length, 'member')} · ${selectedPeople.size} selected`; summary(); });
   document.querySelector('.portal-section')!.addEventListener('click', async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
+    if (b.dataset.action === 'more-people') { peopleLimit += 6; renderPeople(); return; }
+    if (b.dataset.action === 'more-recipients') { reviewLimit += 6; renderWho(audience()); return; }
     if (b.dataset.audienceMode) { setAudienceMode(b.dataset.audienceMode as 'groups' | 'people'); return; }
     if (b.dataset.action === 'clear-audience') { setPicked({cells:[], ...(audienceMode === 'people' ? {mode:'people' as const,profile_ids:[]} : {})}); return; }
     if (b.dataset.action === 'select-people') { matchingPeople().forEach(p => selectedPeople.add(p.id)); renderPeople(); summary(); return; }
@@ -387,10 +439,11 @@ async function init() {
     else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); const t = TEMPLATES[Number(b.dataset.template)]; if (b.getAttribute('aria-pressed') === 'true') dropTemplate(t); else useTemplate(t); }
     else if (b.hasAttribute('data-texts-off-who')) { const ul = $('[data-texts-off-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
-    else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
+    else if (b.dataset.cancel) { await busy(b, async () => { const m = messages.find(x => x.id === Number(b.dataset.cancel)); if (!m) return; const repeating = Boolean(m.recurrence); const patch = repeating ? { state: 'cancelled' } : { state: 'draft', scheduled_for: null }; const r = await supabase().from('messages').update(patch).eq('id', m.id).eq('state', m.state).eq('updated_at', m.updated_at).select().single(); if (r.error) { fb('This schedule changed. Reload and check its current state before cancelling.', false); return; } if (editing === m.id) resetComposer(); fb(repeating ? 'Repeating schedule stopped. Previously sent messages remain in Sent history.' : 'Schedule cancelled. The message is now in Saved drafts.'); await load(); }); }
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }
+    else if (b.dataset.recordMore) { const id = Number(b.dataset.recordMore), m = messages.find(x => x.id === id); recordLimits.set(id, (recordLimits.get(id) || 6) + 6); if (m) renderRecordRecipients(m); }
     else if (b.dataset.recipientsFor) { const ul = b.closest('li')!.querySelector<HTMLElement>('.portal-recipients')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? (b.closest('li')!.dataset.state === 'sent' ? 'RECIPIENTS & STATUS' : 'REVIEW RECIPIENTS') : 'HIDE'; }
-    else if (b.closest('[data-msg-tabs]')) setTimeout(renderMessages, 0);
+
     else if (b.closest('[data-cohorts]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); summary(); }   // filled in after load, so not bound by the shared script
   }, { capture: true });
 }

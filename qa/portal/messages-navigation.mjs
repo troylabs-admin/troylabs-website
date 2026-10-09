@@ -59,11 +59,19 @@ try {
   await q.locator('[data-group="TECH"][data-who="alumni"]').click();
   await q.locator('[data-when] [data-value="later"]').click();
   await q.locator('#mc-when').fill('2030-10-08T10:00');
+  await q.locator('#mc-repeat').selectOption('daily');
+  await q.locator('#mc-repeat-end').selectOption('count');
+  await q.locator('#mc-repeat-count').fill('3');
   await q.locator('[data-action="send"]').click();
   await expect(q.locator('#mc-body')).toHaveValue('');
   await q.waitForTimeout(1800); // old completion timer incorrectly restored SCHEDULE after clearing the composer
   await expect(q.locator('[data-send-btn]')).toHaveText('SEND NOW');
   await expect(q.locator('[data-when] [data-value="now"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(q.locator('#mc-repeat')).toHaveValue('once');
+  assert.equal(scheduled.state.writes.at(-1).body.recurrence.frequency, 'daily');
+  assert.deepEqual(scheduled.state.writes.at(-1).body.recurrence.end, {type:'count',count:3});
+  await expect(q.locator('[data-scheduled-list]')).toContainText('Offline scheduling regression');
+  await expect(q.locator('[data-msg-list]')).not.toContainText('Offline scheduling regression');
   assert.deepEqual(scheduled.state.errors, []);
   console.log('PASS: cleared schedule label still matches SEND NOW after completion timers');
 } finally {

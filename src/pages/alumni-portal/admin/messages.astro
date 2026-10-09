@@ -28,6 +28,8 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
       <p class="m-0 t-fine portal-delivery" id="msg-delivery" role="status">Checking text delivery…</p>
     </div></div>
 
+    <section class="msg-library msg-drafts" aria-labelledby="msg-drafts-title"><div class="msg-library-head"><h2 id="msg-drafts-title" class="t-sub">Saved drafts</h2><span class="t-fine text-muted" data-draft-count></span></div><ul class="portal-row-list t-caption" data-draft-list><li class="text-muted">No saved drafts. Write a message below to begin.</li></ul></section>
+
     <div class="portal-panels portal-panels-2 msg-workspace">
       <form class="portal-panel msg-compose" novalidate>
         <div class="msg-compose-head"><div><h2 class="t-sub portal-panel-title">Compose message</h2><p class="t-fine text-muted m-0" data-compose-state>New message</p></div><button type="button" class="t-label portal-linklike" data-action="new-draft">NEW DRAFT</button></div>
@@ -43,7 +45,7 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
           <input id="mc-ev-rsvp" class="t-caption portal-input is-wide" placeholder="RSVP URL" aria-label="RSVP URL" />
         </div>
         </details>
-        <button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button>
+        <div class="msg-compose-actions"><button type="button" class="portal-btn is-small is-quiet t-label" data-action="draft" data-done="SAVED">SAVE DRAFT</button></div>
       </form>
       <div class="portal-panel msg-audience">
         <div class="msg-compose-head"><h2 class="t-sub portal-panel-title">Recipients</h2><button type="button" class="t-label portal-linklike" data-action="clear-audience">CLEAR</button></div>
@@ -68,10 +70,16 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
           <label class="t-fine text-muted" for="mc-person-search">Find members by name or phone</label>
           <input id="mc-person-search" type="search" class="portal-input t-caption is-wide" placeholder="Search members…" autocomplete="off" />
           <div class="msg-people-tools"><span class="t-fine text-muted" data-people-count></span><button type="button" class="t-fine portal-linklike" data-action="select-people">SELECT ALL MATCHING</button></div>
-          <div class="msg-people-list" data-people-list></div>
+          <div class="msg-people-list" data-people-list></div><div class="msg-list-footer"><span class="t-fine text-muted" data-people-visible></span><button type="button" class="portal-btn is-small is-quiet t-label" data-action="more-people" hidden>SEE MORE</button></div>
         </div>
         <div class="msg-audience-total"><p class="t-caption m-0" data-aud-summary role="status"></p><p class="t-fine text-muted m-0" data-aud-description></p></div>
-        <details class="portal-fold portal-who" data-who-list hidden><summary class="t-label text-muted" data-who-head>REVIEW RECIPIENTS</summary><ul class="portal-row-list t-fine portal-who-items" data-who-items></ul></details>
+        <details class="portal-fold msg-review" data-who-list hidden>
+          <summary class="t-label" data-who-head>Review recipients</summary>
+          <div class="msg-review-content"><label class="t-fine text-muted" for="mc-review-search">Verify a recipient by name or phone</label><input id="mc-review-search" type="search" class="portal-input t-caption is-wide" placeholder="Search selected recipients…" autocomplete="off" />
+          <ul class="portal-row-list t-caption msg-recipient-list" data-who-items></ul>
+          <div class="msg-list-footer"><span class="t-fine text-muted" data-review-visible></span><button type="button" class="portal-btn is-small is-quiet t-label" data-action="more-recipients" hidden>SEE MORE</button></div>
+          <div data-who-excluded></div></div>
+        </details>
       </div>
     </div>
 
@@ -88,11 +96,24 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
         <p class="t-caption msg-send-summary" data-send-summary role="status">Choose an audience above.</p>
         <span class="t-label text-muted">WHEN</span>
         <div class="flex flex-wrap portal-chips" data-single data-when><button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="now">SEND NOW</button><button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="later">SCHEDULE</button></div>
-        <div class="portal-field" data-when-at hidden><label for="mc-when" class="t-fine text-muted" data-timezone>Send date and time</label><input id="mc-when" type="datetime-local" class="t-caption portal-input is-wide" aria-label="Send at" /></div>
+        <div class="msg-schedule-builder" data-when-at hidden>
+          <div class="portal-field"><label for="mc-when" class="t-fine text-muted" data-timezone>First send date and time</label><input id="mc-when" type="datetime-local" class="t-caption portal-input is-wide" aria-label="Send at" /></div>
+          <div class="portal-field"><label for="mc-repeat" class="t-caption">Repeat</label><select id="mc-repeat" class="portal-input portal-select t-caption is-wide"><option value="once">Does not repeat</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option><option value="custom">Custom…</option></select></div>
+          <div data-repeat-options hidden>
+            <div class="msg-repeat-custom" data-repeat-custom hidden><label for="mc-interval" class="t-caption">Every</label><input id="mc-interval" type="number" min="1" max="999" value="1" class="portal-input t-caption" aria-label="Repeat interval" /><select id="mc-frequency" class="portal-input portal-select t-caption" aria-label="Repeat unit"><option value="daily">days</option><option value="weekly">weeks</option><option value="monthly">months</option><option value="yearly">years</option></select></div>
+            <fieldset class="msg-weekdays" data-repeat-weekdays hidden><legend class="t-fine text-muted">Repeat on</legend>{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day,i)=><label><input type="checkbox" data-weekday={i} aria-label={['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i]} /><span>{day}</span></label>)}</fieldset>
+            <div class="portal-field"><label for="mc-repeat-end" class="t-caption">Ends</label><select id="mc-repeat-end" class="portal-input portal-select t-caption is-wide"><option value="never">Never</option><option value="until">On a date</option><option value="count">After a number of sends</option></select></div>
+            <div class="portal-field" data-repeat-count-field hidden><label for="mc-repeat-count" class="t-fine text-muted">Number of sends, including the first</label><input id="mc-repeat-count" type="number" min="1" max="10000" value="5" class="portal-input t-caption is-wide" /></div>
+            <div class="portal-field" data-repeat-until-field hidden><label for="mc-repeat-until" class="t-fine text-muted">Last send date</label><input id="mc-repeat-until" type="date" class="portal-input t-caption is-wide" /></div>
+          </div>
+          <p class="t-fine msg-schedule-description m-0" data-schedule-description role="status"></p>
+        </div>
         <button type="button" class="portal-btn t-title" data-action="send" data-send-btn>SEND NOW</button>
       </div>
       <p id="msg-fb" class="t-caption portal-feedback" role="status" tabindex="-1"></p>
     </section>
+
+    <section class="msg-library msg-scheduled" aria-labelledby="msg-scheduled-title"><div class="msg-library-head"><h2 id="msg-scheduled-title" class="t-sub">Scheduled messages</h2><span class="t-fine text-muted" data-scheduled-count></span></div><p class="t-fine text-muted">Upcoming one-time messages and repeating schedules. Dates show when the next text goes out.</p><ul class="portal-row-list t-caption" data-scheduled-list><li class="text-muted">No scheduled messages. Choose Schedule when your text is ready.</li></ul></section>
 
     <!-- the texts the system sends by itself, word for word (2026-10-06), and who won't get texts: members who turned
          them off or have no number (2026-10-08, replacing the one-time welcome send) -->
@@ -105,16 +126,7 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
     <ul class="portal-row-list t-fine portal-who-items" data-texts-off-list hidden></ul>
     </details>
 
-    <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->
-    <h2 class="t-sub portal-section-h">Message history</h2>
-    <div class="flex flex-wrap portal-chips" data-msg-tabs style="margin-bottom:calc(14 * var(--u))">
-      <button type="button" class="t-fine portal-chip" aria-pressed="true" data-value="all">ALL</button>
-      <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="draft">DRAFTS</button>
-      <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="scheduled">SCHEDULED</button>
-      <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="sent">SENT</button>
-    </div>
-    <ul class="portal-row-list t-caption" data-msg-list><li class="text-muted" data-msg-empty>No messages yet. Write one above and save it as a draft, schedule it, or send it.</li>
-    </ul>
+    <section class="msg-library" aria-labelledby="msg-history-title"><h2 id="msg-history-title" class="t-sub portal-section-h">Sent messages</h2><p class="t-fine text-muted">Actual sends and delivery results. Each recurring send appears separately.</p><ul class="portal-row-list t-caption" data-msg-list><li class="text-muted" data-msg-empty>No messages have been sent yet.</li></ul></section>
     </div>
   </PortalShell>
 </BaseLayout>

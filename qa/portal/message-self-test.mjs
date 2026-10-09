@@ -24,7 +24,7 @@ async function fixture(options = {}) {
   } });
   const client = new vm.SyntheticModule(['createClient'], function () { this.setExport('createClient', (url, key) => key === 'fixture-service' ? svc : user); }, { context });
   const modules = new Map();
-  for (const name of ['sms', 'audience']) modules.set(`../_shared/${name}.ts`, new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL(`_shared/${name}.ts`, base), 'utf8')), { context }));
+  for (const name of ['sms', 'audience', 'recurrence']) modules.set(`../_shared/${name}.ts`, new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL(`_shared/${name}.ts`, base), 'utf8')), { context }));
   const main = new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('send-message/index.ts', base), 'utf8')), { context });
   await main.link(specifier => specifier.startsWith('npm:') ? client : modules.get(specifier)); await main.evaluate();
   const response = await handler(new Request('https://fixture.invalid/functions/v1/send-message', { method: 'POST', headers: { Authorization: 'Bearer offline-fixture', 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: options.mode ?? 'test', messageId: 42, profileId: ADMIN_B.id, email: 'attacker@example.com', phone: '+12135550999', recipients: [ADMIN_B.id] }) }));

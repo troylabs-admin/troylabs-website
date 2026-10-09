@@ -31,6 +31,7 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { APPROVED_TEXT, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
 import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
+import { planRecurrence, type Recurrence } from '../_shared/recurrence.ts';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret' };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
@@ -38,7 +39,7 @@ const SITE = 'https://usctroylabs.com';
 /** the TroyLabs wordmark at the top of every email (a PNG on the site: Gmail and Outlook don't show SVG); the alt text is the fallback */
 const LOGO = `<img src="${SITE}/email/troylabs-wordmark.png" width="200" height="38" alt="TROYLABS" style="display:block;border:0;outline:none;width:200px;height:auto;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:4px;color:#0a0a0a">`;
 
-interface Msg { created_by?: string | null; id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null }
+interface Msg { created_by?: string | null; id: number; title: string; body: string; send_by: 'email' | 'text' | 'both'; audience: Audience; event: { name?: string; when?: string | null; where?: string | null; rsvp?: string | null } | null; state: string; scheduled_for: string | null; recurrence?: Recurrence | null; recurrence_index?: number; updated_at?: string; parent_series_id?: number | null }
 interface Person extends Member { full_name: string; personal_email: string | null; usc_email: string | null; email_opt_in: boolean; phone: string | null; phone_opt_in: boolean }
 
 // ── who gets it: the shared audience rules (_shared/audience.ts), the same code the Message page counts with ──
@@ -213,7 +214,7 @@ async function pool<T>(items: T[], n: number, work: (x: T) => Promise<void>) { l
 /** send one message to its audience; the state change to `sending` is the lock against a double send */
 async function deliver(svc: SupabaseClient, id: number, by: string | null, me: { email: string | null; phone: string | null }) {
   const { testMode } = config(); const tw = twilio();
-  const { data: claimed } = await svc.from('messages').update({ state: 'sending', sent_by: by, last_error: null }).eq('id', id).in('state', ['draft', 'scheduled']).select().maybeSingle();
+  const { data: claimed } = await svc.from('messages').update({ state: 'sending', sent_by: by, last_error: null }).eq('id', id).is('recurrence', null).in('state', ['draft', 'scheduled']).select().maybeSingle();
   if (!claimed) return { status: 409, body: { error: 'This message is already sent or being sent.' } };
   const m = claimed as Msg; const back = m.scheduled_for ? 'scheduled' : 'draft'; const want = channelsOf(m);
   const fail = async (error: string, status = 400) => { await svc.from('messages').update({ state: back === 'scheduled' && by === null ? 'draft' : back, last_error: error }).eq('id', id); return { status, body: { error } }; };
@@ -267,6 +268,32 @@ async function deliver(svc: SupabaseClient, id: number, by: string | null, me: {
   return { status: 200, body: { sent: total, sentNow, failed, error: errors[0] ?? null, emails: to.email.length, texts: to.text.length } };
 }
 
+/** Materialize every due series before claiming children, so stale queued backlog is cancelled first. */
+async function sendDue(svc: SupabaseClient, now = new Date().toISOString()) {
+  const { data: due, error } = await svc.from('messages').select('id, recurrence, recurrence_index, scheduled_for, updated_at').eq('state', 'scheduled').lte('scheduled_for', now).order('scheduled_for');
+  if (error) throw error;
+  const ids = new Set<number>(), results: { id: number; [key: string]: unknown }[] = [];
+  for (const m of (due ?? []) as Msg[]) {
+    if (!m.recurrence) { ids.add(m.id); continue; }
+    try {
+      const plan = planRecurrence(m.recurrence, m.scheduled_for!, now, m.recurrence_index ?? 0);
+      const { data: child, error: materializeError } = await svc.rpc('materialize_message_occurrence', {
+        p_series_id: m.id, p_expected_updated_at: m.updated_at, p_expected_at: m.scheduled_for,
+        p_occurrence_at: plan.occurrence_at, p_next_at: plan.next_at, p_next_index: plan.next_index, p_skipped: plan.skipped,
+      });
+      if (materializeError) throw materializeError;
+      if (child) ids.add(Number(child));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : (e as { message?: string })?.message ?? 'Could not advance this repeat schedule.';
+      // Failed validation/advancement pauses the template instead of cron retrying forever.
+      await svc.from('messages').update({ state: 'draft', last_error: message }).eq('id', m.id).eq('state', 'scheduled').eq('updated_at', m.updated_at);
+      results.push({ id: m.id, error: message });
+    }
+  }
+  for (const id of ids) results.push({ id, ...(await deliver(svc, id, null, { email: null, phone: null })).body });
+  return { due: results.length, results };
+}
+
 /** Twilio calling in: delivery reports and replies. Always answers 200 with empty TwiML once the signature checks out. */
 async function fromTwilio(req: Request, kind: string, svc: SupabaseClient) {
   const params = new URLSearchParams(await req.text());
@@ -304,10 +331,8 @@ Deno.serve(async (req) => {
   if (input.mode === 'due') {
     const secret = Deno.env.get('CRON_SECRET');
     if (!secret || req.headers.get('x-cron-secret') !== secret) return json({ error: 'forbidden' }, 403);
-    const { data: due } = await svc.from('messages').select('id').eq('state', 'scheduled').lte('scheduled_for', new Date().toISOString()).order('scheduled_for');
-    const results = [];
-    for (const { id } of due ?? []) results.push({ id, ...(await deliver(svc, id, null, { email: null, phone: null })).body });   // a channel that isn't connected sends it back to drafts with the reason
-    return json({ due: results.length, results });
+    try { return json(await sendDue(svc)); }
+    catch { return json({ error: 'Could not load scheduled messages. The next scheduler run will try again.' }, 503); }
   }
 
   // everything else: a signed-in admin

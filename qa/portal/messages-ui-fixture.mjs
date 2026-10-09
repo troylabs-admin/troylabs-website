@@ -12,7 +12,7 @@ export async function createMessagesFixture(browser, { base=process.env.PORTAL_U
  const profile=person(1,'Morgan Admin',{personal_email:user.email,phone_opt_in:false});
  const people=[profile,
   person(2,'Alexandra Longlastname',{divisions:['TECH','BUILD','PRODUCT MANAGEMENT']}),
-  person(3,'Jamie Student',{status:'student',grad_year:2029,divisions:['BUILD'],join_term:'SP',join_year:2026,industries:['Climate']}),
+  person(3,'Jamie Student',{avatar_path:'00000000-0000-4000-8000-000000000003/photo.jpg',status:'student',grad_year:2029,divisions:['BUILD'],join_term:'SP',join_year:2026,industries:['Climate']}),
   person(4,'Taylor Opted Out',{phone_opt_in:false,email_opt_in:false}),
   person(5,'Robin Shared Phone',{divisions:['BUILD'],phone:'+12135550172'}),
   person(6,'Casey No Number',{phone:null}),

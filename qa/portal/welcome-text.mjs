@@ -14,7 +14,7 @@ await admin.from('profiles').update({ phone: '+12135550161', phone_opt_in: false
 await admin.from('profiles').update({ phone: '+12135550162', phone_opt_in: false }).eq('id', other.id);
 const call = async (u, body) => { const r = await fetch(FN, { method: 'POST', headers: { Authorization: `Bearer ${u.session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'welcome-text', ...body }) }); return { status: r.status, ...(await r.json()) }; };
 const welcomes = async (id) => (await admin.from('profile_events').select('actor, detail').eq('profile_id', id).eq('event', 'texts_welcome')).data;
-const browser = await chromium.launch();
+const browser = await chromium.launch(); const extra = [];
 try {
   assert.equal(REGISTERED.length <= 160 && /^[\x20-\x7e]+$/.test(REGISTERED), true, 'one plain-text segment');
   assert.equal((await call(member, {})).reason, 'texts are off');
@@ -57,4 +57,20 @@ try {
   assert.equal((await welcomes(other.id))[0].actor, boss.id);
   console.log('PASS: a member can\'t trigger someone else\'s welcome; an admin turning texts on for a member sends theirs, recorded with the admin');
   await context.close();
-} finally { await browser.close(); for (const u of [member, other, boss]) await u.cleanup(); await admin.rpc('purge_test_backups'); }
+
+  // someone still applying (box ticked by default since 2026-10-08) saves their phone row: no text, from the page or the
+  // function; their first text is "You're in!" on approval (Vito got the sign-up text a minute before he was approved)
+  const applicant = await makeUser(admin, 'Applicant Text QA', false); extra.push(applicant);
+  ({ context, page } = await signInPage(browser, applicant));
+  const asked3 = []; page.on('request', (r) => { if (r.url().startsWith(FN) && /welcome-text|optout-text/.test(r.postData() ?? '')) asked3.push(r.postData()); });
+  await page.goto(`${base}/alumni-portal/profile`); await page.locator('#pf-phone').waitFor(); await page.waitForTimeout(1500);
+  await expect(page.locator('#pf-phone-opt')).toBeChecked();
+  await page.locator('#pf-phone').fill('(213) 555-0163'); await page.locator('[data-contact="phone"] .portal-save-row').click();
+  await expect.poll(async () => (await admin.from('profiles').select('phone, phone_opt_in').eq('id', applicant.id).single()).data, { timeout: 10000 }).toEqual({ phone: '+12135550163', phone_opt_in: true });
+  await page.waitForTimeout(2000); assert.deepEqual(asked3, [], 'the page asks for no text while applying');
+  assert.equal((await call(applicant, {})).reason, 'not approved yet', 'and the function refuses anyway');
+  assert.equal((await call(boss, { profileId: applicant.id })).reason, 'not approved yet', 'even when an admin asks');
+  assert.equal((await welcomes(applicant.id)).length, 0, 'nothing recorded');
+  console.log('PASS: someone still applying saves their number with texts ticked: no text (page and function both), nothing recorded');
+  await context.close();
+} finally { await browser.close(); for (const u of [member, other, boss, ...extra]) await u.cleanup(); await admin.rpc('purge_test_backups'); }

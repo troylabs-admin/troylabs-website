@@ -62,7 +62,8 @@
 .portal-messaging .msg-person:hover { background: rgb(255 255 255 / .04); }
 .portal-messaging .msg-person:has(:checked) { background: rgb(255 125 44 / .07); }
 .portal-messaging .msg-person input { accent-color: var(--color-orange); flex-shrink: 0; width: 20px; height: 20px; }
-.portal-messaging .msg-person > span { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.portal-messaging .msg-person .msg-person-photo { width: 40px; height: 40px; overflow: hidden; }
+.portal-messaging .msg-person > span:not(.msg-person-photo) { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
 .portal-messaging .portal-who-items li { gap: calc(12 * var(--u)); flex-wrap: wrap; line-height: 1.5; }
 .portal-messaging [data-msg-list] > li { background: rgb(10 10 12 / .72); padding: calc(20 * var(--u)); gap: calc(14 * var(--u)) !important; }
 .portal-messaging [data-msg-list] > li > .flex:first-child > .text-ink { font-size: max(18px, calc(15 * var(--u))); line-height: 1.4; flex-basis: 40% !important; }

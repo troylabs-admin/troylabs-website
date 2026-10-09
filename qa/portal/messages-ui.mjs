@@ -145,6 +145,20 @@ try {
     await check('legacy email history is read-only without accidental conversion', async ({ page }) => {
       await expect(page.locator('[data-msg-list]')).toContainText('Legacy email'); await expect(page.locator('[data-edit="900099"]')).toHaveCount(0); await expect(page.locator('[data-del="900099"]')).toBeVisible();
     }, { setup: state => state.messages.push({ ...state.messages[0], id: 900099, title: 'Legacy email', send_by: 'email' }) });
+    await check('a picked template can be unpicked; untouched text goes, edited text stays', async ({ page }) => {
+      const t0 = page.locator('[data-template="0"]'), t1 = page.locator('[data-template="1"]');
+      await t0.click(); await expect(t0).toHaveAttribute('aria-pressed', 'true'); await expect(body(page)).not.toHaveValue('');
+      await t0.click(); await expect(t0).toHaveAttribute('aria-pressed', 'false'); await expect(body(page)).toHaveValue(''); await expect(page.locator('#mc-ev-name')).toHaveValue(''); await expect(page.locator('[data-sms-preview]')).toBeHidden();
+      await t1.click(); await body(page).fill('Reminder: Demo Night is tomorrow at 7 PM, Bovard. See you there!');
+      await t1.click(); await expect(t1).toHaveAttribute('aria-pressed', 'false'); await expect(body(page)).toHaveValue('Reminder: Demo Night is tomorrow at 7 PM, Bovard. See you there!');
+      await expect(page.locator('#msg-fb')).toContainText('edits are still');
+    });
+    await check('specific people show a photo, or initials without one', async ({ page }) => {
+      await mode(page, 'people').click(); await page.locator('#mc-person-search').fill('Jamie');
+      await expect(page.locator('.msg-person', { has: picker(page, 3) }).locator('.msg-person-photo img')).toHaveAttribute('src', /\/storage\/v1\/object\/public\/avatars\/00000000-0000-4000-8000-000000000003\/photo\.jpg/);
+      await page.locator('#mc-person-search').fill('Alexandra');
+      const row = page.locator('.msg-person', { has: picker(page, 2) }); await expect(row.locator('.msg-person-photo')).toHaveText('AL'); await expect(row).toContainText('Alexandra Longlastname'); await expect(row).toContainText('(213) 555-0172');
+    });
     await check('cancel schedule then delete updates history', async ({ page, state }) => { await page.locator('[data-cancel="900002"]').click(); await expect(page.locator('#msg-fb')).toContainText('Cancelled'); assert.equal(state.messages.find(m => m.id === 900002).state, 'draft'); await page.locator('[data-del="900002"]').click(); await expect(page.locator('[data-edit="900002"]')).toHaveCount(0); assert.equal(state.messages.some(m => m.id === 900002), false); });
     await check('keyboard focus is visible on groups people and disclosure', async ({ page }) => {
       await page.keyboard.press('Tab'); await group(page).focus(); assert.equal(await group(page).evaluate(el => getComputedStyle(el).outlineStyle), 'solid'); await mode(page, 'people').click(); await page.keyboard.press('Tab'); await picker(page, 2).focus(); assert.equal(await picker(page, 2).evaluate(el => el.matches(':focus-visible')), true); await page.locator('.msg-automatic > summary').focus(); assert.equal(await page.locator('.msg-automatic > summary').evaluate(el => getComputedStyle(el).outlineStyle), 'solid');

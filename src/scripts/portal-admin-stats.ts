@@ -31,8 +31,8 @@ async function fillNetwork() {
   set('members', n.members); set('students', n.students); set('alumni', n.alumni); set('active30', n.active30); set('pending', n.pending); set('completeness', `${n.completeness}%`); set('sentThisMonth', n.sentThisMonth); set('newThisMonth', n.newThisMonth);
   const hint = $('[data-stat-hint="members"]'); if (hint) hint.textContent = `${fmt(n.students)} ${n.students === 1 ? 'student' : 'students'} · ${fmt(n.alumni)} ${n.alumni === 1 ? 'alum' : 'alumni'}`;
   list('byCohort', n.byCohort, 'No semesters recorded yet.'); list('byCity', n.byCity, 'No cities yet.');
-  const up = $('[data-upcoming]'); if (up) up.innerHTML = n.upcoming.length ? n.upcoming.map((m) => msgLine(m, false)).join('') : '<li class="text-muted"><span>Nothing scheduled. <a href="/alumni-portal/admin/messages" class="portal-inline-link">Write a message</a> and pick SCHEDULE to send it later.</span></li>';
-  const rec = $('[data-recent]'); if (rec) rec.innerHTML = n.recent.length ? n.recent.map((m) => msgLine(m, true)).join('') : '<li class="text-muted">Nothing sent yet.</li>';
+  const up = $('[data-upcoming]'); if (up) up.innerHTML = n.upcoming.length ? n.upcoming.map((m) => msgLine(m, false)).join('') : '<li class="text-muted"><span>No messages scheduled. <a href="/alumni-portal/admin/messages" class="portal-inline-link">Write a message</a> and pick SCHEDULE to send it later.</span></li>';
+  const rec = $('[data-recent]'); if (rec) rec.innerHTML = n.recent.length ? n.recent.map((m) => msgLine(m, true)).join('') : '<li class="text-muted">No messages sent yet.</li>';
   return n;
 }
 

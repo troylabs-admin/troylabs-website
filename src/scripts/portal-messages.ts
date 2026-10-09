@@ -6,7 +6,7 @@
  */
 import { me } from '../lib/auth';
 import { supabase } from '../lib/supabase';
-import { cohortOf, type ProfileRow } from '../lib/portal/data';
+import { avatarUrl, cohortOf, initialsOf, type ProfileRow } from '../lib/portal/data';
 import { prettyPhone } from '../lib/portal/phone';
 import { currentTerm } from '../lib/portal/options';
 import { SMS_MAX, placeholderLeft, segments, smsBody } from '../../supabase/functions/_shared/sms';
@@ -60,10 +60,12 @@ function matchingPeople() {
   const q = ($<HTMLInputElement>('#mc-person-search')?.value ?? '').trim().toLowerCase();
   return people.filter(p => p.approved && (!q || `${p.full_name} ${p.phone ?? ''} ${prettyPhone(p.phone)}`.toLowerCase().includes(q))).sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''));
 }
+/** their profile photo (or initials) beside the name, so the right person is easy to pick (Bryan, 2026-10-08) */
+const personPhoto = (p: ProfileRow) => { const url = p.avatar_path ? avatarUrl(p) : null; return `<span class="portal-avatar t-fine msg-person-photo" aria-hidden="true">${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : esc(initialsOf(p.full_name || '?'))}</span>`; };
 function renderPeople() {
   const list = $('[data-people-list]'); if (!list) return;
   const rows = matchingPeople(); $('[data-people-count]')!.textContent = `${howMany(rows.length, 'member')} · ${selectedPeople.size} selected`;
-  list.innerHTML = rows.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}><span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
+  list.innerHTML = rows.map(p => `<label class="msg-person"><input type="checkbox" data-person-id="${esc(p.id)}" ${selectedPeople.has(p.id) ? 'checked' : ''}>${personPhoto(p)}<span><span class="text-ink">${esc(p.full_name || '(no name)')}</span><span class="t-fine text-muted">${p.phone ? esc(prettyPhone(p.phone)) : 'No phone number'}${p.phone && !p.phone_opt_in ? ' · Texts off' : ''}</span></span></label>`).join('') || '<p class="t-fine text-muted">No matching members.</p>';
 }
 
 /** what the grid and the narrowing chips say right now */
@@ -159,6 +161,15 @@ function useTemplate(t: Template) {
   for (const id of ['#mc-ev-name', '#mc-ev-when', '#mc-ev-where', '#mc-ev-rsvp']) ($(id) as HTMLInputElement).value = '';
   if (t.event) { ($('#mc-ev-name') as HTMLInputElement).value = '[Event name]'; ($('#mc-ev-where') as HTMLInputElement).value = '[Location]'; const d = document.querySelector<HTMLDetailsElement>('details[data-fold]'); if (d) d.open = true; }
   smsCount(); summary(); fb(`Loaded the ${t.label.toLowerCase()} template. Replace everything in [brackets], pick who gets it, then send yourself a test.`);
+}
+/** tapping the picked template again unpicks it (Bryan, 2026-10-08: a template is a starting point, not a required choice
+ *  like the recipients). The text it filled in goes too, unless they've already started editing it. */
+function dropTemplate(t: Template) {
+  document.querySelectorAll<HTMLElement>('[data-template]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  const body = $('#mc-body') as HTMLTextAreaElement, evName = $('#mc-ev-name') as HTMLInputElement, evWhere = $('#mc-ev-where') as HTMLInputElement;
+  const untouched = body.value === t.body && (!t.event || (evName.value === '[Event name]' && evWhere.value === '[Location]' && !($('#mc-ev-when') as HTMLInputElement).value && !($('#mc-ev-rsvp') as HTMLInputElement).value));
+  if (untouched) { body.value = ''; if (t.event) { evName.value = ''; evWhere.value = ''; } }
+  smsCount(); summary(); fb(untouched ? 'Template removed.' : 'Template unpicked. Your edits are still in the text.');
 }
 /** a [placeholder] left from a template: nothing sends (or schedules) until it's filled in */
 const leftover = () => { const c = compose(); return placeholderLeft(c.title, c.body, c.event?.name, c.event?.where, c.event?.rsvp); };
@@ -312,7 +323,7 @@ async function load() {
   const list = $('[data-msg-list]');
   const sb = supabase(); const now = currentTerm();
   const results = await Promise.all([
-    sb.from('profiles').select('id, full_name, approved, is_test, status, divisions, join_term, join_year, industries, personal_email, usc_email, phone, phone_opt_in, email_opt_in'),
+    sb.from('profiles').select('id, full_name, approved, is_test, status, divisions, join_term, join_year, industries, personal_email, usc_email, phone, phone_opt_in, email_opt_in, avatar_path, updated_at'),
     sb.from('messages').select('*').order('updated_at', { ascending: false }),
     sb.from('message_recipients').select('message_id, profile_id, channel, email, phone, delivered_at, status, error'),
     sb.from('eboard_roles').select('profile_id, term, year'),
@@ -329,19 +340,19 @@ async function load() {
   messages = (m ?? []) as Msg[]; rcpts = (r ?? []) as Rcpt[];
   const roles = (e ?? []) as { profile_id: string; term: string; year: number }[];
   eb = { now: new Set(roles.filter(x => x.term === now.term && x.year === now.year).map(x => x.profile_id)), ever: new Set(roles.map(x => x.profile_id)) };
-  renderCohorts(); renderPeople(); renderGrid(); renderMessages(); smsCount(); void backlog();
+  renderCohorts(); renderPeople(); renderGrid(); renderMessages(); smsCount(); textsOff();
   return true;
 }
 /** members who turned texts on before texts were connected never got the welcome: list them, and send it once */
-let backlogPeople: { id: string; name: string; phone: string }[] = [];
-async function backlog() {
-  const row = $('[data-backlog]'); if (!row) return;
-  const res = await fn('welcome-backlog', undefined, { dry: true }); if (!row.isConnected || !res.ok) return;
-  backlogPeople = res.body.people ?? []; row.hidden = !backlogPeople.length;
-  const t = delivery?.text; const ready = imTest || Boolean(t?.configured && !t.trial && !t.error);
-  $('[data-backlog-note]')!.textContent = `${howMany(backlogPeople.length)} ${backlogPeople.length === 1 ? 'hasn’t' : 'haven’t'} had the welcome text yet.${ready ? '' : ' It can go out once texts are connected (the Twilio registration is approved).'}`;
-  ($('[data-backlog-send]') as HTMLButtonElement).disabled = !ready;
-  $('[data-backlog-list]')!.innerHTML = backlogPeople.map((p) => `<li><span class="text-ink">${esc(p.name || '(no name yet)')}</span><span class="text-muted">${esc(prettyPhone(p.phone))}</span></li>`).join('');
+/** approved members who won't get texts: they turned them off (on their profile or by replying STOP) or have no number
+ *  (Bryan, 2026-10-08: in place of the one-time welcome send). Read-only; the people list is already this admin's world. */
+function textsOff() {
+  const row = $('[data-texts-off]'); if (!row) return;
+  const off = people.filter((p) => p.approved && (!p.phone || !p.phone_opt_in)).sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+  row.hidden = !off.length;
+  const noNumber = off.filter((p) => !p.phone).length, turnedOff = off.length - noNumber;
+  $('[data-texts-off-note]')!.textContent = `${howMany(off.length)} won’t get texts: ${[turnedOff && `${turnedOff.toLocaleString()} turned them off`, noNumber && `${noNumber.toLocaleString()} ${noNumber === 1 ? 'has' : 'have'} no phone number`].filter(Boolean).join(', ')}.`;
+  $('[data-texts-off-list]')!.innerHTML = off.map((p) => `<li><span class="text-ink">${esc(p.full_name || '(no name yet)')}</span><span class="text-muted">${p.phone ? `${esc(prettyPhone(p.phone))} · texts off` : 'no phone number'}</span></li>`).join('');
 }
 async function init() {
   const list = $('[data-msg-list]'); if (!list || list.dataset.wired) return; list.dataset.wired = '1';
@@ -358,7 +369,7 @@ async function init() {
   const zone = $('[data-timezone]'); if (zone) zone.textContent = `Send date and time (${Intl.DateTimeFormat().resolvedOptions().timeZone.replaceAll('_', ' ')})`;
   document.querySelector('.msg-compose')?.addEventListener('submit', e => e.preventDefault());
   setDataActions(dataReady);
-  void fn('status').then((res) => { if (!list.isConnected) return; deliveryUnknown = !res.ok; delivery = res.ok ? res.body : null; showDelivery(); showTestTarget(); void backlog(); });
+  void fn('status').then((res) => { if (!list.isConnected) return; deliveryUnknown = !res.ok; delivery = res.ok ? res.body : null; showDelivery(); showTestTarget(); });
   const tpl = $('[data-templates]'); if (tpl) tpl.innerHTML = TEMPLATES.map((t, i) => `<button type="button" class="t-fine portal-chip" aria-pressed="false" data-template="${i}">${esc(t.label)}</button>`).join('');
   document.querySelector('.portal-panels form')?.addEventListener('input', () => { smsCount(); const note = $('#msg-fb'); if (note?.textContent?.startsWith('Loaded the ')) note.textContent = ''; });
   $('#mc-person-search')?.addEventListener('input', renderPeople);
@@ -373,13 +384,8 @@ async function init() {
     else if (b.dataset.action === 'draft') { e.preventDefault(); await save('draft', b); }
     else if (b.dataset.action === 'send') { e.preventDefault(); await sendNow(b); }
     else if (b.dataset.action === 'test-send') { e.preventDefault(); await testSend(b); }
-    else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); useTemplate(TEMPLATES[Number(b.dataset.template)]); }
-    else if (b.hasAttribute('data-backlog-who')) { const ul = $('[data-backlog-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
-    else if (b.hasAttribute('data-backlog-send')) {
-      if (!confirm(`Text the welcome to ${howMany(backlogPeople.length)} who turned texts on before texts were connected? This can't be unsent.`)) return;
-      (b as HTMLButtonElement).disabled = true; const res = await fn('welcome-backlog');
-      fb(res.ok ? `Welcome sent to ${howMany(res.body.sent)}.${res.body.failed ? ` ${res.body.failed} failed: ${res.body.error}` : ''}` : res.body.error ?? 'It didn’t send.', res.ok && !res.body.failed); await backlog();
-    }
+    else if (b.dataset.template) { e.preventDefault(); e.stopPropagation(); const t = TEMPLATES[Number(b.dataset.template)]; if (b.getAttribute('aria-pressed') === 'true') dropTemplate(t); else useTemplate(t); }
+    else if (b.hasAttribute('data-texts-off-who')) { const ul = $('[data-texts-off-list]')!; ul.hidden = !ul.hidden; b.textContent = ul.hidden ? 'SEE WHO' : 'HIDE'; }
     else if (b.dataset.edit) { const m = messages.find((x) => x.id === Number(b.dataset.edit)); if (m) loadIntoComposer(m); }
     else if (b.dataset.cancel) { const r = await supabase().from('messages').update({ state: 'draft', scheduled_for: null }).eq('id', Number(b.dataset.cancel)); if (r.error) { fb(r.error.message, false); return; } fb('Cancelled. It is back in drafts.'); await load(); }
     else if (b.dataset.del) { if (confirm('Delete this draft?')) { const r = await supabase().from('messages').delete().eq('id', Number(b.dataset.del)); if (r.error) { fb(r.error.message, false); return; } if (editing === Number(b.dataset.del)) editing = null; await load(); } }

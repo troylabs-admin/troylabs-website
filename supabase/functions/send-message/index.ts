@@ -322,8 +322,11 @@ Deno.serve(async (req) => {
     const { data: { user: caller } } = await user.auth.getUser(); if (!caller) return json({ error: 'sign in first' }, 401);
     const target = typeof input.profileId === 'string' && input.profileId !== caller.id ? input.profileId : caller.id;
     if (target !== caller.id) { const { data: adm } = await user.rpc('is_admin'); if (!adm) return json({ error: 'admins only' }, 403); }
-    const { data: p } = await svc.from('profiles').select('phone, phone_opt_in, is_test').eq('id', target).maybeSingle();
+    const { data: p } = await svc.from('profiles').select('phone, phone_opt_in, is_test, approved').eq('id', target).maybeSingle();
     if (!p?.phone) return json({ sent: false, reason: 'no number' });
+    // nobody is texted before they're approved (2026-10-08: with the box ticked at sign-up, saving the phone row while
+    // applying sent Vito the sign-up text a minute before approval); their first text is "You're in!" on approval
+    if (!p.approved) return json({ sent: false, reason: 'not approved yet' });
     if (welcome ? !p.phone_opt_in : p.phone_opt_in) return json({ sent: false, reason: welcome ? 'texts are off' : 'texts are on' });
     const { data: recent } = await svc.from('profile_events').select('detail').eq('profile_id', target).eq('event', event).gte('at', new Date(Date.now() - 24 * 3600_000).toISOString());
     if ((recent ?? []).some((e) => e.detail?.phone === p.phone && (e.detail?.ok || e.detail?.test))) return json({ sent: false, reason: 'already sent to this number today' });

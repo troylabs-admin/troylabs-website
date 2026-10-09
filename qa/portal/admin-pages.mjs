@@ -30,7 +30,7 @@ try {
   await expect(att).not.toContainText(/Twilio|Texts?\b/i);   // texting is deferred (Bryan, 2026-10-05): never an alarm here
   await expect(page.locator('[data-stat="members"]')).toHaveText(/^\d[\d,]*$/); await expect(page.locator('[data-stat="site:$pageview"]')).toHaveText(/^\d{1,3}(,\d{3})*$/, { timeout: 15000 });   // 1,248 like the lists, never 1248
   assert.ok(await num(page.locator('[data-stat="site:$pageview"]')) > 0, 'website visits come from PostHog');
-  await expect(page.locator('[data-upcoming]')).toContainText(/Nothing scheduled|·/); await expect(page.locator('[data-recent]')).not.toContainText('—');
+  await expect(page.locator('[data-upcoming]')).toContainText(/No messages scheduled|·/); await expect(page.locator(".portal-panel-title", { hasText: "Scheduled messages" })).toBeVisible(); await expect(page.locator(".portal-panel-title", { hasText: "Recently sent messages" })).toBeVisible(); await expect(page.locator('[data-recent]')).not.toContainText('—');
   // layout the audit flagged: every tile's number on one line across the row; the link beside its sentence with a gap, on one line
   const layout = async () => page.evaluate(() => {
     const r = (el) => el.getBoundingClientRect();
@@ -74,13 +74,12 @@ try {
   await page.locator('main, body').first().screenshot({ path: `${out}/overview-1440.png`, fullPage: true });
   console.log('PASS: Overview — attention (waiting → REVIEW; never a Twilio/text warning, whatever the text status; hidden when nothing needs review), numbers with thousands separators and lined up at 1440 and 390, COPY, every common job lands on the right page');
 
-  // ── Message: the delivery line mentions texts only when TEXT or BOTH is picked ──────────────────
+  // ── Message: the delivery line says when texts aren't ready ──────────────────
   await page.route('**/functions/v1/send-message', fakeStatus(trial));
   await page.goto(`${base}/alumni-portal/admin/messages`); const line = page.locator('#msg-delivery');
-  await expect(line).toContainText('Email is connected'); await expect(line).not.toContainText(/Twilio|Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
-  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="text"]').click(); await expect(line).toContainText('Texts aren’t switched on yet'); await expect(line).toHaveClass(/is-warn/); await expect(line).not.toContainText('Twilio');
-  await expect(page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]')).toHaveCount(0);   // one channel per message: no BOTH (2026-10-08)
-  await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"]').click(); await expect(line).not.toContainText(/Texts?\b/i); await expect(line).not.toHaveClass(/is-warn/);
+  // texts only since 2026-10-08: no EMAIL / TEXT / BOTH choice; while texts aren't ready the line says so plainly (no vendor names)
+  await expect(page.locator('[data-single]:not([data-when]) .portal-chip[data-value]')).toHaveCount(0);
+  await expect(line).toContainText('Text delivery is not ready yet'); await expect(line).toHaveClass(/is-warn/); await expect(line).not.toContainText('Twilio');
   await page.unroute('**/functions/v1/send-message');
   console.log('PASS: Message — no text alarm while EMAIL is picked; TEXT or BOTH says plainly that texts can’t go out yet (no Twilio jargon)');
 
@@ -116,25 +115,12 @@ try {
   await expect(page.locator('.portal-source').first()).toContainText('TROYLABS WEBSITE');
   console.log(`PASS: Analytics — connected + refreshed time, website first, 7 / 30 / 90 days (${views[7]} / ${views[30]} / ${views[90]} page views), lists filled, REFRESH`);
 
-  // ── Message: examples while there are no messages ──────────────────────────────────────────────
+  // ── Message: an empty history says so (the example messages were removed with the text-only redesign, 2026-10-08) ──
   const real = (await admin.from('messages').select('id', { count: 'exact', head: true })).count;
-  await page.goto(`${base}/alumni-portal/admin/messages`); await expect(page.locator('[data-action="preview"]')).toBeEnabled();
-  await expect(page.getByText('How the groups stay current')).toHaveCount(0);
-  if (real === 0) {
-    await expect(page.locator('.portal-tag-example')).toHaveCount(4);
-    const sent = page.locator('li[data-example="1"]');
-    await sent.getByRole('button', { name: 'WHO GOT IT' }).click(); await expect(sent.locator('.portal-recipients')).toBeVisible(); await expect(sent.locator('.portal-recipients')).toContainText('FAILED: the carrier filtered it as spam');
-    await sent.getByRole('button', { name: 'HIDE' }).click(); await expect(sent.locator('.portal-recipients')).toBeHidden();
-    await page.locator('[data-msg-tabs] .portal-chip[data-value="sent"]').click(); await expect(page.locator('li[data-example]:visible')).toHaveCount(2);
-    await page.locator('[data-msg-tabs] .portal-chip[data-value="all"]').click(); await expect(page.locator('li[data-example]:visible')).toHaveCount(4);
-    await page.locator('li[data-example="2"]').getByRole('button', { name: 'USE AS A STARTING POINT' }).click();
-    await expect(page.locator('#mc-title')).toHaveValue('Looking for BUILD mentors');
-    const on = await page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]').evaluateAll((els) => els.map((e) => `${e.dataset.group}|${e.dataset.who}`).sort());
-    assert.deepEqual(on, ['BUILD|alumni', 'PRODUCT MANAGEMENT|alumni', 'TECH|alumni'], 'the example loads its audience into the grid');
-    assert.equal((await admin.from('messages').select('id', { count: 'exact', head: true })).count, 0, 'loading an example saves nothing');
-    await page.locator('[data-msg-list]').screenshot({ path: `${out}/message-examples.png` });
-    console.log('PASS: Message — 4 examples, WHO GOT IT / HIDE, tabs filter them, USE AS A STARTING POINT fills the composer (nothing saved); the groups section is gone');
-  } else console.log(`SKIP: examples (the database has ${real} real messages, so they're hidden as designed)`);
+  await page.goto(`${base}/alumni-portal/admin/messages`); await expect(page.locator('[data-action="send"]')).toBeVisible();
+  await expect(page.getByText('How the groups stay current')).toHaveCount(0); await expect(page.locator('.portal-tag-example')).toHaveCount(0);
+  if (real === 0) { await expect(page.locator('[data-msg-list]')).toContainText('No messages yet.'); console.log('PASS: Message — an empty history says so; no example messages'); }
+  else console.log(`SKIP: empty history (the database has ${real} real messages)`);
 
   // ── the member page's way back ────────────────────────────────────────────────────────────────
   await page.goto(`${base}/alumni-portal/members/?id=${boss.id}&from=members`); await expect(page.locator('[data-back]')).toHaveText('← BACK TO MEMBERS'); await expect(page.locator('[data-back]')).toHaveAttribute('href', '/alumni-portal/admin/users#members');

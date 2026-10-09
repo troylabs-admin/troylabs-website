@@ -227,6 +227,7 @@ async function init() {
     else if (b.hasAttribute('data-q-decline')) { askDecline([...q.picked]); }
     else if (b.hasAttribute('data-q-undo') && lastAction) {
       const a = lastAction, root = document.getElementById('approvals'); queueBusy(true);
+      qfb('Undoing…');   // at once: the restore takes a moment, and a tap that changes nothing reads as broken (Bryan, 2026-10-08)
       try {
         const r = await restoreMany(a.ids); if (!root?.isConnected) return;
         if (r.error) qfb(`Couldn’t undo. ${esc(r.error.message)} <button type="button" class="t-label portal-linklike" data-q-undo>TRY AGAIN</button>`, false);

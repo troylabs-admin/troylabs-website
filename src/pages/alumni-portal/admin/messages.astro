@@ -94,15 +94,15 @@ const HINT: Record<string, string> = { 'E-BOARD': 'Current: an e-board role this
       <p id="msg-fb" class="t-caption portal-feedback" role="status" tabindex="-1"></p>
     </section>
 
-    <!-- the texts the system sends by itself, word for word (2026-10-06), and the one-time welcome for members who turned
-         texts on before texts were connected -->
+    <!-- the texts the system sends by itself, word for word (2026-10-06), and who won't get texts: members who turned
+         them off or have no number (2026-10-08, replacing the one-time welcome send) -->
     <details class="portal-fold msg-automatic"><summary class="t-label text-muted">AUTOMATIC TEXTS &amp; OPT-IN REPLIES</summary>
     <p class="portal-section-sub t-fine text-muted">Sent by themselves, word for word. Every text starts with "TroyLabs:" so people know who it's from.</p>
     <ul class="portal-row-list t-caption portal-auto" data-auto-texts>
       {AUTO.map(([when, how, text]) => <li><span class="portal-auto-when"><span class="text-ink">{when}</span><br /><span class="t-fine text-muted">{how}</span></span><span class="portal-sms-bubble t-fine">{text}</span></li>)}
-      <li data-backlog hidden><span class="portal-auto-when"><span class="text-ink">Members who turned texts on before texts were connected</span><br /><span class="t-fine text-muted" data-backlog-note></span></span><span class="portal-inline"><button type="button" class="t-label portal-linklike" data-backlog-who>SEE WHO</button><button type="button" class="portal-btn is-small t-label" data-backlog-send disabled>SEND THEM THE WELCOME</button></span></li>
+      <li data-texts-off hidden><span class="portal-auto-when"><span class="text-ink">Members with texts off</span><br /><span class="t-fine text-muted" data-texts-off-note></span></span><span class="portal-inline"><button type="button" class="t-label portal-linklike" data-texts-off-who>SEE WHO</button></span></li>
     </ul>
-    <ul class="portal-row-list t-fine portal-who-items" data-backlog-list hidden></ul>
+    <ul class="portal-row-list t-fine portal-who-items" data-texts-off-list hidden></ul>
     </details>
 
     <!-- every message ever: drafts you can edit, scheduled ones you can still change, sent ones with who got them -->

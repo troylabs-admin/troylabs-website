@@ -324,7 +324,8 @@ async function init() {
       // turned off here on the website: one text saying so and how to turn them back on (a STOP reply is Twilio's to answer)
       const turnedOn = res.ok && kind === 'phone' && res.row.phone_opt_in && res.row.phone && (!before.on || before.phone !== res.row.phone);
       const turnedOff = res.ok && kind === 'phone' && before.on && !res.row.phone_opt_in;
-      if (turnedOn || turnedOff) void confirmText(turnedOn ? 'welcome-text' : 'optout-text', other).then((r) => {
+      if ((turnedOn || turnedOff) && res.row.approved) void confirmText(   // someone still applying gets no text: their first is "You're in!" on approval
+        turnedOn ? 'welcome-text' : 'optout-text', other).then((r) => {
         if (r?.code !== 21610 || !rowEl.isConnected) return;
         const note = rowEl.querySelector<HTMLElement>('.portal-feedback'); if (!note) return;
         note.style.color = 'var(--color-orange)';

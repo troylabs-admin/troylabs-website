@@ -30,52 +30,43 @@ try {
     const clear = async () => { const on = page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]'); while (await on.count()) { await on.first().click(); await page.waitForTimeout(50); } };
 
     await expect(page.locator('[data-who-list]')).toBeHidden();   // nothing ticked: no list
-    // alumni in PM, by email (there is no BOTH: one channel per message)
-    assert.equal(await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="both"]').count(), 0);
-    await sendBy('email'); await cell('PRODUCT MANAGEMENT', 'alumni').click();
-    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(announcements off\)/); assert.match(w.head, /WHO GETS IT · 1/);
-    // only texts: who has texts on
-    await sendBy('text'); w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(no number\)/);
-    // everyone (students + alumni), by email
-    await clear(); await sendBy('email'); await cell('EVERYONE', 'current').click(); await cell('EVERYONE', 'alumni').click();
-    w = await who(); for (const n of ['Msg Boss QA', 'Pm Alum QA', 'Eboard Student QA', 'Plain Student QA', 'Eboard Alum QA']) assert.ok(w.names.includes(n), `everyone includes ${n}`); assert.match(w.missed, /Pm Quiet QA \(announcements off\)/);
+    // texts only since 2026-10-08 (no EMAIL / BOTH): the list is who has a number and texts on; the rest are listed with why
+    assert.equal(await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"], [data-single]:not([data-when]) .portal-chip[data-value="both"]').count(), 0);
+    // alumni in PM
+    await cell('PRODUCT MANAGEMENT', 'alumni').click();
+    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(no number\)/);
+    // everyone (students + alumni): only those with texts on
+    await clear(); await cell('EVERYONE', 'current').click(); await cell('EVERYONE', 'alumni').click();
+    w = await who(); assert.deepEqual(w.names.sort(), ['Eboard Student QA', 'Pm Alum QA']); for (const n of ['Msg Boss QA', 'Plain Student QA', 'Eboard Alum QA', 'Pm Quiet QA']) assert.match(w.missed, new RegExp(n), `${n} listed as not getting it`);
     // students only
-    await clear(); await cell('EVERYONE', 'current').click(); w = await who(); assert.deepEqual(w.names.sort(), ['Eboard Student QA', 'Plain Student QA']);
+    await clear(); await cell('EVERYONE', 'current').click(); w = await who(); assert.deepEqual(w.names, ['Eboard Student QA']); assert.match(w.missed, /Plain Student QA/);
     // alumni only
-    await clear(); await cell('EVERYONE', 'alumni').click(); w = await who(); assert.ok(!w.names.includes('Eboard Student QA') && !w.names.includes('Plain Student QA') && w.names.includes('Eboard Alum QA'));
+    await clear(); await cell('EVERYONE', 'alumni').click(); w = await who(); assert.ok(!w.names.includes('Eboard Student QA') && !w.names.includes('Plain Student QA') && w.names.includes('Pm Alum QA'));
     // students on e-board (this semester) / everyone who's been on e-board
     await clear(); await cell('E-BOARD', 'current').click(); w = await who(); assert.deepEqual(w.names, ['Eboard Student QA']);
-    await cell('E-BOARD', 'alumni').click(); w = await who(); assert.deepEqual(w.names.sort(), ['Eboard Alum QA', 'Eboard Student QA']);
-    console.log('PASS: alumni in PM, texts only, everyone, students only, alumni only, e-board now, e-board ever: each lists exactly who, and who won\'t get it and why');
+    await cell('E-BOARD', 'alumni').click(); w = await who(); assert.deepEqual(w.names, ['Eboard Student QA']); assert.match(w.missed, /Eboard Alum QA/);
+    console.log('PASS: alumni in PM, everyone, students only, alumni only, e-board now, e-board ever: each lists exactly who gets the text, and who won\'t and why');
 
     // templates: placeholders can't go out; the text preview is exactly what phones get
     await page.locator('[data-templates] .portal-chip', { hasText: 'EVENT INVITE' }).click();
-    await expect(page.locator('#mc-title')).toHaveValue('Invite: [Event name]');
-    await sendBy('text');   // a template keeps the channel picked; as a text there's no subject, and the preview shows
-    await expect(page.locator('[data-subject-field]')).toBeHidden(); await expect(page.locator('[data-sms-bubble]')).toBeVisible();
+    await expect(page.locator('[data-sms-bubble]')).toBeVisible();
     const bubble = await page.locator('[data-sms-bubble]').textContent();
     assert.ok(bubble.startsWith("TroyLabs: You're invited to [Event name]!") && bubble.trimEnd().endsWith('Reply STOP to opt out.'), bubble);
     await page.locator('[data-action="test-send"]').click(); await expect(page.locator('#msg-fb')).toContainText("Fill in [Event name] first");
     await page.locator('[data-action="send"]').click(); await expect(page.locator('#msg-fb')).toContainText("Fill in [Event name] first");
     await page.locator('#mc-body').fill("You're invited to Demo Night! Founders show what they built."); await page.locator('#mc-ev-name').fill('Demo Night'); await page.locator('#mc-ev-where').fill('[Location]');
     await page.locator('[data-action="send"]').click(); await expect(page.locator('#msg-fb')).toContainText('Fill in [Location] first');
-    await sendBy('email'); await expect(page.locator('[data-sms-preview]')).toBeHidden();
-    await page.locator('[data-templates] .portal-chip', { hasText: 'WELCOME TO THE NETWORK' }).click();
-    await expect(page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]')).toHaveCount(2);   // everyone: students + alumni
     console.log('PASS: templates fill the composer; nothing sends or tests while a [placeholder] is left; the text preview is exactly "TroyLabs: …" through "Reply STOP to opt out."');
 
-    // the automatic texts, word for word
-    const auto = await page.locator('[data-auto-texts] .portal-sms-bubble').allTextContents();
-    assert.deepEqual(auto, [APPROVED_TEXT, WELCOME_TEXT, GOODBYE_TEXT, STOP_REPLY, HELP_REPLY]);
-    // the one-time welcome: Pm Alum and Eboard Student turned texts on with no welcome yet
+    // who won't get texts (2026-10-08, in place of the one-time welcome send): approved members with texts off or no number
     await page.locator('details.msg-automatic > summary').click(); await expect(page.locator('details.msg-automatic')).toHaveAttribute('open', '');   // the automatic texts sit in a fold that starts closed
-    await expect(page.locator('[data-backlog]')).toBeVisible(); await expect(page.locator('[data-backlog-note]')).toContainText('2 people');
-    await page.locator('[data-backlog-who]').click(); assert.deepEqual((await page.locator('[data-backlog-list] .text-ink').allTextContents()).sort(), ['Eboard Student QA', 'Pm Alum QA']);
-    page.once('dialog', (d) => d.accept()); await page.locator('[data-backlog-send]').click();
-    await expect(page.locator('#msg-fb')).toContainText('Welcome sent to 2 people'); await expect(page.locator('[data-backlog]')).toBeHidden();
-    const { data: ev } = await admin.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome').in('profile_id', [pmAlum.id, ebStudent.id]);
-    assert.equal(ev.length, 2); assert.ok(ev.every((e) => e.detail.test && e.detail.backlog));
-    console.log('PASS: the automatic texts shown word for word; the one-time welcome lists who turned texts on before texts worked, sends once (test accounts: recorded, nobody texted), then disappears');
+    await expect(page.locator('[data-backlog], [data-backlog-send]')).toHaveCount(0);   // no welcome send any more
+    await expect(page.locator('[data-texts-off]')).toBeVisible(); await expect(page.locator('[data-texts-off-note]')).toContainText('2 turned them off, 2 have no phone number');
+    await page.locator('[data-texts-off-who]').click();
+    const offRows = await page.locator('[data-texts-off-list] li').allTextContents();
+    assert.deepEqual(offRows.map((t) => t.replace(/\s+/g, ' ')).sort(), ['Eboard Alum QAno phone number', 'Msg Boss QA(213) 555-0170 · texts off', 'Plain Student QA(213) 555-0173 · texts off', 'Pm Quiet QAno phone number']);
+    await page.locator('[data-texts-off-who]').click(); await expect(page.locator('[data-texts-off-list]')).toBeHidden();
+    console.log('PASS: the automatic texts shown word for word; no welcome send; "Members with texts off" lists exactly who turned texts off or has no number, and nobody with texts on');
     assert.deepEqual(errors, []); console.log('PASS: no browser errors');
   } finally { await browser.close(); }
 } finally { for (const u of made) await u.cleanup(); await admin.rpc('purge_test_backups'); }

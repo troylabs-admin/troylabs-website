@@ -35,8 +35,8 @@ const TILES: [string, string, string][] = [
     <div class="portal-tiles">{TILES.map(([l, key, hint]) => <div class="portal-panel portal-tile"><span class="t-label text-muted">{l}</span><span class="t-stat" data-stat={key}>—</span><span class="t-fine text-muted" data-stat-hint={key}>{hint}</span></div>)}</div>
 
     <div class="portal-panels portal-panels-2">
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Coming up</h2><ul class="portal-row-list t-caption" data-upcoming><li class="text-muted">—</li></ul></div>
-      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recently sent <span class="t-fine text-muted" style="letter-spacing:calc(1 * var(--u))">· <span data-stat="sentThisMonth">—</span> this month</span></h2><ul class="portal-row-list t-caption" data-recent><li class="text-muted">—</li></ul></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Scheduled messages</h2><ul class="portal-row-list t-caption" data-upcoming><li class="text-muted">—</li></ul></div>
+      <div class="portal-panel"><h2 class="t-sub portal-panel-title">Recently sent messages <span class="t-fine text-muted" style="letter-spacing:calc(1 * var(--u))">· <span data-stat="sentThisMonth">—</span> this month</span></h2><ul class="portal-row-list t-caption" data-recent><li class="text-muted">—</li></ul></div>
     </div>
 
     <div class="portal-panels portal-panels-2">

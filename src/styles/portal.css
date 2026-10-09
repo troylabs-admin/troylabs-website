@@ -878,7 +878,7 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 .portal-auto li { align-items: flex-start; gap: calc(20 * var(--u)); }
 .portal-auto-when { flex: 1; min-width: 0; }
 .portal-auto .portal-sms-bubble { flex: 0 1 calc(360 * var(--u)); }
-[data-backlog-list] { margin-top: calc(8 * var(--u)); }
+[data-texts-off-list] { margin-top: calc(8 * var(--u)); }
 @media (max-width: 767px) {
   .portal-sms-preview { gap: 6px; margin-top: 10px; }
   .portal-sms-bubble { max-width: none; padding: 10px 12px; border-radius: 14px 14px 14px 4px; }

@@ -17,7 +17,7 @@
 .portal-member-admin .portal-q-actions.portal-request-actions { gap: calc(14 * var(--u)); }
 .portal-member-admin .portal-q-actions button { min-height: 44px; }
 .portal-member-admin .portal-q-details { padding-top: calc(12 * var(--u)); line-height: 1.6; }
-.portal-member-admin .portal-queue-feedback { margin-top: calc(16 * var(--u)); padding: calc(16 * var(--u)); border: 1px solid rgb(255 255 255 / .18); border-radius: calc(10 * var(--u)); background: rgb(255 255 255 / .035); color: var(--color-ink); line-height: 1.5; overflow-wrap: anywhere; scroll-margin-block: calc(110 * var(--u)); }
+.portal-member-admin .portal-queue-feedback { margin-top: calc(16 * var(--u)); margin-bottom: calc(20 * var(--u)); padding: calc(16 * var(--u)); border: 1px solid rgb(255 255 255 / .18); border-radius: calc(10 * var(--u)); background: rgb(255 255 255 / .035); color: var(--color-ink); line-height: 1.5; overflow-wrap: anywhere; scroll-margin-block: calc(110 * var(--u)); }
 .portal-member-admin .portal-queue-feedback.is-error { border-color: var(--color-orange); }
 .portal-member-admin .portal-queue-result { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: calc(12 * var(--u)); }
 .portal-member-admin .portal-queue-result strong { font-weight: 400; }

@@ -1,9 +1,7 @@
 BEGIN:VCARD
 VERSION:3.0
-N:;;;;
+N:;TroyLabs;;;
 FN:TroyLabs
-ORG:TroyLabs
-X-ABShowAs:COMPANY
 TEL;TYPE=CELL:+12136986332
 EMAIL;TYPE=INTERNET:troylabs@usc.edu
 URL:https://usctroylabs.com

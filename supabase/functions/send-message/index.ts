@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
     const { data: p } = await svc.from('profiles').select('phone, is_test').eq('id', input.profileId).maybeSingle();
     if (!p?.phone || p.is_test) return json({ sent: false, reason: p?.is_test ? 'test account' : 'no number' });
     if (!tw.configured) return json({ sent: false, reason: 'texts aren’t connected yet' });
-    const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', 'https://usctroylabs.com/troylabs.vcf');
+    const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', 'https://usctroylabs.com/troylabs.vcf?v=2');   // ?v= so Twilio fetches the current card, not one it cached
     return json(r.ok ? { sent: true, sid: r.sid, status: r.status } : { sent: false, error: r.error, code: r.code });
   }
 

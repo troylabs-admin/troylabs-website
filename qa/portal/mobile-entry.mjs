@@ -16,7 +16,7 @@ for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
     if(url.origin===new URL(base).origin)return route.continue();
     const headers={'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET,POST,OPTIONS'};
     if(request.method()==='OPTIONS')return route.fulfill({status:204,headers});
-    requests.push({path:url.pathname,body:request.postData()});
+    if(url.pathname.startsWith('/auth/v1/')||url.pathname.startsWith('/functions/v1/'))requests.push({path:url.pathname,body:request.postData()});
     if(url.pathname.endsWith('/functions/v1/account-email'))return route.fulfill({status:mode==='success'?200:429,json:mode==='success'?{sent:true}:{error:'Wait a moment before requesting another link.'},headers});
     return route.fulfill({status:200,json:{},headers});
    });

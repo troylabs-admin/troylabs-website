@@ -84,6 +84,17 @@ html.sky-live body::before { background-image: none; }
 html { overflow-anchor: none; /* the scroll-driven rocket must never become Chrome's scroll anchor (causes jitter) */ background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 body { margin: 0; overflow-x: hidden; }
 
+/* Fill the portal's viewport while keeping content clear of the notch/home indicator. */
+html[data-portal-page] .canvas {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+html[data-portal-page] #to-top {
+  bottom: calc(clamp(16px, 2.2vw, 30px) + env(safe-area-inset-bottom, 0px));
+}
+
 /* The page canvas: exactly the Figma artboard, scaled and centered. Sections stack inside it. */
 .canvas { position: relative; width: calc(var(--design-width) * var(--u)); margin-inline: auto; } /* no clipping: glows and planets bleed into the margins on wide screens (no hard artboard edge); the viewport hides horizontal overflow */
 
@@ -122,6 +133,12 @@ body { margin: 0; overflow-x: hidden; }
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;   /* fixed: covers the whole viewport, so zoomed-out margins match the page */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: 0.065; mix-blend-mode: screen;   /* calibrated: Figma noise lifts the #0a0a0a bg to ≈#141414 average */
+}
+/* A viewport-fixed grain overlay produces a sharp bottom seam behind Safari 26's
+   toolbar. Cover the document on phones; the sky and globe retain their motion. */
+@media (max-width: 767px) {
+  html[data-portal-page] body { position: relative; }
+  html[data-portal-page] .grain::after { position: absolute; }
 }
 
 img { display: block; max-width: 100%; }

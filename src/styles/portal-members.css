@@ -65,3 +65,52 @@
   .portal-member-admin .portal-q-bulk { gap: 8px; }
   .portal-member-admin .portal-q-bulk .portal-btn { font-size: 11px; }
 }
+/* Server-paged member directory: keep search visible and optional filters compact. */
+.portal-member-admin #members { padding: calc(18 * var(--u)); scroll-margin-top: calc(24 * var(--u)); }
+.portal-member-admin #members-q { margin: 0; min-width: 0; width: 100%; }
+.portal-member-admin .member-filter-fold { margin-top: calc(14 * var(--u)); }
+.portal-member-admin .member-filter-fold > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; color: var(--color-muted); }
+.portal-member-admin .member-filter-fold > summary::after { content: '+'; margin-left: auto; }
+.portal-member-admin .member-filter-fold[open] > summary::after { content: '−'; }
+.portal-member-admin [data-member-clear] { min-height: 44px; margin-top: calc(8 * var(--u)); }
+.portal-member-admin [data-members-count] { margin-bottom: 0; line-height: 1.5; }
+.portal-member-admin .member-pagination { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-block: calc(14 * var(--u)); }
+.portal-member-admin .member-pagination > p { margin: 0; }
+.portal-member-admin .member-pagination > div { display: flex; gap: 10px; }
+.portal-member-admin .member-pagination button { min-height: 44px; margin: 0; }
+.portal-member-admin [data-members] tbody tr:not([data-id]):not(.portal-row-detail) { display: table-row; }
+.portal-member-admin .portal-q-tools .portal-input { margin-top: 0; }
+.portal-member-admin #approvals .portal-panel-title { margin-bottom: calc(10 * var(--u)); }
+@media (max-width: 767px) {
+  .portal-member-admin #members { padding: 16px; }
+  .portal-member-admin .member-filter-fold { margin-top: 8px; }
+  .portal-member-admin .portal-filter-row { gap: 8px; align-items: flex-start; }
+  .portal-member-admin .portal-filter-label { flex-basis: 100%; }
+  .portal-member-admin .member-pagination { padding-block: 14px; }
+  .portal-member-admin .member-pagination button { font-size: 11px; padding: 10px 16px; }
+  .portal-member-admin [data-members] tbody tr:not([data-id]):not(.portal-row-detail), .portal-member-admin [data-members] tbody tr:not([data-id]):not(.portal-row-detail) td { display: block; }
+  .portal-member-admin .portal-q-tools { display: grid; gap: 10px; margin-top: 16px; }
+  .portal-member-admin #approvals .portal-panel-title { margin-bottom: 10px; line-height: 1.4; }
+  .portal-member-admin #approvals > p { line-height: 1.55; margin-bottom: 16px !important; }
+  .portal-member-admin .portal-q-bar { margin-top: 14px; }
+  .portal-member-admin .portal-q-main { gap: 6px; }
+  .portal-member-admin .portal-q-actions.portal-request-actions { margin-top: 4px; }
+}
+/* Tablet columns are too narrow for names and email addresses; reuse the readable card layout. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .portal-member-admin .portal-table[data-members], .portal-member-admin [data-members] tbody { display: block; width: 100%; min-width: 0; }
+  .portal-member-admin [data-members] thead { display: none; }
+  .portal-member-admin [data-members] tbody tr[data-id] { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 18px; margin-bottom: 12px; border: 1px solid rgb(255 255 255 / .18); border-radius: 14px; }
+  .portal-member-admin [data-members] tbody td { display: block; min-width: 0; padding: 0; border: 0; white-space: normal; }
+  .portal-member-admin [data-members] .m-name { grid-column: 1; }
+  .portal-member-admin [data-members] .m-status { grid-column: 2; grid-row: 1; }
+  .portal-member-admin [data-members] .m-col { display: none; }
+  .portal-member-admin [data-members] .m-meta { display: block; grid-column: 1 / -1; }
+  .portal-member-admin [data-members] .m-actions { grid-column: 1 / -1; margin-top: 6px; padding-top: 8px; border-top: 1px solid rgb(255 255 255 / .08); }
+  .portal-member-admin [data-members] .portal-row-detail, .portal-member-admin [data-members] .portal-row-detail td { display: block; width: 100%; box-sizing: border-box; }
+  .portal-member-admin [data-members] .portal-role-year { flex-wrap: wrap; }
+}
+@media (max-width: 1023px) {
+  .portal-member-admin [data-members] .portal-row-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 0 16px; }
+  .portal-member-admin [data-members] .portal-row-actions .portal-linklike { min-height: 44px; display: flex; align-items: center; text-align: left; white-space: normal; font-size: 12px; letter-spacing: 1px; }
+}

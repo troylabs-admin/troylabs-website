@@ -24,14 +24,14 @@ try {
     const names = () => page.locator('[data-members] tr[data-id]:visible .portal-name-link').allTextContents();
     assert.deepEqual(await names(), ['Morgan Admin', 'Zoe Admin', 'Aaron Member']);
     await page.locator('#members-q').fill('example.com'); assert.deepEqual(await names(), ['Morgan Admin', 'Zoe Admin', 'Aaron Member']);
-    await page.locator('#members-q').fill('Admin'); assert.deepEqual(await names(), ['Morgan Admin', 'Zoe Admin']);
+    await page.locator('#members-q').fill('Admin'); await expect.poll(names).toEqual(['Morgan Admin', 'Zoe Admin']);
   });
   await check('one bulk approval covers all 30 once with no confirm dialog', async ({ page, state }) => {
     const ids = pendingIds(state); state.rpcDelay = 250;
     await page.locator('[data-q-everyone]').click(); await page.locator('[data-q-approve]').click();
     await page.locator('[data-q-approve]').evaluate(el => el.click());
     await expect(page.locator('#requests-n')).toHaveText('0'); assert.deepEqual(state.approvals.map(call => [...call].sort()), [ids]); assert.equal(state.notifications.length, 1); assert.deepEqual([...state.notifications[0].ids].sort(), ids); assert.deepEqual(state.dialogs, []);
-    await expect(page.locator('#q-fb')).toContainText(/approved.*30|30.*approved/i); await expect(page.locator('[data-members] tbody tr[data-id]')).toHaveCount(33);
+    await expect(page.locator('#q-fb')).toContainText(/approved.*30|30.*approved/i); await expect(page.locator('[data-members] tbody tr[data-id]')).toHaveCount(20);
   });
   await check('search select-all approves only matching 15', async ({ page, state }) => {
     await page.locator('#q-search').fill('Tech Applicant'); await expect(page.locator('#requests-list [data-q-pick]')).toHaveCount(15);

@@ -25,10 +25,10 @@ const ogImage = new URL('/og.jpg', Astro.site ?? 'https://usctroylabs.com').href
 ---
 
 <!doctype html>
-<html lang="en" data-portal-admin={nav === 'portal' && current === 'admin' ? '' : undefined}>
+<html lang="en" data-portal-page={nav !== 'site' ? '' : undefined} data-portal-admin={nav === 'portal' && current === 'admin' ? '' : undefined}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content={nav === 'site' ? 'width=device-width, initial-scale=1' : 'width=device-width, initial-scale=1, viewport-fit=cover'} />
     <meta name="description" content={description} />
     {/* Google Search needs a real raster icon that is a square multiple of 48px and reads on a WHITE
         result page — favicon.ico was 32x32 and the mark is white, so Search fell back to a generic

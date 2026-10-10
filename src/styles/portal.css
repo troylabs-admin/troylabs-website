@@ -635,10 +635,15 @@ a.portal-btn { display: inline-flex; align-items: center; justify-content: cente
 #portal-auth .portal-msg { max-width: calc(520 * var(--u)); }
 #portal-auth .portal-msg:empty { display: none; }
 @media (max-width: 767px) {
-  .portal-gate-steps { grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
+  #portal-auth { max-width: 400px; }
+  #portal-auth .portal-h { font-size: clamp(22px, 5.8vw, 28px); line-height: 1.25; letter-spacing: .07em; }
+  #portal-auth .portal-input { font-size: 16px; height: 48px; }
+  #portal-auth .portal-btn { width: 100%; height: 48px; font-size: 18px; letter-spacing: .08em; }
+  #portal-auth .portal-msg { max-width: 100%; }
+  .portal-gate-steps { width: 100%; min-width: 0; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 24px; }
   .portal-gate-steps li { padding: 12px 14px; border-radius: 12px; gap: 12px; }
-  .portal-gate-steps b { font-size: 13px; margin-bottom: 3px; letter-spacing: 0.8px; }
-  .portal-gate-steps li > span:last-child { font-size: 12.5px; }
+  .portal-gate-steps b { font-size: 14px; margin-bottom: 4px; letter-spacing: .2px; }
+  .portal-gate-steps li > span:last-child { min-width: 0; font-size: 13.5px; line-height: 1.55; }
   .portal-gate-n { width: 22px; height: 22px; font-size: 11px; }
 }
 /* a required answer that's missing, after SUBMIT (2026-10-05) */

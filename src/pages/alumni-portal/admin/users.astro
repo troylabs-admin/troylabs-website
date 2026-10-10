@@ -60,16 +60,19 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
       </details>
     </div>
 
-    <!-- filters + search: all client-side on the placeholder rows -->
-    <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-members-filters id="members">
+    <!-- Search and filters run in the database before the current page is loaded. -->
+    <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-member-query data-react-controls id="members">
       <div class="portal-inline"><svg class="portal-search-glyph" style="position:static;flex:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg><input id="members-q" type="search" class="t-caption portal-input" placeholder="Search name, email, company, city…" aria-label="Search members" /></div>
+      <details class="member-filter-fold"><summary class="t-label">FILTER MEMBERS <span class="t-fine text-muted" data-filter-count></span></summary>
       <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">COHORT</span><div class="flex flex-wrap portal-chips" data-filter="cohort">{COHORTS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">DIVISION</span><div class="flex flex-wrap portal-chips" data-filter="division">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <button type="button" class="t-label portal-linklike" data-member-clear>CLEAR FILTERS</button></details>
       <p class="t-fine portal-feedback" data-members-count style="margin-top:calc(12 * var(--u))"></p>
     </div>
 
-    <!-- the table scrolls sideways inside its own box on a phone instead of pushing the page wide -->
+    <nav class="member-pagination" aria-label="Members pages"><p class="t-fine text-muted" data-page-label role="status"></p><div><button type="button" class="portal-btn is-small is-quiet t-label" data-member-prev disabled>PREVIOUS</button><button type="button" class="portal-btn is-small is-quiet t-label" data-member-next disabled>NEXT</button></div></nav>
+    <!-- Phone rows become compact cards. -->
     <div class="portal-table-wrap">
     <table class="portal-table t-caption" data-members>
       <thead><tr><th class="t-label">NAME</th><th class="t-label">STATUS</th><th class="t-label">COHORT</th><th class="t-label">DIVISION</th><th class="t-label">CITY</th><th class="m-meta"></th><th></th></tr></thead>
@@ -81,6 +84,8 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
       </tbody>
     </table>
     </div>
+
+    <nav class="member-pagination" aria-label="Members pages, bottom"><p class="t-fine text-muted" data-page-label></p><div><button type="button" class="portal-btn is-small is-quiet t-label" data-member-prev disabled>PREVIOUS</button><button type="button" class="portal-btn is-small is-quiet t-label" data-member-next disabled>NEXT</button></div></nav>
 
     <template id="roles-picker">
       <div class="portal-panel" data-roles style="margin:calc(8 * var(--u)) 0 calc(12 * var(--u))">

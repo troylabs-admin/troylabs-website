@@ -1,16 +1,15 @@
 /**
  * Admin › Members, for real: the waiting list (built for a hundred: search, sort, select all, bulk approve /
- * decline with UNDO, 25 at a time), every profile as a row, admin on/off, e-board roles saved per person, and
+ * decline with UNDO, 25 at a time), a server-paged member directory, admin on/off, e-board roles saved per person, and
  * a CSV export of the current filter. All through the browser client under the admin policies.
  */
 import { me } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { webUrl } from '../lib/portal/safe-html';
-import { adminListProfiles, approveMany, avatarUrl, cityLabel, cohortOf, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
+import { approveMany, avatarUrl, cityLabel, cohortOf, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const fb = (text: string, ok = true) => { const el = document.getElementById('members-fb'); if (el) { el.textContent = text; el.style.color = ok ? '' : 'var(--color-orange)'; } };
-const flash = (btn: HTMLElement, text: string) => { const o = btn.textContent; btn.classList.add('is-done'); btn.textContent = text; setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = o; }, 1600); };
 let rows: ProfileRow[] = [], admins = new Set<string>(), roles: RoleRow[] = [], myId = '';
 const PAGE = 25;
 const q = { search: '', sort: 'oldest', shown: PAGE, picked: new Set<string>(), open: new Set<string>() };
@@ -18,13 +17,53 @@ let qBusy = false;
 let pendingDecline: string[] = [];
 let lastAction: { kind: 'approved' | 'declined'; ids: string[] } | null = null;
 
+type MemberRow = ProfileRow & { is_admin: boolean; roles: RoleRow[] };
+let memberRows: MemberRow[] = [], memberPage = 1, memberTotal = 0, memberSize = 20, memberCohorts: string[] = [];
+let memberRequest = 0, memberTimer: ReturnType<typeof setTimeout> | undefined, membersReady = false, memberExporting = false, memberLoadFailed = false;
+let memberExportGeneration = 0;
+const memberFilters = () => {
+  const picked = (key: string) => [...document.querySelectorAll<HTMLElement>(`[data-filter="${key}"] .portal-chip[aria-pressed="true"]`)].map(el => el.dataset.value!);
+  return { p_search: (document.getElementById('members-q') as HTMLInputElement).value.trim(), p_statuses: picked('status').map(s=>s.toLowerCase()), p_cohorts: picked('cohort'), p_divisions: picked('division') };
+};
+function memberPaging(busy = false) {
+  const pages = Math.max(1, Math.ceil(memberTotal / memberSize));
+  document.querySelectorAll<HTMLButtonElement>('[data-member-prev]').forEach(b=>b.disabled=busy||memberPage<=1);
+  document.querySelectorAll<HTMLButtonElement>('[data-member-next]').forEach(b=>b.disabled=busy||memberPage>=pages);
+  document.querySelectorAll<HTMLElement>('[data-page-label]').forEach(el=>el.textContent=busy?'Loading members…':`Page ${memberPage} of ${pages}`);
+  const count = document.querySelector<HTMLElement>('[data-members-count]');
+  if(count) count.textContent=busy?'Loading…':memberTotal?`Showing ${((memberPage-1)*memberSize+1).toLocaleString()}–${Math.min(memberPage*memberSize,memberTotal).toLocaleString()} of ${memberTotal.toLocaleString()} members`:'No members match these filters.';
+  const selected = Object.values(memberFilters()).filter(Array.isArray).reduce((n,a)=>n+a.length,0);
+  document.querySelector<HTMLElement>('[data-filter-count]')!.textContent=selected?`(${selected} active)`:'';
+  document.querySelector<HTMLButtonElement>('[data-action="export"]')!.disabled=busy||!membersReady||memberExporting;
+}
+async function loadMembers() {
+  const table=document.querySelector<HTMLElement>('[data-members]'); if(!table) return;
+  const request=++memberRequest; membersReady=false; memberPaging(true); table.setAttribute('aria-busy','true');
+  table.querySelector('tbody')!.innerHTML='<tr><td colspan="7" class="text-muted">Loading members…</td></tr>';
+  const result=await supabase().rpc('admin_member_page',{...memberFilters(),p_page:memberPage,p_page_size:memberSize});
+  if(!table.isConnected||request!==memberRequest) return;
+  table.setAttribute('aria-busy','false');
+  if(result.error){memberLoadFailed=true;memberPaging(true);document.querySelectorAll<HTMLElement>('[data-page-label]').forEach(el=>el.textContent='Members unavailable');document.querySelector<HTMLElement>('[data-members-count]')!.textContent='Couldn’t load members.';table.querySelector('tbody')!.innerHTML='<tr><td colspan="7" class="text-muted">Couldn’t load members. <button type="button" class="portal-linklike" data-member-retry>TRY AGAIN</button></td></tr>';fb('Couldn’t load members. Try again before making changes.',false);return;}
+  if(memberLoadFailed){fb('');memberLoadFailed=false;}
+  const data=result.data;memberRows=data.rows??[];memberTotal=data.total??0;memberPage=data.page??1;memberCohorts=data.cohorts??[];
+  rows=rows.filter(r=>!r.approved).concat(memberRows);admins=new Set(memberRows.filter(r=>r.is_admin).map(r=>r.id));roles=memberRows.flatMap(r=>r.roles??[]);membersReady=true;
+  renderTable();renderCohortChips();memberPaging();
+}
 async function load() {
-  const root = document.getElementById('requests-list');
-  const got = await adminListProfiles();
-  if (!root?.isConnected) return;
-  rows = got.rows; admins = got.admins; roles = got.roles;
-  if (!document.getElementById('requests-list')) return;   // left the page while it loaded (client-side navigation keeps this script running)
-  renderRequests(); renderTable(); renderCohortChips();
+  const root=document.getElementById('requests-list');if(!root)return;
+  // Approval selection spans the whole waiting list; fetch it separately in bounded requests.
+  const pending:ProfileRow[]=[];const sb=supabase();let failed=false;
+  for(let from=0;;from+=100){
+    const {data,error}=await sb.from('profiles').select('*, city:cities(*)').eq('approved',false).order('id').range(from,from+99);
+    if(!root.isConnected)return;
+    if(error){failed=true;break;}pending.push(...(data??[]));if((data??[]).length<100)break;
+  }
+  if(failed){
+    root.innerHTML='<li class="t-caption text-muted">Couldn’t load applications. Reload to try again.</li>';
+    document.querySelectorAll<HTMLElement>('[data-q-bar], [data-q-tools], [data-q-more], #declined-fold').forEach(el=>el.hidden=true);
+    await loadMembers();return;
+  }
+  rows=pending.concat(memberRows);renderRequests();await loadMembers();
 }
 
 const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -155,7 +194,7 @@ async function decide(kind: 'approved' | 'declined', ids: string[]) {
 
 function renderTable() {
   const tbody = document.querySelector<HTMLElement>('[data-members] tbody')!;
-  const members = rows.filter(r => r.approved).sort((a, b) => Number(admins.has(b.id)) - Number(admins.has(a.id)) || (a.full_name || '').localeCompare(b.full_name || ''));
+  const members = memberRows;
   tbody.innerHTML = members.map((r) => {
     const status = r.status === 'student' ? 'STUDENT' : 'ALUM'; const division = (r.divisions ?? []).join(', ').replace('PRODUCT MANAGEMENT', 'PRODUCT'); const city = cityLabel(r.city); const email = r.personal_email || r.usc_email || '';
     return `<tr data-id="${r.id}" data-status="${status}" data-cohort="${cohortOf(r.join_term, r.join_year)}" data-division="${esc((r.divisions ?? []).map((d) => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')).join('|'))}" data-text="${esc(`${r.full_name} ${r.usc_email ?? ''} ${r.personal_email ?? ''} ${r.current_company ?? ''} ${city} ${division}`.toLowerCase())}">
@@ -163,8 +202,7 @@ function renderTable() {
       <td class="t-fine text-muted m-meta">${[cohortOf(r.join_term, r.join_year), esc(division), esc(city)].filter(Boolean).join(' · ')}</td>
       <td class="m-actions"><span class="portal-row-actions"><a class="t-fine portal-linklike no-underline" href="/alumni-portal/profile?id=${r.id}">EDIT</a><button type="button" class="t-fine portal-linklike" data-roles-for="${r.id}">ROLES</button><button type="button" class="t-fine portal-linklike" data-admin-toggle="${r.id}"${r.id === myId ? ' disabled title="You cannot change your own admin access"' : ''}>${admins.has(r.id) ? 'REMOVE ADMIN' : 'MAKE ADMIN'}</button><button type="button" class="t-fine portal-linklike" data-remove="${r.id}"${r.id === myId ? ' disabled title="You cannot remove your own access"' : ''}>REMOVE ACCESS</button></span></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="7" class="text-muted">No approved members yet.</td></tr>';
-  document.getElementById('members-q')?.dispatchEvent(new Event('input'));   // the shared filter recounts
+  }).join('') || '<tr><td colspan="7" class="text-muted">No members match the current search or filters.</td></tr>';
 }
 
 /** the Members filter's cohort chips: every cohort approved members joined in, newest first (was four fixed ones) */
@@ -172,7 +210,7 @@ function renderCohortChips() {
   const box = document.querySelector<HTMLElement>('[data-filter="cohort"]'); if (!box) return;
   const on = new Set([...box.querySelectorAll<HTMLElement>('.portal-chip[aria-pressed="true"]')].map((c) => c.dataset.value!));
   const key = (c: string) => Number(c.slice(2)) * 2 + (c.startsWith('FA') ? 1 : 0);
-  const list = [...new Set(rows.filter((r) => r.approved).map((r) => cohortOf(r.join_term, r.join_year)).filter(Boolean))].sort((a, b) => key(b) - key(a));
+  const list = [...memberCohorts].sort((a,b)=>key(b)-key(a));
   box.innerHTML = list.map((c) => `<button type="button" class="t-fine portal-chip" aria-pressed="${on.has(c)}" data-value="${esc(c)}">${esc(c)}</button>`).join('') || '<span class="t-fine text-muted">No cohorts yet</span>';
 }
 function openRoles(btn: HTMLElement) {
@@ -197,14 +235,37 @@ function openRoles(btn: HTMLElement) {
   });
 }
 
-function exportCsv() {
-  const visible = [...document.querySelectorAll<HTMLTableRowElement>('[data-members] tbody tr:not(.portal-row-detail):not([hidden])')].map((tr) => tr.dataset.id).filter(Boolean);
-  const pick = rows.filter((r) => visible.includes(r.id));
+async function exportCsv() {
+  if(memberExporting)return;
+  const root = document.querySelector('[data-members]');
+  const generation = ++memberExportGeneration;
+  const current = () => root?.isConnected && generation === memberExportGeneration;
+  memberExporting=true;
+  const filters=memberFilters(), pick:MemberRow[]=[]; const seen=new Set<string>(); const button=document.querySelector<HTMLButtonElement>('[data-action="export"]')!;button.disabled=true;fb('Preparing the filtered export…');
+  try {
+    let expectedTotal: number | undefined;
+    for(let page=1;;page++){
+      const {data,error}=await supabase().rpc('admin_member_page',{...filters,p_page:page,p_page_size:100});
+      // Astro keeps this module alive after navigation. Old exports must never update a new visit.
+      if(!current())return;
+      if(error)throw error;
+      expectedTotal ??= data.total;
+      // Offset pages can shift while another admin edits the roster. Fail rather than silently omit rows.
+      if(data.total!==expectedTotal||data.page!==page)throw new Error('Member list changed during export');
+      for(const row of data.rows){
+        if(seen.has(row.id))throw new Error('Member order changed during export');
+        seen.add(row.id);pick.push(row);
+      }
+      if(page*100>=data.total||!data.rows.length)break;
+    }
+    if(pick.length!==expectedTotal)throw new Error('Incomplete member export');
   const cols = ['full_name', 'status', 'usc_email', 'personal_email', 'phone', 'phone_opt_in', 'join', 'grad_year', 'divisions', 'current_title', 'current_company', 'city', 'industries', 'startups', 'linkedin_url', 'admin', 'email_opt_in', 'joined_at', 'submitted_at', 'approved_at', 'last_seen_at'];
   const line = (vals: unknown[]) => vals.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',');
-  const csv = [line(cols), ...pick.map((r) => line([r.full_name, r.status, r.usc_email, r.personal_email, r.phone, r.phone_opt_in, cohortOf(r.join_term, r.join_year), r.grad_year, (r.divisions ?? []).join('; '), r.current_title, r.current_company, cityLabel(r.city), (r.industries ?? []).join('; '), (r.startups ?? []).join('; '), r.linkedin_url, admins.has(r.id), r.email_opt_in, r.created_at, r.submitted_at, r.approved_at, r.last_seen_at]))].join('\n');
+  const csv = [line(cols), ...pick.map((r) => line([r.full_name, r.status, r.usc_email, r.personal_email, r.phone, r.phone_opt_in, cohortOf(r.join_term, r.join_year), r.grad_year, (r.divisions ?? []).join('; '), r.current_title, r.current_company, cityLabel(r.city), (r.industries ?? []).join('; '), (r.startups ?? []).join('; '), r.linkedin_url, r.is_admin, r.email_opt_in, r.created_at, r.submitted_at, r.approved_at, r.last_seen_at]))].join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `troylabs-members-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
-  fb(`Exported ${pick.length} member${pick.length === 1 ? '' : 's'}.`);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);fb(`Exported ${pick.length} member${pick.length === 1 ? '' : 's'} matching the selected filters.`);
+  }catch{if(current())fb('Couldn’t export all matching members. The member list may have changed; try again.',false);}
+  finally{if(current()){memberExporting=false;button.disabled=!membersReady;}}
 }
 
 async function init() {
@@ -214,6 +275,11 @@ async function init() {
   // a fresh page each visit: the module outlives client-side navigation, the search box doesn't (a stale search once
   // showed "Nobody matches" under an empty box after VIEW FULL PROFILE → back)
   q.search = ''; q.sort = 'oldest'; q.shown = PAGE; q.picked.clear(); q.open.clear(); lastAction = null; qBusy = false; pendingDecline = [];
+  memberSize=matchMedia('(max-width: 767px)').matches?10:20;memberPage=1;memberTotal=0;memberRows=[];membersReady=false;memberRequest++;clearTimeout(memberTimer);
+  memberExportGeneration++;memberExporting=false;memberLoadFailed=false;
+  const search=document.getElementById('members-q') as HTMLInputElement;
+  search.addEventListener('input',()=>{memberPage=1;memberRequest++;clearTimeout(memberTimer);memberTimer=setTimeout(()=>void loadMembers(),250);});
+  const screen=matchMedia('(max-width: 767px)');const resized=()=>{if(!table.isConnected){screen.removeEventListener('change',resized);return;}memberSize=screen.matches?10:20;memberPage=1;void loadMembers();};screen.addEventListener('change',resized);
   await load(); if (!table.isConnected) return;
   // the waiting list's own controls
   document.getElementById('q-search')?.addEventListener('input', (e) => { q.search = (e.target as HTMLInputElement).value; q.shown = PAGE; q.picked.clear(); cancelPendingDecline(); renderRequests(); });
@@ -240,7 +306,10 @@ async function init() {
     else if (b.hasAttribute('data-q-everyone')) { cancelPendingDecline(); for (const r of queue()) q.picked.add(r.id); renderRequests(); }
     else if (b.hasAttribute('data-q-more')) { q.shown += PAGE; renderRequests(); }
     else if (b.dataset.qDetails) { const id = b.dataset.qDetails; q.open.has(id) ? q.open.delete(id) : q.open.add(id); const row = b.closest('li')!; const d = row.querySelector<HTMLElement>('.portal-q-details')!; d.hidden = !q.open.has(id); b.textContent = q.open.has(id) ? 'LESS' : 'DETAILS'; b.setAttribute('aria-expanded', String(q.open.has(id))); }
-    else if (b.closest('[data-filter="cohort"]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); document.getElementById('members-q')?.dispatchEvent(new Event('input')); }   // built after load, so the shared script didn't bind them
+    else if (b.closest('[data-member-query] [data-filter]') && b.classList.contains('portal-chip')) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); memberPage=1;await loadMembers(); }
+    else if(b.hasAttribute('data-member-clear')){document.querySelectorAll('[data-member-query] .portal-chip').forEach(el=>el.setAttribute('aria-pressed','false'));search.value='';memberPage=1;await loadMembers();}
+    else if(b.hasAttribute('data-member-prev')||b.hasAttribute('data-member-next')){memberPage+=b.hasAttribute('data-member-next')?1:-1;await loadMembers();document.getElementById('members')?.scrollIntoView({block:'start'});}
+    else if(b.hasAttribute('data-member-retry')){await loadMembers();}
     else if (b.dataset.restore) { const r = await setRestored(b.dataset.restore); fb(r.error ? r.error.message : 'Back on the waiting list.', !r.error); await load(); }
     else if (b.dataset.decline) { askDecline([b.dataset.decline]); }
     else if (b.dataset.adminToggle) {   // one change at a time, and the list knows the answer before the next click (a quick second click used to grant again)
@@ -250,7 +319,7 @@ async function init() {
       fb(r.error ? r.error.message : on ? 'Made admin. They see the Admin pages next time they load the portal.' : 'Admin access removed.', !r.error); await load(); }
     else if (b.dataset.remove) { if (b.dataset.remove === myId) return; const r = rows.find((x) => x.id === b.dataset.remove); if (r && confirm(`Remove ${r.full_name || 'this member'} from the network? They lose access right away and can be approved again later.`)) { const res = await setDeclined(r.id); fb(res.error ? res.error.message : 'Access removed.', !res.error); await load(); } }
     else if (b.dataset.rolesFor) openRoles(b);
-    else if (b.dataset.action === 'export') { e.preventDefault(); exportCsv(); flash(b, 'EXPORTED'); }
+    else if (b.dataset.action === 'export') { e.preventDefault(); await exportCsv(); }
   });
 }
 init();

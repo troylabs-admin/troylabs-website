@@ -168,9 +168,10 @@ const TWILIO_ERRORS: Record<number, string> = {
 };
 const twilioError = (code: number | null | undefined, fallback = 'Twilio couldn’t send it') => (code && TWILIO_ERRORS[code]) || (code ? `${fallback} (Twilio error ${code})` : fallback);
 const STATUS: Record<string, string> = { accepted: 'queued', scheduled: 'queued', queued: 'queued', sending: 'sent', sent: 'sent', delivered: 'delivered', read: 'delivered', undelivered: 'undelivered', failed: 'failed', canceled: 'failed' };
-async function twilioSend(to: string, body: string): Promise<{ ok: true; sid: string; status: string } | { ok: false; code: number | null; error: string }> {
+async function twilioSend(to: string, body: string, mediaUrl?: string): Promise<{ ok: true; sid: string; status: string } | { ok: false; code: number | null; error: string }> {
   const t = twilio();
   const form = new URLSearchParams({ To: to, From: t.from, Body: body, StatusCallback: `${FN_URL()}?twilio=status` });
+  if (mediaUrl) form.set('MediaUrl', mediaUrl);   // a picture message (MMS): the TroyLabs contact card
   for (let attempt = 0; attempt < 3; attempt++) {
     let r: Response;
     try { r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${t.sid}/Messages.json`, { method: 'POST', headers: { Authorization: `Basic ${btoa(`${t.sid}:${t.token}`)}`, 'Content-Type': 'application/x-www-form-urlencoded' }, body: form }); }
@@ -326,6 +327,23 @@ Deno.serve(async (req) => {
   if (fromTw) return fromTwilio(req, fromTw, svc);
   const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[]; profileId?: string; dry?: boolean };
   const cfg = config(); const tw = twilio();
+
+  // THE CONTACT CARD, ON TRIAL (2026-10-10, Bryan: "send it to me only"). SMS carries only our number; the card
+  // (public/troylabs.vcf, built by scripts/contact-card.ts) is a "TroyLabs" contact with the logo that a member saves
+  // once, after which our texts show the name and photo. This mode sends it as one picture message to ONE ADMIN's own
+  // phone, started from the database with the scheduler's secret (no page calls it); never to a member, never a group.
+  if (input.mode === 'contact-card-test') {
+    const secret = Deno.env.get('CRON_SECRET');
+    if (!secret || req.headers.get('x-cron-secret') !== secret) return json({ error: 'forbidden' }, 403);
+    if (typeof input.profileId !== 'string') return json({ error: 'profileId needed' }, 400);
+    const { data: adm } = await svc.from('admins').select('user_id').eq('user_id', input.profileId).maybeSingle();
+    if (!adm) return json({ error: 'admins only' }, 403);
+    const { data: p } = await svc.from('profiles').select('phone, is_test').eq('id', input.profileId).maybeSingle();
+    if (!p?.phone || p.is_test) return json({ sent: false, reason: p?.is_test ? 'test account' : 'no number' });
+    if (!tw.configured) return json({ sent: false, reason: 'texts aren’t connected yet' });
+    const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', 'https://usctroylabs.com/troylabs.vcf');
+    return json(r.ok ? { sent: true, sid: r.sid, status: r.status } : { sent: false, error: r.error, code: r.code });
+  }
 
   // the database's five-minute job: send whatever scheduled message is due
   if (input.mode === 'due') {

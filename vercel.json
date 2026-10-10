@@ -1,0 +1,11 @@
+{
+  "headers": [
+    {
+      "source": "/troylabs.vcf",
+      "headers": [
+        { "key": "Content-Type", "value": "text/vcard" },
+        { "key": "Content-Disposition", "value": "inline; filename=\"TroyLabs.vcf\"" }
+      ]
+    }
+  ]
+}

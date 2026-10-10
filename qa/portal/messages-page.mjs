@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { chromium, expect } from '@playwright/test';
 import { adminClient, makeUser, signInPage } from './helpers.mjs';
-import { APPROVED_TEXT, GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../supabase/functions/_shared/sms.ts';
+import { APPROVED_TEXT_WITH_CARD, GOODBYE_TEXT, HELP_REPLY, STOP_REPLY, WELCOME_TEXT } from '../../supabase/functions/_shared/sms.ts';
 const base = process.env.PORTAL_URL || 'http://localhost:4399';
 const admin = adminClient(); const made = [];
 const user = async (name, fields) => { const u = await makeUser(admin, name); made.push(u); const { error } = await admin.from('profiles').update(fields).eq('id', u.id); if (error) throw error; return u; };
@@ -26,7 +26,7 @@ try {
     await page.goto(`${base}/alumni-portal/admin/messages`); await page.locator('[data-aud-grid] .portal-chip').first().waitFor(); await page.waitForTimeout(1500);
     const cell = (g, w) => page.locator(`[data-aud-grid] .portal-chip[data-group="${g}"][data-who="${w}"]`);
     const sendBy = (v) => page.locator(`[data-single]:not([data-when]) .portal-chip[data-value="${v}"]`).click();
-    const who = async () => { await page.waitForTimeout(150); return { names: await page.locator('[data-who-items] li .text-ink').allTextContents(), missed: (await page.locator('.portal-who-missed').allTextContents()).join(' '), head: await page.locator('[data-who-head]').textContent() }; };
+    const who = async () => { await page.waitForTimeout(150); return { names: await page.locator('[data-who-items] li .text-ink').allTextContents(), missed: (await page.locator('[data-who-excluded] li').allTextContents()).join(' | '), head: await page.locator('[data-who-head]').textContent() }; };
     const clear = async () => { const on = page.locator('[data-aud-grid] .portal-chip[aria-pressed="true"]'); while (await on.count()) { await on.first().click(); await page.waitForTimeout(50); } };
 
     await expect(page.locator('[data-who-list]')).toBeHidden();   // nothing ticked: no list
@@ -34,7 +34,7 @@ try {
     assert.equal(await page.locator('[data-single]:not([data-when]) .portal-chip[data-value="email"], [data-single]:not([data-when]) .portal-chip[data-value="both"]').count(), 0);
     // alumni in PM
     await cell('PRODUCT MANAGEMENT', 'alumni').click();
-    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA \(no number\)/);
+    let w = await who(); assert.deepEqual(w.names, ['Pm Alum QA']); assert.match(w.missed, /Pm Quiet QA\s*No phone number/);
     // everyone (students + alumni): only those with texts on
     await clear(); await cell('EVERYONE', 'current').click(); await cell('EVERYONE', 'alumni').click();
     w = await who(); assert.deepEqual(w.names.sort(), ['Eboard Student QA', 'Pm Alum QA']); for (const n of ['Msg Boss QA', 'Plain Student QA', 'Eboard Alum QA', 'Pm Quiet QA']) assert.match(w.missed, new RegExp(n), `${n} listed as not getting it`);

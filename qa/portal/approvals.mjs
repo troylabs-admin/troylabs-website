@@ -76,7 +76,7 @@ try {
   assert.deepEqual(Object.values(await state(ids.slice(0, 3))), ['waiting', 'waiting', 'waiting'], 'UNDO puts them back');
   await expect(row('Queue QA 01')).toHaveCount(1);
   // approval sent each of them the "you're in" text (test accounts: recorded, nobody texted); approving again doesn't text twice
-  { const w = await welcomes(); assert.equal(w.length, 3, 'one "you\'re in" text each'); assert.ok(w.every((e) => e.detail.approved && e.detail.test)); }
+  { const w = await welcomes(); assert.equal(w.length, 3, 'one "you\'re in" text each'); assert.ok(w.every((e) => e.detail.approved && e.detail.test && e.detail.card === true), 'each with the contact card'); }
   for (const n of ['Queue QA 01', 'Queue QA 02', 'Queue QA 03']) await row(n).locator('label.portal-check').click();
   await page.locator('[data-q-approve]').click(); await expect(page.locator('#q-fb')).toContainText('Approved 3 people');
   assert.equal((await welcomes()).length, 3, 'approving again after UNDO doesn\'t text twice');

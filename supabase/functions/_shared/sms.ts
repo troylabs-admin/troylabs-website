@@ -64,6 +64,12 @@ export function smsBody(body: string, event: SmsEvent, test = false): string {
    Twilio instead, never this). STOP_REPLY and HELP_REPLY are what Twilio's opt-out management answers with. */
 /** sent when an admin approves someone (Bryan, 2026-10-06: the first text comes with approval, not with signing up) */
 export const APPROVED_TEXT = "TroyLabs: You're in! Welcome to the TL Alumni Network. A few event texts a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
+/* The contact card (2026-10-10). A text carries only our number, so the "You're in!" text goes out as a picture message
+   with public/troylabs.vcf attached: a "TroyLabs" contact with the logo. Saved once, every later text shows the name and
+   photo. APPROVED_TEXT above is what goes out, without the card, if the picture message is refused. Bump ?v= when the
+   card changes, so Twilio fetches the new file. */
+export const CONTACT_CARD_URL = 'https://usctroylabs.com/troylabs.vcf?v=2';
+export const APPROVED_TEXT_WITH_CARD = "TroyLabs: You're in! Welcome to the TL Alumni Network. Save our contact card so our texts show the TroyLabs name and logo. A few event texts a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
 export const WELCOME_TEXT = "TroyLabs: You're signed up for TroyLabs event texts, a few msgs a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
 export const GOODBYE_TEXT = "TroyLabs: Texts are now off for this number. To turn them back on, reply START or tick the box on your profile at usctroylabs.com.";
 export const STOP_REPLY = "TroyLabs: You're unsubscribed and won't get more texts from us. Reply START to sign up again.";

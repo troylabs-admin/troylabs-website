@@ -153,7 +153,7 @@ try {
   await shot(ap, '09-admin-waiting-list');
   await card.getByRole('button', { name: 'APPROVE' }).click(); await expect(ap.locator('#q-fb')).toContainText('Approved Jordan Rivera');
   await expect(ap.locator('#q-fb')).toContainText('1 text sent.');   // the first text comes with approval (test account: recorded, not sent)
-  { const w = ((await admin.from('profile_events').select('detail').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []); assert.equal(w.length, 1); assert.ok(w[0].detail.approved && w[0].detail.test); }
+  { const w = ((await admin.from('profile_events').select('detail').eq('profile_id', fresh.id).eq('event', 'texts_welcome')).data ?? []); assert.equal(w.length, 1); assert.ok(w[0].detail.approved && w[0].detail.test && w[0].detail.card === true, 'the approval text carries the contact card'); }
   await shot(ap, '10-admin-approved', false);
   assert.deepEqual(ok(await admin.from('eboard_roles').select('role, term, year').eq('profile_id', fresh.id), 'roles'), [{ role: 'DIRECTOR OF DESIGN', term: 'FA', year: 2022 }], 'their e-board role is now on record');
   console.log('PASS: 6 · admin sees them (answers, roles, details) and nobody who didn’t submit; APPROVE → in, role recorded');

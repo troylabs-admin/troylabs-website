@@ -29,7 +29,7 @@
  * CRON_SECRET (set with the migration).
  */
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
-import { APPROVED_TEXT, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
+import { APPROVED_TEXT, APPROVED_TEXT_WITH_CARD, CONTACT_CARD_URL, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
 import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
 import { planRecurrence, type Recurrence } from '../_shared/recurrence.ts';
 
@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
     const { data: p } = await svc.from('profiles').select('phone, is_test').eq('id', input.profileId).maybeSingle();
     if (!p?.phone || p.is_test) return json({ sent: false, reason: p?.is_test ? 'test account' : 'no number' });
     if (!tw.configured) return json({ sent: false, reason: 'texts aren’t connected yet' });
-    const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', 'https://usctroylabs.com/troylabs.vcf?v=2');   // ?v= so Twilio fetches the current card, not one it cached
+    const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', CONTACT_CARD_URL);
     return json(r.ok ? { sent: true, sid: r.sid, status: r.status } : { sent: false, error: r.error, code: r.code });
   }
 
@@ -421,10 +421,14 @@ Deno.serve(async (req) => {
     const { data: before } = await svc.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome').in('profile_id', ids);
     const had = new Set((before ?? []).filter((e) => e.detail?.ok || e.detail?.test).map((e) => `${e.profile_id}|${e.detail?.phone}`));
     for (const p of (textable ?? []).filter((x) => !had.has(`${x.id}|${x.phone}`))) {
-      if (p.is_test) { await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, test: true, approved: true } }); texted++; continue; }
+      if (p.is_test) { await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, test: true, approved: true, card: true } }); texted++; continue; }
       if (!tw.configured) break;
-      const r = await twilioSend(p.phone!, straighten(APPROVED_TEXT));
-      await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, ok: r.ok, approved: true, ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
+      // with the TroyLabs contact card (2026-10-10). If Twilio REFUSES the picture message (a code came back, so nothing
+      // was taken), the plain text goes instead, so nobody misses "You're in!" over an attachment. No second try when
+      // Twilio couldn't be reached: it may have taken the first, and a retry could text twice.
+      let r = await twilioSend(p.phone!, straighten(APPROVED_TEXT_WITH_CARD), CONTACT_CARD_URL); let card = true, cardError: string | undefined;
+      if (!r.ok && r.code !== null) { cardError = `${r.code}: ${r.error}`; card = false; r = await twilioSend(p.phone!, straighten(APPROVED_TEXT)); }
+      await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: authUser!.id, detail: { phone: p.phone, ok: r.ok, approved: true, card: r.ok && card, ...(cardError ? { cardError } : {}), ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
       if (r.ok) texted++;
     }
     if (!cfg.key) return json({ configured: false, texted, error: 'Email isn’t connected yet: the Resend key hasn’t been added.' }, 503);

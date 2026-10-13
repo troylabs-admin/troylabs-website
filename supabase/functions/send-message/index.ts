@@ -514,7 +514,7 @@ Deno.serve(async (req) => {
     const auth = { Authorization: `Basic ${btoa(`${tw.sid}:${tw.token}`)}` };
     const get = async (u: string) => { try { const r = await fetch(u, { headers: auth }); return { http: r.status, ...(await r.json().catch(() => ({}))) }; } catch { return { http: 0 }; } };
     const last4 = (n: unknown) => typeof n === 'string' ? `…${n.slice(-4)}` : null;
-    const row = (m: Record<string, unknown>) => ({ sid: m.sid, direction: m.direction, to: last4(m.to), from: last4(m.from), status: m.status, error_code: m.error_code ?? null, error_message: m.error_message ?? null, media: m.num_media, segments: m.num_segments, sent: m.date_sent ?? m.date_created, price: m.price ?? null });
+    const row = (m: Record<string, unknown>) => ({ sid: m.sid, direction: m.direction, to: last4(m.to), from: last4(m.from), status: m.status, error_code: m.error_code ?? null, error_message: m.error_message ?? null, media: m.num_media, segments: m.num_segments, sent: m.date_sent ?? m.date_created, price: m.price ?? null, ...(m.direction === 'inbound' ? { said: m.body } : {}) });   // what a member replied: the site doesn't keep replies, so this is the only place an admin can read one
     const { data: members } = await svc.from('profiles').select('id, full_name, phone, approved, submitted_at, declined_at').eq('is_test', false).not('phone', 'is', null);
     const real = (members ?? []).filter((p) => p.approved || (p.submitted_at && !p.declined_at));
     const { data: events } = await svc.from('profile_events').select('profile_id, at, detail').eq('event', 'texts_welcome').in('profile_id', real.map((p) => p.id));

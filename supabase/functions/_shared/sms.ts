@@ -70,6 +70,8 @@ export const APPROVED_TEXT = "TroyLabs: You're in! Welcome to the TL Alumni Netw
    card changes, so Twilio fetches the new file. */
 export const CONTACT_CARD_URL = 'https://usctroylabs.com/troylabs.vcf?v=2';
 export const APPROVED_TEXT_WITH_CARD = "TroyLabs: You're in! Welcome to the TL Alumni Network. Save our contact card so our texts show the TroyLabs name and logo. A few event texts a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
+/* for a member who already had a first text before the card existed: the card alone, no second welcome */
+export const CARD_ONLY_TEXT = "TroyLabs: Save our contact card so our texts show the TroyLabs name and logo. Reply STOP to opt out.";
 export const WELCOME_TEXT = "TroyLabs: You're signed up for TroyLabs event texts, a few msgs a month. Msg & data rates may apply. Reply HELP for help, STOP to cancel.";
 export const GOODBYE_TEXT = "TroyLabs: Texts are now off for this number. To turn them back on, reply START or tick the box on your profile at usctroylabs.com.";
 export const STOP_REPLY = "TroyLabs: You're unsubscribed and won't get more texts from us. Reply START to sign up again.";

@@ -29,7 +29,7 @@
  * CRON_SECRET (set with the migration).
  */
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
-import { APPROVED_TEXT, APPROVED_TEXT_WITH_CARD, CONTACT_CARD_URL, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
+import { APPROVED_TEXT, APPROVED_TEXT_WITH_CARD, CARD_ONLY_TEXT, CONTACT_CARD_URL, GOODBYE_TEXT, SMS_MAX, WELCOME_TEXT, segments, smsBody, straighten } from '../_shared/sms.ts';
 import { cleanAudience, inAudience, type Audience, type Member } from '../_shared/audience.ts';
 import { planRecurrence, type Recurrence } from '../_shared/recurrence.ts';
 
@@ -325,7 +325,7 @@ Deno.serve(async (req) => {
   const svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
   const fromTw = new URL(req.url).searchParams.get('twilio');
   if (fromTw) return fromTwilio(req, fromTw, svc);
-  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[]; profileId?: string; dry?: boolean };
+  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[]; profileId?: string; dry?: boolean; actor?: string; cardOnly?: string[]; skip?: string[]; limit?: number };
   const cfg = config(); const tw = twilio();
 
   // THE CONTACT CARD, ON TRIAL (2026-10-10, Bryan: "send it to me only"). SMS carries only our number; the card
@@ -343,6 +343,45 @@ Deno.serve(async (req) => {
     if (!tw.configured) return json({ sent: false, reason: 'texts aren’t connected yet' });
     const r = await twilioSend(p.phone, '[TEST] TroyLabs: Tap the contact card to save us, so our texts show the TroyLabs name and logo.', CONTACT_CARD_URL);
     return json(r.ok ? { sent: true, sid: r.sid, status: r.status } : { sent: false, error: r.error, code: r.code });
+  }
+
+  // THE FIRST TEXT FOR MEMBERS APPROVED BEFORE TEXTS WORKED (2026-10-12, Bryan). Everyone approved with texts on who has
+  // not yet had a text carrying the contact card gets the same picture message a new member gets on approval ("You're
+  // in!" + the TroyLabs card); ids in `cardOnly` (someone who already had a welcome) get the card with one line and no
+  // second welcome. Started from the database with the scheduler's secret, never from a page; `actor` is the admin who
+  // ordered it and is recorded on every text. `dry: true` only lists who would get what. A real run sends `limit`
+  // people (default 8) a few seconds apart, to stay under the carriers' per-minute limits for a small sender, and can be
+  // run again: whoever already has a card text on their number is left out, so nobody is texted twice.
+  if (input.mode === 'first-text-backlog') {
+    const secret = Deno.env.get('CRON_SECRET');
+    if (!secret || req.headers.get('x-cron-secret') !== secret) return json({ error: 'forbidden' }, 403);
+    const { data: adm } = typeof input.actor === 'string' ? await svc.from('admins').select('user_id').eq('user_id', input.actor).maybeSingle() : { data: null };
+    if (!adm) return json({ error: 'actor must be an admin' }, 403);
+    const ids = (x: unknown) => new Set(Array.isArray(x) ? x.filter((v) => typeof v === 'string') : []);
+    const cardOnly = ids(input.cardOnly), skip = ids(input.skip);
+    const { data: members, error: me } = await svc.from('profiles').select('id, full_name, phone').eq('approved', true).eq('is_test', false).eq('phone_opt_in', true).not('phone', 'is', null).order('full_name');
+    const { data: events, error: ee } = await svc.from('profile_events').select('profile_id, detail').eq('event', 'texts_welcome');
+    if (me || ee) return json({ error: (me ?? ee)!.message }, 500);
+    const done = new Set((events ?? []).filter((e) => e.detail?.ok && e.detail?.card).map((e) => `${e.profile_id}|${e.detail.phone}`));
+    const seen = new Set<string>(); const queue: { id: string; full_name: string; phone: string }[] = []; const shared: string[] = [];
+    for (const p of members ?? []) { if (skip.has(p.id) || done.has(`${p.id}|${p.phone}`)) continue; if (seen.has(p.phone)) { shared.push(p.full_name); continue; } seen.add(p.phone); queue.push(p); }
+    const kind = (p: { id: string }) => cardOnly.has(p.id) ? 'card only' : 'welcome + card';
+    const line = (p: { id: string; full_name: string; phone: string }) => ({ name: p.full_name, to: `…${p.phone.slice(-4)}`, gets: kind(p) });
+    if (input.dry) return json({ dry: true, hoursOpen: textingHours(), alreadyHaveCard: done.size, sharedNumberLeftOut: shared, plan: queue.map(line) });
+    if (!textingHours()) return json({ error: 'Texts go out 8 AM–9 PM Pacific only.' }, 409);
+    if (!tw.configured) return json({ error: 'texts aren’t connected' }, 503);
+    const batch = queue.slice(0, Math.min(Math.max(Number(input.limit) || 8, 1), 12)); const sent: Record<string, unknown>[] = [], failed: Record<string, unknown>[] = [];
+    for (const [i, p] of batch.entries()) {
+      if (i) await new Promise((ok) => setTimeout(ok, 4500));
+      const only = cardOnly.has(p.id);
+      let r = await twilioSend(p.phone, straighten(only ? CARD_ONLY_TEXT : APPROVED_TEXT_WITH_CARD), CONTACT_CARD_URL); let card = true, cardError: string | undefined;
+      // refused as a picture message (a code came back, so nothing was taken): the welcome still goes, as plain text.
+      // Card-only has nothing to fall back to. Never retried when Twilio couldn't be reached (it could text twice).
+      if (!r.ok && r.code !== null && !only) { cardError = `${r.code}: ${r.error}`; card = false; r = await twilioSend(p.phone, straighten(APPROVED_TEXT)); }
+      await svc.from('profile_events').insert({ profile_id: p.id, event: 'texts_welcome', actor: input.actor, detail: { phone: p.phone, ok: r.ok, backlog: true, card: r.ok && card, ...(only ? { cardOnly: true } : {}), ...(cardError ? { cardError } : {}), ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }) } });
+      (r.ok ? sent : failed).push({ ...line(p), card: r.ok && card, ...(r.ok ? { sid: r.sid } : { error: r.error, code: r.code }), ...(cardError ? { cardError } : {}) });
+    }
+    return json({ sent, failed, remaining: queue.length - batch.length });
   }
 
   // the database's five-minute job: send whatever scheduled message is due

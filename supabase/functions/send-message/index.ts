@@ -325,7 +325,7 @@ Deno.serve(async (req) => {
   const svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
   const fromTw = new URL(req.url).searchParams.get('twilio');
   if (fromTw) return fromTwilio(req, fromTw, svc);
-  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[]; profileId?: string; dry?: boolean; actor?: string; cardOnly?: string[]; skip?: string[]; limit?: number };
+  const input = await req.json().catch(() => ({})) as { mode?: string; messageId?: number; ids?: string[]; profileId?: string; dry?: boolean; actor?: string; cardOnly?: string[]; skip?: string[]; limit?: number; afterHours?: boolean };
   const cfg = config(); const tw = twilio();
 
   // THE CONTACT CARD, ON TRIAL (2026-10-10, Bryan: "send it to me only"). SMS carries only our number; the card
@@ -368,7 +368,8 @@ Deno.serve(async (req) => {
     const kind = (p: { id: string }) => cardOnly.has(p.id) ? 'card only' : 'welcome + card';
     const line = (p: { id: string; full_name: string; phone: string }) => ({ name: p.full_name, to: `…${p.phone.slice(-4)}`, gets: kind(p) });
     if (input.dry) return json({ dry: true, hoursOpen: textingHours(), alreadyHaveCard: done.size, sharedNumberLeftOut: shared, plan: queue.map(line) });
-    if (!textingHours()) return json({ error: 'Texts go out 8 AM–9 PM Pacific only.' }, 409);
+    // outside 8 AM–9 PM Pacific only when the admin who ordered it says so outright (2026-10-12, Bryan, during a general meeting)
+    if (!textingHours() && input.afterHours !== true) return json({ error: 'Texts go out 8 AM–9 PM Pacific only.' }, 409);
     if (!tw.configured) return json({ error: 'texts aren’t connected' }, 503);
     const batch = queue.slice(0, Math.min(Math.max(Number(input.limit) || 8, 1), 12)); const sent: Record<string, unknown>[] = [], failed: Record<string, unknown>[] = [];
     for (const [i, p] of batch.entries()) {

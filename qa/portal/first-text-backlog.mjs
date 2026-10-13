@@ -89,7 +89,9 @@ assert.equal(r.calls.length, 1); assert.deepEqual(r.out.failed.map((x) => x.name
 console.log('PASS: Twilio unreachable → no second try (it could text twice)');
 
 r = await run({ now: NIGHT }); assert.equal(r.status, 409); assert.deepEqual(r.calls, []); assert.deepEqual(r.events, []);
-console.log('PASS: outside 8 AM–9 PM Pacific nothing is sent');
+r = await run({ now: NIGHT, body: { afterHours: 'yes' } }); assert.equal(r.status, 409); assert.deepEqual(r.calls, []);
+r = await run({ now: NIGHT, body: { afterHours: true, limit: 2 } }); assert.equal(r.status, 200); assert.deepEqual(r.calls, [welcome(ANA), welcome(BEN)]);
+console.log('PASS: outside 8 AM–9 PM Pacific nothing is sent, unless the order says afterHours: true outright');
 
 r = await run({ members: [ANA, P(6, 'Ana Twin', ANA.phone), BEN, CAL], body: { skip: [CAL.id], limit: 12 } });
 assert.deepEqual(r.calls, [welcome(ANA), welcome(BEN)]);

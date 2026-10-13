@@ -464,6 +464,28 @@ Deno.serve(async (req) => {
     const brands = ((await get('https://messaging.twilio.com/v1/a2p/BrandRegistrations')).data ?? []).map((b: Record<string, unknown>) => ({ status: b.status, type: b.brand_type, failure: b.failure_reason, errors: b.errors }));
     return json({ services: out, brands });
   }
+  // READ-ONLY (2026-10-12): what Twilio itself says before a send to everyone. Admins only; nothing is changed or sent.
+  //   firstTexts  each recorded first text (texts_welcome with a Twilio id), with Twilio's own delivery status
+  //   recent      the account's latest messages, both directions (numbers shown by their last four digits)
+  //   numbers     Twilio's free check of every member's number: valid or not, and which country it belongs to
+  //   canada      whether this account may text Canada at all (geo permission)
+  if (input.mode === 'twilio-check') {
+    if (!tw.configured) return json({ error: 'texts not connected' }, 503);
+    const auth = { Authorization: `Basic ${btoa(`${tw.sid}:${tw.token}`)}` };
+    const get = async (u: string) => { try { const r = await fetch(u, { headers: auth }); return { http: r.status, ...(await r.json().catch(() => ({}))) }; } catch { return { http: 0 }; } };
+    const last4 = (n: unknown) => typeof n === 'string' ? `…${n.slice(-4)}` : null;
+    const row = (m: Record<string, unknown>) => ({ sid: m.sid, direction: m.direction, to: last4(m.to), from: last4(m.from), status: m.status, error_code: m.error_code ?? null, error_message: m.error_message ?? null, media: m.num_media, segments: m.num_segments, sent: m.date_sent ?? m.date_created, price: m.price ?? null });
+    const { data: members } = await svc.from('profiles').select('id, full_name, phone, approved, submitted_at, declined_at').eq('is_test', false).not('phone', 'is', null);
+    const real = (members ?? []).filter((p) => p.approved || (p.submitted_at && !p.declined_at));
+    const { data: events } = await svc.from('profile_events').select('profile_id, at, detail').eq('event', 'texts_welcome').in('profile_id', real.map((p) => p.id));
+    const firstTexts = [];
+    for (const e of events ?? []) { if (!e.detail?.sid) continue; const m = await get(`https://api.twilio.com/2010-04-01/Accounts/${tw.sid}/Messages/${e.detail.sid}.json`); firstTexts.push({ name: real.find((p) => p.id === e.profile_id)?.full_name, recorded: e.at, http: m.http, ...row(m) }); }
+    const recent = ((await get(`https://api.twilio.com/2010-04-01/Accounts/${tw.sid}/Messages.json?PageSize=60`)).messages ?? []).map(row);
+    const numbers = [];
+    for (const p of real) { const l = await get(`https://lookups.twilio.com/v2/PhoneNumbers/${encodeURIComponent(p.phone!)}`); numbers.push({ name: p.full_name, approved: p.approved, to: last4(p.phone), valid: l.valid ?? null, country: l.country_code ?? null, problems: l.validation_errors ?? null, http: l.http }); }
+    const canada = await get('https://accounts.twilio.com/v1/Messaging/GeoPermissions?CountryCode=CA');
+    return json({ from: tw.from, firstTexts, recent, numbers, canada });
+  }
   if (input.mode === 'status') {
     const acct = tw.configured ? await twilioAccount() : null;
     return json({

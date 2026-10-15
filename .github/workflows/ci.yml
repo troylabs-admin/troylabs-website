@@ -11,6 +11,8 @@ on:
     branches: [main]
   pull_request:
 
+# Versions pinned on purpose: every action here runs on Node 24 (GitHub is retiring Node 20), and the runner is
+# ubuntu-24.04 rather than ubuntu-latest so the move to Ubuntu 26 happens when we choose, in its own pull request.
 permissions:
   contents: read
 
@@ -21,11 +23,11 @@ concurrency:
 jobs:
   build:
     name: build + type check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
@@ -36,22 +38,22 @@ jobs:
 
   logic:
     name: logic (who gets each message, texts, LinkedIn, dates)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:logic
 
   pages:
     name: pages (made-up data)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit   # webkit: the phone sign-in is also checked in Safari's engine
@@ -64,19 +66,19 @@ jobs:
       - run: pnpm test:pages
         env: { PORTAL_URL: 'http://localhost:4399' }
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: { name: page-test-results, path: test-results/, retention-days: 7 }
 
   database:
     name: database (permissions, triggers)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         with: { version: latest }
       - name: build a throwaway database from supabase/migrations (+ supabase/seed.sql)
         run: supabase db start

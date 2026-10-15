@@ -1,8 +1,9 @@
 <div align="center">
 
-<img src="public/icon-512.png" alt="TroyLabs" width="96" />
-
-# TroyLabs
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/wordmark-dark.png">
+  <img src="docs/images/wordmark-light.png" alt="TroyLabs" width="440">
+</picture>
 
 **Where USC student builders launch, scale, and raise capital.**
 

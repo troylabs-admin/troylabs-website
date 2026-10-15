@@ -1,25 +1,86 @@
-# Build check on every push and PR.
+# Checks on every pull request and every push to main. None of them needs a secret or touches the live project:
+# texts and emails are sent to fake providers, the database is a throwaway copy built from supabase/migrations, and
+# every page test answers the portal's requests with made-up data. So pull requests from forks run all of it too.
 #
-# Deliberately does NOT run the fidelity suite: it pixel-diffs against Figma renders and depends on the
-# exact font rasterisation of the machine it runs on (the design uses Helvetica as drawn). On Linux CI
-# the numbers drift for reasons that have nothing to do with the change under review, which would train
-# people to ignore a red check. Fidelity is run locally before shipping — see the PR checklist.
-name: build
+# Deliberately NOT here: the pixel fidelity suite (font rendering differs on Linux), and the live tests in qa/portal
+# that sign in to the real project or call Twilio, LinkedIn or OpenAI. Maintainers run those by hand.
+name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: build + type check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+        with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - uses: denoland/setup-deno@v2
+        with: { deno-version: v2.x }
+      - name: type-check the edge functions
+        run: for f in supabase/functions/*/index.ts; do deno check "$f"; done
+
+  logic:
+    name: logic (who gets each message, texts, LinkedIn, dates)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:logic
+
+  pages:
+    name: pages (made-up data)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+      - name: serve the built site on :4399
+        run: |
+          pnpm exec astro preview --port 4399 > preview.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:4399/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log; exit 1
+      - run: pnpm test:pages
+        env: { PORTAL_URL: 'http://localhost:4399' }
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: page-test-results, path: test-results/, retention-days: 7 }
+
+  database:
+    name: database (permissions, triggers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: build a throwaway database from supabase/migrations (+ supabase/seed.sql)
+        run: supabase db start
+      - name: database tests (pgTAP)
+        run: supabase test db
+      - run: pnpm test:database
+        env: { TL_SUPABASE: local }

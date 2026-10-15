@@ -4,10 +4,10 @@
  * profile, and an admin approves them by hand on Admin › Members. Until then row-level security lets them
  * see only their own profile.
  */
-import { supabase } from './supabase';
+import { functionUrl, supabase } from './supabase';
 import { applicationMissing } from './portal/application';
 
-const ACCOUNT_EMAIL = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/account-email';
+const ACCOUNT_EMAIL = functionUrl('account-email');
 /** the `account-email` function: sign in with a second address, add / confirm / remove one (supabase/functions/account-email) */
 export async function accountEmail(body: Record<string, unknown>): Promise<{ status: number; error?: string; sent?: boolean; otp?: boolean; saved?: boolean; pending?: boolean; removed?: boolean; ok?: boolean; reason?: string; email?: string; kind?: string }> {
   const { data: { session } } = await supabase().auth.getSession();

@@ -5,7 +5,7 @@
  * Scheduled messages are sent by the database's five-minute job.
  */
 import { me } from '../lib/auth';
-import { supabase } from '../lib/supabase';
+import { functionUrl, supabase } from '../lib/supabase';
 import { avatarUrl, cohortOf, initialsOf, type ProfileRow } from '../lib/portal/data';
 import { prettyPhone } from '../lib/portal/phone';
 import { currentTerm } from '../lib/portal/options';
@@ -34,7 +34,7 @@ let eb: EboardSets = { now: new Set(), ever: new Set() };   // e-board this seme
 /** call the send-message function as the signed-in admin */
 async function fn(mode: string, messageId?: number, extra: Record<string, unknown> = {}): Promise<{ ok: boolean; status: number; body: any }> {
   const { data: { session } } = await supabase().auth.getSession();
-  const url = ((import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || 'https://ackmhqxyxnceoarbhcrp.supabase.co') + '/functions/v1/send-message';
+  const url = functionUrl('send-message');
   try {
     const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, messageId, ...extra }) });
     return { ok: r.ok, status: r.status, body: await r.json().catch(() => ({})) };

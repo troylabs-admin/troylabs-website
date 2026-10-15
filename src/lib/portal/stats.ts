@@ -1,5 +1,5 @@
 /** Numbers for Admin › Overview and Analytics: the network from our database, the website from PostHog through the posthog-stats function. */
-import { supabase } from '../supabase';
+import { functionUrl, supabase } from '../supabase';
 import { completeness, cohortOf, cityLabel, type ProfileRow } from './data';
 
 export interface MsgLine { id: number; title: string; state: string; when: string | null; send_by: string; audience: unknown; sent_count: number; failed_count: number }
@@ -29,7 +29,7 @@ export async function networkStats(): Promise<NetworkStats> {
 export interface SiteStats { configured: boolean; error?: string; days?: number; counts?: Record<string, number>; pages?: [string, number][]; devices?: Record<string, number>; portalPages?: [string, number][] }
 export async function siteStats(days = 30): Promise<SiteStats> {
   const sb = supabase(); const { data: { session } } = await sb.auth.getSession(); if (!session) return { configured: false, error: 'signed out' };
-  const url = ((import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || 'https://ackmhqxyxnceoarbhcrp.supabase.co') + `/functions/v1/posthog-stats?days=${days}`;
+  const url = `${functionUrl('posthog-stats')}?days=${days}`;
   // the functions gateway takes the session JWT alone; an `apikey` header in the new publishable format is rejected (measured: 401 "Invalid API key")
   const r = await fetch(url, { headers: { Authorization: `Bearer ${session.access_token}` } }).catch(() => null);
   if (!r) return { configured: false, error: 'unreachable' };

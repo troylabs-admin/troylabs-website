@@ -11,7 +11,7 @@ import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/p
 import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
 import { parseYear, yearProblems } from '../lib/portal/years';
-import { supabase } from '../lib/supabase';
+import { functionUrl, supabase } from '../lib/supabase';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const term = (v: string | null) => (v === 'FA' ? 'Fall' : v === 'SP' ? 'Spring' : '');
@@ -38,7 +38,7 @@ let row: ProfileRow | null = null;
 async function confirmText(mode: 'welcome-text' | 'optout-text', profileId: string | null): Promise<{ sent?: boolean; code?: number | null; from?: string } | null> {
   try {
     const { data: { session } } = await supabase().auth.getSession();
-    const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, ...(profileId ? { profileId } : {}) }) });
+    const r = await fetch(functionUrl('send-message'), { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, ...(profileId ? { profileId } : {}) }) });
     return await r.json();
   } catch { return null; }
 }

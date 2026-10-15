@@ -3,7 +3,7 @@
  * search/globe pages draw, photos, cities, and the admin operations. Everything goes through the
  * browser client under row-level security (supabase/migrations) — there is no server in front of it.
  */
-import { supabase } from '../supabase';
+import { SUPABASE_URL, supabase } from '../supabase';
 import type { Person } from './sample-people';
 import { cardRole, type RoleTerm } from './roles';
 
@@ -25,7 +25,7 @@ export interface ProfileRow {
 export interface CityRow { id: number; name: string; region: string; country: string; lat: number; lng: number }
 export interface RoleRow { id?: number; profile_id: string; role: string; term: 'FA' | 'SP'; year: number }
 
-const URL = () => (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || 'https://ackmhqxyxnceoarbhcrp.supabase.co';
+const URL = () => SUPABASE_URL;
 export const avatarUrl = (row: Pick<ProfileRow, 'avatar_path' | 'updated_at'>) => row.avatar_path ? `${URL()}/storage/v1/object/public/avatars/${row.avatar_path}?v=${Date.parse(row.updated_at) || 0}` : null;
 export const initialsOf = (name: string) => name.trim().split(/\s+/).map((w) => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?';
 export const cohortOf = (term: string | null, year: number | null) => (term && year ? `${term}${String(year).slice(2)}` : '');

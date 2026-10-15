@@ -9,7 +9,7 @@
  * 0.11. Rule: at least 0.20 AND within 0.08 of the best score. On the measured set that keeps exactly the right
  * person for each question and nobody for the unrelated one.
  */
-import { supabase } from '../supabase';
+import { functionUrl, supabase } from '../supabase';
 
 export const MIN_SIMILARITY = 0.2;
 export const WITHIN_BEST = 0.08;
@@ -25,7 +25,7 @@ export function closeMatches(hits: Hit[]): Hit[] {
 export async function semanticSearch(q: string, signal?: AbortSignal): Promise<Hit[]> {
   const { data: { session } } = await supabase().auth.getSession(); if (!session) return [];
   try {
-    const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/semantic', { method: 'POST', signal, headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'search', q }) });
+    const r = await fetch(functionUrl('semantic'), { method: 'POST', signal, headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'search', q }) });
     if (!r.ok) return [];
     return ((await r.json()).hits ?? []) as Hit[];
   } catch { return []; }

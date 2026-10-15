@@ -5,7 +5,7 @@ import { escapeHtml } from '../lib/portal/safe-html';
  * PostHog status line ("Connected · refreshed 6:12 AM"), the 7 / 30 / 90-day period and REFRESH.
  */
 import { me } from '../lib/auth';
-import { supabase } from '../lib/supabase';
+import { functionUrl, supabase } from '../lib/supabase';
 import { networkStats, siteStats, type MsgLine } from '../lib/portal/stats';
 import { tickNumber } from '../lib/portal/tick';
 import { cleanAudience, describeAudience } from '../../supabase/functions/_shared/audience';
@@ -21,7 +21,7 @@ let days = 30, siteSeq = 0;   // siteSeq: only the latest period's answer is dra
 
 async function delivery(): Promise<{ email: any; text: any } | null> {
   const { data: { session } } = await supabase().auth.getSession(); if (!session) return null;
-  const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'status' }) }).catch(() => null);
+  const r = await fetch(functionUrl('send-message'), { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'status' }) }).catch(() => null);
   return r?.ok ? r.json() : null;
 }
 

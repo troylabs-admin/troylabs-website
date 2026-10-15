@@ -4,7 +4,7 @@
  * a CSV export of the current filter. All through the browser client under the admin policies.
  */
 import { me } from '../lib/auth';
-import { supabase } from '../lib/supabase';
+import { functionUrl, supabase } from '../lib/supabase';
 import { webUrl } from '../lib/portal/safe-html';
 import { approveMany, avatarUrl, cityLabel, cohortOf, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
@@ -160,7 +160,7 @@ const people = (n: number) => `${n.toLocaleString()} ${n === 1 ? 'person' : 'peo
 async function emailApproved(ids: string[]): Promise<{ sent: number; texted: number; error: string | null }> {
   try {
     const { data: { session } } = await supabase().auth.getSession();
-    const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/send-message', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'approved', ids }) });
+    const r = await fetch(functionUrl('send-message'), { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'approved', ids }) });
     const b = await r.json().catch(() => ({})); return { sent: b.sent ?? 0, texted: b.texted ?? 0, error: r.ok ? b.error ?? null : b.error ?? `status ${r.status}` };
   } catch { return { sent: 0, texted: 0, error: 'couldn’t reach the email service' }; }
 }

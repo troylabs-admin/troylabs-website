@@ -4,13 +4,13 @@
  * Everything from LinkedIn is escaped: it's text people wrote.
  */
 import { escapeHtml as esc, webUrl } from './safe-html';
-import { supabase } from '../supabase';
+import { SUPABASE_URL, functionUrl, supabase } from '../supabase';
 
 export interface WorkRow { title: string; company: string; company_linkedin_id?: string | null; is_club?: boolean; company_logo: string | null; employment_type: string | null; workplace_type: string | null; location: string | null; start_year: number | null; start_month: number | null; end_year: number | null; end_month: number | null; description: string | null; sort: number }
 export interface ItemRow { kind: 'honor' | 'publication' | 'certification' | 'organization' | 'education'; title: string; issuer: string | null; detail: string | null; year: number | null; month: number | null; end_year: number | null; end_month: number | null; is_current: boolean; link: string | null; description: string | null; is_usc: boolean; sort: number }
 export interface History { work: WorkRow[]; items: ItemRow[]; syncedAt: string | null }
 
-const LOGOS = 'https://ackmhqxyxnceoarbhcrp.supabase.co/storage/v1/object/public/company-logos/';
+const LOGOS = `${SUPABASE_URL}/storage/v1/object/public/company-logos/`;
 const MON = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** a person's LinkedIn history (row-level security: their own, or anyone approved for members) */
@@ -107,7 +107,7 @@ export function historyHtml(h: History, opts: { synced?: boolean; part?: 'work' 
 /** ask for my LinkedIn import (or, for an admin, anyone's): the worker takes it within a minute or two */
 export async function requestSync(profileId?: string): Promise<{ status: number; queued?: boolean; error?: string }> {
   const { data: { session } } = await supabase().auth.getSession();
-  const r = await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/linkedin-sync', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'request', ...(profileId ? { profile_id: profileId } : {}) }) });
+  const r = await fetch(functionUrl('linkedin-sync'), { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'request', ...(profileId ? { profile_id: profileId } : {}) }) });
   return { status: r.status, ...(await r.json().catch(() => ({ error: `status ${r.status}` }))) };
 }
 export async function myLinkedInStatus(): Promise<{ queued: boolean; synced_at: string | null; error: string | null } | null> {

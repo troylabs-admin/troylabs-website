@@ -11,10 +11,15 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 const URL = 'https://ackmhqxyxnceoarbhcrp.supabase.co';
 const KEY = 'sb_publishable_6mQYrZoxtpUgqD8WAaY7Ww_Q-xsCYrn';
 
+/** the project's address: the env's when a build points elsewhere (a local or CI test stack), else the live one.
+ *  Every function call and storage link goes through these two, so a test build never reaches production. */
+export const SUPABASE_URL = ((import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || URL).replace(/\/+$/, '');
+export const functionUrl = (name: string) => `${SUPABASE_URL}/functions/v1/${name}`;
+
 let client: SupabaseClient | null = null;
 export function supabase(): SupabaseClient {
   if (client) return client;
-  const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined) || URL;
+  const url = SUPABASE_URL;
   const key = (import.meta.env.PUBLIC_SUPABASE_KEY as string | undefined) || KEY;
   // implicit flow, not PKCE: a magic link is often opened in a different browser than the one that asked
   // for it (mail app → Safari, while the form was filled in Chrome). PKCE would fail there; the implicit

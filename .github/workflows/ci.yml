@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium webkit   # webkit: the phone sign-in is also checked in Safari's engine
       - run: pnpm build
       - name: serve the built site on :4399
         run: |

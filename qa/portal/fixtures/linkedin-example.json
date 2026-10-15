@@ -1,9 +1,9 @@
 {
  "originalQuery": {
-  "url": "https://www.linkedin.com/in/bryanrg22"
+  "url": "https://www.linkedin.com/in/tl-qa-example"
  },
- "headline": "NVIDIA | 4x Hackathon Winner | CS @ USC",
- "about": "linkedin ~ % curl -I www.bryanram.com\n> First-Generation Latino studying CS @ USC\n> Quant, Research, Agentic AI, && ... the combination of them all\n> 4x Hackathon Winner @ Harvard, Caltech, Claude\n> 12 Hackathons and Counting \n\ni like to play soccer . and get on planes last minute .\n\nbryanram [@] usc [dot] edu\nbryanram2024 [@] gmail [dot] com",
+ "headline": "Software Engineering Intern at NVIDIA | CS @ USC",
+ "about": "> Example profile for the TL Alumni Network tests\n> A made-up computer science student at USC\n> Not a real person",
  "openToWork": false,
  "photo": "https://usctroylabs.com/icon-512.png",
  "experience": [
@@ -36,9 +36,9 @@
    "location": null,
    "employmentType": null,
    "workplaceType": null,
-   "companyName": "OpenAI",
-   "companyUniversalName": "openai",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/openai/",
+   "companyName": "Example AI Lab",
+   "companyUniversalName": "example-ai-lab",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/example-ai-lab/",
    "companyId": "tl-qa-11130470",
    "duration": "3 mos",
    "description": null,
@@ -81,7 +81,7 @@
    "geoUrn": null
   },
   {
-   "position": "Undergraduate Research Intern — iOS-Agent: Open Research Platform for Physical Mobile GUI Agents",
+   "position": "Undergraduate Research Intern — Mobile Agents Platform",
    "location": "Los Angeles, CA",
    "employmentType": null,
    "workplaceType": null,
@@ -90,7 +90,7 @@
    "companyLinkedinUrl": "https://www.linkedin.com/company/information-sciences-institute/",
    "companyId": "tl-qa-15092",
    "duration": "1 yr 6 mos",
-   "description": "● First open research platform for autonomous AI agents on physical iOS, 22+ tool primitives, first autonomous multi-step drag on iPhone.\n● 3.5× speedup via rolling-summary context compression, direct XCTest HTTP, and prompt caching.",
+   "description": "● Example research platform for mobile agents.\n● Example accomplishment 2.",
    "skills": null,
    "experienceGroupId": "4f56f844cb56860be35828c17dd921fc0220915c",
    "startDate": {
@@ -106,7 +106,7 @@
    }
   },
   {
-   "position": "Undergraduate Research Intern — LLM-assisted AI for TikTok Eating-Disorder Dataset (EDTok)",
+   "position": "Undergraduate Research Intern — Example Dataset (EXDS)",
    "location": "Los Angeles, California, United States",
    "employmentType": "Internship",
    "workplaceType": "On-site",
@@ -115,7 +115,7 @@
    "companyLinkedinUrl": "https://www.linkedin.com/company/information-sciences-institute/",
    "companyId": "tl-qa-15092",
    "duration": "10 mos",
-   "description": "● Published EDTok, multimodal eating disorder TikTok dataset\n● Accepted to ICWSM 2025\n● Research Paper: https://arxiv.org/abs/2505.02250",
+   "description": "● Example accomplishment 1.\n● Example accomplishment 2.\n● Example accomplishment 3.",
    "skills": null,
    "experienceGroupId": "4f56f844cb56860be35828c17dd921fc0220915c",
    "startDate": {
@@ -133,16 +133,16 @@
    }
   },
   {
-   "position": "Inside HRT — Algorithm Development Fellow",
+   "position": "Example Fellowship",
    "location": "New York, NY",
    "employmentType": null,
    "workplaceType": "On-site",
-   "companyName": "Hudson River Trading",
-   "companyUniversalName": "hudson-river-trading",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/hudson-river-trading/",
+   "companyName": "Example Trading",
+   "companyUniversalName": "example-trading",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/example-trading/",
    "companyId": "tl-qa-730004",
    "duration": "1 mo",
-   "description": "● Algorithm Development (Quantitative Research) Track",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "month": "May",
@@ -163,12 +163,12 @@
    "location": "New York, NY",
    "employmentType": null,
    "workplaceType": "On-site",
-   "companyName": "The D. E. Shaw Group",
-   "companyUniversalName": "d.-e.-shaw-&-co.",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/d.-e.-shaw-&-co./",
+   "companyName": "Sample Capital",
+   "companyUniversalName": "sample-capital",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/sample-capital/",
    "companyId": "tl-qa-6508",
    "duration": "1 mo",
-   "description": "● D. E. Shaw’s Connect Fellowship - NYC office",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "month": "Sep",
@@ -189,12 +189,12 @@
    "location": "New York, New York, United States",
    "employmentType": "Internship",
    "workplaceType": null,
-   "companyName": "Jane Street",
-   "companyUniversalName": "jane-street-global",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/jane-street-global/",
+   "companyName": "Placeholder Markets",
+   "companyUniversalName": "placeholder-markets",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/placeholder-markets/",
    "companyId": "tl-qa-1713404",
    "duration": "1 mo",
-   "description": "● Selected as 1 of 14 (FOCUS ’25)",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "text": "May 2025",
@@ -211,13 +211,13 @@
    }
   },
   {
-   "position": "Two Sigma 2025 New Seekers Summit",
+   "position": "Example Summit",
    "location": null,
    "employmentType": null,
    "workplaceType": null,
-   "companyName": "Two Sigma",
-   "companyUniversalName": "two-sigma-investments",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/two-sigma-investments/",
+   "companyName": "Demo Analytics",
+   "companyUniversalName": "demo-analytics",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/demo-analytics/",
    "companyId": "tl-qa-27915",
    "duration": "1 mo",
    "description": null,
@@ -237,13 +237,13 @@
    }
   },
   {
-   "position": "Susquehanna Discovery Day for First Year Students",
+   "position": "Example Discovery Day",
    "location": null,
    "employmentType": null,
    "workplaceType": null,
-   "companyName": "Susquehanna International Group",
-   "companyUniversalName": "susquehanna-international-group",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/susquehanna-international-group/",
+   "companyName": "Mock Securities",
+   "companyUniversalName": "mock-securities",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/mock-securities/",
    "companyId": "tl-qa-165964",
    "duration": "1 mo",
    "description": null,
@@ -263,16 +263,16 @@
    }
   },
   {
-   "position": "Undergraduate Research Intern — Interpretable AI for Image–Text Misinformation Detection",
+   "position": "Undergraduate Research Intern — Example Detection Project",
    "location": "Los Angeles, California, United States",
    "employmentType": "Internship",
    "workplaceType": null,
    "companyName": "USC Viterbi School of Engineering",
    "companyUniversalName": "usc-viterbi-school-of-engineering",
-   "companyLinkedinUrl": "https://www.linkedin.com/school/usc-viterbi-school-of-engineering/",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/usc-viterbi-school-of-engineering/",
    "companyId": "tl-qa-3221523",
    "duration": "2 mos",
-   "description": "● Improved out-of-context image–text detection to 68% accuracy.",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "text": "Jul 2024",
@@ -293,12 +293,12 @@
    "location": "New York, New York, United States",
    "employmentType": "Internship",
    "workplaceType": null,
-   "companyName": "Jane Street",
-   "companyUniversalName": "jane-street-global",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/jane-street-global/",
+   "companyName": "Placeholder Markets",
+   "companyUniversalName": "placeholder-markets",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/placeholder-markets/",
    "companyId": "tl-qa-1713404",
    "duration": "1 mo",
-   "description": "●  Selected as 1 of 37 (Unboxed ’24)",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "text": "Jul 2024",
@@ -324,7 +324,7 @@
    "companyLinkedinUrl": "https://www.linkedin.com/company/usclavalab/",
    "companyId": "tl-qa-3663395",
    "duration": "1 mo",
-   "description": "● USC's Premier Startup Incubator\n● Lavalab’s Best Traction F25",
+   "description": "● Example accomplishment 1.\n● Example accomplishment 2.",
    "skills": null,
    "startDate": {
     "text": "Jul 2024",
@@ -345,12 +345,12 @@
    "location": "Los Angeles, California, United States",
    "employmentType": null,
    "workplaceType": null,
-   "companyName": "Quant SC",
-   "companyUniversalName": "quant-sc",
-   "companyLinkedinUrl": "https://www.linkedin.com/company/quant-sc/",
+   "companyName": "Example Quant Club",
+   "companyUniversalName": "example-quant-club",
+   "companyLinkedinUrl": "https://www.linkedin.com/company/example-quant-club/",
    "companyId": "tl-qa-70992462",
    "duration": "1 mo",
-   "description": "● Software Developer for USC's Premier Quant Club",
+   "description": "● Example accomplishment 1.",
    "skills": null,
    "startDate": {
     "text": "Jul 2024",
@@ -376,7 +376,7 @@
    "companyLinkedinUrl": "https://www.linkedin.com/company/troy-labs/",
    "companyId": "tl-qa-18216697",
    "duration": "1 mo",
-   "description": "● USC's Premier Startup Accelerator\n● Building the tech side of the next generation of startups.",
+   "description": "● Example accomplishment 1.\n● Example accomplishment 2.",
    "skills": null,
    "startDate": {
     "text": "Jul 2024",
@@ -396,7 +396,7 @@
  "education": [
   {
    "schoolName": "University of Southern California",
-   "description": "● USC Viterbi School of Engineering - Computer Science\n● Leadership: Software Developer @ QuantSC, Software Developer / Mentor @ LavaLab, software Developer @ TroyLabs\n● Study Abroad: Berlin, Germany: Engineering in Society",
+   "description": "● Computer Science\n● Example leadership roles",
    "insights": null,
    "skills": null,
    "schoolLinkedinUrl": "https://www.linkedin.com/company/3084/",
@@ -410,83 +410,83 @@
  ],
  "certifications": [
   {
-   "title": "Career Essentials in Generative AI by Microsoft and LinkedIn",
-   "issuedBy": "Microsoft",
+   "title": "Example Certificate",
+   "issuedBy": "Example Academy",
    "issuedAt": "Mar 2024",
-   "link": "https://www.linkedin.com/learning/certificates/0cf9754f65c88afecb8c93dc67e8da489c5b30715a9ac69a83ae86fd00a5f6db",
+   "link": "https://example.com/certificate",
    "credentialId": null,
-   "issuedByLink": "https://www.linkedin.com/company/1035/"
+   "issuedByLink": null
   }
  ],
  "honorsAndAwards": [
   {
-   "title": "Anthropic - Claude Builder Hackathon",
-   "issuedBy": "Anthropic",
+   "title": "Campus Hackathon Winner",
+   "issuedBy": "Example University",
    "issuedAt": "Apr 2026",
    "description": null,
    "associatedWith": "Associated with University of Southern California",
    "associatedWithLink": "https://www.linkedin.com/company/3084/"
   },
   {
-   "title": "Hacktech - Caltech's Hackathon Winner",
-   "issuedBy": "Hacktech - Caltech",
+   "title": "Example Hackathon, 1st place",
+   "issuedBy": "Example University",
    "issuedAt": "Apr 2025",
-   "description": "● Flown to Dryft’s San Francisco Neo office for on-site collaboration.",
+   "description": null,
    "associatedWith": "Associated with University of Southern California",
    "associatedWithLink": "https://www.linkedin.com/company/3084/"
   },
   {
-   "title": "HackHarvard - Harvard's Hackathon Winner",
-   "issuedBy": "HackHarvard",
+   "title": "Dean's List",
+   "issuedBy": "Example University",
    "issuedAt": "Oct 2024",
    "description": null,
    "associatedWith": "Associated with University of Southern California",
    "associatedWithLink": "https://www.linkedin.com/company/3084/"
   },
   {
-   "title": "AstroHacks Hackathon Winner",
-   "issuedBy": "AstroHacks",
+   "title": "Example Scholarship",
+   "issuedBy": "Example University",
    "issuedAt": "Apr 2024",
    "description": null,
    "associatedWith": null,
    "associatedWithLink": null
   },
   {
-   "title": "SkillsUSA California Engineering Technology/Design STATE BRONZE",
-   "issuedBy": "SkillsUSA California",
+   "title": "Robotics Competition Finalist",
+   "issuedBy": "Example University",
    "issuedAt": "Apr 2024",
-   "description": "● 3rd Best Engineering Project in the State of California.",
+   "description": null,
    "associatedWith": null,
    "associatedWithLink": null
   },
   {
-   "title": "FIRST Tech Challenge Centerstage Regional SemiFinalist",
-   "issuedBy": "FIRST Robotics",
+   "title": "Engineering Design Award",
+   "issuedBy": "Example University",
    "issuedAt": "Feb 2024",
-   "description": "● Top 5 out of 32 Teams",
+   "description": null,
    "associatedWith": null,
    "associatedWithLink": null
   },
   {
-   "title": "SkillsUSA California Engineering Technology/Design Regional Finalist",
-   "issuedBy": "SkillsUSA California",
+   "title": "Coding Challenge Finalist",
+   "issuedBy": "Example University",
    "issuedAt": "Feb 2024",
-   "description": "● 2nd Best Engineering Project in the Region of San Gabriel Valley",
+   "description": null,
    "associatedWith": null,
    "associatedWithLink": null
   }
  ],
  "publications": [
   {
-   "title": "EDTok: A Dataset for Eating Disorder Content on TikTok",
+   "title": "EXDS: An Example Dataset of Short Videos for Research",
    "publishedAt": "May 4, 2025",
    "description": null,
-   "link": "https://arxiv.org/abs/2505.02250"
+   "link": "https://example.com/exds-paper"
   }
  ],
  "organizations": [
   {
-   "name": "CodePath",
+   "name": "Example Student Org 1",
    "positionHeld": null,
    "description": null,
    "startDate": {
@@ -497,10 +497,10 @@
    "endDate": {
     "text": "Present"
    },
-   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+   "companyLinkedinUrl": null
   },
   {
-   "name": "ColorStack",
+   "name": "Example Student Org 2",
    "positionHeld": null,
    "description": null,
    "startDate": {
@@ -511,10 +511,10 @@
    "endDate": {
     "text": "Present"
    },
-   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+   "companyLinkedinUrl": null
   },
   {
-   "name": "SHPE - Society of Hispanic Professional Engineers",
+   "name": "Example Student Org 3",
    "positionHeld": null,
    "description": null,
    "startDate": {
@@ -525,7 +525,7 @@
    "endDate": {
     "text": "Present"
    },
-   "companyLinkedinUrl": "https://www.linkedin.com/school/university-of-southern-california/"
+   "companyLinkedinUrl": null
   }
  ],
  "languages": [

@@ -1,8 +1,8 @@
 // LinkedIn work history, end to end (2026-10-05): approval queues the import (never before), the worker replaces the
 // history (re-syncing never duplicates), failures and empty scrapes keep what's saved, 30 people approved at once go
 // through in batches with no one done twice even with two workers running, and only members can read it.
-// Real Apify scrapes (Bryan's own public profile, ~$0.004 each) only with LINKEDIN_LIVE=1; otherwise his saved scrape
-// (qa/portal/fixtures) stands in. Temporary example.com accounts only; all removed.
+// Real Apify scrapes (a public profile given as LINKEDIN_LIVE_URL, ~$0.004 each) only with LINKEDIN_LIVE=1; otherwise a
+// made-up profile with a real scrape's shape (qa/portal/fixtures/linkedin-example.json) stands in. Temporary example.com accounts only; all removed.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { adminClient, makeUser } from './helpers.mjs';
@@ -10,8 +10,10 @@ import { adminClient, makeUser } from './helpers.mjs';
 const admin = adminClient(); const serviceKey = admin.supabaseKey;
 const FN = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/linkedin-sync';
 const LIVE = process.env.LINKEDIN_LIVE === '1';
-const BRYAN = 'https://www.linkedin.com/in/bryanrg22';
-const bryanScrape = JSON.parse(readFileSync(new URL('./fixtures/linkedin-bryanrg22.json', import.meta.url), 'utf8'));
+// the profile: a made-up one from the fixture offline; LINKEDIN_LIVE=1 scrapes a real public profile given as LINKEDIN_LIVE_URL
+const BRYAN = LIVE ? process.env.LINKEDIN_LIVE_URL : 'https://www.linkedin.com/in/tl-qa-example';
+if (LIVE && !BRYAN) throw new Error('LINKEDIN_LIVE=1 needs LINKEDIN_LIVE_URL');
+const bryanScrape = JSON.parse(readFileSync(new URL('./fixtures/linkedin-example.json', import.meta.url), 'utf8'));
 const call = async (body, bearer = serviceKey) => { const r = await fetch(FN, { method: 'POST', headers: { Authorization: `Bearer ${bearer}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, ...(await r.json().catch(() => ({}))) }; };
 const worker = (fixture) => call({ mode: 'worker', ...(fixture ? { fixture } : {}) });
 const jobs = async (id) => (await admin.from('work_experiences').select('id, company, title, workplace_type, sort').eq('profile_id', id).order('sort')).data;
@@ -27,7 +29,7 @@ try {
   assert.equal(before, 0, 'the queue starts empty (no worker is scheduled yet, so anything here would be left over)');
 
   // ── not before approval ───────────────────────────────────────────────────────────────────────
-  const ana = await make('Ana LinkedIn QA', false, 'linkedin.com/in/BryanRG22/');
+  const ana = await make('Ana LinkedIn QA', false, LIVE ? BRYAN : 'linkedin.com/in/TL-QA-Example/');
   assert.deepEqual(await queued([ana.id]), [], 'signing up with a link queues nothing');
   assert.equal((await call({ mode: 'request' }, ana.session.access_token)).status, 403, 'and they can\'t sync before approval');
   await admin.from('profiles').update({ approved: true }).eq('id', ana.id);
@@ -104,9 +106,9 @@ try {
   while (Date.now() - t0 < 40000) { const r = (await admin.from('profiles').select('embedding_hash').eq('id', ana.id).single()).data; if (r.embedding_hash && r.embedding_hash !== hashBefore) { hash = r.embedding_hash; break; } await new Promise((ok) => setTimeout(ok, 1500)); }
   assert.ok(hash, 'the sync re-embedded the profile');
   const ask = async (q) => (await (await fetch('https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/semantic', { method: 'POST', headers: { Authorization: `Bearer ${ana.session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'search', q }) })).json()).hits ?? [];
-  const testIds = new Set(users.map((u) => u.id));   // real members can match too (Bryan's own profile mentions hackathons): rank among this test's people
-  for (const q of ['someone who interned at Jane Street', 'who won a hackathon', 'published research on TikTok']) { const hits = (await ask(q)).filter((h) => testIds.has(h.id)); assert.equal(hits[0]?.id, ana.id, `"${q}" ranks them first (got ${JSON.stringify(hits.slice(0, 3))})`); }
-  console.log('PASS: AI search — after a sync, "interned at Jane Street", "won a hackathon" and "published research on TikTok" find them first');
+  const testIds = new Set(users.map((u) => u.id));   // real members can match too (some real profiles mention hackathons too): rank among this test's people
+  for (const q of ['someone who interned at NVIDIA', 'who won a hackathon', 'published a research dataset of short videos']) { const hits = (await ask(q)).filter((h) => testIds.has(h.id)); assert.equal(hits[0]?.id, ana.id, `"${q}" ranks them first (got ${JSON.stringify(hits.slice(0, 3))})`); }
+  console.log('PASS: AI search — after a sync, "interned at NVIDIA", "won a hackathon" and "published a research dataset" find them first');
 
   // ── failures keep what's saved (same link; LinkedIn is what fails) ─────────────────────────────
   await call({ mode: 'request', profile_id: ana.id });

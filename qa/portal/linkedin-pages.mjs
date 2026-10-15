@@ -2,7 +2,7 @@
 // storage) and the other sections (honors, publications, certifications, organizations, schools other than USC); the
 // profile's LinkedIn panel shows each state (waiting for approval, no link, importing, imported, failed) and SYNC NOW
 // works end to end; links are checked and stored in one form; text from LinkedIn can't inject HTML.
-// Bryan's saved scrape stands in for LinkedIn (qa/portal/fixtures). Temporary example.com accounts only; all removed.
+// A made-up profile (same shape as a real scrape) stands in for LinkedIn (qa/portal/fixtures). Temporary example.com accounts only; all removed.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chromium, expect } from '@playwright/test';
@@ -10,7 +10,7 @@ import { adminClient, makeUser, signInPage } from './helpers.mjs';
 
 const admin = adminClient(); const serviceKey = admin.supabaseKey; const base = process.env.PORTAL_URL || 'http://127.0.0.1:4321';
 const FN = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/linkedin-sync';
-const bryan = JSON.parse(readFileSync(new URL('./fixtures/linkedin-bryanrg22.json', import.meta.url), 'utf8'));
+const bryan = JSON.parse(readFileSync(new URL('./fixtures/linkedin-example.json', import.meta.url), 'utf8'));
 const call = async (body) => { const r = await fetch(FN, { method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return r.json(); };
 const handle = () => `https://www.linkedin.com/in/tl-qa-${crypto.randomUUID().slice(0, 8)}`;
 const users = []; const started = new Date().toISOString(); let browser;
@@ -35,13 +35,13 @@ try {
   await expect(page.locator('.wh-group').first()).toContainText('Software Engineering Intern'); await expect(page.locator('.wh-group').first().locator('.wh-now')).toHaveText('NOW');
   const isi = page.locator('.wh-group', { hasText: 'USC Information Sciences Institute' });
   await expect(isi.locator('.wh-title').first()).toContainText(/USC Information Sciences Institute · \d+ yrs? ?\d* ?mos?/); assert.equal(await isi.locator('.wh-role.is-sub').count(), 2);
-  await expect(isi.locator('.wh-bullets li').first()).toContainText('First open research platform');
+  await expect(isi.locator('.wh-bullets li').first()).toContainText('Example research platform');
   await page.waitForFunction(() => { const shown = [...document.querySelectorAll('.wh-logo img')].filter((i) => i.offsetParent !== null); return shown.length >= 5 && shown.every((i) => i.complete && i.naturalWidth > 0); }, null, { timeout: 15000 });   // the five companies shown (the rest wait behind SHOW ALL) have their logos
   assert.ok(await page.locator('.wh-logo img').first().evaluate((i) => i.src.includes('/storage/v1/object/public/company-logos/')), 'logos come from our storage');
   for (const [h, n] of [['Honors & awards', 7], ['Publications', 1], ['Certifications', 1], ['Organizations', 3]]) assert.equal(await page.locator(`h2:has-text("${h}") + .wh-collapse .wh-item`).count(), n, h);
-  const pub = page.locator('h2:has-text("Publications") + .wh-collapse a'); await expect(pub).toHaveAttribute('href', 'https://arxiv.org/abs/2505.02250'); await expect(pub).toHaveAttribute('target', '_blank'); await expect(pub).toHaveAttribute('rel', /noopener/);
+  const pub = page.locator('h2:has-text("Publications") + .wh-collapse a'); await expect(pub).toHaveAttribute('href', 'https://example.com/exds-paper'); await expect(pub).toHaveAttribute('target', '_blank'); await expect(pub).toHaveAttribute('rel', /noopener/);
   assert.equal(await page.locator('h2:has-text("Other schools")').count(), 0, 'USC alone → no schools section');
-  await expect(page.locator('[data-m-bio]')).toContainText('curl -I www.bryanram.com', { timeout: 5000 });   // no bio typed → their LinkedIn About
+  await expect(page.locator('[data-m-bio]')).toContainText('Example profile for the TL Alumni Network tests', { timeout: 5000 });   // no bio typed → their LinkedIn About
   const order = await page.locator('[data-member-body] h2').allTextContents();
   assert.deepEqual(order.slice(0, 2), ['About', 'Experience'], `About, then Experience (${order})`);
   await page.screenshot({ path: 'test-results/portal/linkedin-member.png', fullPage: true });
@@ -51,7 +51,7 @@ try {
   const more = page.locator('.wh-collapse:has(.wh-rail) > [data-wh-all]'); await expect(more).toHaveText('SHOW ALL 13 EXPERIENCES ↓');
   await more.click(); assert.equal(await visible('.wh-group'), 12); await expect(more).toHaveText('SHOW FEWER ↑');
   await more.click(); assert.equal(await visible('.wh-group'), 5, 'and back to five');
-  const edtok = page.locator('.wh-role', { hasText: 'EDTok' }); await more.click();
+  const edtok = page.locator('.wh-role', { hasText: 'EXDS' }); await more.click();
   assert.equal(await edtok.locator('.wh-bullets li').evaluateAll((els) => els.filter((e) => e.offsetParent !== null).length), 2, 'two bullets at first');
   await edtok.locator('[data-wh-lines]').click(); assert.equal(await edtok.locator('.wh-bullets li').evaluateAll((els) => els.filter((e) => e.offsetParent !== null).length), 3); await expect(edtok.locator('[data-wh-lines]')).toHaveText('see less');
   const honors = page.locator('h2:has-text("Honors & awards") + .wh-collapse');

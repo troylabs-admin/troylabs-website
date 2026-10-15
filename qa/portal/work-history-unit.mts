@@ -1,10 +1,10 @@
-// toWorkHistory against Bryan's real LinkedIn scrape (2026-10-05, work fields only) + the scraper quirks ColorStack fixes.
+// toWorkHistory against a LinkedIn scrape (a made-up profile with a real scrape's exact shape, 2026-10-15) + the scraper quirks ColorStack fixes.
 // Also replays ColorStack's own merge rule on the same data, to show the duplicate it produced and that ours doesn't.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { canonicalLinkedIn, currentRole, isUsc, jobDecision, parseWhen, photoDecision, photoKey, snapshotOf, toItems, toRow, toSkills, toWorkHistory, type ScrapedExperience, type ScrapedFull } from '../../supabase/functions/_shared/work-history.ts';
 
-const fx = JSON.parse(readFileSync(new URL('./fixtures/linkedin-bryanrg22.json', import.meta.url), 'utf8')) as ScrapedFull & { experience: ScrapedExperience[] };
+const fx = JSON.parse(readFileSync(new URL('./fixtures/linkedin-example.json', import.meta.url), 'utf8')) as ScrapedFull & { experience: ScrapedExperience[] };
 assert.equal(fx.experience.length, 15, 'the scrape has 15 entries');
 
 // ── the real scrape ─────────────────────────────────────────────────────────────────────────────
@@ -13,12 +13,12 @@ assert.equal(rows.length, 14, 'NVIDIA, listed twice by the scraper, is stored on
 const nvidia = rows.filter((r) => r.company === 'NVIDIA');
 assert.equal(nvidia.length, 1);
 assert.deepEqual({ ...nvidia[0], company_logo: null, company_linkedin_url: null, company_linkedin_id: null }, { title: 'Software Engineering Intern', company: 'NVIDIA', company_linkedin_id: null, company_linkedin_url: null, company_logo: null, employment_type: 'Internship', workplace_type: 'On-site', location: 'Santa Clara, CA', description: null, start_year: 2026, start_month: 5, end_year: null, end_month: null }, 'the merged NVIDIA keeps On-site from the second copy');
-assert.deepEqual(rows.map((r) => r.company), ['NVIDIA', 'OpenAI', 'USC Information Sciences Institute', 'USC Information Sciences Institute', 'Hudson River Trading', 'The D. E. Shaw Group', 'Jane Street', 'Two Sigma', 'Susquehanna International Group', 'USC Viterbi School of Engineering', 'Jane Street', 'LavaLab', 'Quant SC', 'TroyLabs'], 'LinkedIn order kept; two different Jane Street fellowships stay two');
-assert.equal(rows.find((r) => r.company === 'Hudson River Trading')!.end_month, 5, 'ended jobs keep their end month');
-assert.equal(rows.find((r) => r.company === 'OpenAI')!.end_year, null, 'current jobs have no end');
+assert.deepEqual(rows.map((r) => r.company), ['NVIDIA', 'Example AI Lab', 'USC Information Sciences Institute', 'USC Information Sciences Institute', 'Example Trading', 'Sample Capital', 'Placeholder Markets', 'Demo Analytics', 'Mock Securities', 'USC Viterbi School of Engineering', 'Placeholder Markets', 'LavaLab', 'Example Quant Club', 'TroyLabs'], 'LinkedIn order kept; two different Placeholder Markets fellowships stay two');
+assert.equal(rows.find((r) => r.company === 'Example Trading')!.end_month, 5, 'ended jobs keep their end month');
+assert.equal(rows.find((r) => r.company === 'Example AI Lab')!.end_year, null, 'current jobs have no end');
 assert.ok(rows.find((r) => r.company === 'TroyLabs'), 'a job is kept even without a company id');
 assert.deepEqual(toWorkHistory(fx.experience), rows, 'the same scrape always gives the same rows (so syncing again changes nothing)');
-console.log('PASS: Bryan\'s scrape — 15 entries → 14 jobs, NVIDIA once with On-site, LinkedIn order, current/ended dates');
+console.log('PASS: the scrape — 15 entries → 14 jobs, NVIDIA once with On-site, LinkedIn order, current/ended dates');
 
 // ── ColorStack's rule on the same data (oyster linkedin.ts doesExperienceMatch, against a pre-sync snapshot) ───────
 const handTyped = { company: 'NVIDIA', title: 'Incoming Software Engineering Intern', startYear: 2026, startMonth: 2, endYear: null as number | null };
@@ -49,20 +49,20 @@ assert.equal(toRow({ ...base, endDate: { text: 'Present' } })!.end_year, null);
 console.log('PASS: scraper quirks — swapped location/workplace, Earth, metro names, untyped internships, missing dates/company/title');
 
 // ── links ───────────────────────────────────────────────────────────────────────────────────────
-for (const [raw, want] of [['linkedin.com/in/bryanrg22', 'https://www.linkedin.com/in/bryanrg22'], ['https://www.linkedin.com/in/BryanRG22/', 'https://www.linkedin.com/in/bryanrg22'], ['http://linkedin.com/in/bryanrg22?utm=x#top', 'https://www.linkedin.com/in/bryanrg22'], ['https://uk.linkedin.com/in/jane-doe-123/details/experience/', 'https://www.linkedin.com/in/jane-doe-123'], ['https://www.linkedin.com/in/jos%C3%A9', 'https://www.linkedin.com/in/josé']] as const)
+for (const [raw, want] of [['linkedin.com/in/jordan-example', 'https://www.linkedin.com/in/jordan-example'], ['https://www.linkedin.com/in/Jordan-Example/', 'https://www.linkedin.com/in/jordan-example'], ['http://linkedin.com/in/jordan-example?utm=x#top', 'https://www.linkedin.com/in/jordan-example'], ['https://uk.linkedin.com/in/jane-doe-123/details/experience/', 'https://www.linkedin.com/in/jane-doe-123'], ['https://www.linkedin.com/in/jos%C3%A9', 'https://www.linkedin.com/in/josé']] as const)
   assert.equal(canonicalLinkedIn(raw), want, raw);
-for (const bad of ['', 'bryanrg22', 'https://www.linkedin.com/company/nvidia', 'https://evil.com/linkedin.com/in/x', 'https://notlinkedin.com/in/x']) assert.equal(canonicalLinkedIn(bad), null, bad);
+for (const bad of ['', 'jordan-example', 'https://www.linkedin.com/company/nvidia', 'https://evil.com/linkedin.com/in/x', 'https://notlinkedin.com/in/x']) assert.equal(canonicalLinkedIn(bad), null, bad);
 console.log('PASS: LinkedIn links — one form for any spelling; company pages and look-alike sites refused');
 
 // ── everything else on the profile ──────────────────────────────────────────────────────────────
 const items = toItems(fx);
 const by = (k: string) => items.filter((i) => i.kind === k);
-assert.deepEqual([by('honor').length, by('publication').length, by('certification').length, by('organization').length, by('education').length], [7, 1, 1, 3, 1], 'Bryan: 7 honors, 1 publication, 1 certification, 3 organizations, 1 school');
-assert.deepEqual(by('honor')[0], { kind: 'honor', title: 'Anthropic - Claude Builder Hackathon', issuer: 'Anthropic', detail: null, year: 2026, month: 4, end_year: null, end_month: null, current: false, link: null, description: null, is_usc: false });
-assert.deepEqual([by('publication')[0].title, by('publication')[0].year, by('publication')[0].month, by('publication')[0].link], ['EDTok: A Dataset for Eating Disorder Content on TikTok', 2025, 5, 'https://arxiv.org/abs/2505.02250'], 'publication date and link');
+assert.deepEqual([by('honor').length, by('publication').length, by('certification').length, by('organization').length, by('education').length], [7, 1, 1, 3, 1], '7 honors, 1 publication, 1 certification, 3 organizations, 1 school');
+assert.deepEqual(by('honor')[0], { kind: 'honor', title: 'Campus Hackathon Winner', issuer: 'Example University', detail: null, year: 2026, month: 4, end_year: null, end_month: null, current: false, link: null, description: null, is_usc: false });
+assert.deepEqual([by('publication')[0].title, by('publication')[0].year, by('publication')[0].month, by('publication')[0].link], ['EXDS: An Example Dataset of Short Videos for Research', 2025, 5, 'https://example.com/exds-paper'], 'publication date and link');
 assert.equal(by('education')[0].is_usc, true, 'USC is marked (pages show only other schools)'); assert.equal(by('education')[0].detail, "Bachelor's degree, Computer Science");
 assert.equal(by('organization')[0].current, true, 'an organization with no end is current');
-assert.ok(by('certification')[0].link?.startsWith('https://www.linkedin.com/learning/certificates/'));
+assert.ok(by('certification')[0].link === 'https://example.com/certificate');
 const dup = toItems({ honorsAndAwards: [{ title: 'Winner', issuedBy: 'X', issuedAt: 'Apr 2025' }, { title: 'winner', issuedBy: 'x', issuedAt: 'Apr 2025' }, { title: 'Winner', issuedBy: 'X', issuedAt: 'Apr 2024' }, { title: '' }], publications: [{ title: 'P', link: 'javascript:alert(1)' }] });
 assert.equal(dup.filter((i) => i.kind === 'honor').length, 2, 'a repeated honor once; the same title another year is its own'); assert.equal(dup.find((i) => i.kind === 'publication')!.link, null, 'only http(s) links');
 assert.deepEqual(toItems({}), [], 'no sections → nothing');

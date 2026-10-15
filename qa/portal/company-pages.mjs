@@ -1,7 +1,7 @@
 // Company pages (2026-10-05): the list counts approved members per company (LinkedIn jobs + a typed current company),
 // searches by name, and a company's page lists who's there now and who was, each linking to their member page and
 // back; people waiting for approval never appear; names from LinkedIn can't inject HTML; it fits a phone.
-// Bryan's saved scrape stands in for LinkedIn (company ids prefixed tl-qa-, so real companies are never touched).
+// A made-up profile (same shape as a real scrape) stands in for LinkedIn (company ids prefixed tl-qa-, so real companies are never touched).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chromium, expect } from '@playwright/test';
@@ -9,7 +9,7 @@ import { adminClient, makeUser, signInPage } from './helpers.mjs';
 
 const admin = adminClient(); const serviceKey = admin.supabaseKey; const base = process.env.PORTAL_URL || 'http://127.0.0.1:4321';
 const FN = 'https://ackmhqxyxnceoarbhcrp.supabase.co/functions/v1/linkedin-sync';
-const bryan = JSON.parse(readFileSync(new URL('./fixtures/linkedin-bryanrg22.json', import.meta.url), 'utf8'));
+const bryan = JSON.parse(readFileSync(new URL('./fixtures/linkedin-example.json', import.meta.url), 'utf8'));
 const call = async (body) => { const r = await fetch(FN, { method: 'POST', headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return r.json(); };
 const handle = () => `https://www.linkedin.com/in/tl-qa-${crypto.randomUUID().slice(0, 8)}`;
 const users = []; const started = new Date().toISOString(); let browser;

@@ -68,11 +68,11 @@ jobs:
       - run: pnpm build
       - name: serve the built site on :4399
         run: |
-          pnpm exec astro preview --port 4399 > preview.log 2>&1 &
-          for i in $(seq 1 60); do node -e "fetch('http://localhost:4399/').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && exit 0; sleep 1; done
+          pnpm exec astro preview --host 127.0.0.1 --port 4399 > preview.log 2>&1 &   # 127.0.0.1, not "localhost": in the container that name can mean IPv6, where nothing listens
+          for i in $(seq 1 60); do node -e "fetch('http://127.0.0.1:4399/').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && exit 0; sleep 1; done
           cat preview.log; exit 1
       - run: pnpm test:pages
-        env: { PORTAL_URL: 'http://localhost:4399' }
+        env: { PORTAL_URL: 'http://127.0.0.1:4399' }
       - if: failure()
         uses: actions/upload-artifact@v7
         with: { name: page-test-results, path: test-results/, retention-days: 7 }

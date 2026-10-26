@@ -160,7 +160,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
 
       <h2 class="t-sub portal-section-h">Location <span class="portal-req" title="Required">REQUIRED</span></h2>
       <p class="portal-section-sub t-fine text-muted">The city you live in right now: where you study, work, or are based. Update it when you move.</p>
-      <div class="portal-inline"><input id="pf-loc" class="t-caption portal-input" placeholder="City, State" aria-label="Location" data-label="location" /><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED">UPDATE</button></div>
+      <div class="portal-inline"><div class="portal-combo"><input id="pf-loc" class="t-caption portal-input" placeholder="City, State" aria-label="Location" data-label="location" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pf-loc-list" autocomplete="off" autocapitalize="words" spellcheck="false" /><ul id="pf-loc-list" class="portal-combo-list t-caption" role="listbox" aria-label="Matching cities" hidden></ul></div><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED">UPDATE</button></div>
       <p class="t-fine portal-feedback" role="status"></p>
       <p class="portal-help t-fine text-muted" id="pf-loc-note">No pin on the globe yet.</p>
 

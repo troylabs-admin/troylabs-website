@@ -257,11 +257,12 @@ async function init() {
     saveBtn.disabled = true;
     const waiting = !who!.approved && !other, wasSubmitted = Boolean(row?.submitted_at);
     try {
-      // someone applying: a city typed but not yet placed is placed now, so SUBMIT doesn't say "your city" is missing
+      // a city typed but not yet placed with UPDATE is placed now: SUBMIT doesn't say "your city" is missing, and SAVE
+      // doesn't say "Saved" while keeping the old pin
+      const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
+      if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
       if (waiting) {
         const ph = typedPhone(); if (ph && ph !== row?.phone) { const saved = await save({ phone: ph }); if (saved.ok) row = saved.row; }
-        const typed = ($('#pf-loc') as HTMLInputElement).value.trim();
-        if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
         const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
@@ -353,10 +354,17 @@ async function init() {
   $('[data-action="update"]')?.addEventListener('click', async (e) => {
     e.preventDefault(); const btn = e.currentTarget as HTMLElement; const text = ($('#pf-loc') as HTMLInputElement).value;
     if (!text.trim()) { flash(btn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
-    const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
-    const res = await save({ city_id: c.city.id });
-    if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
+    // the lookup and save take a moment on a phone: say so, and a second tap doesn't start another
+    const b = btn as HTMLButtonElement; if (b.disabled) return; b.disabled = true;
+    const said = btn.parentElement?.nextElementSibling as HTMLElement | null; if (said) { said.textContent = 'Looking up that city…'; said.style.color = ''; }
+    try {
+      const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
+      const res = await save({ city_id: c.city.id });
+      if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
+    } finally { b.disabled = false; }
   });
+  // Go/Return in the box is UPDATE, not the whole form's SAVE
+  $('#pf-loc')?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); $<HTMLElement>('[data-action="update"]')?.click(); } });
 }
 init();
 document.addEventListener('astro:page-load', init);

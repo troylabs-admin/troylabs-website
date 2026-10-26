@@ -79,22 +79,27 @@ export async function uploadAvatar(file: File, id?: string): Promise<{ ok: true;
 
 // ── cities: "City, ST" → a row with coordinates (looked up once, then shared by everyone) ─────────
 const US: Record<string, string> = { alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA', colorado: 'CO', connecticut: 'CT', delaware: 'DE', 'district of columbia': 'DC', florida: 'FL', georgia: 'GA', hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA', kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD', massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS', missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY' };
+const STATES = new Set(Object.values(US));
 export async function findOrCreateCity(text: string): Promise<{ ok: true; city: CityRow } | { ok: false; message: string }> {
   const [rawName, rawRegion = ''] = text.split(',').map((s) => s.trim()); if (!rawName) return { ok: false, message: 'Type a city, like "Los Angeles, CA".' };
   const sb = supabase();
   const wantRegion = US[rawRegion.toLowerCase()] ?? rawRegion.toUpperCase();
-  const { data: known } = await sb.from('cities').select('*').ilike('name', rawName).limit(10);
-  const hit = (known ?? []).find((c: CityRow) => !wantRegion || c.region.toUpperCase() === wantRegion) ?? (known?.length === 1 ? known[0] : null);
+  const isState = STATES.has(wantRegion);   // "Portland, ME" names one place; "London, UK" or "Toronto, Canada" is looser
+  const { data: known } = await sb.from('cities').select('*').ilike('name', rawName.replace(/[\\%_]/g, '\\$&')).limit(10);
+  // the only listed city of that name counts unless they typed a different US state (Portland, ME is not Portland, OR)
+  const hit = (known ?? []).find((c: CityRow) => !wantRegion || c.region.toUpperCase() === wantRegion || c.country.toUpperCase() === wantRegion) ?? (known?.length === 1 && !isState ? known[0] : null);
   if (hit) return { ok: true, city: hit as CityRow };
-  // not seen before: geocode once (Open-Meteo, no key), pick the result whose state matches, save it
+  // not seen before: geocode once (Open-Meteo, no key), pick the result whose state matches, add it for everyone
   const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(rawName)}&count=8&language=en&format=json`).then((r) => r.json()).catch(() => null);
-  const results: any[] = res?.results ?? []; if (!results.length) return { ok: false, message: `We couldn't find "${rawName}". Try the nearest big city.` };
-  const pick = results.find((r) => wantRegion && (US[(r.admin1 ?? '').toLowerCase()] === wantRegion || (r.country_code ?? '').toUpperCase() === wantRegion)) ?? results[0];
+  if (!res) return { ok: false, message: 'We couldn’t look that city up. Check your connection and try again.' };
+  const results: any[] = res.results ?? [];
+  const pick = results.find((r) => wantRegion && (US[(r.admin1 ?? '').toLowerCase()] === wantRegion || (r.country_code ?? '').toUpperCase() === wantRegion)) ?? (isState ? null : results[0]);
+  if (!pick) return { ok: false, message: `We couldn't find "${rawName}"${isState ? ` in ${wantRegion}` : ''}. Try the nearest big city.` };
   const region = pick.country_code === 'US' ? (US[(pick.admin1 ?? '').toLowerCase()] ?? '') : '';
-  const row = { name: pick.name, region, country: pick.country_code ?? '', lat: pick.latitude, lng: pick.longitude };
-  const { data: created, error } = await sb.from('cities').insert(row).select('*').single();
-  if (error) { const { data: again } = await sb.from('cities').select('*').eq('name', row.name).eq('region', row.region).eq('country', row.country).maybeSingle(); if (again) return { ok: true, city: again as CityRow }; return { ok: false, message: error.message }; }
-  return { ok: true, city: created as CityRow };
+  // through add_city (supabase/migrations/20261026000100_add_city.sql): members can't write the table itself
+  const { data: city, error } = await sb.rpc('add_city', { new_name: pick.name, new_region: region, new_country: pick.country_code ?? '', new_lat: pick.latitude, new_lng: pick.longitude });
+  if (error || !city?.id) return { ok: false, message: 'We couldn’t add that city just now. Try again in a minute, or pick the nearest big city.' };
+  return { ok: true, city: city as CityRow };
 }
 export const cityLabel = (c: CityRow | null | undefined) => c ? `${c.name}${c.region ? `, ${c.region}` : ''}${c.country && c.country !== 'US' ? ` ${c.country}` : ''}` : '';
 

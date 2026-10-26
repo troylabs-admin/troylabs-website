@@ -9,7 +9,9 @@ import { applicationMissing, listInWords } from '../lib/portal/application';
 import { prettyPhone, toE164 } from '../lib/portal/phone';
 import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/portal/work-render';
 import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
-import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
+import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, placeSuggestion, roleLabel, saveMyProfile, submitApplication, suggestCities, uploadAvatar, getProfile, type CityRow, type CitySuggestion, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
+import { parseTyped } from '../lib/portal/cities';
+import { SIGNED_OUT_EVENT } from '../lib/portal/session';
 import { parseYear, yearProblems } from '../lib/portal/years';
 import { functionUrl, supabase } from '../lib/supabase';
 
@@ -211,6 +213,23 @@ document.addEventListener('click', async (e) => {
   btn.disabled = r.status === 429; fb.style.color = 'var(--color-orange)'; fb.textContent = r.error ?? 'Something went wrong. Try again.';
 });
 
+const DRAFT = 'tl-profile-draft';
+/** what they typed before being signed out, put back once (same account, within a week); it is not saved until they press
+ *  SAVE / SUBMIT, and the line under that button says so */
+function restoreDraft(r: ProfileRow, viewer: Me) {
+  let kept: { id: string; at: number; patch: Partial<ProfileRow>; claims?: ClaimedRole[]; loc?: string; phone?: string } | null = null;
+  try { kept = JSON.parse(localStorage.getItem(DRAFT) ?? 'null'); localStorage.removeItem(DRAFT); } catch { return; }
+  if (!kept || kept.id !== r.id || Date.now() - kept.at > 7 * 86_400_000) return;
+  fill({ ...r, ...kept.patch } as ProfileRow, viewer.admin); row = r;   // fill() remembers the row it's given: keep the saved one
+  if (!viewer.approved && kept.claims) loadClaims(kept.claims);
+  if (kept.loc) $<HTMLInputElement>('#pf-loc')!.value = kept.loc;
+  if (kept.phone) $<HTMLInputElement>('#pf-phone')!.value = kept.phone;
+  recount(); onboard();
+  // name the button as it reads (SUBMIT FOR APPROVAL for an applicant): its label is otherwise only set once loading ends
+  const btn = $<HTMLElement>('[data-action="save"]'); if (btn) label(btn);
+  const fb = $('.portal-save .portal-feedback'); if (fb) { fb.style.color = ''; fb.textContent = `We kept what you typed before you were signed out. Check it, then press ${btn?.dataset.label ?? 'SAVE'}.`; }
+}
+
 async function init() {
   const form = document.querySelector<HTMLFormElement>('.portal-profile'); if (!form || form.dataset.wired) return; form.dataset.wired = '1';
   document.querySelectorAll<HTMLElement>('.portal-profile [data-action], .portal-profile .portal-save-row').forEach((b) => { b.dataset.wired = '1'; });
@@ -230,7 +249,7 @@ async function init() {
     form.querySelectorAll<HTMLElement>('[data-contact="usc"] .portal-help, [data-contact="personal"] .portal-help').forEach((p) => { p.textContent = 'Saved straight away (no confirmation email), and they can sign in with it.'; });
   }
   form.inert = false;   // the data is here: unlock and fill in the same tick, so nothing typed can be overwritten
-  if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved && !other) loadClaims(r.claimed_roles); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
+  if (r) { fill(r, who.admin); void linkedInPanel(); if (!who.approved && !other) loadClaims(r.claimed_roles); if (!other) restoreDraft(r, who); const full = await getProfile(r.id).catch(() => null); if (full?.roles.length && form.isConnected) { const box = $('#pf-eboard')!; box.innerHTML = roleLabel(full.roles).map((t) => `<span class="t-fine portal-chip" aria-pressed="true">${escapeHtml(t)}</span>`).join(''); } }
 
   // SAVE: the whole form
   // (the shared script preventDefaults every [data-action] click before it checks `wired`, so the form's
@@ -350,21 +369,82 @@ async function init() {
     if (res.ok) { const fresh = await reload(); if (fresh) { row = fresh; const img = $<HTMLImageElement>('#pf-photo-preview')!; img.src = avatarUrl(fresh)!; img.hidden = false; $('#pf-initials')!.dataset.hasPhoto = '1'; recount(); } } else alert(res.message);
   }, { capture: true });
 
-  // location → pin
-  $('[data-action="update"]')?.addEventListener('click', async (e) => {
-    e.preventDefault(); const btn = e.currentTarget as HTMLElement; const text = ($('#pf-loc') as HTMLInputElement).value;
-    if (!text.trim()) { flash(btn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
-    // the lookup and save take a moment on a phone: say so, and a second tap doesn't start another
-    const b = btn as HTMLButtonElement; if (b.disabled) return; b.disabled = true;
-    const said = btn.parentElement?.nextElementSibling as HTMLElement | null; if (said) { said.textContent = 'Looking up that city…'; said.style.color = ''; }
+  // location → pin (2026-10-26). UPDATE looks up what's typed; picking a suggestion places exactly that city. Both go
+  // through place(): one lookup at a time, "Looking up that city…" while it works, the result in words under the box.
+  const updateBtn = $<HTMLButtonElement>('[data-action="update"]')!, locBox = $<HTMLInputElement>('#pf-loc')!, list = $<HTMLUListElement>('#pf-loc-list')!;
+  const said = updateBtn.parentElement?.nextElementSibling as HTMLElement | null;
+  const place = async (lookup: () => Promise<{ ok: true; city: CityRow } | { ok: false; message: string }>) => {
+    if (updateBtn.disabled) return; updateBtn.disabled = true;   // a second tap, or a pick during a lookup, doesn't start another
+    if (said) { said.textContent = 'Looking up that city…'; said.style.color = ''; }
     try {
-      const c = await findOrCreateCity(text); if (!c.ok) { flash(btn, 'NOT FOUND', c.message, false); return; }
+      const c = await lookup(); if (!c.ok) { flash(updateBtn, 'NOT FOUND', c.message, false); return; }
       const res = await save({ city_id: c.city.id });
-      if (res.ok) { row = res.row; $<HTMLInputElement>('#pf-loc')!.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(btn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(btn, 'NOT SAVED', res.message, false);
-    } finally { b.disabled = false; }
+      if (res.ok) { row = res.row; locBox.value = cityLabel(res.row.city); $('#pf-loc-note')!.textContent = `${cityLabel(res.row.city)} · pin on the globe`; recount(); onboard(); flash(updateBtn, 'UPDATED', `Pin placed: ${cityLabel(c.city)}.`); } else flash(updateBtn, 'NOT SAVED', res.message, false);
+    } finally { updateBtn.disabled = false; }
+  };
+
+  // suggestions while typing: the WAI-ARIA combobox pattern (role=combobox + listbox, aria-activedescendant), so arrow keys,
+  // Enter, Escape, taps and screen readers all work. A lookup the next keystroke replaces is cancelled, and an answer that
+  // arrives late is dropped, so the list always matches what's in the box.
+  let options: CitySuggestion[] = [], active = -1, seq = 0, timer = 0, pressing = false; let pending: AbortController | null = null;
+  const closeList = () => { list.hidden = true; list.innerHTML = ''; options = []; active = -1; locBox.setAttribute('aria-expanded', 'false'); locBox.removeAttribute('aria-activedescendant'); };
+  const render = (items: CitySuggestion[], note = '') => {
+    options = items; active = -1; locBox.removeAttribute('aria-activedescendant');
+    list.innerHTML = items.map((c, i) => `<li id="pf-loc-opt-${i}" role="option" aria-selected="false" data-i="${i}"><span>${escapeHtml(cityLabel(c))}</span><small class="t-fine">${escapeHtml(c.detail)}</small></li>`).join('')
+      + (note ? `<li class="is-note t-fine" role="presentation">${escapeHtml(note)}</li>` : '');
+    list.hidden = !items.length && !note; locBox.setAttribute('aria-expanded', String(!list.hidden));
+  };
+  const highlight = (i: number) => {
+    active = i; list.querySelectorAll<HTMLElement>('li[data-i]').forEach((li) => li.setAttribute('aria-selected', String(Number(li.dataset.i) === i)));
+    const li = document.getElementById(`pf-loc-opt-${i}`); if (li) { locBox.setAttribute('aria-activedescendant', li.id); li.scrollIntoView({ block: 'nearest' }); }
+  };
+  const pick = (i: number) => { const c = options[i]; if (!c) return; locBox.value = cityLabel(c); closeList(); void place(() => placeSuggestion(c)); };
+  locBox.addEventListener('input', () => {
+    window.clearTimeout(timer); pending?.abort(); const text = locBox.value;
+    if (parseTyped(text).name.length < 2) { closeList(); return; }
+    timer = window.setTimeout(async () => {
+      const mine = ++seq; pending = new AbortController();
+      const r = await suggestCities(text, pending.signal);
+      if (mine !== seq || locBox.value !== text || document.activeElement !== locBox) return;   // they kept typing, or left the box
+      if (!r.ok) { render([], r.message); return; }
+      const { name, region } = parseTyped(text);
+      render(r.list, r.list.length ? '' : `No city called “${name}”${region ? ` in ${region}` : ''} that we can find. Check the spelling, or try the nearest big city.`);
+    }, 250);
   });
-  // Go/Return in the box is UPDATE, not the whole form's SAVE
-  $('#pf-loc')?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); $<HTMLElement>('[data-action="update"]')?.click(); } });
+  locBox.addEventListener('keydown', (e) => {
+    if (e.isComposing) return;
+    const open = !list.hidden && options.length > 0;
+    if (e.key === 'ArrowDown' && open) { e.preventDefault(); highlight((active + 1) % options.length); }
+    else if (e.key === 'ArrowUp' && open) { e.preventDefault(); highlight(active <= 0 ? options.length - 1 : active - 1); }
+    else if (e.key === 'Escape' && !list.hidden) { e.preventDefault(); closeList(); }
+    // Enter (Go on a phone keyboard): the highlighted suggestion, otherwise UPDATE with what's typed; never the whole form's SAVE
+    else if (e.key === 'Enter') { e.preventDefault(); if (open && active >= 0) pick(active); else { closeList(); updateBtn.click(); } }
+  });
+  // a tap or click picks on release (Safari on iPhone sends no click after a touch here, verified in WebKit 2026-10-26).
+  // pointerdown keeps the box focused so blur doesn't close the list first; a finger that moved was scrolling the list
+  let downY = 0, pickedAt = 0;
+  list.addEventListener('pointerdown', (e) => { pressing = true; downY = e.clientY; e.preventDefault(); });
+  list.addEventListener('pointercancel', () => { pressing = false; });
+  list.addEventListener('pointerup', (e) => {
+    pressing = false; if (Math.abs(e.clientY - downY) > 10) return;
+    const li = (e.target as Element).closest<HTMLElement>('li[data-i]'); if (li) { pickedAt = Date.now(); pick(Number(li.dataset.i)); }
+  });
+  list.addEventListener('click', (e) => {   // a click that didn't come with a pointer release (keyboard or assistive tech)
+    if (Date.now() - pickedAt < 600) return;
+    const li = (e.target as Element).closest<HTMLElement>('li[data-i]'); if (li) pick(Number(li.dataset.i));
+  });
+  locBox.addEventListener('blur', () => window.setTimeout(() => { if (!pressing && document.activeElement !== locBox) closeList(); }, 200));
+  updateBtn.addEventListener('click', (e) => {
+    e.preventDefault(); closeList(); const text = locBox.value;
+    if (!text.trim()) { flash(updateBtn, 'NOT UPDATED', 'Type your city first, like "Los Angeles, CA".', false); return; }
+    void place(() => findOrCreateCity(text));
+  });
+
+  // signed out while editing (2026-10-26): keep what's typed on this device; restoreDraft puts it back after they sign in again
+  document.addEventListener(SIGNED_OUT_EVENT, () => {
+    if (!row || other || !form.isConnected) return;
+    try { localStorage.setItem(DRAFT, JSON.stringify({ id: row.id, at: Date.now(), patch: collect(), claims: claimsFromForm().roles, loc: locBox.value, phone: $<HTMLInputElement>('#pf-phone')?.value ?? '' })); } catch { /* storage off: nothing to keep */ }
+  });
 }
 init();
 document.addEventListener('astro:page-load', init);

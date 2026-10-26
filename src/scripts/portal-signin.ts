@@ -14,6 +14,12 @@ function init() {
     return;
   }
   me().then((who) => { if (who) location.replace(HOME); });
+  // back from "You've been signed out" (2026-10-26): their address is filled in and the page says why they're here
+  const params = new URLSearchParams(location.search);
+  // read, not removed: the page's setup can run twice while the site swaps pages; it's forgotten once a link is sent
+  let known: string | null = null; try { known = sessionStorage.getItem('tl-signin-email'); } catch { /* storage off */ }
+  if (known && !email.value) email.value = known;
+  if (params.get('again')) msg.textContent = 'You were signed out. Send yourself a new link to pick up where you left off: what you typed is kept on that device.';
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!email.value.trim()) { msg.textContent = 'Enter your email.'; email.focus(); return; }
@@ -21,7 +27,7 @@ function init() {
     const r = await sendMagicLink(email.value);
     button.disabled = false;
     msg.textContent = r.ok ? `Check your inbox at ${email.value.trim()}. Tap the link in the email from TroyLabs to continue. It works once and expires in an hour; not there in a few minutes? Check spam.` : r.message;
-    if (r.ok) email.blur();
+    if (r.ok) { email.blur(); try { sessionStorage.removeItem('tl-signin-email'); } catch { /* storage off */ } }
   });
 }
 init();

@@ -34,7 +34,7 @@ try {
   let geoDown = false;
   await page.route('https://geocoding-api.open-meteo.com/**', async (route) => { const name = new URL(route.request().url()).searchParams.get('name').toLowerCase(); if (name === 'tacoma') await new Promise((r) => setTimeout(r, 1500)); return geoDown ? route.abort() : route.fulfill({ contentType: 'application/json', json: { results: GEO[name] ?? undefined } }); });
   const load = async () => { await page.goto(`${portal}/alumni-portal/profile`); await expect(page.locator('.portal-profile')).not.toHaveAttribute('inert', ''); };
-  const box = page.locator('#pf-loc'), update = page.locator('[data-action="update"]'), said = page.locator('#pf-loc').locator('xpath=../following-sibling::p[contains(@class,"portal-feedback")][1]');
+  const box = page.locator('#pf-loc'), update = page.locator('[data-action="update"]'), said = page.locator('#pf-loc').locator('xpath=ancestor::div[contains(@class,"portal-inline")]/following-sibling::p[contains(@class,"portal-feedback")][1]');
   // each UPDATE starts from an empty message, so a check can't pass on the previous one's
   const updateTo = async (text) => { await expect(update).toBeEnabled(); await said.evaluate((p) => { p.textContent = ''; }); await box.fill(text); await update.tap(); };
   await load();

@@ -3,7 +3,7 @@
 -- back. The people: supabase/seed.sql's Seed Admin and Seed Member, plus an applicant and a message made here.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(21);
+select plan(26);
 
 -- the cast ------------------------------------------------------------------------------------------------------
 \set admin   '''00000000-0000-4000-a000-000000000001'''
@@ -47,6 +47,14 @@ select pg_temp.as_user(:member); set local role authenticated;
 select throws_ok($$ insert into public.admins (user_id) values ('00000000-0000-4000-a000-000000000002') $$, '42501', null, 'a member cannot make themselves an admin');
 select throws_ok($$ update public.profiles set personal_email = 'x@example.com' where id = '00000000-0000-4000-a000-000000000002' $$, '42501', null, 'a member cannot change their email directly (it needs confirming)');
 select lives_ok($$ update public.profiles set bio = 'Hi' where id = '00000000-0000-4000-a000-000000000002' $$, 'a member can edit their own profile');
+-- cities: a new one goes through add_city (the live project refused direct writes: "permission denied for table cities")
+select is((select name || ', ' || region from public.add_city('Boise', 'id', 'us', 43.6135, -116.2035)), 'Boise, ID', 'a member can add a city nobody has picked yet');
+select is((select id from public.add_city('Boise', 'ID', 'US', 43.6, -116.2)), (select id from public.cities where name = 'Boise'), 'adding a listed city hands back the same row');
+select throws_ok($$ select public.add_city('Nowhere', '', 'US', 123, 0) $$, '22023', null, 'a city off the map is refused');
+select throws_ok($$ insert into public.cities (name, region, country, lat, lng) values ('Direct', '', 'US', 1, 1) $$, '42501', null, 'a member cannot write the cities table directly');
+reset role;
+set local role anon;
+select throws_ok($$ select public.add_city('Boise', 'ID', 'US', 43.6, -116.2) $$, '42501', null, 'a visitor cannot add cities');
 reset role;
 
 -- someone still applying ----------------------------------------------------------------------------------------

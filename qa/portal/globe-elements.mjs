@@ -53,7 +53,14 @@ try {
  rows.splice(1);rows[0].full_name='Alexandria MontgomeryWorthingtonSutherland van der Meer <img src=x onerror=alert(1)>';rows[0].current_title='A long research and development title';rows[0].city.name='A very long city name with several words';
  await p.setViewportSize({width:320,height:844});await open();await p.locator('.tl-star').click();await settle();await contained();expect(await pop.locator('img').count()).toBe(0);await p.screenshot({path:`${out}/long-person-320.png`});
  await p.setViewportSize({width:1440,height:1000});await settle();await contained();
- const c=await pop.boundingBox(),s=await p.locator('.tl-star.is-selected').boundingBox();expect(Math.abs(c.x+c.width/2-s.x-s.width/2),'resized card stays above its marker').toBeLessThan(1);
+ const gap=async()=>{const c=await pop.boundingBox(),s=await p.locator('.tl-star.is-selected').boundingBox();return Math.abs(c.x+c.width/2-s.x-s.width/2);};
+ expect(await gap(),'resized card stays above its marker').toBeLessThan(1);
  await p.screenshot({path:`${out}/long-person-1440.png`});
- expect(errors).toEqual([]);console.log('PASS long content, resizing an open card, literal text, no JavaScript errors');
+ // Resized while scrolled away: the paused globe moves the star only once it is back in view, and the card must follow it then.
+ // A spacer keeps the page long enough that the narrower layout can't pull the globe back into view during the resize.
+ const away=()=>wrap.evaluate(e=>{const r=e.getBoundingClientRect();return r.bottom<-100||r.top>innerHeight+100;});
+ await p.evaluate(()=>{const d=document.createElement('div');d.style.height='3000px';document.body.append(d);scrollTo(0,document.documentElement.scrollHeight);});await expect.poll(away,'globe scrolled out of view').toBe(true);
+ await p.setViewportSize({width:768,height:1000});await settle();expect(await away(),'globe still out of view after the resize').toBe(true);await wrap.scrollIntoViewIfNeeded();
+ await expect.poll(gap,'card follows its star after a resize made off screen').toBeLessThan(1);await contained();
+ expect(errors).toEqual([]);console.log('PASS long content, resizing an open card (also off screen), literal text, no JavaScript errors');
 }finally{await browser.close();}

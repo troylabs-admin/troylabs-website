@@ -24,6 +24,7 @@ jobs:
   build:
     name: build + type check
     runs-on: ubuntu-24.04
+    timeout-minutes: 10   # a hang fails fast instead of holding up a pull request
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -39,6 +40,7 @@ jobs:
   logic:
     name: logic (who gets each message, texts, LinkedIn, dates)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10   # a hang fails fast instead of holding up a pull request
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -50,21 +52,27 @@ jobs:
   pages:
     name: pages (made-up data)
     runs-on: ubuntu-24.04
+    timeout-minutes: 20   # a hang fails fast instead of holding up a pull request
+    # Playwright's own image: Chromium, WebKit and every system library they need are already inside, so nothing is
+    # downloaded from Ubuntu's package mirror (on 2026-10-26 that mirror slowed the install step from ~1 to 15+ minutes).
+    # The tag must match @playwright/test in pnpm-lock.yaml; bump both together.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium webkit   # webkit: the phone sign-in is also checked in Safari's engine
       - run: pnpm build
       - name: serve the built site on :4399
         run: |
-          pnpm exec astro preview --port 4399 > preview.log 2>&1 &
-          for i in $(seq 1 60); do curl -sf http://localhost:4399/ > /dev/null && exit 0; sleep 1; done
+          pnpm exec astro preview --host 127.0.0.1 --port 4399 > preview.log 2>&1 &   # 127.0.0.1, not "localhost": in the container that name can mean IPv6, where nothing listens
+          for i in $(seq 1 60); do node -e "fetch('http://127.0.0.1:4399/').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && exit 0; sleep 1; done
           cat preview.log; exit 1
       - run: pnpm test:pages
-        env: { PORTAL_URL: 'http://localhost:4399' }
+        env: { PORTAL_URL: 'http://127.0.0.1:4399' }
       - if: failure()
         uses: actions/upload-artifact@v7
         with: { name: page-test-results, path: test-results/, retention-days: 7 }
@@ -72,6 +80,7 @@ jobs:
   database:
     name: database (permissions, triggers)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15   # a hang fails fast instead of holding up a pull request
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6

@@ -49,8 +49,9 @@ export async function makeUser(admin, name, approved = true, { blank = false } =
     return { id, email, sb, session: auth.session, cleanup };
   } catch(e) { await cleanup(); throw e; }
 }
+// the session goes under the site's own storage name: sb-<project ref> live, sb-127 on the local stack
 export async function signInPage(browser, user, viewport = { width: 1440, height: 1000 }) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
-  await context.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: `sb-${ref}-auth-token`, session: user.session });
+  await context.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: `sb-${new URL(url).hostname.split('.')[0]}-auth-token`, session: user.session });
   return { context, page: await context.newPage() };
 }

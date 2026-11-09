@@ -131,6 +131,8 @@ export default function Network() {
   const pins = useMemo(() => matched.map(({ p }) => p).filter((p) => p.lat || p.lng), [matched]);   // no city yet → in the list, not on the globe (0,0 is the Gulf of Guinea)
   const cities = useMemo(() => new Set(pins.map(cityKey)).size, [pins]);
   const students = useMemo(() => PEOPLE.filter((p) => p.status === 'STUDENT').length, [PEOPLE]);
+  const dropouts = useMemo(() => PEOPLE.filter((p) => p.status === 'DROPPED OUT').length, [PEOPLE]);   // their own count, like their own filter chip (2026-11-09)
+  const alumni = PEOPLE.length - students - dropouts;
   const leftCities = useMemo(() => new Set(results.filter(({p}) => p.city).map(({ p }) => cityKey(p))).size, [results]);
 
   const toggle = (key: string, v: string) => { track('filter_press', { group: key, value: v, on: !(active[key] ?? []).includes(v) }); setPage(1); setActive((a) => { const cur = a[key] ?? []; const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]; const out = { ...a, [key]: next }; if (!next.length) delete out[key]; return out; }); };
@@ -200,7 +202,7 @@ export default function Network() {
           <p className="t-label portal-explore-stats">
             {[
               <span key="n"><Tick n={searching ? results.length : PEOPLE.length} /> {searching ? 'LEFT' : 'PEOPLE'}</span>,
-              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> {students === 1 ? 'STUDENT' : 'STUDENTS'}</span>, <span key="a"> · <Tick n={PEOPLE.length - students} /> {PEOPLE.length - students === 1 ? 'ALUM' : 'ALUMNI'}</span>]),
+              ...(searching ? [] : [<span key="s"> · <Tick n={students} /> {students === 1 ? 'STUDENT' : 'STUDENTS'}</span>, <span key="a"> · <Tick n={alumni} /> {alumni === 1 ? 'ALUM' : 'ALUMNI'}</span>, ...(dropouts ? [<span key="d"> · <Tick n={dropouts} /> DROPPED OUT</span>] : [])]),
               <span key="c"> · <Tick n={searching ? leftCities : cities} /> {(searching ? leftCities : cities) === 1 ? 'CITY' : 'CITIES'}</span>,
             ]}
           </p>
@@ -239,7 +241,7 @@ export default function Network() {
                           <span className="t-name portal-card-name">{p.full_name}</span>
                           <span className="portal-card-status"><span className="t-fine portal-role">{p.status}</span>{p.role && <span className="t-fine portal-card-eboard">{p.role}</span>}</span>
                           {(p.current_title || p.current_company || p.headline) && <span className="t-caption text-muted">{[p.current_title, p.current_company].filter(Boolean).join(' · ') || p.headline}</span>}
-                          <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.status === 'ALUM' && p.classOf ? `Class of ${p.classOf}` : ''].filter(Boolean).join(' · ')}</span>
+                          <span className="t-fine text-muted">{[p.city ? `${p.city}${p.region ? `, ${p.region}` : ''}` : '', p.leftUsc ?? (p.status === 'ALUM' && p.classOf ? `Class of ${p.classOf}` : '')].filter(Boolean).join(' · ')}</span>
                           {closeMatch ? <span className="t-fine portal-match portal-close-match" title="Not the exact words, but their profile is about what you asked">CLOSE MATCH{why.length ? ` · ${[...new Set(why.map(upper))].join(' · ')}` : ''}</span>
                             : why.length > 0 && <span className="t-fine portal-match">MATCHED {[...new Set(why.map(upper))].join(' · ')}</span>}
                         </span>

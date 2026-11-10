@@ -49,9 +49,11 @@ export async function makeUser(admin, name, approved = true, { blank = false } =
     return { id, email, sb, session: auth.session, cleanup };
   } catch(e) { await cleanup(); throw e; }
 }
-// the session goes under the site's own storage name: sb-<project ref> live, sb-127 on the local stack
+// where the page's Supabase client keeps its session: supabase-js names it after the project URL's first host label,
+// so the live project is sb-<ref>-auth-token and the local stack (127.0.0.1) is sb-127-auth-token
+export const authStorageKey = `sb-${new URL(url).hostname.split('.')[0]}-auth-token`;
 export async function signInPage(browser, user, viewport = { width: 1440, height: 1000 }) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
-  await context.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: `sb-${new URL(url).hostname.split('.')[0]}-auth-token`, session: user.session });
+  await context.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: authStorageKey, session: user.session });
   return { context, page: await context.newPage() };
 }

@@ -11,6 +11,7 @@ import { getHistory, historyHtml, myLinkedInStatus, requestSync } from '../lib/p
 import { canonicalLinkedIn } from '../../supabase/functions/_shared/work-history';
 import { avatarUrl, cityLabel, findOrCreateCity, initialsOf, myProfile, roleLabel, saveMyProfile, submitApplication, uploadAvatar, getProfile, type ClaimedRole, type ProfileRow } from '../lib/portal/data';
 import { parseYear, yearProblems } from '../lib/portal/years';
+import { standingOf, type Standing } from '../../supabase/functions/_shared/standing';
 import { functionUrl, supabase } from '../lib/supabase';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel);
@@ -48,7 +49,7 @@ const save = (patch: Partial<ProfileRow>) => saveMyProfile(patch, other ?? undef
 const reload = () => (other ? getProfile(other).then((g) => g?.row ?? null) : myProfile());
 /** year boxes holding something that isn't a year ("6", "20266", "Spring"): outlined, and the save stops */
 function badYears(): boolean {
-  const boxes = ['#pf-year', '#pf-grad-year', '#pf-classof-year'].map((s) => $<HTMLInputElement>(s)!).filter((i) => i && i.offsetParent !== null && parseYear(i.value) === undefined);
+  const boxes = ['#pf-year', '#pf-grad-year', '#pf-classof-year', '#pf-left-year'].map((s) => $<HTMLInputElement>(s)!).filter((i) => i && i.offsetParent !== null && parseYear(i.value) === undefined);
   boxes.forEach((i) => { i.classList.add('portal-needs'); i.setAttribute('aria-invalid', 'true'); });
   if (boxes[0]) { boxes[0].focus(); flash($('[data-action="save"]'), 'NOT SAVED', 'Enter years as four digits, like 2026. They’re outlined in orange.', false); }
   return boxes.length > 0;
@@ -67,11 +68,12 @@ function fill(r: ProfileRow, admin: boolean) {
   // a profile nobody has filled in yet shows neither STUDENT nor ALUM: the person has to say which (audit 2026-10-02:
   // a preselected status let alumni save as students without noticing)
   const unanswered = !r.full_name?.trim() && !r.grad_year;
-  document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(!unanswered && c.dataset.value === r.status)));
-  const student = r.status === 'student';
-  ($('#pf-grad') as HTMLElement).hidden = unanswered || !student; ($('#pf-classof') as HTMLElement).hidden = unanswered || student;
-  ($('#pf-grad-term') as HTMLSelectElement).value = term(r.grad_term) || 'Spring'; ($('#pf-grad-year') as HTMLInputElement).value = student && r.grad_year ? String(r.grad_year) : '';
-  ($('#pf-classof-year') as HTMLInputElement).value = !student && r.grad_year ? String(r.grad_year) : '';
+  const standing = standingOf(r);   // student, alum, or dropped out (an alum who left before graduating, 2026-11-09)
+  document.querySelectorAll<HTMLElement>('[data-field="status"] .portal-chip').forEach((c) => c.setAttribute('aria-pressed', String(!unanswered && c.dataset.value === standing)));
+  ($('#pf-grad') as HTMLElement).hidden = unanswered || standing !== 'student'; ($('#pf-classof') as HTMLElement).hidden = unanswered || standing !== 'alum'; ($('#pf-left') as HTMLElement).hidden = unanswered || standing !== 'dropped_out';
+  ($('#pf-grad-term') as HTMLSelectElement).value = term(r.grad_term) || 'Spring'; ($('#pf-grad-year') as HTMLInputElement).value = standing === 'student' && r.grad_year ? String(r.grad_year) : '';
+  ($('#pf-classof-year') as HTMLInputElement).value = standing === 'alum' && r.grad_year ? String(r.grad_year) : '';
+  ($('#pf-left-term') as HTMLSelectElement).value = term(r.grad_term) || 'Spring'; ($('#pf-left-year') as HTMLInputElement).value = standing === 'dropped_out' && r.grad_year ? String(r.grad_year) : '';
   ($('#pf-name') as HTMLInputElement).value = r.full_name ?? '';
   ($('#pf-term') as HTMLSelectElement).value = term(r.join_term) || 'Fall'; ($('#pf-year') as HTMLInputElement).value = r.join_year ? String(r.join_year) : '';
   // current job title and company aren't on the form: LinkedIn's work history sets them (2026-10-05)
@@ -112,7 +114,8 @@ function loadClaims(claims: ClaimedRole[]) {
   (document.activeElement as HTMLElement | null)?.blur();
 }
 /** where each required answer lives on the page, so a missing one can be shown, not just named */
-const FIELD_FOR: Record<string, string> = { 'whether you’re a student or an alum': '[data-field="status"]', 'your name': '#pf-name', 'your LinkedIn profile link': '#pf-li', 'your phone number': '#pf-phone', 'a personal email (not your USC one)': '#pf-personal', 'your graduation year': '#pf-classof-year, #pf-grad-year', 'the semester you joined TroyLabs': '#pf-year', 'your division': '[data-field="divisions"]', 'your city': '#pf-loc' };
+const STATUS_Q = 'whether you’re a student, an alum or dropped out';
+const FIELD_FOR: Record<string, string> = { [STATUS_Q]: '[data-field="status"]', 'your name': '#pf-name', 'your LinkedIn profile link': '#pf-li', 'your phone number': '#pf-phone', 'a personal email (not your USC one)': '#pf-personal', 'your graduation year': '#pf-classof-year, #pf-grad-year', 'your last semester at USC': '#pf-left-year', 'the semester you joined TroyLabs': '#pf-year', 'your division': '[data-field="divisions"]', 'your city': '#pf-loc' };
 /** say what's missing under the button, outline every missing answer, and take them to the first one */
 function showMissing(missing: string[], lead: string) {
   const fb = $('.portal-save .portal-feedback'); if (fb) { fb.textContent = `${lead} ${listInWords(missing)}. They're outlined in orange.`; fb.style.color = 'var(--color-orange)'; }
@@ -128,13 +131,14 @@ function showMissing(missing: string[], lead: string) {
 const typedPhone = () => { const v = ($('#pf-phone') as HTMLInputElement | null)?.value.trim(); return v ? toE164(v) : null; };
 const statusPicked = () => Boolean(document.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]'));
 function collect(): Partial<ProfileRow> {
-  const status = (document.querySelector<HTMLElement>('[data-field="status"] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'alum') as 'student' | 'alum';
-  const student = status === 'student';
+  const picked = (document.querySelector<HTMLElement>('[data-field="status"] .portal-chip[aria-pressed="true"]')?.dataset.value ?? 'alum') as Standing;
+  const student = picked === 'student', dropped = picked === 'dropped_out';
+  const status: 'student' | 'alum' = student ? 'student' : 'alum';   // a dropout is an alum who left early: alumni messages, counts, the globe
   const known = [...document.querySelectorAll<HTMLElement>('[data-field="industries"] .portal-chip')].map((c) => c.textContent!.replace(/^✓\s*/, '').trim());
   return {
-    full_name: ($('#pf-name') as HTMLInputElement).value.trim(), status,
-    grad_term: student ? termCode(($('#pf-grad-term') as HTMLSelectElement).value) : row?.grad_term ?? null,
-    grad_year: student ? yr('#pf-grad-year') : yr('#pf-classof-year'),
+    full_name: ($('#pf-name') as HTMLInputElement).value.trim(), status, dropped_out: dropped,
+    grad_term: student ? termCode(($('#pf-grad-term') as HTMLSelectElement).value) : dropped ? termCode(($('#pf-left-term') as HTMLSelectElement).value) : row?.grad_term ?? null,
+    grad_year: student ? yr('#pf-grad-year') : dropped ? yr('#pf-left-year') : yr('#pf-classof-year'),
     join_term: ($('#pf-year') as HTMLInputElement).value.trim() ? termCode(($('#pf-term') as HTMLSelectElement).value) : null, join_year: yr('#pf-year'),
     linkedin_url: ($('#pf-li') as HTMLInputElement).value.trim() || null, bio: ($('#pf-bio') as HTMLTextAreaElement).value.trim() || null,
     divisions: chipsOn('[data-field="divisions"]'), startups: tags('#pf-startups'),
@@ -154,7 +158,7 @@ function onboard(justSaved = false) {
   panel.hidden = false; if (completion) completion.hidden = true;   // one list of what's needed while they wait, not two
   const c = collect();
   const typedCity = ($('#pf-loc') as HTMLInputElement | null)?.value.trim();
-  const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...applicationMissing({ full_name: c.full_name ?? '', grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: c.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })];
+  const missing = [...(statusPicked() ? [] : [STATUS_Q]), ...applicationMissing({ full_name: c.full_name ?? '', dropped_out: c.dropped_out, grad_year: c.grad_year ?? null, join_year: c.join_year ?? null, divisions: c.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: c.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })];
   const submitted = Boolean(row?.submitted_at);
   const title = $('[data-onboard-title]')!, text = $('[data-onboard-text]')!, miss = $('[data-onboard-missing]')!, chip = $('[data-onboard-chip]')!;
   if (who.declined) {
@@ -240,14 +244,14 @@ async function init() {
     if (badYears()) return;
     const patch = collect();
     // years that are real but don't fit together (joined in the future, graduated before joining, …): say which and stop
-    const yp = yearProblems({ status: statusPicked() ? (patch.status ?? null) : null, grad_year: patch.grad_year ?? null, join_term: patch.join_term ?? null, join_year: patch.join_year ?? null });
+    const yp = yearProblems({ status: statusPicked() ? (patch.status ?? null) : null, dropped_out: patch.dropped_out, grad_term: patch.grad_term ?? null, grad_year: patch.grad_year ?? null, join_term: patch.join_term ?? null, join_year: patch.join_year ?? null });
     if (yp.length) {
-      const boxes = yp.map((p) => (p.field === 'join' ? $<HTMLInputElement>('#pf-year') : [...document.querySelectorAll<HTMLInputElement>('#pf-grad-year, #pf-classof-year')].find((i) => i.offsetParent !== null) ?? null)).filter((b): b is HTMLInputElement => Boolean(b));
+      const boxes = yp.map((p) => (p.field === 'join' ? $<HTMLInputElement>('#pf-year') : [...document.querySelectorAll<HTMLInputElement>('#pf-grad-year, #pf-classof-year, #pf-left-year')].find((i) => i.offsetParent !== null) ?? null)).filter((b): b is HTMLInputElement => Boolean(b));
       boxes.forEach((b) => { b.classList.add('portal-needs'); b.setAttribute('aria-invalid', 'true'); }); boxes[0]?.focus();
       flash(btn, 'NOT SAVED', yp.map((p) => p.message).join(' '), false); return;
     } const applying = !who!.approved && !other; const typedCity = ($('#pf-loc') as HTMLInputElement).value.trim();
-    const missing = [...(statusPicked() ? [] : ['whether you’re a student or an alum']), ...(applying
-      ? applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: patch.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })
+    const missing = [...(statusPicked() ? [] : [STATUS_Q]), ...(applying
+      ? applicationMissing({ full_name: patch.full_name ?? '', dropped_out: patch.dropped_out, grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: row?.city_id ?? (typedCity ? -1 : null), linkedin_url: patch.linkedin_url ?? null, phone: typedPhone() ?? row?.phone ?? null, personal_email: row?.personal_email ?? null })
       : patch.full_name ? [] : ['your name'])];
     if (missing.length) { showMissing(missing, applying && !row?.submitted_at ? 'Before you can submit, add' : 'Your profile needs'); return; }
     if (applying) { const c = claimsFromForm(); if (c.problem) { flash(btn, 'NOT SAVED', c.problem, false); return; } }
@@ -263,7 +267,7 @@ async function init() {
       if (typed && typed !== cityLabel(row?.city ?? null)) { const c = await findOrCreateCity(typed); if (!c.ok) { showMissing(['your city'], 'We couldn’t find that city, so check'); const f = $('.portal-save .portal-feedback'); if (f) f.textContent = `${c.message} It's outlined in orange under LOCATION.`; return; } patch.city_id = c.city.id; }
       if (waiting) {
         const ph = typedPhone(); if (ph && ph !== row?.phone) { const saved = await save({ phone: ph }); if (saved.ok) row = saved.row; }
-        const miss = applicationMissing({ full_name: patch.full_name ?? '', grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
+        const miss = applicationMissing({ full_name: patch.full_name ?? '', dropped_out: patch.dropped_out, grad_year: patch.grad_year ?? null, join_year: patch.join_year ?? null, divisions: patch.divisions ?? [], city_id: patch.city_id ?? row?.city_id ?? null, linkedin_url: patch.linkedin_url ?? null, phone: row?.phone ?? null, personal_email: row?.personal_email ?? null });
         if (miss.length) { showMissing(miss, wasSubmitted ? 'Your profile still needs' : 'Before you can submit, add'); return; }
       }
       if (waiting && !wasSubmitted) patch.phone_opt_in = ($('#pf-phone-opt') as HTMLInputElement).checked;   // the box under the phone, ticked by default at sign-up

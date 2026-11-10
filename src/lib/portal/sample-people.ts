@@ -4,14 +4,15 @@
  * be (300 in San Francisco; Bay Area / SoCal / East Coast neighbours close enough to merge on the globe).
  * Replaced by the database when Supabase lands; the shape below is the one the data model will keep.
  */
-export const STATUS = ['STUDENT', 'ALUM'] as const;
+export const STATUS = ['STUDENT', 'ALUM', 'DROPPED OUT'] as const;   // the three standings, each its own chip (supabase/functions/_shared/standing.ts)
 export const COHORTS = ['FA26', 'SP26', 'FA25', 'SP25', 'FA24', 'SP24', 'FA23', 'SP23'];
 export { DIVISIONS_SHORT as DIVISIONS } from './options';   // one list for every page (lib/portal/options.ts)
 export const INDUSTRIES = ['AI', 'FINTECH', 'HEALTHTECH', 'CLIMATE', 'CONSUMER', 'ENTERPRISE', 'EDTECH', 'ROBOTICS', 'DESIGN', 'MEDIA'];
 
 export interface Person {
   id: string; full_name: string; initials: string;
-  status: 'STUDENT' | 'ALUM'; cohort: string; classOf: string; division: string; divisions?: string[];
+  status: 'STUDENT' | 'ALUM' | 'DROPPED OUT'; cohort: string; classOf: string; division: string; divisions?: string[];
+  leftUsc?: string;   // the year line under an alum's or dropout's name: "Class of 2024" / "Last at USC Fall 2024"
   current_title: string; current_company: string; industries: string[]; bio: string;
   city: string; region: string; lat: number; lng: number; programs: string[];
   avatar?: string | null;
@@ -46,11 +47,13 @@ let n = 0;
 export const PEOPLE: Person[] = CITIES.flatMap(([city, region, lat, lng, count]) => Array.from({ length: count }, () => {
   n += 1;
   const student = n % 4 === 0;   // one in four is a current student
+  const dropped = !student && n % 13 === 0;   // and a few left USC early
   const cohort = student ? COHORTS[n % 2] : COHORTS[2 + (n % 6)];
   const [current_title, current_company, division, industries, bio] = ROLES[n % ROLES.length];
   return {
     id: 'sample', full_name: `Sample ${student ? 'Student' : 'Alum'} ${n}`, initials: student ? 'SS' : 'SA',
-    status: student ? 'STUDENT' : 'ALUM', cohort, classOf: student ? '2027' : String(2025 - (n % 3)), division,
+    status: student ? 'STUDENT' : dropped ? 'DROPPED OUT' : 'ALUM', cohort, classOf: student ? '2027' : String(2025 - (n % 3)), division,
+    leftUsc: student ? '' : dropped ? `Last at USC Fall ${2024 - (n % 3)}` : `Class of ${2025 - (n % 3)}`,
     current_title: student && !/Intern/.test(current_title) ? `${current_title} Intern` : current_title, current_company, industries, bio,
     city, region, lat, lng, programs: n % 3 === 0 ? ['IGNITE'] : n % 7 === 0 ? ['TL INTERNAL', 'IGNITE'] : ['TL INTERNAL'],
   } as Person;

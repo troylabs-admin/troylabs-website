@@ -6,11 +6,13 @@
 import { SUPABASE_URL, supabase } from '../supabase';
 import type { Person } from './sample-people';
 import { cardRole, type RoleTerm } from './roles';
+import { leftUscLine, tagOf } from '../../../supabase/functions/_shared/standing';
 
 export interface ClaimedRole { role: string; term: 'FA' | 'SP'; year: number }
 export interface ProfileRow {
   id: string; full_name: string; approved: boolean; declined_at: string | null;
   status: 'student' | 'alum'; grad_term: 'FA' | 'SP' | null; grad_year: number | null; join_term: 'FA' | 'SP' | null; join_year: number | null;
+  dropped_out?: boolean;   // left USC before graduating (only with status alum); grad_term/grad_year are then their last semester (2026-11-09)
   divisions: string[]; current_title: string | null; current_company: string | null; linkedin_url: string | null; bio: string | null;
   industries: string[]; startups: string[]; city_id: number | null;
   usc_email: string | null; personal_email: string | null; phone: string | null; phone_opt_in: boolean; email_opt_in: boolean;
@@ -32,13 +34,13 @@ export const cohortOf = (term: string | null, year: number | null) => (term && y
 const SELECT = '*, city:cities(*)';
 /** what a search card needs, nothing else (2026-10-05: `*` also sent each profile's 1,536-number embedding, ~19 KB a person,
  *  so 1,000 members would have been ~20 MB per visit to search) */
-const CARD_SELECT = 'id, full_name, status, grad_year, join_term, join_year, divisions, current_title, current_company, linkedin_headline, industries, bio, avatar_path, updated_at, city:cities(name, region, lat, lng)';
+const CARD_SELECT = 'id, full_name, status, dropped_out, grad_term, grad_year, join_term, join_year, divisions, current_title, current_company, linkedin_headline, industries, bio, avatar_path, updated_at, city:cities(name, region, lat, lng)';
 
 /** the shape the search page, the globe and the cards draw */
 export function toPerson(r: ProfileRow): Person & { avatar: string | null } {
   return {
     id: r.id, full_name: r.full_name || 'Unnamed member', initials: initialsOf(r.full_name || '?'),
-    status: r.status === 'student' ? 'STUDENT' : 'ALUM', cohort: cohortOf(r.join_term, r.join_year), classOf: r.grad_year ? String(r.grad_year) : '',
+    status: tagOf(r), cohort: cohortOf(r.join_term, r.join_year), classOf: r.grad_year ? String(r.grad_year) : '', leftUsc: leftUscLine(r),
     divisions: (r.divisions ?? []).map(d => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')),
     division: (r.divisions?.[0] ?? '').replace('PRODUCT MANAGEMENT', 'PRODUCT'), current_title: r.current_title ?? '', current_company: r.current_company ?? '', headline: r.linkedin_headline ?? '',
     industries: r.industries ?? [], bio: r.bio ?? '', city: r.city?.name ?? '', region: r.city?.region ?? '', lat: r.city?.lat ?? 0, lng: r.city?.lng ?? 0, programs: [],

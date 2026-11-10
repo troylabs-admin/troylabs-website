@@ -6,11 +6,11 @@
  * before anyone reaches the admins.
  */
 import { canonicalLinkedIn } from '../../../supabase/functions/_shared/work-history';
-export interface ApplicationFields { full_name: string | null; grad_year: number | null; join_year: number | null; divisions: string[] | null; city_id: number | null; linkedin_url: string | null; phone: string | null; personal_email: string | null }
+export interface ApplicationFields { full_name: string | null; grad_year: number | null; join_year: number | null; divisions: string[] | null; city_id: number | null; linkedin_url: string | null; phone: string | null; personal_email: string | null; dropped_out?: boolean | null }
 export function applicationMissing(r: ApplicationFields): string[] {
   const missing: string[] = [];
   if (!r.full_name?.trim()) missing.push('your name');
-  if (!r.grad_year) missing.push('your graduation year');
+  if (!r.grad_year) missing.push(r.dropped_out ? 'your last semester at USC' : 'your graduation year');   // a dropout's year is their last semester (2026-11-09)
   if (!r.join_year) missing.push('the semester you joined TroyLabs');
   if (!r.divisions?.length) missing.push('your division');
   if (!r.city_id) missing.push('your city');

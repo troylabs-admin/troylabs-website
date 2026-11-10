@@ -4,6 +4,7 @@ import { avatarUrl, cityLabel, getProfile, initialsOf, roleLabel } from '../lib/
 import { getHistory, historyHtml } from '../lib/portal/work-render';
 import { prettyPhone } from '../lib/portal/phone';
 import { me } from '../lib/auth';
+import { leftUscLine, tagOf } from '../../supabase/functions/_shared/standing';
 
 async function init() {
   const head = document.querySelector<HTMLElement>('[data-member-head]'); if (!head || head.dataset.wired) return; head.dataset.wired = '1';
@@ -22,10 +23,10 @@ async function init() {
   const { row: r, roles } = got;
   const $ = (sel: string) => document.querySelector<HTMLElement>(sel)!;
   const av = $('[data-m-avatar]'); const url = avatarUrl(r); av.innerHTML = url ? `<img src="${escapeHtml(url)}" alt="">` : initialsOf(r.full_name || '?');
-  $('[data-m-name]').textContent = r.full_name || 'Unnamed member'; $('[data-m-status]').textContent = r.status === 'student' ? 'STUDENT' : 'ALUM';
+  $('[data-m-name]').textContent = r.full_name || 'Unnamed member'; $('[data-m-status]').textContent = tagOf(r);
   $('[data-m-work]').textContent = [r.current_title, r.current_company].filter(Boolean).join(' at ') || (r.linkedin_headline ?? '');   // their LinkedIn headline when they haven't typed a job
   // plain words, not codes (Bryan, 2026-10-05: "TL FA24", "Expected" read as jargon)
-  const meta = [cityLabel(r.city), r.join_year && r.join_term ? `Joined TroyLabs in ${r.join_term === 'FA' ? 'Fall' : 'Spring'} ${r.join_year}` : '', r.grad_year ? `Class of ${r.grad_year}` : ''].filter(Boolean).join(' · ');
+  const meta = [cityLabel(r.city), r.join_year && r.join_term ? `Joined TroyLabs in ${r.join_term === 'FA' ? 'Fall' : 'Spring'} ${r.join_year}` : '', r.status === 'student' ? (r.grad_year ? `Class of ${r.grad_year}` : '') : leftUscLine(r)].filter(Boolean).join(' · ');   // a dropout: "Last at USC Fall 2024"
   $('[data-m-meta]').textContent = meta;
   const li = $('[data-m-linkedin]') as HTMLAnchorElement; if (r.linkedin_url && webUrl(r.linkedin_url)) { li.href = webUrl(r.linkedin_url)!; li.hidden = false; }
   const em = $('[data-m-email]') as HTMLAnchorElement; const addr = r.personal_email || r.usc_email; if (addr) { em.href = `mailto:${addr}`; em.hidden = false; }

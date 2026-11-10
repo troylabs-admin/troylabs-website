@@ -34,9 +34,11 @@ function init() {
       if (single) {                                   // one answer only (status): pick this, clear the rest
         single.querySelectorAll('.portal-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
         chip.setAttribute('aria-pressed', 'true');
-        const isStudent = chip.dataset.value === 'student';
-        const grad = root!.querySelector<HTMLElement>('#pf-grad'); if (grad) grad.hidden = !isStudent;
-        const classof = root!.querySelector<HTMLElement>('#pf-classof'); if (classof) classof.hidden = isStudent;
+        // each answer asks its own year: expected graduation, class of, or the last semester at USC (dropped out, 2026-11-09)
+        const v = chip.dataset.value;
+        const grad = root!.querySelector<HTMLElement>('#pf-grad'); if (grad) grad.hidden = v !== 'student';
+        const classof = root!.querySelector<HTMLElement>('#pf-classof'); if (classof) classof.hidden = v !== 'alum';
+        const left = root!.querySelector<HTMLElement>('#pf-left'); if (left) left.hidden = v !== 'dropped_out';
         recount(); return;
       }
       chip.setAttribute('aria-pressed', String(on));
@@ -286,7 +288,9 @@ function init() {
       // skip: add-boxes, anything inside an optional block (role years live under the optional e-board
       // section), and the semester <select> — a semester+year pair is ONE field, scored by its year input
       if (i.closest('[data-adds], [data-optional], #pf-eboard-years, #pf-grad') || i.hasAttribute('data-optional') || i.classList.contains('portal-select')) continue;
-      if (i.closest('#pf-classof')) { const alum = root!.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]')?.getAttribute('data-value') === 'alum'; if (!alum) continue; }   // students have no class year yet
+      const picked = root!.querySelector('[data-field="status"] .portal-chip[aria-pressed="true"]')?.getAttribute('data-value');
+      if (i.closest('#pf-classof') && picked !== 'alum') continue;   // students have no class year yet
+      if (i.closest('#pf-left') && picked !== 'dropped_out') continue;   // only a dropout has a last semester
       count(i.value.trim() !== '', i.dataset.label ?? i.getAttribute('aria-label')?.toLowerCase() ?? 'field');
     }
     for (const g of root!.querySelectorAll<HTMLElement>('.portal-profile .portal-chips[data-field]:not([data-optional])'))

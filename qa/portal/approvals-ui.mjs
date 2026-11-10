@@ -51,6 +51,20 @@ try {
     await expect(page.locator('#requests-n')).toHaveText('29'); assert.equal(state.profiles.find(p => p.id === id).approved, true); await expect(page.locator('#q-fb')).toContainText(/approved/i); await expect(page.locator('#q-fb')).not.toHaveClass(/is-error/);
     await expect(page.locator('#q-fb details')).toHaveCount(1); await expect(page.locator('#q-fb details')).not.toHaveAttribute('open', ''); await expect(page.locator('#q-fb details')).toContainText('Fixture notification');
     await page.locator('#q-fb summary').click(); await expect(page.locator('#q-fb details')).toHaveAttribute('open', '');
+    await expect(page.locator('#q-fb')).not.toContainText(' sent.');   // nothing went out, so nothing is claimed
+  });
+  await check('a text that went out is still reported when the email part failed', async ({ page, state }) => {
+    state.notifyError = 'Email isn’t connected yet: the Resend key hasn’t been added.'; state.notifyTexted = 1; await page.locator('[data-approve]').first().click();
+    await expect(page.locator('#q-fb summary')).toHaveText('Access granted. 1 text sent, but the email didn’t go out.');
+    await expect(page.locator('#q-fb details')).toContainText('Resend key'); await expect(page.locator('#q-fb')).not.toContainText('email sent'); await expect(page.locator('#q-fb')).not.toContainText('problem with the notification');
+  });
+  await check('several approved: the texts that went out, and the emails that did not, in one line', async ({ page, state }) => {
+    state.notifyError = 'Resend is down.'; state.notifyTexted = 25; await page.locator('label:has(#q-all)').click(); await page.locator('[data-q-approve]').click();
+    await expect(page.locator('#q-fb summary')).toHaveText('Access granted. 25 texts sent, but the emails didn’t go out.');
+  });
+  await check('some emails went and some did not: said as such', async ({ page, state }) => {
+    state.notifyError = 'Resend refused one address.'; state.notifySent = 1; state.notifyTexted = 1; await page.locator('[data-approve]').first().click();
+    await expect(page.locator('#q-fb summary')).toHaveText('Access granted. 1 email and 1 text sent, but some emails didn’t go out.');
   });
   await check('shown checkbox selects only displayed 25 and undo restores approved set', async ({ page, state }) => {
     await page.locator('label:has(#q-all)').click(); await expect(page.locator('[data-q-selected]')).toContainText('25');

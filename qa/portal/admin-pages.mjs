@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
 import { chromium, expect } from '@playwright/test';
-import { adminClient, makeUser, signInPage } from './helpers.mjs';
+import { adminClient, authStorageKey, makeUser, signInPage } from './helpers.mjs';
 
 const admin = adminClient(), users = []; let browser;
 const base = process.env.PORTAL_URL || 'http://127.0.0.1:4321';
@@ -19,7 +19,7 @@ try {
   const declined = await makeUser(admin, 'Pages Declined QA', false); users.push(declined); await admin.from('profiles').update({ submitted_at: new Date().toISOString(), declined_at: new Date().toISOString() }).eq('id', declined.id);
   browser = await chromium.launch(); const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
-  await ctx.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: 'sb-ackmhqxyxnceoarbhcrp-auth-token', session: boss.session });
+  await ctx.addInitScript(({ key, session }) => { if (!sessionStorage.getItem('tl-qa-seeded')) { localStorage.setItem(key, JSON.stringify(session)); sessionStorage.setItem('tl-qa-seeded', '1'); } }, { key: authStorageKey, session: boss.session });
   const page = await ctx.newPage(); page.on('pageerror', (e) => errors.push(`${new URL(page.url()).pathname}: ${e.message} ${(e.stack ?? '').split('\n')[1]?.trim() ?? ''}`)); page.on('dialog', (d) => d.accept());
 
   // ── Overview ───────────────────────────────────────────────────────────────────────────────────

@@ -5,17 +5,20 @@
 // its own transition was overridden; the header waited for the marketing hero (content at 0.45 s, links at 1.05 s).
 import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
-import { adminClient, makeUser } from './helpers.mjs';
+import { adminClient, authStorageKey, makeUser } from './helpers.mjs';
 
 const admin = adminClient(); const base = process.env.PORTAL_URL || 'http://127.0.0.1:4321'; let b; const u = await makeUser(admin, 'Entrance QA');
 const SIZES = { desktop: { width: 1440, height: 1000, header: { logo: 'header.section .nav-mark', links: 'header.section nav a', name: 'header.section .nav-who', signout: 'header.section .apply' } },
                 phone: { width: 390, height: 844, header: { logo: 'header.m-nav .nav-mark', links: 'header.m-nav nav a', signout: 'header.m-nav .m-apply' } } };
 const CONTENT = { '/alumni-portal/home': '.portal-head', '/alumni-portal/profile': '.portal-page-title', '/alumni-portal/companies': '.portal-page-title', [`/alumni-portal/members/?id=${u.id}`]: '.portal-member-head' };
 try {
-  b = await chromium.launch();
+  // the GPU, like a real visitor: headless Chromium otherwise draws WebGL in software (SwiftShader), and the home page's
+  // globe then holds the main thread ~300 ms with no frames, so a fade that ran in that stretch is measured as a pop
+  // (2026-11-09: only home failed, inside its one long frame gap; with the GPU the longest gap was 76 ms and nothing popped)
+  b = await chromium.launch({ args: ['--enable-gpu', '--use-angle=metal', '--ignore-gpu-blocklist'] });
   for (const [size, cfg] of Object.entries(SIZES)) for (const [path, content] of Object.entries(CONTENT)) {
     const ctx = await b.newContext({ viewport: { width: cfg.width, height: cfg.height } });
-    await ctx.addInitScript(({ key, session }) => { localStorage.setItem(key, JSON.stringify(session)); }, { key: 'sb-ackmhqxyxnceoarbhcrp-auth-token', session: u.session });
+    await ctx.addInitScript(({ key, session }) => { localStorage.setItem(key, JSON.stringify(session)); }, { key: authStorageKey, session: u.session });
     await ctx.addInitScript((SEL) => {
       const T = {}; window.__anim = T; const t0 = performance.now();
       const vis = (el) => { let o = 1, n = el; while (n && n !== document.documentElement) { const cs = getComputedStyle(n); if (cs.visibility === 'hidden' || cs.display === 'none') return 0; o *= Number(cs.opacity); n = n.parentElement; } return o; };

@@ -235,8 +235,10 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
   const anchorOf = (el: Element) => { const wrap = containerRef.current!.getBoundingClientRect(); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top }; };
   useEffect(() => {
     if (!current) { setAnchor(null); return; }
+    const wrapEl = containerRef.current; if (!wrapEl) return;
+    const find = () => wrapEl.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(current.seed.key)}"]`);
     const updateAnchor = () => {
-      const el = containerRef.current?.querySelector<HTMLElement>(`.tl-star[data-seed="${CSS.escape(current.seed.key)}"]`);
+      const el = find();
       // no card while its star is out of sight — turned to the far side (the library hides it: display none, so
       // its box is all zeros and the card sat at a clamped spot pointing at nothing) or, zoomed in, outside the
       // round frame. It comes back when the star does. The selection itself stays. (No element yet = the renderer
@@ -248,10 +250,20 @@ export default function AlumniGlobe({ pins, onRefresh, onPick, onSeeList, reset 
       else setAnchor(null);
     };
     updateAnchor();
-    // HTML markers are projected on the renderer's next frame. A resize doesn't move
-    // the camera, so also measure after that projection rather than keeping the old anchor.
-    let frame = requestAnimationFrame(() => { frame = requestAnimationFrame(updateAnchor); });
-    return () => cancelAnimationFrame(frame);
+    // The renderer moves the star on its own frame, and a resize only reaches it through a debounced
+    // timer: on a busy machine that lands after any fixed number of frames, and the card was left 229px
+    // from its star (2026-10-26). The renderer writes the star's transform/display whenever it moves, hides
+    // or shows it (an unchanged write is not a mutation), so follow those writes, and insertions for a
+    // star the renderer has not placed yet, instead of guessing when they happen.
+    let star: HTMLElement | null = null;
+    const follow = new MutationObserver(() => { if (find() !== star) watch(); updateAnchor(); });
+    const watch = () => {
+      follow.disconnect(); star = find();
+      follow.observe(wrapEl, { childList: true, subtree: true });
+      if (star) follow.observe(star, { attributes: true, attributeFilter: ['style'] });
+    };
+    watch();
+    return () => follow.disconnect();
   }, [current, view, clusters, dimensions]);
   useEffect(() => { containerRef.current?.querySelectorAll('.tl-star').forEach((el) => el.classList.toggle('is-selected', (el as HTMLElement).dataset.seed === current?.seed.key)); }, [current, clusters]);
 

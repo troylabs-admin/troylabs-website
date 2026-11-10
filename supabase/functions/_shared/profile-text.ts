@@ -1,5 +1,6 @@
+import { semesterName } from './standing.ts';
 /** The text an AI-search embedding is made from (semantic function). Work facts only: never names, emails or phone numbers. */
-export interface ProfileFacts { id: string; status: string; grad_year: number | null; join_term: string | null; join_year: number | null; divisions: string[] | null; current_title: string | null; current_company: string | null; industries: string[] | null; startups: string[] | null; bio: string | null; embedding_hash: string | null; city: { name: string; region: string } | null;
+export interface ProfileFacts { id: string; status: string; dropped_out?: boolean | null; grad_term?: string | null; grad_year: number | null; join_term: string | null; join_year: number | null; divisions: string[] | null; current_title: string | null; current_company: string | null; industries: string[] | null; startups: string[] | null; bio: string | null; embedding_hash: string | null; city: { name: string; region: string } | null;
   // from a LinkedIn sync (2026-10-05): what they did and won, so "someone who interned at Jane Street" finds them
   linkedin_headline?: string | null; linkedin_skills?: string[] | null;
   work?: { title: string; company: string; start_year: number | null; end_year: number | null; sort?: number }[] | null;
@@ -9,7 +10,9 @@ export interface ProfileFacts { id: string; status: string; grad_year: number | 
 export function profileText(r: ProfileFacts): string {
   const cohort = r.join_term && r.join_year ? `${r.join_term === 'FA' ? 'Fall' : 'Spring'} ${r.join_year}` : '';
   const parts = [
-    `${r.status === 'student' ? 'Current USC student' : 'USC alum'}${r.grad_year ? `, ${r.status === 'student' ? 'graduating' : 'class of'} ${r.grad_year}` : ''}.`,
+    // a dropout reads as one (2026-11-09), so "founders who dropped out" finds them; everyone else's sentence is unchanged
+    r.dropped_out && r.status !== 'student' ? `Dropped out of USC (left before graduating)${r.grad_year ? `, last at USC ${semesterName(r.grad_term, r.grad_year)}` : ''}.`
+      : `${r.status === 'student' ? 'Current USC student' : 'USC alum'}${r.grad_year ? `, ${r.status === 'student' ? 'graduating' : 'class of'} ${r.grad_year}` : ''}.`,
     cohort && `Joined TroyLabs in ${cohort}.`,
     r.divisions?.length && `TroyLabs divisions: ${r.divisions.join(', ')}.`,
     (r.current_title || r.current_company) && `Works as ${[r.current_title, r.current_company && `at ${r.current_company}`].filter(Boolean).join(' ')}.`,

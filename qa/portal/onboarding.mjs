@@ -44,7 +44,7 @@ try {
     const sp = await browser.newPage({ viewport: { width: w, height: h } }); sp.on('pageerror', (e) => errors.push(e.message));
     await sp.route('**/auth/v1/otp**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));   // no real email is sent
     await sp.goto(`${base}/alumni-portal`);
-    await expect(sp.getByRole('button', { name: 'EMAIL ME A LINK' })).toBeVisible(); await expect(sp.locator('#portal-auth')).toContainText('Sign in or join with your email');
+    await expect(sp.getByRole('button', { name: 'EMAIL ME A LINK' })).toBeVisible(); await expect(sp.locator('#portal-auth')).toContainText('Enter your email to sign in or join.');
     assert.equal(await sp.locator('input[type="password"], [role="tab"]').count(), 0, 'no password, no separate sign-up');
     await shot(sp, `01-sign-in-${tag}`);
     await sp.locator('#portal-email').fill('new.member@example.com'); await sp.getByRole('button', { name: 'EMAIL ME A LINK' }).click();

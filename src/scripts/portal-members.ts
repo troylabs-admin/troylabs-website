@@ -184,12 +184,12 @@ async function decide(kind: 'approved' | 'declined', ids: string[]) {
     qfb(result + (notification ? '<p class="t-fine text-muted m-0">Sending notification…</p>' : '')); queueBusy(true); fb('');
     if (notification) {
       const mail = await notification!; if (!root.isConnected) return;
-      // what did go out is said even when part of it failed (texts sent but email not connected: "1 text sent." stays)
+      // one plain line: what went out, and what didn't (the text can go out while the email fails, e.g. Resend is down)
       const done = [mail.sent && `${mail.sent} email${mail.sent === 1 ? '' : 's'}`, mail.texted && `${mail.texted} text${mail.texted === 1 ? '' : 's'}`].filter(Boolean).join(' and ');
-      const sentLine = done ? `<p class="t-fine text-muted m-0">${done} sent.</p>` : '';
+      const missed = mail.sent ? 'some emails' : ids.length === 1 ? 'the email' : 'the emails';
       const note = mail.error
-        ? `<details class="portal-queue-notice"><summary>Access granted. There was a problem with the notification.</summary><p>${esc(mail.error)}</p><p>Approval is saved. Do not approve again to retry a notification.</p></details>${sentLine}`
-        : sentLine;
+        ? `<details class="portal-queue-notice"><summary>${done ? `Access granted. ${done} sent, but ${missed} didn’t go out.` : 'Access granted. There was a problem with the notification.'}</summary><p>${esc(mail.error)}</p><p>Approval is saved. Do not approve again to retry a notification.</p></details>`
+        : done ? `<p class="t-fine text-muted m-0">${done} sent.</p>` : '';
       qfb(result + note);
     }
   } catch { if (root?.isConnected) qfb('Couldn’t confirm the result. Refresh the page before trying again.', false); }

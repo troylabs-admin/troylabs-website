@@ -62,7 +62,7 @@ export async function createApprovalsFixture(browser, { base = process.env.PORTA
     if (url.pathname.endsWith('/functions/v1/send-message')) {
       const body = req.postDataJSON(); state.notifications.push(body);
       if (state.notifyDelay) await new Promise(resolve => setTimeout(resolve, state.notifyDelay));
-      if (state.notifyError) return json({ sent: 0, texted: 0, error: state.notifyError }, 400);
+      if (state.notifyError) return json({ sent: 0, texted: state.notifyTexted ?? 0, error: state.notifyError }, state.notifyTexted ? 503 : 400);   // notifyTexted: the text went, the email didn't
       return json({ sent: body.ids?.length || 0, texted: 0 });
     }
     return json({});

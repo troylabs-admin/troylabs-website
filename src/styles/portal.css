@@ -894,3 +894,26 @@ html.motion .portal-wait-steps li.is-now .portal-wait-dot { animation: tl-wait-p
 /* footer legal links (2026-10-06, for the A2P text registration) */
 .portal-footer-legal { margin-left: calc(10 * var(--u)); white-space: nowrap; } .portal-footer-legal a { text-decoration: none; } .portal-footer-legal a:hover { text-decoration: underline; }
 @media (max-width: 767px) { .portal-footer-legal { display: block; margin: 6px 0 0; white-space: normal; } }
+
+/* LOCATION suggestions (2026-10-26): a list under the box while typing; pick one and that exact city is placed */
+.portal-combo { position: relative; flex: 1 1 auto; min-width: 0; }
+.portal-combo > .portal-input { width: 100%; }
+.portal-combo-list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px); margin: 0; padding: 6px; list-style: none; max-height: 320px; overflow-y: auto;
+  background: #121212; border-radius: 14px; box-shadow: inset 0 0 0 var(--hair) rgb(255 255 255 / 0.35), 0 12px 32px rgb(0 0 0 / 0.55); }
+.portal-combo-list[hidden] { display: none; }
+.portal-combo-list li { display: grid; gap: 2px; padding: 10px 12px; min-height: 44px; border-radius: 10px; cursor: pointer; color: var(--color-ink); }
+.portal-combo-list li { font-size: 14px; line-height: 20px; letter-spacing: 0.02em; }   /* fixed px, like .portal-globe-pop: design units shrink with the window */
+.portal-combo-list li small { font-size: 12px; line-height: 16px; color: var(--color-muted); letter-spacing: 0.04em; }
+.portal-combo-list li[aria-selected="true"], .portal-combo-list li:hover { background: rgb(255 125 44 / 0.14); }
+.portal-combo-list li.is-note { cursor: default; color: var(--color-muted); }
+.portal-combo-list li.is-note:hover { background: none; }
+
+/* "You've been signed out" (2026-10-26): pinned to the bottom of the screen, above everything, until they sign in again */
+.portal-signed-out { position: fixed; z-index: 1000; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(720px, calc(100% - 32px));
+  display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 14px 16px 14px 20px; border-radius: 16px; background: #1a1008;
+  box-shadow: inset 0 0 0 1px rgb(255 125 44 / 0.75), 0 12px 32px rgb(0 0 0 / 0.6); color: var(--color-ink); }
+.portal-signed-out .portal-btn { flex: none; white-space: nowrap; font-size: 12px; line-height: 18px; }
+/* it hangs off <body>, outside .portal-section, so none of the portal's text sizes reach it: t-caption fell back to design
+   units (4.5 px on a phone, 2026-10-26) */
+.portal-signed-out .t-caption { font-size: 14px; line-height: 21px; letter-spacing: 0.02em; }
+@media (max-width: 767px) { .portal-signed-out { flex-direction: column; align-items: stretch; text-align: left; } .portal-signed-out .portal-btn { text-align: center; } }

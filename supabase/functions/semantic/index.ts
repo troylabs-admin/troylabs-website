@@ -36,7 +36,7 @@ async function embed(texts: string[]): Promise<number[][]> {
 }
 
 async function embedProfiles(svc: SupabaseClient, ids: string[] | null): Promise<{ embedded: number; skipped: number }> {
-  let q = svc.from('profiles').select('id, status, grad_year, join_term, join_year, divisions, current_title, current_company, industries, startups, bio, embedding_hash, linkedin_headline, linkedin_skills, city:cities(name, region), work:work_experiences(title, company, start_year, end_year, sort), items:linkedin_items(kind, title, issuer, detail, is_usc, sort)').eq('approved', true);
+  let q = svc.from('profiles').select('id, status, dropped_out, grad_term, grad_year, join_term, join_year, divisions, current_title, current_company, industries, startups, bio, embedding_hash, linkedin_headline, linkedin_skills, city:cities(name, region), work:work_experiences(title, company, start_year, end_year, sort), items:linkedin_items(kind, title, issuer, detail, is_usc, sort)').eq('approved', true);
   if (ids) q = q.in('id', ids);
   const { data, error } = await q; if (error) throw error;
   // each person is several pieces (profileChunks); unchanged pieces (same fingerprint) are never re-sent

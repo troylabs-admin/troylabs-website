@@ -11,7 +11,7 @@ import PortalShell from '../../../components/portal/PortalShell.astro';
 import AdminNav from '../../../components/portal/AdminNav.astro';
 import { DIVISIONS_SHORT as DIVISIONS, EBOARD_ROLES as EBOARD } from '../../../lib/portal/options';
 const COHORTS: string[] = [];   // filled from members' data by scripts/portal-members.ts
-type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM'; cohort: string; program: string; division: string; city: string; complete: boolean };
+type M = { name: string; email: string; role: string; status: 'STUDENT' | 'ALUM' | 'DROPPED OUT'; cohort: string; program: string; division: string; city: string; complete: boolean };
 const MEMBERS: M[] = [];
 const REQUESTS: { name: string; email: string; cohort: string; note: string }[] = [];
 ---
@@ -64,7 +64,7 @@ const REQUESTS: { name: string; email: string; cohort: string; note: string }[] 
     <div class="portal-panel" style="margin-top:calc(14 * var(--u))" data-member-query data-react-controls id="members">
       <div class="portal-inline"><svg class="portal-search-glyph" style="position:static;flex:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg><input id="members-q" type="search" class="t-caption portal-input" placeholder="Search name, email, company, city…" aria-label="Search members" /></div>
       <details class="member-filter-fold"><summary class="t-label">FILTER MEMBERS <span class="t-fine text-muted" data-filter-count></span></summary>
-      <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
+      <div class="portal-filter-row" style="margin-top:calc(14 * var(--u))"><span class="t-fine text-muted portal-filter-label">STATUS</span><div class="flex flex-wrap portal-chips" data-filter="status">{['STUDENT', 'ALUM', 'DROPPED OUT'].map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">COHORT</span><div class="flex flex-wrap portal-chips" data-filter="cohort">{COHORTS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <div class="portal-filter-row" style="margin-top:calc(10 * var(--u))"><span class="t-fine text-muted portal-filter-label">DIVISION</span><div class="flex flex-wrap portal-chips" data-filter="division">{DIVISIONS.map((c) => <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value={c}>{c}</button>)}</div></div>
       <button type="button" class="t-label portal-linklike" data-member-clear>CLEAR FILTERS</button></details>

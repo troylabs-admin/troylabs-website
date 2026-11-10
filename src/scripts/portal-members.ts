@@ -6,6 +6,7 @@
 import { me } from '../lib/auth';
 import { functionUrl, supabase } from '../lib/supabase';
 import { webUrl } from '../lib/portal/safe-html';
+import { leftUscLine, tagOf } from '../../supabase/functions/_shared/standing';
 import { approveMany, avatarUrl, cityLabel, cohortOf, declineMany, initialsOf, restoreMany, setAdmin, setDeclined, setRestored, setRoles, type ProfileRow, type RoleRow } from '../lib/portal/data';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -88,7 +89,7 @@ function renderRequests() {
   (document.querySelector('[data-q-bar]') as HTMLElement).hidden = !all.length;
   list.innerHTML = shown.length ? shown.map((r) => {
     const photo = avatarUrl(r); const li = r.linkedin_url ? webUrl(r.linkedin_url) : null; const claimed = claimedText(r);
-    const year = r.grad_year ? (r.status === 'alum' ? `Class of ${r.grad_year}` : `Expected ${r.grad_year}`) : '';
+    const year = r.status === 'student' ? (r.grad_year ? `Expected ${r.grad_year}` : '') : leftUscLine(r);   // "Class of 2024" or, for a dropout, "Last at USC Fall 2024"
     const facts = [year, cohortOf(r.join_term, r.join_year) ? `joined ${cohortOf(r.join_term, r.join_year)}` : '', (r.divisions ?? []).join(', ')].filter(Boolean).map(esc).join(' · ');
     const emails = [r.personal_email, r.usc_email].filter(Boolean).map((e) => esc(e!)).join(' · ');
     const open = q.open.has(r.id);
@@ -96,7 +97,7 @@ function renderRequests() {
       <label class="portal-check portal-q-pick" aria-label="Select ${esc(r.full_name)}"><input type="checkbox" data-q-pick="${r.id}"${q.picked.has(r.id) ? ' checked' : ''} /><i></i></label>
       <span class="portal-avatar t-fine" aria-hidden="true">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initialsOf(r.full_name))}</span>
       <div class="portal-q-main">
-        <p class="m-0"><span class="text-ink portal-q-name">${esc(r.full_name)}</span> <span class="t-fine portal-tag">${r.status === 'student' ? 'STUDENT' : 'ALUM'}</span></p>
+        <p class="m-0"><span class="text-ink portal-q-name">${esc(r.full_name)}</span> <span class="t-fine portal-tag">${tagOf(r)}</span></p>
         <p class="m-0 t-fine text-muted">${facts}</p>
         ${claimed ? `<p class="m-0 t-fine portal-q-claim">E-board: ${esc(claimed)}</p>` : ''}
         <p class="m-0 t-fine text-muted">${emails} · submitted ${ago(r.submitted_at || r.created_at)}</p>
@@ -199,7 +200,7 @@ function renderTable() {
   const tbody = document.querySelector<HTMLElement>('[data-members] tbody')!;
   const members = memberRows;
   tbody.innerHTML = members.map((r) => {
-    const status = r.status === 'student' ? 'STUDENT' : 'ALUM'; const division = (r.divisions ?? []).join(', ').replace('PRODUCT MANAGEMENT', 'PRODUCT'); const city = cityLabel(r.city); const email = r.personal_email || r.usc_email || '';
+    const status = tagOf(r); const division = (r.divisions ?? []).join(', ').replace('PRODUCT MANAGEMENT', 'PRODUCT'); const city = cityLabel(r.city); const email = r.personal_email || r.usc_email || '';
     return `<tr data-id="${r.id}" data-status="${status}" data-cohort="${cohortOf(r.join_term, r.join_year)}" data-division="${esc((r.divisions ?? []).map((d) => d.replace('PRODUCT MANAGEMENT', 'PRODUCT')).join('|'))}" data-text="${esc(`${r.full_name} ${r.usc_email ?? ''} ${r.personal_email ?? ''} ${r.current_company ?? ''} ${city} ${division}`.toLowerCase())}">
       <td class="m-name"><a class="text-ink no-underline portal-name-link" href="/alumni-portal/members/?id=${r.id}&from=members">${esc(r.full_name || '(no name yet)')}</a>${admins.has(r.id) ? ' <span class="t-fine portal-role">ADMIN</span>' : ''}<span class="t-fine text-muted m-email">${esc(email)}</span></td><td class="m-status"><span class="t-fine portal-tag">${status}</span></td><td class="text-muted m-col">${cohortOf(r.join_term, r.join_year) || '—'}</td><td class="text-muted m-col">${esc(division) || '—'}</td><td class="text-muted m-col m-city">${esc(city) || '—'}</td>
       <td class="t-fine text-muted m-meta">${[cohortOf(r.join_term, r.join_year), esc(division), esc(city)].filter(Boolean).join(' · ')}</td>
@@ -262,9 +263,10 @@ async function exportCsv() {
       if(page*100>=data.total||!data.rows.length)break;
     }
     if(pick.length!==expectedTotal)throw new Error('Incomplete member export');
-  const cols = ['full_name', 'status', 'usc_email', 'personal_email', 'phone', 'phone_opt_in', 'join', 'grad_year', 'divisions', 'current_title', 'current_company', 'city', 'industries', 'startups', 'linkedin_url', 'admin', 'email_opt_in', 'joined_at', 'submitted_at', 'approved_at', 'last_seen_at'];
+  // dropped_out: left USC before graduating; their grad_year is then the last year they were at USC (2026-11-09)
+  const cols = ['full_name', 'status', 'dropped_out', 'usc_email', 'personal_email', 'phone', 'phone_opt_in', 'join', 'grad_year', 'divisions', 'current_title', 'current_company', 'city', 'industries', 'startups', 'linkedin_url', 'admin', 'email_opt_in', 'joined_at', 'submitted_at', 'approved_at', 'last_seen_at'];
   const line = (vals: unknown[]) => vals.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',');
-  const csv = [line(cols), ...pick.map((r) => line([r.full_name, r.status, r.usc_email, r.personal_email, r.phone, r.phone_opt_in, cohortOf(r.join_term, r.join_year), r.grad_year, (r.divisions ?? []).join('; '), r.current_title, r.current_company, cityLabel(r.city), (r.industries ?? []).join('; '), (r.startups ?? []).join('; '), r.linkedin_url, r.is_admin, r.email_opt_in, r.created_at, r.submitted_at, r.approved_at, r.last_seen_at]))].join('\n');
+  const csv = [line(cols), ...pick.map((r) => line([r.full_name, r.status, r.dropped_out === true, r.usc_email, r.personal_email, r.phone, r.phone_opt_in, cohortOf(r.join_term, r.join_year), r.grad_year, (r.divisions ?? []).join('; '), r.current_title, r.current_company, cityLabel(r.city), (r.industries ?? []).join('; '), (r.startups ?? []).join('; '), r.linkedin_url, r.is_admin, r.email_opt_in, r.created_at, r.submitted_at, r.approved_at, r.last_seen_at]))].join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `troylabs-members-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);fb(`Exported ${pick.length} member${pick.length === 1 ? '' : 's'} matching the selected filters.`);
   }catch{if(current())fb('Couldn’t export all matching members. The member list may have changed; try again.',false);}

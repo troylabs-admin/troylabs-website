@@ -92,6 +92,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       <div class="flex flex-wrap portal-chips" data-field="status" data-label="status" data-single>
         <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="student">CURRENT STUDENT</button>
         <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="alum">ALUM</button>
+        <button type="button" class="t-fine portal-chip" aria-pressed="false" data-value="dropped_out">DROPPED OUT</button>
       </div>
       <!-- the year fields read like every other field: label (with its hint) on one line, the control full width under it -->
       <div id="pf-grad" class="portal-field portal-year-field" hidden>
@@ -105,6 +106,16 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
       <div id="pf-classof" class="portal-field portal-year-field">
         <label class="t-label text-muted" for="pf-classof-year">CLASS OF <span class="portal-req" title="Required">REQUIRED</span></label>
         <input id="pf-classof-year" class="t-caption portal-input is-wide" inputmode="numeric" placeholder="e.g. 2025" aria-label="Graduation year" data-label="class year" /><p class="portal-help t-fine text-muted">The year you graduated from USC.</p>
+      </div>
+      <!-- left USC before graduating (Charlotte and Bryan, 2026-11-09): saved as an alum who dropped out; the semester and year
+           go in the graduation columns, read as their last semester (supabase/functions/_shared/standing.ts) -->
+      <div id="pf-left" class="portal-field portal-year-field" hidden>
+        <label class="t-label text-muted" for="pf-left-year">LAST SEMESTER AT USC <span class="portal-req" title="Required">REQUIRED</span></label>
+        <div class="portal-inline portal-term">
+          <select id="pf-left-term" class="t-caption portal-input portal-select" aria-label="Last semester at USC"><option>Spring</option><option>Fall</option></select>
+          <input id="pf-left-year" class="t-caption portal-input" inputmode="numeric" placeholder="Year" aria-label="Last year at USC" data-label="last semester at USC" />
+        </div>
+        <p class="portal-help t-fine text-muted">The last semester you were enrolled at USC. Your profile shows it in place of a class year. If you go back and graduate, choose ALUM.</p>
       </div>
 
       <h2 class="t-sub portal-section-h">Basic info</h2>
@@ -160,7 +171,7 @@ const ON = { divisions: [] as string[], industries: [] as string[] };
 
       <h2 class="t-sub portal-section-h">Location <span class="portal-req" title="Required">REQUIRED</span></h2>
       <p class="portal-section-sub t-fine text-muted">The city you live in right now: where you study, work, or are based. Update it when you move.</p>
-      <div class="portal-inline"><input id="pf-loc" class="t-caption portal-input" placeholder="City, State" aria-label="Location" data-label="location" /><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED">UPDATE</button></div>
+      <div class="portal-inline"><div class="portal-combo"><input id="pf-loc" class="t-caption portal-input" placeholder="City, State" aria-label="Location" data-label="location" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pf-loc-list" autocomplete="off" autocapitalize="words" spellcheck="false" /><ul id="pf-loc-list" class="portal-combo-list t-caption" role="listbox" aria-label="Matching cities" hidden></ul></div><button type="button" class="portal-btn is-small t-label" data-action="update" data-done="UPDATED">UPDATE</button></div>
       <p class="t-fine portal-feedback" role="status"></p>
       <p class="portal-help t-fine text-muted" id="pf-loc-note">No pin on the globe yet.</p>
 

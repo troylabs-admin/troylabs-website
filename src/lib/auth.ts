@@ -6,6 +6,7 @@
  */
 import { functionUrl, supabase } from './supabase';
 import { applicationMissing } from './portal/application';
+import { checkSession } from './portal/session';
 
 const ACCOUNT_EMAIL = functionUrl('account-email');
 /** the `account-email` function: sign in with a second address, add / confirm / remove one (supabase/functions/account-email) */
@@ -39,6 +40,9 @@ export interface Me { id: string; email: string; full_name: string; approved: bo
 /** who is signed in, and the facts every page needs: approved, declined, admin, and what their sign-up still lacks */
 export async function me(): Promise<Me | null> {
   const sb = supabase();
+  // the server decides, not the browser's storage (2026-10-26: a stored sign-in the server didn't know let Jared fill in
+  // a whole profile it couldn't save). A network failure keeps the stored sign-in: a weak signal isn't a sign-out.
+  if ((await checkSession()) === 'none') return null;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
   const [{ data: profile }, { data: adminRow }] = await Promise.all([
